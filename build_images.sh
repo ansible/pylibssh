@@ -1,5 +1,9 @@
 #!/bin/bash
-cd jenkins
+
+pushd jenkins
 docker build -t crypto-jenkins .
-cd ../caddy
+popd
+
+pushd caddy
 docker build -t caddy .
+popd

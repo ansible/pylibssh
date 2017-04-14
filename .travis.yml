@@ -1,0 +1,7 @@
+language: generic
+sudo: required
+
+services:
+    - docker
+
+script: ./build_images.sh
