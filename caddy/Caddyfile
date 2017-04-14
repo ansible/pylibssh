@@ -1,5 +1,10 @@
 ci.cryptography.io {
     tls paul.l.kehrer@gmail.com
+
+    header / {
+        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
+    }
+
     proxy / jenkins:8080 {
         transparent
         fail_timeout 0
