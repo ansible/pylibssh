@@ -5,3 +5,10 @@ services:
     - docker
 
 script: ./build_images.sh
+
+notifications:
+    irc:
+        channels:
+            - "irc.freenode.org#cryptography-dev"
+        use_notice: true
+        skip_join: true
