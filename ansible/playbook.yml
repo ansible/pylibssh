@@ -6,3 +6,19 @@
       service:
           name: docker
           state: started
+          enabled: yes
+    - name: install the systemd service files
+      copy:
+          src: "systemd/{{ item }}.service"
+          dest: /etc/systemd/system/{{ item }}.service
+      with_items:
+          - caddy
+          - jenkins
+    - name: "ensure {{ item }} is running"
+      service:
+          name: "{{ item }}"
+          state: started
+          enabled: yes
+      with_items:
+          - caddy
+          - jenkins

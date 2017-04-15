@@ -7,11 +7,11 @@ Requires=docker.service jenkins.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill caddy
 ExecStartPre=-/usr/bin/docker rm caddy
+# The volume is to allow caddy to cache certs
 ExecStart=/usr/bin/docker run \
     --rm \
     -p 443:443 -p 80:80 \
     --link jenkins:jenkins \
-    # The mount is to allow caddy to cache certs
     -v /caddy:/root/.caddy \
     --name caddy caddy
 
