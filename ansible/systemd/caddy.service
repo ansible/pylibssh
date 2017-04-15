@@ -12,7 +12,7 @@ ExecStart=/usr/bin/docker run \
     --rm --read-only --tmpfs \
     -p 443:443 -p 80:80 \
     --link jenkins:jenkins \
-    -v /caddy:/root/.caddy \
+    -v caddy_certs:/root/.caddy \
     --name caddy caddy
 
 [Install]
