@@ -4,7 +4,7 @@ sudo: required
 services:
     - docker
 
-script: ./build_images.sh
+script: ./build-images.sh
 
 notifications:
     irc:
