@@ -15,32 +15,32 @@ IMAGES = [
         tag="caddy", path=["caddy"], build_args=[]
     ),
     Image(
-        tag="cryptography-runner:centos7",
+        tag="cryptography-runner-centos7:latest",
         path=["runners", "centos7"],
         build_args=[]
     ),
     Image(
-        tag="cryptography-runner:jessie",
+        tag="cryptography-runner-jessie:latest",
         path=["runners", "jessie"],
         build_args=[]
     ),
     Image(
-        tag="cryptography-runner:stretch",
+        tag="cryptography-runner-stretch:latest",
         path=["runners", "stretch"],
         build_args=[]
     ),
     Image(
-        tag="cryptography-runner:sid",
+        tag="cryptography-runner-sid:latest",
         path=["runners", "sid"],
         build_args=[]
     ),
     Image(
-        tag="cryptography-runner:jessie-libressl-2.4.5",
+        tag="cryptography-runner-jessie-libressl:2.4.5",
         path=["runners", "jessie-libressl"],
         build_args=["LIBRE_VERSION=2.4.5"],
     ),
     Image(
-        tag="cryptography-runner:jessie-libressl-2.5.3",
+        tag="cryptography-runner-jessie-libressl:2.5.3",
         path=["runners", "jessie-libressl"],
         build_args=["LIBRE_VERSION=2.5.3"],
     ),
