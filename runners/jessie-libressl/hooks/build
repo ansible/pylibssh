@@ -1,0 +1,5 @@
+#!/bin/sh
+# This script is used by Docker Hub to set the build arg we need.
+# The docker tag is the LibreSSL version.
+
+docker build --build-arg LIBRE_VERSION=$DOCKER_TAG -t $IMAGE_NAME .
