@@ -12,6 +12,7 @@ RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
 RUN apt-get -qq update
+RUN apt-get -qq -y upgrade
 RUN apt-get install -qq -y \
     build-essential \
     libffi-dev \
