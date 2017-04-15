@@ -6,6 +6,10 @@ services:
 
 script: ./build-images.py
 
+branches:
+    only:
+        - master
+
 notifications:
     irc:
         channels:
