@@ -19,7 +19,7 @@
       notify:
           - restart caddy
           - restart jenkins
-    - name: "ensure {{ item }} is running"
+    - name: "ensure the services are running"
       service:
           name: "{{ item }}"
           state: started
