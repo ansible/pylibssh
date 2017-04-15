@@ -5,8 +5,8 @@ ARG plugins=prometheus
 
 RUN apk add --no-cache tar curl
 
-RUN curl --silent --show-error --fail --location \
-      --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" -o - \
+RUN curl -sSL \
+      --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" \
       "https://caddyserver.com/download/build?os=linux&arch=amd64&features=${plugins}" \
     | tar --no-same-owner -C /usr/bin/ -xz caddy
 RUN chmod 0755 /usr/bin/caddy

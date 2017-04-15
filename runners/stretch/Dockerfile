@@ -15,8 +15,6 @@ RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
 RUN apt-get -qq update
-
-
 RUN apt-get install -qq -y \
     build-essential \
     libssl-dev \
@@ -26,7 +24,7 @@ RUN apt-get install -qq -y \
     git \
     curl
 
-RUN curl -s -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py && rm get-pip.py
+RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox
 

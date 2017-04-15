@@ -1,4 +1,7 @@
-FROM centos:7
+# The Debian Dockerfiles can be de-duplicated once
+# a docker with support for ARG in FROM is released.
+# See: https://github.com/docker/docker/pull/31352
+FROM debian:sid
 
 ARG user=jenkins
 ARG group=jenkins
@@ -11,7 +14,15 @@ ARG gid=1000
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
-RUN yum install -y gcc libffi-devel python-devel openssl-devel git
+RUN apt-get -qq update
+RUN apt-get install -qq -y \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python-dev \
+    python3-dev \
+    git \
+    curl
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 

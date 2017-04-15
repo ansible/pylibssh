@@ -12,8 +12,6 @@ RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
 RUN apt-get -qq update
-
-
 RUN apt-get install -qq -y \
     build-essential \
     libffi-dev \
@@ -23,19 +21,18 @@ RUN apt-get install -qq -y \
 
 ARG LIBRE_VERSION
 
-RUN curl -s -O https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRE_VERSION}.tar.gz
-
+ADD https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRE_VERSION}.tar.gz .
 RUN tar zxf libressl-${LIBRE_VERSION}.tar.gz
 
 WORKDIR libressl-${LIBRE_VERSION}
-
-RUN ./config -Wl -Wl,-Bsymbolic-functions -fPIC shared --prefix=/usr/local/libressl && make -j4 install
+RUN ./config -Wl -Wl,-Bsymbolic-functions -fPIC shared --prefix=/usr/local/libressl
+RUN make -j4 install
 
 WORKDIR ../
 
 RUN rm -rf libressl-${LIBRE_VERSION} libressl-${LIBRE_VERSION}.tar.gz
 
-RUN curl -s -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py && rm get-pip.py
+RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox
 

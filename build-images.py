@@ -30,6 +30,11 @@ IMAGES = [
         build_args=[]
     ),
     Image(
+        tag="cryptography-runner:sid",
+        path=["runners", "sid"],
+        build_args=[]
+    ),
+    Image(
         tag="cryptography-runner:jessie-libressl-2.4.5",
         path=["runners", "jessie-libressl"],
         build_args=["LIBRE_VERSION=2.4.5"],
