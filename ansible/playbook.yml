@@ -1,6 +1,10 @@
 ---
 - hosts: "*"
   remote_user: root
+  vars:
+      services:
+          - caddy
+          - jenkins
   tasks:
     - name: ensure docker is running
       service:
@@ -11,14 +15,10 @@
       copy:
           src: "systemd/{{ item }}.service"
           dest: /etc/systemd/system/{{ item }}.service
-      with_items:
-          - caddy
-          - jenkins
+      with_items: "{{ services }}"
     - name: "ensure {{ item }} is running"
       service:
           name: "{{ item }}"
           state: started
           enabled: yes
-      with_items:
-          - caddy
-          - jenkins
+      with_items: "{{ services }}"
