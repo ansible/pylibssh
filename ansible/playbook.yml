@@ -11,12 +11,19 @@
           name: docker
           state: started
           enabled: yes
+    - name: install the python-docker package
+      apt:
+          name: python-docker
+          state: present
     - name: pull the latest docker images
       docker_image:
           name: "{{ item }}"
       with_items:
           - pyca/caddy
           - pyca/crypto-jenkins
+      notify:
+          - restart caddy
+          - restart jenkins
     - name: install the systemd service files
       copy:
           src: "systemd/{{ item }}.service"
