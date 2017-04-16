@@ -18,6 +18,7 @@
     - name: pull the latest docker images
       docker_image:
           name: "{{ item }}"
+          force: true
       with_items:
           - pyca/caddy
           - pyca/crypto-jenkins
@@ -33,13 +34,19 @@
           - restart caddy
           - restart jenkins
     - name: "ensure the services are running"
-      service:
+      systemd:
           name: "{{ item }}"
           state: started
           enabled: yes
       with_items: "{{ services }}"
   handlers:
     - name: restart caddy
-      service: name=caddy state=restarted
+      systemd:
+          name: caddy
+          daemon_reload: yes
+          state: restarted
     - name: restart jenkins
-      service: name=jenkins state=restarted
+      systemd:
+          name: jenkins
+          daemon_reload: yes
+          state: restarted
