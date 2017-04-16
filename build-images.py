@@ -48,7 +48,8 @@ IMAGES = [
 
 
 def docker_build(image):
-    shell_cmd = ["docker", "build", "-t", image.tag, os.path.join(*image.path)]
+    full_path = os.path.join(os.path.dirname(__file__), *image.path)
+    shell_cmd = ["docker", "build", "-t", image.tag, full_path]
     for build_arg in image.build_args:
         shell_cmd += ["--build-arg", build_arg]
 
