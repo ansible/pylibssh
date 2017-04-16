@@ -1,3 +1,15 @@
+cryptography.io {
+    tls paul.l.kehrer@gmail.com
+    proxy / https://cryptography.readthedocs.io {
+        transparent
+        header_upstream X-RTD-SLUG cryptography
+
+    }
+    header / {
+        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
+    }
+}
+
 ci.cryptography.io {
     tls paul.l.kehrer@gmail.com
 
@@ -10,4 +22,3 @@ ci.cryptography.io {
         fail_timeout 0
     }
 }
-
