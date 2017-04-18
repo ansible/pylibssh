@@ -20,6 +20,11 @@ IMAGES = [
         build_args=[]
     ),
     Image(
+        tag="cryptography-runner-wheezy:latest",
+        path=["runners", "wheezy"],
+        build_args=[],
+    ),
+    Image(
         tag="cryptography-runner-jessie:latest",
         path=["runners", "jessie"],
         build_args=[]
