@@ -4,7 +4,6 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill jenkins
 ExecStartPre=-/usr/bin/docker rm jenkins
 ExecStart=/usr/bin/docker run \
