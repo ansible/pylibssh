@@ -5,7 +5,7 @@ RUN apk add --no-cache tar curl
 
 RUN curl -sSL \
       --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" \
-      "https://caddyserver.com/download/linux/amd64" \
+      "https://caddyserver.com/download/linux/amd64?plugins=http.prometheus" \
     | tar --no-same-owner -C /usr/bin/ -xz caddy
 RUN chmod 0755 /usr/bin/caddy
 RUN /usr/bin/caddy -version
