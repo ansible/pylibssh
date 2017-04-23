@@ -4,7 +4,7 @@ After=docker.service jenkins.service
 Requires=docker.service jenkins.service
 
 [Service]
-TimeoutStartSec=0
+Restart=on-failure
 ExecStartPre=-/usr/bin/docker kill caddy
 ExecStartPre=-/usr/bin/docker rm caddy
 # The volume is to allow caddy to cache certs
