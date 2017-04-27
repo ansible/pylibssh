@@ -6,7 +6,7 @@ configuration for setting up Jenkins, as well as the various docker containers
 we use in testing.
 
 **This is a work in progress and the [new CI](https://ci.cryptography.io)
-**server is not yet primary.**
+server is not yet primary.**
 
 ## Ansible
 
