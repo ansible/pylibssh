@@ -5,6 +5,9 @@
       services:
           - caddy
           - jenkins
+      # This variable is needed to tell docker swarm init what the
+      # advertise address should be. bond0 is what we use for onmetal
+      swarm_advertise_addr: bond0
   tasks:
     - name: ensure docker is running
       service:
@@ -39,6 +42,14 @@
           state: started
           enabled: yes
       with_items: "{{ services }}"
+    - command: docker info
+      register: docker_info
+    - name: "set up a single node docker swarm"
+      # docker swarm needs a single address to advertise its existence.
+      # Our server, however, has two addresses. By specifying an explicit
+      # named interface on the server we make docker happy.
+      command: "docker swarm init --advertise-addr {{ swarm_advertise_addr }}"
+      when: "'Swarm: active' not in docker_info.stdout"
   handlers:
     - name: restart caddy
       systemd:
