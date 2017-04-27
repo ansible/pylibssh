@@ -34,7 +34,9 @@ stage("Build Configs") {
                             checkout scm
                         }
                         stage("Build") {
-                            sh "docker build --pull $tag $path $build_args"
+                            ansiColor('xterm') {
+                                sh "docker build --pull $tag $path $build_args"
+                            }
                         }
                         stage("Publish") {
                             // Only publish if this is a merge to master
