@@ -12,7 +12,7 @@ ExecStart=/usr/bin/docker run \
     --rm --read-only --tmpfs=/tmp \
     -p 443:443 -p 80:80 \
     --link jenkins:jenkins \
-    -v caddy_certs:/root/.caddy \
+    -v caddy_certs:/.caddy \
     --name caddy pyca/caddy
 
 [Install]

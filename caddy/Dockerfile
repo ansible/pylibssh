@@ -10,6 +10,8 @@ RUN curl -sSL \
 RUN chmod 0755 /usr/bin/caddy
 RUN setcap cap_net_bind_service=+ep /usr/bin/caddy
 RUN /usr/bin/caddy -version
+RUN mkdir /.caddy
+RUN chown nobody:nobody /.caddy
 
 EXPOSE 80 443 2015
 
