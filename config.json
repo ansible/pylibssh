@@ -20,6 +20,11 @@
         "build_args": []
     },
     {
+        "tag": "pyca/cryptography-runner-fedora:latest",
+        "path": "runners/fedora",
+        "build_args": []
+    },
+    {
         "tag": "pyca/cryptography-runner-jessie:latest",
         "path": "runners/jessie",
         "build_args": []
