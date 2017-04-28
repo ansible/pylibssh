@@ -48,5 +48,15 @@
         "tag": "pyca/cryptography-runner-sid:latest",
         "path": "runners/sid",
         "build_args": []
+    },
+    {
+        "tag": "pyca/cryptography-runner-ubuntu-xenial:latest",
+        "path": "runners/xenial",
+        "build_args": []
+    },
+    {
+        "tag": "pyca/cryptography-runner-ubuntu-rolling:latest",
+        "path": "runners/ubuntu-rolling",
+        "build_args": []
     }
 ]
