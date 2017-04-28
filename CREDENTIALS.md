@@ -4,7 +4,7 @@ The PyCA infrastructure requires a variety of credentials to function.
 
 The pyca/hubot container runs as a docker service in a docker swarm. It requires the following environment variables:
 
-### HUBOT_GITHUB_TOKEN
+### `HUBOT_GITHUB_TOKEN`
 
 Used to make requests to the GitHub API with reasonable rate limits.
 
