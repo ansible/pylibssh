@@ -10,6 +10,7 @@ ExecStart=/usr/bin/docker run \
     --rm --read-only --tmpfs=/tmp \
     -p 50000:50000 \
     -e JENKINS_OPTS="--sessionTimeout=10080" \
+    -e JAVA_OPTS="-Djenkins.branch.WorkspaceLocatorImpl.PATH_MAX=20" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v jenkins_home:/var/jenkins_home \
     --name jenkins pyca/crypto-jenkins
