@@ -7,7 +7,7 @@ Requires=docker.service
 ExecStartPre=-/usr/bin/docker kill jenkins
 ExecStartPre=-/usr/bin/docker rm jenkins
 ExecStart=/usr/bin/docker run \
-    --rm --read-only --tmpfs=/tmp \
+    --rm --tmpfs=/tmp \
     -p 50000:50000 \
     -e JENKINS_OPTS="--sessionTimeout=10080" \
     -e JAVA_OPTS="-Djenkins.branch.WorkspaceLocatorImpl.PATH_MAX=20" \
