@@ -1,8 +1,6 @@
 FROM node:7.9-slim
 
-RUN apt-get -qq update
-RUN apt-get -qq -y upgrade
-RUN apt-get install -qq -y runit
+RUN apt-get -qq update && apt-get install -qq -y runit
 
 ENV HUBOT_IRC_SERVER irc.freenode.net
 ENV HUBOT_IRC_ROOMS #cryptography-dev
