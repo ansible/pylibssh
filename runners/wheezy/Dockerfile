@@ -22,6 +22,12 @@ RUN apt-get -qq update && apt-get install -qq -y \
     git \
     curl
 
+
+# This is a workaround for a Jenkins docker workflow plugin bug
+# It can be removed when https://issues.jenkins-ci.org/browse/JENKINS-40101
+# is resolved.
+RUN apt-get install -qq -y procps
+
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox

@@ -13,6 +13,11 @@ RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
 RUN dnf install -y gcc redhat-rpm-config libffi-devel python-devel python3-devel openssl-devel git
 
+# This is a workaround for a Jenkins docker workflow plugin bug
+# It can be removed when https://issues.jenkins-ci.org/browse/JENKINS-40101
+# is resolved.
+RUN dnf install -y procps-ng
+
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox
