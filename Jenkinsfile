@@ -1,3 +1,7 @@
+if (env.BRANCH_NAME == "master") {
+    properties([pipelineTriggers([cron('H/5 * * * *')])])
+}
+
 def builders = [:]
 
 def parseConfig(data) {
