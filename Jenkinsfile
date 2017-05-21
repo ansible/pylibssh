@@ -1,5 +1,5 @@
 if (env.BRANCH_NAME == "master") {
-    properties([pipelineTriggers([cron('H/5 * * * *')])])
+    properties([pipelineTriggers([cron('@daily')])])
 }
 
 def builders = [:]
