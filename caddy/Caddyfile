@@ -1,41 +1,26 @@
 cryptography.io {
-    tls paul.l.kehrer@gmail.com
+    import tls.conf
     proxy / https://cryptography.readthedocs.io {
         transparent
         header_upstream X-RTD-SLUG cryptography
-
-    }
-    header / {
-        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
     }
 }
 
 pyopenssl.org {
-    tls paul.l.kehrer@gmail.com
+    import tls.conf
     proxy / https://pyopenssl.readthedocs.io {
         transparent
         header_upstream X-RTD-SLUG pyopenssl
     }
-    header / {
-        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
-    }
 }
 
 www.pyopenssl.org {
-    tls paul.l.kehrer@gmail.com
+    import tls.conf
     redir / https://pyopenssl.org{uri} 301
-    header / {
-        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
-    }
 }
 
 ci.cryptography.io {
-    tls paul.l.kehrer@gmail.com
-
-    header / {
-        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
-    }
-
+    import tls.conf
     proxy / jenkins:8080 {
         transparent
         fail_timeout 0
