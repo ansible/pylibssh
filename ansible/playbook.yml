@@ -9,6 +9,12 @@
       # advertise address should be. bond0 is what we use for onmetal
       swarm_advertise_addr: bond0
   tasks:
+    - name: install the docker configuration file
+      copy:
+          src: "docker/daemon.json"
+          dest: "/etc/docker/daemon.json"
+      notify:
+          - restart docker
     - name: ensure docker is running
       service:
           name: docker
@@ -51,6 +57,11 @@
       command: "docker swarm init --advertise-addr {{ swarm_advertise_addr }}"
       when: "'Swarm: active' not in docker_info.stdout"
   handlers:
+    - name: restart docker
+      systemd:
+          name: docker
+          daemon_reload: yes
+          state: restarted
     - name: restart caddy
       systemd:
           name: caddy
