@@ -9,6 +9,7 @@ ExecStartPre=-/usr/bin/docker kill caddy
 ExecStartPre=-/usr/bin/docker rm caddy
 # The volume is to allow caddy to cache certs
 ExecStart=/usr/bin/docker run \
+    --cap-add=CAP_NET_BIND_SERVICE \
     --rm --read-only --tmpfs=/tmp \
     -p 443:443 -p 80:80 \
     --link jenkins:jenkins \

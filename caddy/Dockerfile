@@ -8,7 +8,7 @@ RUN curl -sSL \
       "https://caddyserver.com/download/linux/amd64?plugins=http.prometheus" \
     | tar --no-same-owner -C /usr/bin/ -xz caddy
 RUN chmod 0755 /usr/bin/caddy
-RUN setcap cap_net_bind_service=+ep /usr/bin/caddy
+RUN setcap cap_net_bind_service=+eip /usr/bin/caddy
 RUN /usr/bin/caddy -version
 RUN mkdir /.caddy
 RUN chown nobody:nobody /.caddy
