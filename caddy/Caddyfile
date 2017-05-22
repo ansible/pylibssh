@@ -10,6 +10,25 @@ cryptography.io {
     }
 }
 
+pyopenssl.org {
+    tls paul.l.kehrer@gmail.com
+    proxy / https://pyopenssl.readthedocs.io {
+        transparent
+        header_upstream X-RTD-SLUG pyopenssl
+    }
+    header / {
+        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
+    }
+}
+
+www.pyopenssl.org {
+    tls paul.l.kehrer@gmail.com
+    redir https://pyopenssl.org{uri} 301
+    header / {
+        Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
+    }
+}
+
 ci.cryptography.io {
     tls paul.l.kehrer@gmail.com
 
