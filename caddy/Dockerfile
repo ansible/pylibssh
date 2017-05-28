@@ -16,6 +16,7 @@ RUN chown nobody:nobody /.caddy
 EXPOSE 80 443 2015
 
 ADD Caddyfile /etc/Caddyfile
+ADD tls.conf /etc/tls.conf
 
 USER nobody
 
