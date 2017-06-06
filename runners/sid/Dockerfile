@@ -27,6 +27,7 @@ RUN apt-get -qq update && apt-get install -qq -y \
     libffi-dev \
     python-dev \
     python3-dev \
+    libenchant-dev \
     git \
     curl
 
