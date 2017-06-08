@@ -15,7 +15,7 @@ ENV LANG C.UTF-8
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
-RUN dnf install -y gcc redhat-rpm-config libffi-devel python-devel python3-devel openssl-devel git
+RUN dnf install -y gcc redhat-rpm-config libffi-devel python-devel python3-devel openssl-devel git findutils
 
 # This is a workaround for a Jenkins docker workflow plugin bug
 # It can be removed when https://issues.jenkins-ci.org/browse/JENKINS-40101
