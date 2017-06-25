@@ -50,6 +50,11 @@
         "build_args": []
     },
     {
+        "tag": "pyca/cryptography-runner-stretch-openssl-master:latest",
+        "path": "runners/stretch-openssl-master",
+        "build_args": []
+    },
+    {
         "tag": "pyca/cryptography-runner-sid:latest",
         "path": "runners/sid",
         "build_args": []
