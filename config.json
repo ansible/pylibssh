@@ -68,5 +68,10 @@
         "tag": "pyca/cryptography-runner-ubuntu-rolling:latest",
         "path": "runners/ubuntu-rolling",
         "build_args": []
+    },
+    {
+        "tag": "pyca/cryptography-runner-alpine:latest",
+        "path": "runners/alpine",
+        "build_args": []
     }
 ]
