@@ -55,6 +55,11 @@
         "build_args": []
     },
     {
+        "tag": "pyca/cryptography-runner-buster:latest",
+        "path": "runners/debian",
+        "build_args": ["RELEASE=buster"]
+    },
+    {
         "tag": "pyca/cryptography-runner-sid:latest",
         "path": "runners/debian",
         "build_args": ["RELEASE=sid"]
