@@ -1,7 +1,5 @@
-# The Ubuntu Dockerfiles can be de-duplicated once
-# a docker with support for ARG in FROM is released.
-# See: https://github.com/docker/docker/pull/31352
-FROM ubuntu:xenial
+ARG RELEASE
+FROM ubuntu:${RELEASE}
 
 ARG user=jenkins
 ARG group=jenkins
@@ -25,7 +23,9 @@ RUN apt-get -qq update && apt-get install -qq -y \
     python-dev \
     python3-dev \
     git \
-    curl
+    curl \
+    libenchant-dev \
+    tzdata
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
