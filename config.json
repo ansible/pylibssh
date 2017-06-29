@@ -26,8 +26,8 @@
     },
     {
         "tag": "pyca/cryptography-runner-jessie:latest",
-        "path": "runners/jessie",
-        "build_args": []
+        "path": "runners/debian",
+        "build_args": ["RELEASE=jessie"]
     },
     {
         "tag": "pyca/cryptography-runner-jessie-libressl:2.4.5",
@@ -41,13 +41,13 @@
     },
     {
         "tag": "pyca/cryptography-runner-wheezy:latest",
-        "path": "runners/wheezy",
-        "build_args": []
+        "path": "runners/debian",
+        "build_args": ["RELEASE=wheezy"]
     },
     {
         "tag": "pyca/cryptography-runner-stretch:latest",
-        "path": "runners/stretch",
-        "build_args": []
+        "path": "runners/debian",
+        "build_args": ["RELEASE=stretch"]
     },
     {
         "tag": "pyca/cryptography-runner-stretch-openssl-master:latest",
@@ -56,8 +56,8 @@
     },
     {
         "tag": "pyca/cryptography-runner-sid:latest",
-        "path": "runners/sid",
-        "build_args": []
+        "path": "runners/debian",
+        "build_args": ["RELEASE=sid"]
     },
     {
         "tag": "pyca/cryptography-runner-ubuntu-xenial:latest",

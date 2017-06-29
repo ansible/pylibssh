@@ -1,15 +1,10 @@
-# The Debian Dockerfiles can be de-duplicated once
-# a docker with support for ARG in FROM is released.
-# See: https://github.com/docker/docker/pull/31352
-FROM debian:sid
+ARG RELEASE
+FROM debian:${RELEASE}
 
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
-
-# Increment this to force the cache to be blown away, and the image rebuilt
-ENV FORCE_UPDATE 1
 
 # This is needed because otherwise `sys.getfilesystemencoding()` returns
 # "ANSI_X3.4-1968".
@@ -27,9 +22,9 @@ RUN apt-get -qq update && apt-get install -qq -y \
     libffi-dev \
     python-dev \
     python3-dev \
-    libenchant-dev \
     git \
-    curl
+    curl \
+    libenchant-dev
 
 # This is a workaround for a Jenkins docker workflow plugin bug
 # It can be removed when https://issues.jenkins-ci.org/browse/JENKINS-40101
