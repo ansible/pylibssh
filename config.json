@@ -73,5 +73,15 @@
         "tag": "pyca/cryptography-runner-alpine:latest",
         "path": "runners/alpine",
         "build_args": []
+    },
+    {
+        "tag": "pyca/cryptography-manylinux1:i686",
+        "path": "cryptography-manylinux1",
+        "build_args": ["ARCH=i686"]
+    },
+    {
+        "tag": "pyca/cryptography-manylinux1:x86_64",
+        "path": "cryptography-manylinux1",
+        "build_args": ["ARCH=x86_64"]
     }
 ]
