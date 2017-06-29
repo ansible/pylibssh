@@ -26,4 +26,5 @@ else
     ./Configure linux-generic32 no-comp shared --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 fi
 make depend
+make -j4
 make install
