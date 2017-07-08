@@ -15,7 +15,7 @@ ENV LANG C.UTF-8
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
-RUN yum install -y gcc libffi-devel python-devel openssl-devel git
+RUN yum install -y gcc libffi-devel python-devel openssl-devel git which
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
