@@ -2,11 +2,8 @@
 
 The [PyCA](https://github.com/pyca) operates a significant amount of
 infrastructure in the form of continuous integration. This repository holds the
-configuration for setting up Jenkins, as well as the various docker containers
-we use in testing.
-
-**This is a work in progress and the [new CI](https://ci.cryptography.io)
-server is not yet primary.**
+configuration for setting up our [Jenkins server](https://ci.cryptography.io), 
+as well as the various docker containers we use in testing.
 
 ## Ansible
 
