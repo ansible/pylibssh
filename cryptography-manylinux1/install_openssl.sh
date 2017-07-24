@@ -20,10 +20,10 @@ PATH=/opt/perl/bin:$PATH
 cd ${OPENSSL_NAME}
 if [[ $1 == "x86_64" ]]; then
     echo "Configuring for x86_64"
-    ./Configure linux-x86_64 no-comp enable-ec_nistp_64_gcc_128 shared --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
+    ./Configure linux-x86_64 no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 else
     echo "Configuring for i686"
-    ./Configure linux-generic32 no-comp shared --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
+    ./Configure linux-generic32 no-comp no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 fi
 make depend
 make -j4
