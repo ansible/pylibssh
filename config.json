@@ -35,9 +35,14 @@
         "build_args": ["LIBRE_VERSION=2.4.5"]
     },
     {
-        "tag": "pyca/cryptography-runner-jessie-libressl:2.5.4",
+        "tag": "pyca/cryptography-runner-jessie-libressl:2.5.5",
         "path": "runners/jessie-libressl",
-        "build_args": ["LIBRE_VERSION=2.5.4"]
+        "build_args": ["LIBRE_VERSION=2.5.5"]
+    },
+    {
+        "tag": "pyca/cryptography-runner-jessie-libressl:2.6.0",
+        "path": "runners/jessie-libressl",
+        "build_args": ["LIBRE_VERSION=2.6.0"]
     },
     {
         "tag": "pyca/cryptography-runner-wheezy:latest",
