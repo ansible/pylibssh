@@ -87,11 +87,11 @@
     {
         "tag": "pyca/cryptography-manylinux1:i686",
         "path": "cryptography-manylinux1",
-        "build_args": ["ARCH=i686"]
+        "build_args": ["ARCH=i686", "ARCH2ELECTRICBOOGALOO=i686"]
     },
     {
         "tag": "pyca/cryptography-manylinux1:x86_64",
         "path": "cryptography-manylinux1",
-        "build_args": ["ARCH=x86_64"]
+        "build_args": ["ARCH=x86_64", "ARCH2ELECTRICBOOGALOO=x86_64"]
     }
 ]
