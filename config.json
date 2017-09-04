@@ -10,11 +10,6 @@
         "build_args": []
     },
     {
-        "tag": "pyca/hubot",
-        "path": "hubot",
-        "build_args": []
-    },
-    {
         "tag": "pyca/cryptography-runner-centos7:latest",
         "path": "runners/centos7",
         "build_args": []
