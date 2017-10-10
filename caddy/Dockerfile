@@ -1,6 +1,9 @@
 FROM alpine:3.6
 MAINTAINER Paul Kehrer
 
+# Increment this to blow away the docker cache
+ENV CACHE_BUSTER 1
+
 RUN apk add --no-cache tar curl libcap
 
 RUN curl -sSL \
