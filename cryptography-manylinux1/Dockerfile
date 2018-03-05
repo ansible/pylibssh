@@ -5,6 +5,7 @@ MAINTAINER Python Cryptographic Authority
 # matters into our own hands. https://github.com/moby/moby/issues/34129
 ARG ARCH2ELECTRICBOOGALOO
 WORKDIR /root
+RUN yum -y install prelink && yum -y clean all
 RUN curl -O https://www.cpan.org/src/5.0/perl-5.24.1.tar.gz
 RUN tar zxf perl-5.24.1.tar.gz && \
     cd perl-5.24.1 && \
