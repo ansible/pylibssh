@@ -29,6 +29,8 @@ RUN apt-get -qq update && apt-get install -qq -y \
     curl \
     libenchant-dev
 
+RUN if grep -q "sid" /etc/debian_version; then apt-get -qq update && apt-get install -qq -y python3-distutils; fi
+
 # This is a workaround for a Jenkins docker workflow plugin bug
 # It can be removed when https://issues.jenkins-ci.org/browse/JENKINS-40101
 # is resolved.
