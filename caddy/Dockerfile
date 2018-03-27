@@ -2,13 +2,13 @@ FROM alpine:3.7
 MAINTAINER Paul Kehrer
 
 # Increment this to blow away the docker cache
-ENV CACHE_BUSTER 2
+ENV CACHE_BUSTER 3
 
 RUN apk add --no-cache tar curl libcap
 
 RUN curl -sSL \
       --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" \
-      "https://caddyserver.com/download/linux/amd64?plugins=http.prometheus" \
+      "https://caddyserver.com/download/linux/amd64?plugins=http.prometheus&license=personal" \
     | tar --no-same-owner -C /usr/bin/ -xz caddy
 RUN chmod 0755 /usr/bin/caddy
 RUN setcap cap_net_bind_service=+eip /usr/bin/caddy
