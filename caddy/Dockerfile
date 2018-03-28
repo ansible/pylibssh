@@ -23,4 +23,5 @@ ADD Caddyfile /etc/Caddyfile
 USER nobody
 
 ENTRYPOINT ["/usr/bin/caddy"]
-CMD ["--conf", "/etc/Caddyfile", "--log", "stdout"]
+# -agree accepts the Let's Encrypt Terms of Service
+CMD ["--conf", "/etc/Caddyfile", "--log", "stdout", "-agree"]
