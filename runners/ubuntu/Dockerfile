@@ -9,6 +9,8 @@ ARG gid=1000
 # Increment this to blow away the docker cache
 ENV CACHE_BUSTER 1
 
+ENV DEBIAN_FRONTEND noninteractive
+
 # This is needed because otherwise `sys.getfilesystemencoding()` returns
 # "ANSI_X3.4-1968".
 ENV LANG C.UTF-8
