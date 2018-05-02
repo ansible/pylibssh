@@ -34,6 +34,7 @@ stage("Build Configs") {
             }
             builders[name] = {
                 node("docker") {
+                    timeout(time: 30, unit: 'MINUTES') {
                         stage("Checkout") {
                             checkout scm
                         }
@@ -51,6 +52,7 @@ stage("Build Configs") {
                                 }
                             }
                         }
+                    }
                 }
             }
         }
