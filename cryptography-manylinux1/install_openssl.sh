@@ -15,7 +15,7 @@ function check_sha256sum {
 
 curl -#O ${OPENSSL_URL}/${OPENSSL_NAME}.tar.gz
 check_sha256sum ${OPENSSL_NAME}.tar.gz ${OPENSSL_SHA256}
-tar zxvf ${OPENSSL_NAME}.tar.gz
+tar zxf ${OPENSSL_NAME}.tar.gz
 PATH=/opt/perl/bin:$PATH
 cd ${OPENSSL_NAME}
 if [[ $1 == "x86_64" ]]; then
