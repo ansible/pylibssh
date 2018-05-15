@@ -29,7 +29,7 @@ def build(version, label, imageName) {
                 pip install wheel virtualenv
                 pip wheel pyyaml --wheel-dir=wheelhouse --no-binary pyyaml
                 pip install -f wheelhouse pyyaml --no-index
-                python -c "import yaml; assert yaml.load(yaml.dumps([1, 2, 3])) == [1, 2, 3]"
+                python -c "import yaml; assert yaml.load(yaml.dump([1, 2, 3])) == [1, 2, 3]"
             """
             archiveArtifacts artifacts: "**/wheelhouse/pyyaml*.whl"
         }
