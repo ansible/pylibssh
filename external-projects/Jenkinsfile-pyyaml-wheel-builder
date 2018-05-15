@@ -1,0 +1,61 @@
+def configs = [
+    [
+        label: 'windows',
+        versions: ['py27', 'py34', 'py35', 'py36'],
+    ],
+    [
+        label: 'windows64',
+        versions: ['py27', 'py34', 'py35', 'py36'],
+    ],
+]
+
+
+def build(version, label, imageName) {
+    try {
+        timeout(time: 30, unit: 'MINUTES') {
+            def pythonPath = [
+                py27: "C:\\Python27\\python.exe",
+                py34: "C:\\Python34\\python.exe",
+                py35: "C:\\Python35\\python.exe",
+                py36: "C:\\Python36\\python.exe"
+            ]
+            bat """
+                wmic qfe
+                @set PATH="C:\\Python27";"C:\\Python27\\Scripts";%PATH%
+                @set PYTHON="${pythonPath[version]}"
+
+                virtualenv -p %PYTHON% .release
+                call .release\\Scripts\\activate
+                pip install wheel virtualenv
+                pip wheel pyyaml --wheel-dir=wheelhouse --no-binary pyyaml
+                pip install -f wheelhouse pyyaml --no-index
+                python -c "import yaml; assert yaml.load(yaml.dumps([1, 2, 3])) == [1, 2, 3]"
+            """
+            archiveArtifacts artifacts: "**/wheelhouse/pyyaml*.whl"
+        }
+    } finally {
+        deleteDir()
+    }
+
+}
+
+def builders = [:]
+for (config in configs) {
+    def label = config["label"]
+    def versions = config["versions"]
+
+    for (_version in versions) {
+        def version = _version
+
+        def combinedName = "${label}-${version}"
+        builders[combinedName] = {
+            node(label) {
+                stage(combinedName) {
+                    build(version, label, "")
+                }
+            }
+        }
+    }
+}
+
+parallel builders
