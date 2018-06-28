@@ -16,8 +16,9 @@ def configs = [
         imageName: 'quay.io/pypa/manylinux1_x86_64',
         versions: [
             'cp27-cp27m', 'cp27-cp27mu',
-            'cp33-cp33m', 'cp34-cp34m',
-            'cp35-cp35m', 'cp36-cp36m',
+            'cp34-cp34m',
+            'cp35-cp35m',
+            'cp36-cp36m',
             'cp37-cp37m',
         ],
     ],
@@ -26,8 +27,9 @@ def configs = [
         imageName: 'quay.io/pypa/manylinux1_i686',
         versions: [
             'cp27-cp27m', 'cp27-cp27mu',
-            'cp33-cp33m', 'cp34-cp34m',
-            'cp35-cp35m', 'cp36-cp36m',
+            'cp34-cp34m',
+            'cp35-cp35m',
+            'cp36-cp36m',
             'cp37-cp37m',
         ],
     ],
