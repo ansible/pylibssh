@@ -74,6 +74,7 @@ def build(version, label, imageName) {
                         virtualenv .venv -p ${pythonPath[version]}
                         source .venv/bin/activate
                         pip install -U wheel # upgrade wheel to latest before we use it to build the wheel
+                        pip install pycparser
                         pip download cffi --no-binary cffi --no-deps
                         tar zxf cffi*
                         pushd cffi*
@@ -136,7 +137,7 @@ def build(version, label, imageName) {
                     if [[ "${version}" =~ \$REGEX ]]; then
                         PY_LIMITED_API="--py-limited-api=cp3\${BASH_REMATCH[1]}"
                     fi
-                    python setup.py bdist_wheel --dist-dir=../tmpwheelhouse \$PY_LIMITED_API
+                    $linux32 /opt/python/$version/bin/python setup.py bdist_wheel --dist-dir=../tmpwheelhouse \$PY_LIMITED_API
                     popd
                     $linux32 auditwheel repair tmpwheelhouse/cffi*.whl -w wheelhouse/
                     $linux32 /opt/python/$version/bin/pip install cffi --no-index -f wheelhouse/
