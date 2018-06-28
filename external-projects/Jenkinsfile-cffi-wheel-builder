@@ -139,6 +139,8 @@ def build(version, label, imageName) {
                     fi
                     $linux32 /opt/python/$version/bin/python setup.py bdist_wheel --dist-dir=../tmpwheelhouse \$PY_LIMITED_API
                     popd
+                    # More root use permission nonsense
+                    chmod -R 777 cffi*
                     $linux32 auditwheel repair tmpwheelhouse/cffi*.whl -w wheelhouse/
                     $linux32 /opt/python/$version/bin/pip install cffi --no-index -f wheelhouse/
                     $linux32 /opt/python/$version/bin/python -c "import cffi;print(cffi.__version__)"
