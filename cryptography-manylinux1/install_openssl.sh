@@ -27,4 +27,6 @@ else
 fi
 make depend
 make -j4
-make install
+# avoid installing the docs
+# https://github.com/openssl/openssl/issues/6685#issuecomment-403838728
+make install_sw install_ssldirs
