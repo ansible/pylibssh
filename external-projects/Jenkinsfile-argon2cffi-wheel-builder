@@ -72,16 +72,13 @@ def build(version, label, imageName) {
                         virtualenv .venv -p ${pythonPath[version]}
                         source .venv/bin/activate
                         pip install -U wheel # upgrade wheel to latest before we use it to build the wheel
-                        pip install cffi six # install this with pip so we get TLS 1.2
-                        pip download argon2_cffi --no-binary argon2_cffi --no-deps
-                        tar zxf argon2_cffi*
-                        pushd argon2_cffi*
+                        pip install enum34 six cffi
                         REGEX="py3([0-9])*"
                         if [[ "${version}" =~ \$REGEX ]]; then
-                            PY_LIMITED_API="--py-limited-api=cp3\${BASH_REMATCH[1]}"
+                            PY_LIMITED_API="--build-option --py-limited-api=cp3\${BASH_REMATCH[1]}"
                         fi
-                        python setup.py bdist_wheel --dist-dir=../wheelhouse \$PY_LIMITED_API
-                        popd
+
+                        pip wheel argon2_cffi --wheel-dir=wheelhouse \$PY_LIMITED_API --no-binary argon2_cffi --no-deps
                         pip install -f wheelhouse argon2_cffi --no-index
                         python -c "import argon2; argon2.verify_password(argon2.hash_password(b'secret', b'somesalt'), b'secret')"
                     """
@@ -101,16 +98,11 @@ def build(version, label, imageName) {
                     chmod -R 777 wheelhouse
 
                     $linux32 /opt/python/$version/bin/pip install cffi enum34 six
-                    $linux32 /opt/python/$version/bin/pip download --no-binary argon2_cffi --no-deps argon2_cffi
-                    tar zxf argon2_cffi*
-                    pushd argon2_cffi*
                     REGEX="cp3([0-9])*"
                     if [[ "${version}" =~ \$REGEX ]]; then
-                        PY_LIMITED_API="--py-limited-api=cp3\${BASH_REMATCH[1]}"
+                        PY_LIMITED_API="--build-option --py-limited-api=cp3\${BASH_REMATCH[1]}"
                     fi
-                    $linux32 /opt/python/$version/bin/python setup.py bdist_wheel --dist-dir=../tmpwheelhouse \$PY_LIMITED_API
-                    popd
-                    chmod -R 777 argon2_cffi* # sometimes you need to delete stuff
+                    $linux32 /opt/python/$version/bin/pip wheel --no-binary argon2_cffi \$PY_LIMITED_API --no-deps argon2_cffi -w tmpwheelhouse/
                     $linux32 auditwheel repair tmpwheelhouse/argon2_cffi*.whl -w wheelhouse/
                     $linux32 /opt/python/$version/bin/pip install argon2_cffi --no-index -f wheelhouse/
                     $linux32 /opt/python/$version/bin/python -c "import argon2; argon2.verify_password(argon2.hash_password(b'secret', b'somesalt'), b'secret')"
