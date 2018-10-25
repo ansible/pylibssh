@@ -17,6 +17,9 @@ ENV LANG C.UTF-8
 # so getpwuid() won't fail when tox invokes
 RUN addgroup -g ${gid} ${group}
 RUN adduser -u ${uid} -G ${group} -D ${user}
+# Also add a travis user
+RUN addgroup -g 2000 travis
+RUN adduser -u 2000 -G travis -D travis
 
 RUN apk add --no-cache git libffi-dev curl python-dev \
     python3-dev libressl-dev bash gcc musl-dev

@@ -17,6 +17,9 @@ ENV LANG C.UTF-8
 # so getpwuid() won't fail when tox invokes
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
+# Also add a travis user
+RUN groupadd -g 2000 travis
+RUN useradd -u 2000 -g 2000 -m -s /bin/bash travis
 
 RUN yum install -y gcc libffi-devel python-devel openssl-devel git which
 

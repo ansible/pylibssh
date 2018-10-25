@@ -20,6 +20,9 @@ ENV LANG C.UTF-8
 # so getpwuid() won't fail when tox invokes
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
+# Also add a travis user
+RUN groupadd -g 2000 travis
+RUN useradd -u 2000 -g 2000 -m -s /bin/bash travis
 
 RUN apt-get -qq update && apt-get install -qq -y \
     build-essential \
