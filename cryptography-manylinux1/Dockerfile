@@ -11,5 +11,7 @@ RUN tar zxf perl-5.24.1.tar.gz && \
     cd perl-5.24.1 && \
     ./Configure -des -Dprefix=/opt/perl && \
     make -j4 && make install
+ADD install_libffi.sh /root/install_libffi.sh
+RUN sh install_libffi.sh ${ARCH2ELECTRICBOOGALOO}
 ADD install_openssl.sh /root/install_openssl.sh
 RUN sh install_openssl.sh ${ARCH2ELECTRICBOOGALOO}
