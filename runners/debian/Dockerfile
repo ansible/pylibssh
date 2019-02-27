@@ -7,7 +7,7 @@ ARG uid=1000
 ARG gid=1000
 
 # Increment this to blow away the docker cache
-ENV CACHE_BUSTER 4
+ENV CACHE_BUSTER 5
 
 # This is needed because otherwise `sys.getfilesystemencoding()` returns
 # "ANSI_X3.4-1968".
