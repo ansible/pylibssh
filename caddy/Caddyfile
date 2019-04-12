@@ -14,6 +14,11 @@ cryptography.io {
     }
 }
 
+www.cryptography.io {
+    import tls
+    redir / https://cryptography.io{uri} 301
+}
+
 pyopenssl.org {
     import tls
     proxy / https://pyopenssl.readthedocs.io {
