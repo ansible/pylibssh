@@ -25,11 +25,6 @@
         "build_args": ["RELEASE=jessie"]
     },
     {
-        "tag": "pyca/cryptography-runner-wheezy:latest",
-        "path": "runners/debian",
-        "build_args": ["RELEASE=wheezy"]
-    },
-    {
         "tag": "pyca/cryptography-runner-stretch:latest",
         "path": "runners/debian",
         "build_args": ["RELEASE=stretch"]
