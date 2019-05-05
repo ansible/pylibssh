@@ -45,6 +45,11 @@
         "build_args": ["RELEASE=sid"]
     },
     {
+        "tag": "pyca/cryptography-runner-ubuntu-trusty:latest",
+        "path": "runners/ubuntu",
+        "build_args": ["RELEASE=trusty"]
+    },
+    {
         "tag": "pyca/cryptography-runner-ubuntu-xenial:latest",
         "path": "runners/ubuntu",
         "build_args": ["RELEASE=xenial"]
