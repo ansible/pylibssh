@@ -18,13 +18,8 @@ check_sha256sum ${OPENSSL_NAME}.tar.gz ${OPENSSL_SHA256}
 tar zxf ${OPENSSL_NAME}.tar.gz
 PATH=/opt/perl/bin:$PATH
 cd ${OPENSSL_NAME}
-if [[ $1 == "x86_64" ]]; then
-    echo "Configuring for x86_64"
-    ./config no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
-else
-    echo "Configuring for i686"
-    linux32 ./config no-comp no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
-fi
+echo "Configuring for x86_64"
+./config no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 make depend
 make -j4
 # avoid installing the docs

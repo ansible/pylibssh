@@ -17,11 +17,6 @@ check_sha256sum "libffi_${LIBFFI_VERSION}.orig.tar.gz" ${LIBFFI_SHA256}
 tar zxf libffi*.orig.tar.gz
 PATH=/opt/perl/bin:$PATH
 cd libffi*
-if [[ $1 == "x86_64" ]]; then
-    echo "Configuring for x86_64"
-    ./configure CFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
-else
-    echo "Configuring for i686"
-    linux32 ./configure CFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
-fi
+echo "Configuring for x86_64"
+./configure CFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
 make install
