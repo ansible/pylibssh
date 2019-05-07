@@ -96,8 +96,8 @@ jobs:
                   DOCKERFILE_PATH: windows/openssl
                   DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=x64 --build-arg VSVERSION=2015"
       steps:
-          # - script: "docker pull %DOCKER_TAG_NAME%"
-          #   displayName: Pull the previous image
+          - script: "docker pull %DOCKER_TAG_NAME%"
+            displayName: Pull the previous image
 
           - script: "docker build --pull --cache-from %DOCKER_TAG_NAME% -t %DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
             displayName: Build docker image
