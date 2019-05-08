@@ -15,7 +15,7 @@ RUN Invoke-WebRequest -Uri https://download.microsoft.com/download/7/9/6/796EF2E
 # Install chocolatey
 RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-RUN choco install -y git --params="'/NoAutoCrlf'"
+RUN choco install -y git --params="/NoAutoCrlf"
 
 COPY *.ps1 C:/scripts/
 
