@@ -1,148 +1,106 @@
 trigger:
     - master
-stages:
-    - stage: base
-      displayName: 'base'
-      jobs:
-          - job: 'linux_docker'
-            pool:
-                vmImage: 'ubuntu-16.04'
-            strategy:
-                matrix:
-                    crypto-jenkins:
-                        DOCKER_TAG_NAME: pyca/crypto-jenkins
-                        DOCKERFILE_PATH: jenkins
-                        DOCKER_BUILD_ARGS: ""
-                    caddy:
-                        DOCKER_TAG_NAME: pyca/caddy
-                        DOCKERFILE_PATH: caddy
-                        DOCKER_BUILD_ARGS: ""
-                    cryptography-runner-centos7:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-centos7
-                        DOCKERFILE_PATH: runners/centos7
-                        DOCKER_BUILD_ARGS: ""
-                    cryptography-runner-fedora:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-fedora
-                        DOCKERFILE_PATH: runners/fedora
-                        DOCKER_BUILD_ARGS: ""
-                    cryptography-runner-jessie:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-jessie
-                        DOCKERFILE_PATH: runners/debian
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=jessie"
-                    cryptography-runner-stretch:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-stretch
-                        DOCKERFILE_PATH: runners/debian
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=stretch"
-                    cryptography-runner-buster:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-buster
-                        DOCKERFILE_PATH: runners/debian
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=buster"
-                    cryptography-runner-sid:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-sid
-                        DOCKERFILE_PATH: runners/debian
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=sid"
-                    cryptography-runner-ubuntu-trusty:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-ubuntu-trusty
-                        DOCKERFILE_PATH: runners/ubuntu
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=trusty"
-                    cryptography-runner-ubuntu-xenial:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-ubuntu-xenial
-                        DOCKERFILE_PATH: runners/ubuntu
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=xenial"
-                    cryptography-runner-ubuntu-rolling:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-ubuntu-rolling
-                        DOCKERFILE_PATH: runners/ubuntu
-                        DOCKER_BUILD_ARGS: "--build-arg RELEASE=rolling"
-                    cryptography-runner-alpine:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-alpine
-                        DOCKERFILE_PATH: runners/alpine
-                        DOCKER_BUILD_ARGS: ""
-                    cryptography-manylinux1:
-                        DOCKER_TAG_NAME: pyca/cryptography-manylinux1:x86_64
-                        DOCKERFILE_PATH: cryptography-manylinux1
-                        DOCKER_BUILD_ARGS: ""
-            steps:
-                - script: "docker pull $DOCKER_TAG_NAME"
-                  displayName: Pull the previous image
 
-                - script: "docker build --pull --cache-from $DOCKER_TAG_NAME -t $DOCKER_TAG_NAME $DOCKERFILE_PATH $DOCKER_BUILD_ARGS"
-                  displayName: Build docker image
+jobs:
+    - job: 'linux_docker'
+      pool:
+          vmImage: 'ubuntu-16.04'
+      strategy:
+          matrix:
+              crypto-jenkins:
+                  DOCKER_TAG_NAME: pyca/crypto-jenkins
+                  DOCKERFILE_PATH: jenkins
+                  DOCKER_BUILD_ARGS: ""
+              caddy:
+                  DOCKER_TAG_NAME: pyca/caddy
+                  DOCKERFILE_PATH: caddy
+                  DOCKER_BUILD_ARGS: ""
+              cryptography-runner-centos7:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-centos7
+                  DOCKERFILE_PATH: runners/centos7
+                  DOCKER_BUILD_ARGS: ""
+              cryptography-runner-fedora:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-fedora
+                  DOCKERFILE_PATH: runners/fedora
+                  DOCKER_BUILD_ARGS: ""
+              cryptography-runner-jessie:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-jessie
+                  DOCKERFILE_PATH: runners/debian
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=jessie"
+              cryptography-runner-stretch:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-stretch
+                  DOCKERFILE_PATH: runners/debian
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=stretch"
+              cryptography-runner-buster:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-buster
+                  DOCKERFILE_PATH: runners/debian
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=buster"
+              cryptography-runner-sid:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-sid
+                  DOCKERFILE_PATH: runners/debian
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=sid"
+              cryptography-runner-ubuntu-trusty:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-ubuntu-trusty
+                  DOCKERFILE_PATH: runners/ubuntu
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=trusty"
+              cryptography-runner-ubuntu-xenial:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-ubuntu-xenial
+                  DOCKERFILE_PATH: runners/ubuntu
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=xenial"
+              cryptography-runner-ubuntu-rolling:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-ubuntu-rolling
+                  DOCKERFILE_PATH: runners/ubuntu
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=rolling"
+              cryptography-runner-alpine:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-alpine
+                  DOCKERFILE_PATH: runners/alpine
+                  DOCKER_BUILD_ARGS: ""
+              cryptography-manylinux1:
+                  DOCKER_TAG_NAME: pyca/cryptography-manylinux1:x86_64
+                  DOCKERFILE_PATH: cryptography-manylinux1
+                  DOCKER_BUILD_ARGS: ""
+      steps:
+          - script: "docker pull $DOCKER_TAG_NAME"
+            displayName: Pull the previous image
 
-                - script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                  displayName: Log in to docker
-                  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
-                  env:
-                      DOCKER_USERNAME: $(DOCKER_USERNAME)
-                      DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-                - script: "docker push $DOCKER_TAG_NAME"
-                  displayName: Push docker image
-                  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
-          - job: 'windows_openssl_docker'
-            pool:
-                vmImage: 'windows-2019'
-            strategy:
-                matrix:
-                    openssl-win32-2010:
-                        DOCKER_TAG_NAME: pyca/openssl-windows-builder:win32-2010
-                        DOCKERFILE_PATH: windows/openssl
-                        DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=x86 --build-arg VSVERSION=2010"
-                    openssl-win64-2010:
-                        DOCKER_TAG_NAME: pyca/openssl-windows-builder:win64-2010
-                        DOCKERFILE_PATH: windows/openssl
-                        DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=x64 --build-arg VSVERSION=2010"
-                    openssl-win32-2015:
-                        DOCKER_TAG_NAME: pyca/openssl-windows-builder:win32-2015
-                        DOCKERFILE_PATH: windows/openssl
-                        DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=x86 --build-arg VSVERSION=2015"
-                    openssl-win64-2015:
-                        DOCKER_TAG_NAME: pyca/openssl-windows-builder:win64-2015
-                        DOCKERFILE_PATH: windows/openssl
-                        DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=x64 --build-arg VSVERSION=2015"
-            steps:
-                - script: "docker pull %DOCKER_TAG_NAME%"
-                  displayName: Pull the previous image
+          - script: "docker build --pull --cache-from $DOCKER_TAG_NAME -t $DOCKER_TAG_NAME $DOCKERFILE_PATH $DOCKER_BUILD_ARGS"
+            displayName: Build docker image
 
-                - script: "docker build --pull --cache-from %DOCKER_TAG_NAME% -t %DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
-                  displayName: Build docker image
+          - script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            displayName: Log in to docker
+            condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
+            env:
+                DOCKER_USERNAME: $(DOCKER_USERNAME)
+                DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+          - script: "docker push $DOCKER_TAG_NAME"
+            displayName: Push docker image
+            condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
+    - job: 'windows_docker'
+      pool:
+          vmImage: 'windows-2019'
+      strategy:
+          matrix:
+              py27-x86-64:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py27-x86_64
+                  DOCKERFILE_PATH: windows/py27
+                  DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86_64"
+              py27-x86:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py27-x86
+                  DOCKERFILE_PATH: windows/py27
+                  DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
+      steps:
+          # - script: "docker pull %DOCKER_TAG_NAME%"
+          #   displayName: Pull the previous image
 
-                - script: "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
-                  displayName: Log in to docker
-                  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
-                  env:
-                      DOCKER_USERNAME: $(DOCKER_USERNAME)
-                      DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-                - script: "docker push %DOCKER_TAG_NAME%"
-                  displayName: Push docker image
-                  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
-    - stage: win
-      displayName: 'win'
-      jobs:
-          - job: 'windows_docker'
-            pool:
-                vmImage: 'windows-2019'
-            strategy:
-                matrix:
-                    py27-x86-64:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py27-x86_64
-                        DOCKERFILE_PATH: windows/py27
-                        DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86_64"
-                    py27-x86:
-                        DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py27-x86
-                        DOCKERFILE_PATH: windows/py27
-                        DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
-            steps:
-                # - script: "docker pull %DOCKER_TAG_NAME%"
-                #   displayName: Pull the previous image
+          - script: "docker build --pull --cache-from %DOCKER_TAG_NAME% -t %DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
+            displayName: Build docker image
 
-                - script: "docker build --pull --cache-from %DOCKER_TAG_NAME% -t %DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
-                  displayName: Build docker image
-
-                - script: "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
-                  displayName: Log in to docker
-                  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
-                  env:
-                      DOCKER_USERNAME: $(DOCKER_USERNAME)
-                      DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-                - script: "docker push %DOCKER_TAG_NAME%"
-                  displayName: Push docker image
-                  condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
+          - script: "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
+            displayName: Log in to docker
+            condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
+            env:
+                DOCKER_USERNAME: $(DOCKER_USERNAME)
+                DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+          - script: "docker push %DOCKER_TAG_NAME%"
+            displayName: Push docker image
+            condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))

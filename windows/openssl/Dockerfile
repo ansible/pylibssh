@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
+FROM mcr.microsoft.com/windows/servercore:ltsc2019 as openssl-builder
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -22,3 +22,10 @@ ARG BUILDARCH
 ARG VSVERSION
 
 RUN & 'C:\scripts\build_openssl.bat' %BUILDARCH% %VSVERSION%
+
+FROM mcr.microsoft.com/windows/nanoserver:1809
+
+# We need these because ARGs from the previous stage don't carry over
+ARG BUILDARCHVSVERSION
+
+COPY --from=openssl-builder "C:/build/openssl-${BUILDARCHVSVERSION}" "C:/openssl-${BUILDARCHVSVERSION}"

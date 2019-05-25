@@ -1,0 +1,38 @@
+trigger: none
+pr: none
+
+jobs:
+    - job: 'windows_openssl_docker'
+      pool:
+          vmImage: 'windows-2019'
+      strategy:
+          matrix:
+              openssl-win32-2010:
+                  DOCKER_TAG_NAME: win32-2010
+                  DOCKERFILE_PATH: windows/openssl
+                  DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=win32 --build-arg VSVERSION=2010 --build-arg BUILDARCHVSVERSION=win32-2010"
+              openssl-win64-2010:
+                  DOCKER_TAG_NAME: win64-2010
+                  DOCKERFILE_PATH: windows/openssl
+                  DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=win64 --build-arg VSVERSION=2010 --build-arg BUILDARCHVSVERSION=win64-2010"
+              openssl-win32-2015:
+                  DOCKER_TAG_NAME: win32-2015
+                  DOCKERFILE_PATH: windows/openssl
+                  DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=win32 --build-arg VSVERSION=2015 --build-arg BUILDARCHVSVERSION=win32-2015"
+              openssl-win64-2015:
+                  DOCKER_TAG_NAME: win64-2015
+                  DOCKERFILE_PATH: windows/openssl
+                  DOCKER_BUILD_ARGS: "--build-arg BUILDARCH=win64 --build-arg VSVERSION=2015 --build-arg BUILDARCHVSVERSION=win64-2015"
+      steps:
+          - script: "docker build --pull -t pyca/openssl-windows-artifact:%DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
+            displayName: Build docker image
+
+          - script: "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
+            displayName: Log in to docker
+            condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
+            env:
+                DOCKER_USERNAME: $(DOCKER_USERNAME)
+                DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+          - script: "docker push pyca/openssl-windows-artifact:%DOCKER_TAG_NAME%"
+            displayName: Push docker image
+            condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
