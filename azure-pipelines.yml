@@ -88,6 +88,22 @@ jobs:
                   DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py27-x86
                   DOCKERFILE_PATH: windows/py27
                   DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
+              py34-x86-64:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py34-x86_64
+                  DOCKERFILE_PATH: windows/py34
+                  DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86_64"
+              py34-x86:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py34-x86
+                  DOCKERFILE_PATH: windows/py34
+                  DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
+              py3-x86-64:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py3-x86_64
+                  DOCKERFILE_PATH: windows/py3
+                  DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86_64"
+              py3-x86:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-windows:py3-x86
+                  DOCKERFILE_PATH: windows/py3
+                  DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
       steps:
           # - script: "docker pull %DOCKER_TAG_NAME%"
           #   displayName: Pull the previous image
