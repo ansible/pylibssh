@@ -2,7 +2,7 @@ trigger:
     - master
 
 jobs:
-    - job: 'linux_docker'
+    - job: 'linux'
       pool:
           vmImage: 'ubuntu-16.04'
       strategy:
@@ -75,7 +75,7 @@ jobs:
           - script: "docker push $DOCKER_TAG_NAME"
             displayName: Push docker image
             condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.Reason'], 'PullRequest'))
-    - job: 'windows_docker'
+    - job: 'windows'
       pool:
           vmImage: 'windows-2019'
       strategy:
@@ -105,9 +105,6 @@ jobs:
                   DOCKERFILE_PATH: windows/py3
                   DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
       steps:
-          # - script: "docker pull %DOCKER_TAG_NAME%"
-          #   displayName: Pull the previous image
-
           - script: "docker build --pull --cache-from %DOCKER_TAG_NAME% -t %DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
             displayName: Build docker image
 
