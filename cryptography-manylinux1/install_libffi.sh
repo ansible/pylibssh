@@ -18,5 +18,9 @@ tar zxf libffi*.orig.tar.gz
 PATH=/opt/perl/bin:$PATH
 cd libffi*
 echo "Configuring for x86_64"
+# CFLAGS needed to override the Makefile and prevent -march optimization
+# This flag set taken from Ubuntu 14.04's defaults. We should update it
+# to use -fstack-protector-strong if/when gcc 4.9+ is added to the
+# manylinux1 images.
 ./configure CFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
 make install
