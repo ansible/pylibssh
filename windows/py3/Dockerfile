@@ -11,12 +11,11 @@ RUN choco install -y 7zip
 RUN choco install git -y --params="/NoAutoCrlf"
 RUN choco install --ignore-package-exit-codes -y dotnetfx
 RUN choco install --ignore-package-exit-codes -y visualstudio2017buildtools
-RUN choco install --ignore-package-exit-codes -y visualstudio2017-workload-vctools
+RUN choco install --ignore-package-exit-codes -y visualstudio2017-workload-vctools --package-parameters "'--add Microsoft.VisualStudio.Component.Windows10SDK.17763 --no-includeRecommended'"
 
 COPY *.ps1 C:/scripts/
 
 ARG CPU_ARCH
 
-RUN C:/scripts/install_python.ps1 3.5.4 Python35 $env:CPU_ARCH
 RUN C:/scripts/install_python.ps1 3.6.8 Python36 $env:CPU_ARCH
 RUN C:/scripts/install_python.ps1 3.7.3 Python37 $env:CPU_ARCH
