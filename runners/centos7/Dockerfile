@@ -1,10 +1,5 @@
 FROM centos:7
 
-ARG user=jenkins
-ARG group=jenkins
-ARG uid=1000
-ARG gid=1000
-
 # Increment this to blow away the docker cache
 ENV CACHE_BUSTER 1
 
@@ -12,11 +7,6 @@ ENV CACHE_BUSTER 1
 # "ANSI_X3.4-1968".
 ENV LANG C.UTF-8
 
-# Docker pipeline plugin mounts the workspace into the image
-# This adds the same uid/gid that we use in the jenkins container
-# so getpwuid() won't fail when tox invokes
-RUN groupadd -g ${gid} ${group}
-RUN useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 # Also add a travis user
 RUN groupadd -g 2000 travis
 RUN useradd -u 2000 -g 2000 -m -s /bin/bash travis
@@ -26,5 +16,3 @@ RUN yum install -y gcc libffi-devel python-devel openssl-devel git which
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox
-
-USER jenkins
