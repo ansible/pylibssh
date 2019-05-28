@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
+FROM mcr.microsoft.com/windows/servercore:1809
 
 COPY --from=pyca/openssl-windows-artifact:win32-2010 "C:/openssl-win32-2010" C:/OpenSSL-Win32-2010
 COPY --from=pyca/openssl-windows-artifact:win64-2010 "C:/openssl-win64-2010" C:/OpenSSL-Win64-2010
