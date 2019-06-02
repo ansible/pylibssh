@@ -53,12 +53,12 @@ jobs:
                   DOCKER_BUILD_ARGS: ""
               cryptography-manylinux1:
                   DOCKER_TAG_NAME: pyca/cryptography-manylinux1:x86_64
-                  DOCKERFILE_PATH: cryptography-manylinux1
-                  DOCKER_BUILD_ARGS: ""
+                  DOCKERFILE_PATH: cryptography-manylinux
+                  DOCKER_BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux1"
               cryptography-manylinux2010:
                   DOCKER_TAG_NAME: pyca/cryptography-manylinux2010:x86_64
-                  DOCKERFILE_PATH: cryptography-manylinux2010
-                  DOCKER_BUILD_ARGS: ""
+                  DOCKERFILE_PATH: cryptography-manylinux
+                  DOCKER_BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux2010"
       steps:
           # Pull the previous image, but if it fails return true anyway.
           # Sometimes we add new docker images and if they've never been pushed they can't
