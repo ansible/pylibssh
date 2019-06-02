@@ -17,10 +17,12 @@ curl -#O "${OPENSSL_URL}/${OPENSSL_NAME}.tar.gz"
 check_sha256sum ${OPENSSL_NAME}.tar.gz ${OPENSSL_SHA256}
 tar zxf ${OPENSSL_NAME}.tar.gz
 PATH=/opt/perl/bin:$PATH
-cd ${OPENSSL_NAME}
+pushd ${OPENSSL_NAME}
 ./config no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 make depend
 make -j4
 # avoid installing the docs
 # https://github.com/openssl/openssl/issues/6685#issuecomment-403838728
 make install_sw install_ssldirs
+popd
+rm -rf openssl*
