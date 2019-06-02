@@ -1,7 +1,7 @@
 [Unit]
 Description=Caddy
-After=docker.service jenkins.service
-Requires=docker.service jenkins.service
+After=docker.service
+Requires=docker.service
 
 [Service]
 Restart=on-failure
@@ -11,7 +11,6 @@ ExecStartPre=-/usr/bin/docker rm caddy
 ExecStart=/usr/bin/docker run \
     --rm --read-only --tmpfs=/tmp \
     -p 443:443 -p 80:80 \
-    --link jenkins:jenkins \
     -v caddy_certs:/.caddy \
     --name caddy pyca/caddy
 

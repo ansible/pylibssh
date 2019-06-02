@@ -4,7 +4,6 @@
   vars:
       services:
           - caddy
-          - jenkins
       # This variable is needed to tell docker swarm init what the
       # advertise address should be. bond0 is what we use for onmetal
       swarm_advertise_addr: bond0
@@ -30,10 +29,8 @@
           force: true
       with_items:
           - pyca/caddy
-          - pyca/crypto-jenkins
       notify:
           - restart caddy
-          - restart jenkins
     - name: install the systemd service files
       copy:
           src: "systemd/{{ item }}.service"
@@ -41,7 +38,6 @@
       with_items: "{{ services }}"
       notify:
           - restart caddy
-          - restart jenkins
     - name: "ensure the services are running"
       systemd:
           name: "{{ item }}"
@@ -65,10 +61,5 @@
     - name: restart caddy
       systemd:
           name: caddy
-          daemon_reload: yes
-          state: restarted
-    - name: restart jenkins
-      systemd:
-          name: jenkins
           daemon_reload: yes
           state: restarted

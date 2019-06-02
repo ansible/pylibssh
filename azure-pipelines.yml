@@ -7,10 +7,6 @@ jobs:
           vmImage: 'ubuntu-16.04'
       strategy:
           matrix:
-              crypto-jenkins:
-                  DOCKER_TAG_NAME: pyca/crypto-jenkins
-                  DOCKERFILE_PATH: jenkins
-                  DOCKER_BUILD_ARGS: ""
               caddy:
                   DOCKER_TAG_NAME: pyca/caddy
                   DOCKERFILE_PATH: caddy
