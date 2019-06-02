@@ -17,5 +17,5 @@ check_sha256sum "libffi_${LIBFFI_VERSION}.orig.tar.gz" ${LIBFFI_SHA256}
 tar zxf libffi*.orig.tar.gz
 PATH=/opt/perl/bin:$PATH
 cd libffi*
-./configure CFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
+./configure CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
 make install
