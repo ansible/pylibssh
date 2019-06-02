@@ -55,8 +55,15 @@ jobs:
                   DOCKER_TAG_NAME: pyca/cryptography-manylinux1:x86_64
                   DOCKERFILE_PATH: cryptography-manylinux1
                   DOCKER_BUILD_ARGS: ""
+              cryptography-manylinux2010:
+                  DOCKER_TAG_NAME: pyca/cryptography-manylinux2010:x86_64
+                  DOCKERFILE_PATH: cryptography-manylinux2010
+                  DOCKER_BUILD_ARGS: ""
       steps:
-          - script: "docker pull $DOCKER_TAG_NAME"
+          # Pull the previous image, but if it fails return true anyway.
+          # Sometimes we add new docker images and if they've never been pushed they can't
+          # be pulled.
+          - script: "docker pull $DOCKER_TAG_NAME || true"
             displayName: Pull the previous image
 
           - script: "docker build --pull --cache-from $DOCKER_TAG_NAME -t $DOCKER_TAG_NAME $DOCKERFILE_PATH $DOCKER_BUILD_ARGS"
