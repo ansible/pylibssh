@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.10
 MAINTAINER Paul Kehrer
 
 # Increment this to blow away the docker cache
