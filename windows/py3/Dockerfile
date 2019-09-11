@@ -5,7 +5,8 @@ COPY --from=pyca/openssl-windows-artifact:win64-2015 "C:/openssl-win64-2015" C:/
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-COPY *.ps1 C:/scripts/
+COPY scripts C:/scripts/
+
 ARG CPU_ARCH
 
 # Windows docker images are substantially larger with multiple layers, which is

@@ -116,6 +116,9 @@ jobs:
                   DOCKERFILE_PATH: windows/py3
                   DOCKER_BUILD_ARGS: "--build-arg CPU_ARCH=x86"
       steps:
+          - powershell: "get-psdrive -psprovider filesystem"
+            displayName: Show free space just in case
+
           - script: "docker build --pull --cache-from %DOCKER_TAG_NAME% -t %DOCKER_TAG_NAME% %DOCKERFILE_PATH% %DOCKER_BUILD_ARGS%"
             displayName: Build docker image
 
