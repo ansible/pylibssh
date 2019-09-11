@@ -11,6 +11,10 @@ ENV LANG C.UTF-8
 RUN groupadd -g 2000 travis
 RUN useradd -u 2000 -g 2000 -m -s /bin/bash travis
 
+# This will allow us to do some FIPS testing in conjunction with
+# OPENSSL_FORCE_FIPS_MODE in CentOS
+RUN touch /etc/system-fips
+
 RUN yum install -y gcc libffi-devel python-devel openssl-devel git which
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
