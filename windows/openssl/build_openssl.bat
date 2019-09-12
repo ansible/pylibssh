@@ -18,3 +18,4 @@ if "%VSVERSION%" == "2010" (
         CALL C:\scripts\build_openssl_win64_2015.bat
     )
 )
+if %errorlevel% neq 0 exit /b %errorlevel%

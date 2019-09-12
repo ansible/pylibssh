@@ -5,6 +5,7 @@ SET PATH=%PATH%;C:\Program Files\NASM
 
 perl Configure no-comp no-shared VC-WIN32
 nmake
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 mkdir C:\build\%FINALDIR%
 mkdir C:\build\%FINALDIR%\lib

@@ -7,6 +7,7 @@ SET LIB=%LIB%;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1\Lib\
 
 perl Configure no-comp no-shared VC-WIN32
 nmake
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 mkdir C:\build\%FINALDIR%
 mkdir C:\build\%FINALDIR%\lib
