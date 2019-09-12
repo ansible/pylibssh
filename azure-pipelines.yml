@@ -31,6 +31,10 @@ jobs:
                   DOCKER_TAG_NAME: pyca/cryptography-runner-buster
                   DOCKERFILE_PATH: runners/debian
                   DOCKER_BUILD_ARGS: "--build-arg RELEASE=buster"
+              cryptography-runner-bullseye:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-bullseye
+                  DOCKERFILE_PATH: runners/debian
+                  DOCKER_BUILD_ARGS: "--build-arg RELEASE=bullseye"
               cryptography-runner-sid:
                   DOCKER_TAG_NAME: pyca/cryptography-runner-sid
                   DOCKERFILE_PATH: runners/debian
