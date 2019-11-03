@@ -15,6 +15,10 @@ jobs:
                   DOCKER_TAG_NAME: pyca/cryptography-runner-centos7
                   DOCKERFILE_PATH: runners/centos7
                   DOCKER_BUILD_ARGS: ""
+              cryptography-runner-centos8:
+                  DOCKER_TAG_NAME: pyca/cryptography-runner-centos8
+                  DOCKERFILE_PATH: runners/centos8
+                  DOCKER_BUILD_ARGS: ""
               cryptography-runner-fedora:
                   DOCKER_TAG_NAME: pyca/cryptography-runner-fedora
                   DOCKERFILE_PATH: runners/fedora
