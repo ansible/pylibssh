@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath('lib'))
 
 setup(
     name="pylibssh",
-    version="0.0.1",
+    version="0.0.1.dev0",
     ext_modules=cythonize([Extension("pylibssh.session", ["lib/pylibssh/session.pyx"], libraries=["ssh"]),
                            Extension("pylibssh.channel", ["lib/pylibssh/channel.pyx"], libraries=["ssh"]),
                            Extension("pylibssh.sftp", ["lib/pylibssh/sftp.pyx"], libraries=["ssh"]),
