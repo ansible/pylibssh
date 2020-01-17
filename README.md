@@ -23,4 +23,4 @@ python3 setup.py build_ext --inplace
 ## License
 
 This library is distributed under the terms of LGPL 2.1,
-see file COPYING in this repository.
+see file LICENSE.rst in this repository.
