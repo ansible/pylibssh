@@ -20,7 +20,7 @@ setup(
     description="Python bindings for libssh client",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
-        "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
+        "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Cython",
