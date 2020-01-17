@@ -19,10 +19,12 @@ setup(
     packages=find_packages('lib'),
     description="Python bindings for libssh client",
     classifiers=[
-        "Programming Language :: Cython",
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
-        "Topic :: Software Development :: Libraries :: Python Modules :: Security",
-        "Operating System :: Linux:: Mac",
+        "Operating System :: MacOS",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Cython",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Security",
     ],
 )
