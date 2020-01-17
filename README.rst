@@ -17,10 +17,10 @@ You need Python 2.7 or 3.5+
 
 pylibssh requires libssh to be installed in particular:
 
-  - libssh version 0.9.0 and later.
+- libssh version 0.9.0 and later.
 
-    To install libssh refer to its `Downloads page
-    <https://www.libssh.org/get-it/>`__.
+  To install libssh refer to its `Downloads page
+  <https://www.libssh.org/get-it/>`__.
 
 
 Building the module
@@ -28,7 +28,7 @@ Building the module
 
 Build the extension:
 
-.. code-block:: python
+.. code-block:: shell
 
     git clone https://github.com/ansible/pylibssh.git
     cd pylibssh
