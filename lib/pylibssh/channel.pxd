@@ -19,5 +19,5 @@ from pylibssh.includes cimport libssh
 from pylibssh.includes cimport callbacks
 
 cdef class Channel:
-	cdef libssh.ssh_channel _libssh_channel
-	cdef libssh.ssh_session _libssh_session
+    cdef libssh.ssh_channel _libssh_channel
+    cdef libssh.ssh_session _libssh_session

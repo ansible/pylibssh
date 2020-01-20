@@ -19,7 +19,7 @@ from pylibssh.includes cimport libssh
 
 
 cdef class Session:
-	cdef libssh.ssh_session _libssh_session
-	cdef _opts
+    cdef libssh.ssh_session _libssh_session
+    cdef _opts
 
 cdef libssh.ssh_session get_libssh_session(Session session)
