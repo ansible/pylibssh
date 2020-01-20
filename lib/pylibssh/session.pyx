@@ -16,11 +16,10 @@
 # repository.
 import inspect
 import logging
+
 from cpython.bytes cimport PyBytes_AS_STRING
-
-
 from pylibssh.channel import Channel
-from pylibssh.errors cimport LibsshException, LibsshSessionException
+from pylibssh.errors cimport LibsshSessionException
 from pylibssh.sftp import SFTP
 
 OPTS_MAP = {
@@ -29,6 +28,7 @@ OPTS_MAP = {
     "port": libssh.SSH_OPTIONS_PORT,
     "timeout": libssh.SSH_OPTIONS_TIMEOUT,
     "knownhosts": libssh.SSH_OPTIONS_KNOWNHOSTS,
+    "proxycommand": libssh.SSH_OPTIONS_PROXYCOMMAND,
 }
 OPTS_DIR_MAP = {
     "ssh_dir": libssh.SSH_OPTIONS_SSH_DIR,
@@ -51,7 +51,6 @@ cdef class Session:
         if self._libssh_session is NULL:
             raise MemoryError
         self._opts = {}
-
         for key in kwargs:
             self.set_ssh_options(key, kwargs[key])
 
@@ -73,10 +72,10 @@ cdef class Session:
         cdef unsigned int port_i
         cdef char *value
 
-        if not key in OPTS_MAP:
+        if key not in OPTS_MAP:
             if key in OPTS_DIR_MAP and key in self._opts:
                 return self._opts[key]
-            raise LibsshException("Unknown attribute name [%s]" % key)
+            raise LibsshSessionException("Unknown attribute name [%s]" % key)
         if key == "port":
             if libssh.ssh_options_get_port(self._libssh_session, &port_i) != libssh.SSH_OK:
                 return None
@@ -97,7 +96,7 @@ cdef class Session:
         elif key in OPTS_MAP:
             key_m = OPTS_MAP[key]
         else:
-            raise LibsshException("Unknown attribute name [%s]" % key)
+            raise LibsshSessionException("Unknown attribute name [%s]" % key)
         if key == "port":
             port_i = value
             libssh.ssh_options_set(self._libssh_session, OPTS_MAP["port"], &port_i)
@@ -109,7 +108,7 @@ cdef class Session:
                 self._opts[key] = value
 
     def connect(self, **kwargs):
-        cdef LibsshException saved_execption = None
+        cdef LibsshSessionException saved_execption = None
 
         for key in kwargs:
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
@@ -129,7 +128,7 @@ cdef class Session:
         try:
             self.authenticate_pubkey()
             return
-        except LibsshException as ex:
+        except LibsshSessionException as ex:
             saved_execption = ex
 
         # try authenticating with a password
@@ -137,7 +136,7 @@ cdef class Session:
             try:
                 self.authenticate_password(kwargs["password"])
                 return
-            except LibsshException as ex:
+            except LibsshSessionException as ex:
                 saved_execption = ex
 
         if saved_execption is not None:
@@ -172,7 +171,7 @@ cdef class Session:
             return True
         hash = self.get_server_publickey()
         if state == libssh.SSH_KNOWN_HOSTS_ERROR:
-            raise LibsshException("verify know host failed: %s" % self._get_session_error_str())
+            raise LibsshSessionException("verify know host failed: %s" % self._get_session_error_str())
 
         msg_map = {
             libssh.SSH_KNOWN_HOSTS_CHANGED: "Host key for server has changed: " + hash,
@@ -180,19 +179,19 @@ cdef class Session:
             libssh.SSH_KNOWN_HOSTS_NOT_FOUND: "Host file not found",
             libssh.SSH_KNOWN_HOSTS_UNKNOWN: "Host is unknown: " + hash,
         }
-        raise LibsshException(msg_map[state])
+        raise LibsshSessionException(msg_map[state])
 
     def authenticate_pubkey(self):
         cdef int rc
         rc = libssh.ssh_userauth_publickey_auto(self._libssh_session, NULL, NULL)
         if rc != libssh.SSH_AUTH_SUCCESS:
-            raise LibsshException("Failed to authenticate public key: %s" % self._get_session_error_str())
+            raise LibsshSessionException("Failed to authenticate public key: %s" % self._get_session_error_str())
 
     def authenticate_password(self, password):
         cdef int rc
         rc = libssh.ssh_userauth_password(self._libssh_session, NULL, password.encode())
         if rc == libssh.SSH_AUTH_ERROR or rc == libssh.SSH_AUTH_DENIED:
-            raise LibsshException("Failed to authenticate with password: %s" % self._get_session_error_str())
+            raise LibsshSessionException("Failed to authenticate with password: %s" % self._get_session_error_str())
 
     def new_channel(self):
         return Channel(self)
@@ -212,9 +211,9 @@ cdef class Session:
         if level in LOG_MAP.keys():
             rc = libssh.ssh_set_log_level(LOG_MAP[level])
             if rc != libssh.SSH_OK:
-                raise LibsshException("Failed to set log level [%d] with error [%d]" % (level, rc))
+                raise LibsshSessionException("Failed to set log level [%d] with error [%d]" % (level, rc))
         else:
-            raise LibsshException("Invalid log level [%d]" % level)
+            raise LibsshSessionException("Invalid log level [%d]" % level)
 
     def close(self):
         if self._libssh_session is not NULL:

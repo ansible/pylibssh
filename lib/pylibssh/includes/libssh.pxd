@@ -118,9 +118,9 @@ cdef extern from "libssh/libssh.h" nogil:
     void ssh_disconnect(ssh_session session)
     ssh_known_hosts_e ssh_session_is_known_server(ssh_session)
 
-    int ssh_options_get(ssh_session session, ssh_known_hosts_e type, char **value)
+    int ssh_options_get(ssh_session session, ssh_options_e type, char **value)
     int ssh_options_get_port(ssh_session session, unsigned int * port_target)
-    int ssh_options_set(ssh_session session, ssh_known_hosts_e type, const void *value)
+    int ssh_options_set(ssh_session session, ssh_options_e type, const void *value)
 
     int ssh_get_server_publickey(ssh_session session, ssh_key *key)
     void ssh_key_free(ssh_key)

@@ -28,4 +28,3 @@ cdef class LibsshChannelException(LibsshException):
 
 cdef class LibsshSFTPException(LibsshException):
     pass
-

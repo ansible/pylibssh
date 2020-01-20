@@ -23,7 +23,12 @@ from pylibssh.errors cimport LibsshChannelException
 from subprocess import CalledProcessError, CompletedProcess
 
 
-cdef int _process_outputs(libssh.ssh_session session, libssh.ssh_channel channel, void *data, libssh.uint32_t len, int is_stderr, void *userdata):
+cdef int _process_outputs(libssh.ssh_session session,
+                          libssh.ssh_channel channel,
+                          void *data,
+                          libssh.uint32_t len,
+                          int is_stderr,
+                          void *userdata):
     if len == 0:
         return 0
     data_b = <bytes>(<char *>data)[:len]
@@ -118,7 +123,7 @@ cdef class Channel:
         cdef callbacks.ssh_channel_callbacks_struct cb
         memset(&cb, 0, sizeof(cb))
         cb.channel_data_function = <callbacks.ssh_channel_data_callback>&_process_outputs
-        result = CompletedProcess(args = command, returncode = -1, stdout = b'', stderr = b'')
+        result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
         cb.userdata = <void *>result
         callbacks.ssh_callbacks_init(&cb)
         callbacks.ssh_set_channel_callbacks(channel, &cb)
@@ -139,4 +144,3 @@ cdef class Channel:
             libssh.ssh_channel_close(self._libssh_channel)
         libssh.ssh_channel_free(self._libssh_channel)
         self._libssh_channel = NULL
-

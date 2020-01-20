@@ -21,5 +21,5 @@ from pylibssh.includes cimport libssh
 from pylibssh.session cimport Session
 
 cdef class SFTP:
-	cdef Session session
-	cdef sftp.sftp_session _libssh_sftp_session
+    cdef Session session
+    cdef sftp.sftp_session _libssh_sftp_session
