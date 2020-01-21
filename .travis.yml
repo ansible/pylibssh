@@ -1,0 +1,24 @@
+language: python
+
+jobs:
+  fast_finish: true
+  include:
+  - name: pre-commit.com tool linters
+    python: 3.8
+    env:
+      TOXENV: lint
+
+cache:
+  pip: true
+  directories:
+  - $HOME/.cache/pre-commit
+  - $HOME/.pre-commit
+  - $HOME/virtualenv/python$(python -c 'import platform; print(platform.python_version())')
+  - $HOME/Library/Caches/Homebrew
+
+install:
+- python -m pip install tox
+- python -m tox --notest  # Pre-populate a virtualenv with dependencies
+
+script:
+- python -m tox
