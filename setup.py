@@ -5,9 +5,10 @@
 import os
 import sys
 
-from Cython.Build import cythonize
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
+
+from Cython.Build import cythonize
 
 LIB_NAME = 'ssh'
 
