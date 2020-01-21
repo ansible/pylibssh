@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
+"""Tests suite for sftp."""
+
 import unittest
 
 
 class TestSftp(unittest.TestCase):
-    pass
+    """Tests collection for sftp."""

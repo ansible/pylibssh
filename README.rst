@@ -7,6 +7,9 @@
 .. image:: https://img.shields.io/pypi/pyversions/pylibssh.svg?logo=Python&logoColor=white
    :target: https://pypi.org/project/pylibssh
 
+.. image:: https://img.shields.io/badge/style-wemake-000000.svg
+   :target: https://github.com/wemake-services/wemake-python-styleguide
+
 pylibssh: Python bindings to client functionality of libssh
 ===========================================================
 

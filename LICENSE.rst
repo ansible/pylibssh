@@ -178,7 +178,7 @@ above, provided that you also meet all of these conditions:
   is invoked, then you must make a good faith effort to ensure that,
   in the event an application does not supply such function or
   table, the facility still operates, and performs whatever part of
-  its purpose remains meaningful.  
+  its purpose remains meaningful.
 
 (For example, a function in a library to compute square roots has
 a purpose that is entirely well-defined independent of the
@@ -284,23 +284,23 @@ directing the user to the copy of this License.  Also, you must do one
 of these things:
 
 * **a)** Accompany the work with the complete corresponding
-machine-readable source code for the Library including whatever
-changes were used in the work (which must be distributed under
-Sections 1 and 2 above); and, if the work is an executable linked
-with the Library, with the complete machine-readable "work that
-uses the Library", as object code and/or source code, so that the
-user can modify the Library and then relink to produce a modified
-executable containing the modified Library.  (It is understood
-that the user who changes the contents of definitions files in the
-Library will not necessarily be able to recompile the application
-to use the modified definitions.)
+  machine-readable source code for the Library including whatever
+  changes were used in the work (which must be distributed under
+  Sections 1 and 2 above); and, if the work is an executable linked
+  with the Library, with the complete machine-readable "work that
+  uses the Library", as object code and/or source code, so that the
+  user can modify the Library and then relink to produce a modified
+  executable containing the modified Library.  (It is understood
+  that the user who changes the contents of definitions files in the
+  Library will not necessarily be able to recompile the application
+  to use the modified definitions.)
 * **b)** Use a suitable shared library mechanism for linking with the
-Library.  A suitable mechanism is one that (1) uses at run time a
-copy of the library already present on the user's computer system,
-rather than copying library functions into the executable, and (2)
-will operate properly with a modified version of the library, if
-the user installs one, as long as the modified version is
-interface-compatible with the version that the work was made with.
+  Library.  A suitable mechanism is one that (1) uses at run time a
+  copy of the library already present on the user's computer system,
+  rather than copying library functions into the executable, and (2)
+  will operate properly with a modified version of the library, if
+  the user installs one, as long as the modified version is
+  interface-compatible with the version that the work was made with.
 
 * **c)** Accompany the work with a written offer, valid for at
   least three years, to give the same user the materials
@@ -335,12 +335,12 @@ the Library and of the other library facilities is otherwise
 permitted, and provided that you do these two things:
 
 * **a)** Accompany the combined library with a copy of the same work
-based on the Library, uncombined with any other library
-facilities.  This must be distributed under the terms of the
-Sections above.
+  based on the Library, uncombined with any other library
+  facilities.  This must be distributed under the terms of the
+  Sections above.
 * **b)** Give prominent notice with the combined library of the fact
-that part of it is a work based on the Library, and explaining
-where to find the accompanying uncombined form of the same work.
+  that part of it is a work based on the Library, and explaining
+  where to find the accompanying uncombined form of the same work.
 
 **8.** You may not copy, modify, sublicense, link with, or distribute
 the Library except as expressly provided under this License.  Any
@@ -492,7 +492,7 @@ school, if any, to sign a "copyright disclaimer" for the library, if
 necessary.  Here is a sample; alter the names:
 
     Yoyodyne, Inc., hereby disclaims all copyright interest in the
-    library `Frob' (a library for tweaking knobs) written by James Random Hacker.
+    library 'Frob' (a library for tweaking knobs) written by James Random Hacker.
 
     <signature of Ty Coon>, 1 April 1990
     Ty Coon, President of Vice

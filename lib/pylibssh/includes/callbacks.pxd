@@ -127,4 +127,3 @@ cdef extern from "libssh/callbacks.h" nogil:
     ctypedef ssh_channel_callbacks_struct * ssh_channel_callbacks
 
     int ssh_set_channel_callbacks(ssh_channel channel, ssh_channel_callbacks cb)
-

@@ -1,0 +1,10 @@
+[flake8]
+filename =
+  # Normal Python files (default):
+  *.py,
+  # Cython files:
+  *.pyx
+per-file-ignores =
+  # Exclude errors that don't make sense for Cython
+  lib/pylibssh/*.pyx: E225,E227,E999
+max-line-length = 160

@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
+"""Tests suite for session."""
+
 import unittest
 
 
 class TestSession(unittest.TestCase):
-    pass
+    """Tests collection for session."""
