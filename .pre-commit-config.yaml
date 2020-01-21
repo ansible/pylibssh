@@ -1,0 +1,70 @@
+---
+repos:
+- repo: git://github.com/pre-commit/mirrors-isort
+  rev: v4.3.21
+  hooks:
+  - id: isort
+
+- repo: git://github.com/asottile/add-trailing-comma
+  rev: v0.7.1
+  hooks:
+  - id: add-trailing-comma
+
+- repo: git://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.1.6
+  hooks:
+  - id: remove-tabs
+
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  # Side-effects:
+  - id: trailing-whitespace
+  - id: check-merge-conflict
+  - id: double-quote-string-fixer
+  - id: end-of-file-fixer
+  - id: requirements-txt-fixer
+
+  # Non-modifying checks:
+  - id: name-tests-test
+  - id: check-added-large-files
+  - id: check-byte-order-marker
+  - id: check-case-conflict
+  # disabled due to pre-commit/pre-commit-hooks#159
+  #- id: check-docstring-first
+  - id: check-json
+  - id: check-symlinks
+  - id: check-yaml
+    # args:
+    # - --unsafe
+  - id: detect-private-key
+
+  # Heavy checks:
+  - id: check-ast
+  - id: debug-statements
+  - id: flake8
+    additional_dependencies:
+    - flake8-2020
+    - flake8-pytest-style
+    - wemake-python-styleguide
+
+- repo: git://github.com/Lucas-C/pre-commit-hooks-markup
+  rev: v1.0.0
+  hooks:
+  - id: rst-linter
+    files: >-
+      ^.*\.rst$
+
+- repo: git://github.com/pycqa/pydocstyle.git
+  rev: 4.0.1
+  hooks:
+  - id: pydocstyle
+
+# - repo: local
+#   hooks:
+#   - id: pylint
+#     language: system
+#     name: PyLint
+#     files: \.py$
+#     entry: python -m pylint
+#     args: []
