@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
+"""Tests suite for channel."""
+
 import unittest
 
 
 class TestChannel(unittest.TestCase):
-    pass
+    """Tests collection for channel."""
