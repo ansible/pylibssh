@@ -10,6 +10,10 @@
 .. image:: https://img.shields.io/badge/style-wemake-000000.svg
    :target: https://github.com/wemake-services/wemake-python-styleguide
 
+.. image:: https://img.shields.io/badge/Code%20of%20Conduct-Ansible-silver.svg
+   :target: https://docs.ansible.com/ansible/latest/community/code_of_conduct.html
+   :alt: Ansible Code of Conduct
+
 pylibssh: Python bindings to client functionality of libssh
 ===========================================================
 
