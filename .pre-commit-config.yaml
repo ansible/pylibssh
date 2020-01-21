@@ -24,6 +24,8 @@ repos:
   - id: double-quote-string-fixer
   - id: end-of-file-fixer
   - id: requirements-txt-fixer
+    exclude: >-
+      ^requirements-build\.txt$
 
   # Non-modifying checks:
   - id: name-tests-test
