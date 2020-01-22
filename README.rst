@@ -18,8 +18,8 @@
    :target: https://travis-ci.com/ansible/pylibssh
    :alt: Travis CI build status
 
-pylibssh: Python bindings to client functionality of libssh
-===========================================================
+pylibssh: Python bindings to client functionality of libssh specific to Ansible use case
+========================================================================================
 
 Requirements
 ------------
