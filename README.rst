@@ -1,11 +1,11 @@
-.. image:: https://img.shields.io/pypi/v/pylibssh.svg?logo=Python&logoColor=white
-   :target: https://pypi.org/project/pylibssh
+.. image:: https://img.shields.io/pypi/v/ansible-pylibssh.svg?logo=Python&logoColor=white
+   :target: https://pypi.org/project/ansible-pylibssh
 
 .. image:: https://img.shields.io/badge/license-LGPL+-blue.svg?maxAge=3600
-   :target: https://pypi.org/project/pylibssh
+   :target: https://pypi.org/project/ansible-pylibssh
 
-.. image:: https://img.shields.io/pypi/pyversions/pylibssh.svg?logo=Python&logoColor=white
-   :target: https://pypi.org/project/pylibssh
+.. image:: https://img.shields.io/pypi/pyversions/ansible-pylibssh.svg?logo=Python&logoColor=white
+   :target: https://pypi.org/project/ansible-pylibssh
 
 .. image:: https://img.shields.io/badge/style-wemake-000000.svg
    :target: https://github.com/wemake-services/wemake-python-styleguide
