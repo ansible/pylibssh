@@ -15,10 +15,30 @@ LIB_NAME = 'ssh'
 
 sys.path.insert(0, os.path.abspath('lib'))
 
-sources = glob('lib/pylibssh/*.pyx')
-names = ['.'.join(src.replace(os.path.sep, '.').split('.')[1:-1]) for src in sources]
-extensions = [Extension(names[i], [sources[i]], libraries=[LIB_NAME]) for i in range(len(sources))]
+
+def _get_sources(path):
+    return glob(path)
+
+
+def _get_names(sources):
+    names = []
+    for src in sources:
+        src_lst = src.replace(os.path.sep, '.')
+        name_lst = src_lst.split('.')[1:-1]
+        names.append('.'.join(name_lst))
+    return names
+
+
+def _get_extensions():
+    extensions = []
+    sources = _get_sources('lib/pylibssh/*.pyx')
+    names = _get_names(sources)
+
+    for index, src in enumerate(sources):
+        extensions.append(Extension(names[index], [src], libraries=[LIB_NAME]))
+    return extensions
+
 
 __name__ == '__main__' and setup(  # noqa: WPS428
-    ext_modules=cythonize(extensions),
+    ext_modules=cythonize(_get_extensions()),
 )
