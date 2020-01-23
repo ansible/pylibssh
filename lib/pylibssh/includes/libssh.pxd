@@ -20,6 +20,8 @@ from libc.stdint cimport uint32_t
 
 cdef extern from "libssh/libssh.h" nogil:
 
+    cpdef const char * LIBSSH_VERSION "SSH_STRINGIFY(LIBSSH_VERSION)"
+
     cdef struct ssh_session_struct:
         pass
     ctypedef ssh_session_struct* ssh_session
