@@ -3,7 +3,6 @@
 """Dist metadata setup."""
 
 import os
-import sys
 from glob import glob
 
 from setuptools import setup
@@ -11,34 +10,33 @@ from setuptools.extension import Extension
 
 from Cython.Build import cythonize
 
+IMPORTABLE_PATH_SEP = '.'
+LIB_DIR = 'src'
 LIB_NAME = 'ssh'
 
-sys.path.insert(0, os.path.abspath('lib'))
+
+def _path_to_imp(path):
+    return os.path.splitext(path)[0].replace(os.path.sep, IMPORTABLE_PATH_SEP)
 
 
-def _get_sources(path):
-    return glob(path)
+def _get_src_map(src_glob):
+    sources = glob(src_glob)  # src file list
 
-
-def _get_names(sources):
-    names = []
-    for src in sources:
-        src_lst = src.replace(os.path.sep, '.')
-        name_lst = src_lst.split('.')[1:-1]
-        names.append('.'.join(name_lst))
-    return names
+    for src in sources:  # noqa: WPS526
+        yield _path_to_imp(src), src
 
 
 def _get_extensions():
-    extensions = []
-    sources = _get_sources('lib/pylibssh/*.pyx')
-    names = _get_names(sources)
+    src_map = _get_src_map(os.path.join(LIB_DIR, '**/*.pyx'))
 
-    for index, src in enumerate(sources):
-        extensions.append(Extension(names[index], [src], libraries=[LIB_NAME]))
-    return extensions
+    for name, src in src_map:  # noqa: WPS526
+        yield Extension(name, [src], libraries=[LIB_NAME])
+
+
+def _cythonize_extensions():
+    return cythonize(list(_get_extensions()))
 
 
 __name__ == '__main__' and setup(  # noqa: WPS428
-    ext_modules=cythonize(_get_extensions()),
+    ext_modules=_cythonize_extensions(),
 )
