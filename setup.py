@@ -4,8 +4,8 @@
 
 import os
 import sys
-
 from glob import glob
+
 from setuptools import setup
 from setuptools.extension import Extension
 
@@ -20,5 +20,5 @@ names = ['.'.join(src.replace(os.path.sep, '.').split('.')[1:-1]) for src in sou
 extensions = [Extension(names[i], [sources[i]], libraries=[LIB_NAME]) for i in range(len(sources))]
 
 __name__ == '__main__' and setup(  # noqa: WPS428
-    ext_modules=cythonize(extensions)
+    ext_modules=cythonize(extensions),
 )
