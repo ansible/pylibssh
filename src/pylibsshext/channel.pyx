@@ -18,8 +18,8 @@
 from libc.string cimport memset
 from cpython.bytes cimport PyBytes_AS_STRING
 
-from pylibssh.session cimport get_libssh_session
-from pylibssh.errors cimport LibsshChannelException
+from pylibsshext.session cimport get_libssh_session
+from pylibsshext.errors cimport LibsshChannelException
 from subprocess import CalledProcessError, CompletedProcess
 
 

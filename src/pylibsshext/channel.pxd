@@ -15,11 +15,9 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from pylibssh.includes cimport libssh
+from pylibsshext.includes cimport libssh
+from pylibsshext.includes cimport callbacks
 
-
-cdef class Session:
+cdef class Channel:
+    cdef libssh.ssh_channel _libssh_channel
     cdef libssh.ssh_session _libssh_session
-    cdef _opts
-
-cdef libssh.ssh_session get_libssh_session(Session session)

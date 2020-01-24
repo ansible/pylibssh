@@ -15,11 +15,16 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from pylibssh.includes cimport sftp
-from pylibssh.includes cimport libssh
+from pylibsshext.includes cimport libssh
 
-from pylibssh.session cimport Session
+cdef class LibsshException(Exception):
+    pass
 
-cdef class SFTP:
-    cdef Session session
-    cdef sftp.sftp_session _libssh_sftp_session
+cdef class LibsshSessionException(LibsshException):
+    pass
+
+cdef class LibsshChannelException(LibsshException):
+    pass
+
+cdef class LibsshSFTPException(LibsshException):
+    pass

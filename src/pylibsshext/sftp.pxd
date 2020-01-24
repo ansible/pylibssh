@@ -15,28 +15,11 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from posix.types cimport mode_t
+from pylibsshext.includes cimport sftp
+from pylibsshext.includes cimport libssh
 
-from pylibssh.includes.libssh cimport ssh_session, ssh_channel
+from pylibsshext.session cimport Session
 
-
-cdef extern from "libssh/sftp.h" nogil:
-
-    struct sftp_session_struct:
-        pass
-    ctypedef sftp_session_struct * sftp_session
-
-    struct sftp_file_struct:
-        pass
-    ctypedef sftp_file_struct * sftp_file
-
-    sftp_session sftp_new(ssh_session session)
-    int sftp_init(sftp_session sftp)
-    void sftp_free(sftp_session sftp)
-
-    sftp_file sftp_open(sftp_session session, const char *file, int accesstype, mode_t mode)
-    int sftp_close(sftp_file file)
-    ssize_t sftp_write(sftp_file file, const void *buf, size_t count)
-
-cdef extern from "sys/stat.h" nogil:
-    cdef int S_IRWXU
+cdef class SFTP:
+    cdef Session session
+    cdef sftp.sftp_session _libssh_sftp_session

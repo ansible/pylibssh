@@ -15,16 +15,11 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from pylibssh.includes cimport libssh
+from pylibsshext.includes cimport libssh
 
-cdef class LibsshException(Exception):
-    pass
 
-cdef class LibsshSessionException(LibsshException):
-    pass
+cdef class Session:
+    cdef libssh.ssh_session _libssh_session
+    cdef _opts
 
-cdef class LibsshChannelException(LibsshException):
-    pass
-
-cdef class LibsshSFTPException(LibsshException):
-    pass
+cdef libssh.ssh_session get_libssh_session(Session session)
