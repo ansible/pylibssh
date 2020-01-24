@@ -43,8 +43,8 @@ Build the extension:
 
     git clone https://github.com/ansible/pylibssh.git
     cd pylibssh
-    pip install -r requirements-build.in
-    LDFLAGS='-lssh' cythonize --inplace 'src/**/*.pyx'
+    pip install tox
+    tox -e build-dists
 
 License
 -------

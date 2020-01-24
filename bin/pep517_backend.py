@@ -1,0 +1,150 @@
+# -*- coding: utf-8 -*-
+
+"""PEP 517 build backend pre-building Cython exts before setuptools."""
+
+from __future__ import (  # noqa: WPS422
+    absolute_import, division, print_function,
+)
+
+import contextlib
+import functools
+import os
+import sys
+from itertools import chain
+
+from setuptools.build_meta import (
+    build_sdist, build_wheel, get_requires_for_build_sdist,
+    get_requires_for_build_wheel, prepare_metadata_for_build_wheel,
+)
+
+# noqa: I001, I004, E800  # flake8-isort is drunk
+import toml  # noqa: I001
+from Cython.Build.Cythonize import main as cythonize_cli_cmd  # noqa: I001
+
+__all__ = (  # noqa: WPS317, WPS410
+    'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',
+    'get_requires_for_build_wheel', 'prepare_metadata_for_build_wheel',
+)
+
+__metadata__ = type  # pylint: disable=invalid-name  # make classes new-style
+
+
+def get_config():
+    """Grab optional build dependencies from pyproject.toml config.
+
+    :returns: config section from ``pyproject.toml``
+    :rtype: dict
+
+    This basically reads entries from::
+
+        [tool.local.cythonize]
+        # Env vars provisioned during cythonize call
+        src = ["src/**/*.pyx"]
+
+        [tool.local.cythonize.env]
+        # Env vars provisioned during cythonize call
+        LDFLAGS = "-lssh"
+
+        [tool.local.cythonize.flags]
+        # This section can contain the following booleans:
+        # * annotate — generate annotated HTML page for source files
+        # * build — build extension modules using distutils
+        # * inplace — build extension modules in place using distutils (implies -b)
+        # * force — force recompilation
+        # * quiet — be less verbose during compilation
+        # * lenient — increase Python compat by ignoring some compile time errors
+        # * keep-going — compile as much as possible, ignore compilation failures
+        annotate = false
+        build = false
+        inplace = true
+        force = true
+        quiet = false
+        lenient = false
+        keep-going = false
+
+        [tool.local.cythonize.kwargs]
+        # This section can contain args tha have values:
+        # * exclude=PATTERN      exclude certain file patterns from the compilation
+        # * parallel=N    run builds in N parallel jobs (default: calculated per system)
+        exclude = "**.py"
+        parallel = 12
+
+        [tool.local.cythonize.kwargs.directives]
+        # This section can contain compiler directives
+        # NAME = "VALUE"
+
+        [tool.local.cythonize.kwargs.compile-time-env]
+        # This section can contain compile time env vars
+        # NAME = "VALUE"
+
+        [tool.local.cythonize.kwargs.options]
+        # This section can contain cythonize options
+        # NAME = "VALUE"
+    """
+    cwd_path = os.path.realpath(os.getcwd())
+    with open(os.path.join(cwd_path, 'pyproject.toml')) as config_file:
+        return toml.load(config_file)['tool']['local']['cythonize']
+
+
+@contextlib.contextmanager
+def patched_env(env):
+    """Temporary set given env vars.
+
+    :param env: tmp env vars to set
+    :type env: dict
+
+    :yields: None
+    """
+    orig_env = os.environ.copy()
+    os.environ.update(env)
+    try:  # noqa: WPS501
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(orig_env)
+
+
+def _emit_opt_pairs(opt_pair):
+    flag, flag_value = opt_pair
+    flag_opt = '--{name!s}'.format(name=flag)
+    if isinstance(flag_value, dict):
+        sub_pairs = flag_value.items()
+    else:
+        sub_pairs = ((flag_value, ), )
+
+    for pair in sub_pairs:  # noqa: WPS526
+        yield '='.join(map(str, (flag_opt, *pair)))
+
+
+def pre_build_cython(orig_func):  # noqa: WPS210
+    """Pre-build cython exts before invoking ``orig_func``.
+
+    :param orig_func: function being wrapped
+    :type orig_func: callable
+
+    :returns: function wrapper
+    :rtype: callable
+    """
+    @functools.wraps(orig_func)  # noqa: WPS210, WPS430
+    def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
+        config = get_config()
+
+        py_ver_arg = '-{maj_ver!s}'.format(maj_ver=sys.version_info.major)
+        cli_flags = [
+            '--{flag}'.format(flag=flag)
+            for flag, is_enabled in config['flags'].items()
+            if is_enabled
+        ]
+
+        cli_kwargs = list(chain.from_iterable(
+            map(_emit_opt_pairs, config['kwargs'].items()),
+        ))
+        cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
+        with patched_env(config['env']):
+            cythonize_cli_cmd(cythonize_args)
+        return orig_func(*args, **kwargs)
+    return func_wrapper
+
+
+build_sdist = pre_build_cython(build_sdist)  # pylint: disable=invalid-name
+build_wheel = pre_build_cython(build_wheel)  # pylint: disable=invalid-name
