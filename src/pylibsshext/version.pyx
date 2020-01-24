@@ -1,3 +1,3 @@
-from pylibsshext.includes.libssh cimport LIBSSH_VERSION
+from pylibsshext.includes.libssh cimport libssh_version
 
-libssh_version = LIBSSH_VERSION.decode("ascii")
+LIBSSH_VERSION = libssh_version.decode("ascii")
