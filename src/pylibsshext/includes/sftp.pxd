@@ -37,6 +37,7 @@ cdef extern from "libssh/sftp.h" nogil:
     sftp_file sftp_open(sftp_session session, const char *file, int accesstype, mode_t mode)
     int sftp_close(sftp_file file)
     ssize_t sftp_write(sftp_file file, const void *buf, size_t count)
+    ssize_t sftp_read(sftp_file file, const void *buf, size_t count)
 
 cdef extern from "sys/stat.h" nogil:
     cdef int S_IRWXU
