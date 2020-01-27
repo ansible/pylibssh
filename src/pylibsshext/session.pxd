@@ -1,3 +1,4 @@
+# distutils: libraries = ssh
 #
 # This file is part of the pylibssh library
 #
