@@ -185,9 +185,6 @@ __pycache__/
 # C extensions
 *.so
 
-# C files
-*.c
-
 # Distribution / packaging
 .Python
 build/
@@ -195,6 +192,7 @@ develop-eggs/
 downloads/
 eggs/
 .eggs/
+lib/
 lib64/
 parts/
 sdist/
