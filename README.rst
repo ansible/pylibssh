@@ -44,7 +44,7 @@ Build the extension:
     git clone https://github.com/ansible/pylibssh.git
     cd pylibssh
     pip install -r requirements-build.in
-    cythonize --inplace 'src/**/*.pyx'
+    LDFLAGS='-lssh' cythonize --inplace 'src/**/*.pyx'
 
 License
 -------
