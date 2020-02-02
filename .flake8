@@ -20,6 +20,8 @@ exclude =
   .tmontmp,
   # Countless third-party libs in venvs
   .tox,
+  # Occasional virtualenv dir
+  .venv
   # VS Code
   .vscode,
   # There's no value in checking cache directories
