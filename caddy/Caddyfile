@@ -11,6 +11,7 @@ cryptography.io {
     proxy / https://cryptography.readthedocs.io {
         transparent
         header_upstream X-RTD-SLUG cryptography
+        header_downstream Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
     }
 }
 
@@ -24,6 +25,7 @@ pyopenssl.org {
     proxy / https://pyopenssl.readthedocs.io {
         transparent
         header_upstream X-RTD-SLUG pyopenssl
+        header_downstream Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
     }
 }
 
