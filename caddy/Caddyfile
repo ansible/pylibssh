@@ -19,17 +19,3 @@ www.cryptography.io {
     import tls
     redir / https://cryptography.io{uri} 301
 }
-
-pyopenssl.org {
-    import tls
-    proxy / https://pyopenssl.readthedocs.io {
-        transparent
-        header_upstream X-RTD-SLUG pyopenssl
-        header_downstream Strict-Transport-Security "max-age=31557600; includeSubDomains; preload"
-    }
-}
-
-www.pyopenssl.org {
-    import tls
-    redir / https://pyopenssl.org{uri} 301
-}
