@@ -13,7 +13,7 @@ Write-Host ('Downloading {0} ...' -f $url)
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest -Uri $url -OutFile 'python.exe'
 Write-Host 'Installing ...'
-Start-Process python.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', "TargetDir=C:\$PYTHON_DIR", 'PrependPath=0', 'Shortcuts=0', 'Include_doc=0', 'Include_pip=0', 'Include_test=0')
+Start-Process python.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', "TargetDir=C:\$PYTHON_DIR", 'PrependPath=0', 'Shortcuts=0', 'Include_doc=0', 'Include_pip=0', 'Include_test=0', 'Include_tcltk=0')
 Write-Host 'Verifying install ...'
 Write-Host "C:\$PYTHON_DIR\python --version"
 & "C:\$PYTHON_DIR\python" --version
