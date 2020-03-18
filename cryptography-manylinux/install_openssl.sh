@@ -2,8 +2,8 @@
 set -xe
 
 OPENSSL_URL="https://www.openssl.org/source/"
-OPENSSL_NAME="openssl-1.1.1d"
-OPENSSL_SHA256="1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2"
+OPENSSL_NAME="openssl-1.1.1e"
+OPENSSL_SHA256="694f61ac11cb51c9bf73f54e771ff6022b0327a43bbdfa1b2f19de1662a6dcbe"
 
 function check_sha256sum {
     local fname=$1
