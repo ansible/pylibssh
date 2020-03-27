@@ -4,6 +4,7 @@ requires = [
   "Cython",  # needed by in-tree build backend `bin/pep517_backend.py`
   "setuptools>=45",  # needed by in-tree build backend `bin/pep517_backend.py`
   "wheel",
+  "expandvars",  # needed by in-tree build backend for env vars interpolation
 
   # Plugins
   "setuptools_scm>=1.15",
@@ -18,7 +19,7 @@ src = ["src/**/*.pyx"]
 
 [tool.local.cythonize.env]
 # Env vars provisioned during cythonize call
-LDFLAGS = "-lssh"
+LDFLAGS = "-lssh ${LDFLAGS}"
 
 [tool.local.cythonize.flags]
 # This section can contain the following booleans:

@@ -20,6 +20,7 @@ from setuptools.build_meta import (
 # noqa: I001, I004, E800  # flake8-isort is drunk
 import toml  # noqa: I001
 from Cython.Build.Cythonize import main as cythonize_cli_cmd  # noqa: I001
+from expandvars import expandvars  # noqa: I001
 
 __all__ = (  # noqa: WPS317, WPS410
     'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',
@@ -96,7 +97,8 @@ def patched_env(env):
     :yields: None
     """
     orig_env = os.environ.copy()
-    os.environ.update(env)
+    expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
+    os.environ.update(expanded_env)
     try:  # noqa: WPS501
         yield
     finally:
