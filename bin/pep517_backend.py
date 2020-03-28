@@ -10,6 +10,8 @@ import contextlib
 import functools
 import os
 import sys
+from distutils.command.install import install as distutils_install_cmd
+from distutils.core import Distribution as distutils_distribution  # noqa: N813
 from itertools import chain
 
 from setuptools.build_meta import (
@@ -88,6 +90,42 @@ def get_config():
 
 
 @contextlib.contextmanager
+def patched_distutils_cmd_install():
+    """Make `install_lib` of `install` cmd always use `platlib`.
+
+    :yields: None
+    """
+    # Without this, build_lib puts stuff under `*.data/purelib/` folder
+    orig_finalize = distutils_install_cmd.finalize_options
+
+    def new_finalize_options(self):  # noqa: WPS430
+        self.install_lib = self.install_platlib
+        orig_finalize(self)
+
+    distutils_install_cmd.finalize_options = new_finalize_options
+    try:  # noqa: WPS501
+        yield
+    finally:
+        distutils_install_cmd.finalize_options = orig_finalize
+
+
+@contextlib.contextmanager
+def patched_dist_has_ext_modules():
+    """Make `has_ext_modules` of `Distribution` always return `True`.
+
+    :yields: None
+    """
+    # Without this, build_lib puts stuff under `*.data/platlib/` folder
+    orig_func = distutils_distribution.has_ext_modules
+
+    distutils_distribution.has_ext_modules = lambda *args, **kwargs: True
+    try:  # noqa: WPS501
+        yield
+    finally:
+        distutils_distribution.has_ext_modules = orig_func
+
+
+@contextlib.contextmanager
 def patched_env(env):
     """Temporary set given env vars.
 
@@ -147,7 +185,9 @@ def pre_build_cython(orig_func):  # noqa: WPS210
             cythonize_args = [arg.encode() for arg in cythonize_args]
         with patched_env(config['env']):
             cythonize_cli_cmd(cythonize_args)
-        return orig_func(*args, **kwargs)
+        with patched_distutils_cmd_install():
+            with patched_dist_has_ext_modules():
+                return orig_func(*args, **kwargs)
     return func_wrapper
 
 
