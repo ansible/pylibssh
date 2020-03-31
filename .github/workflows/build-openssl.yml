@@ -9,8 +9,6 @@ on:
     paths:
       - '.github/workflows/build-openssl.yml'
       - 'windows/openssl/**'
-  repository_dispatch:
-    types: [build-openssl]
 
 jobs:
   build:
@@ -34,7 +32,11 @@ jobs:
         shell: powershell
         if: matrix.MSVC_VERSION == '2019'
       - name: Download OpenSSL source
-        run: "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget 'https://www.openssl.org/source/openssl-1.1.1-latest.tar.gz' -OutFile 'openssl-latest.tar.gz'"
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget 'https://www.openssl.org/source/openssl-1.1.1f.tar.gz' -OutFile 'openssl-latest.tar.gz'
+          if ((Get-FileHash openssl-latest.tar.gz -Algorithm SHA256).Hash -ne "186c6bfe6ecfba7a5b48c47f8a1673d0f3b0e5ba2e25602dd23b629975da3f35") {
+              Write-Error 'Hashes do not match' -ErrorAction Stop
+          }
         shell: powershell
       - run: '"C:\Program Files\WinRAR\WinRAR.exe" -INUL x openssl-latest.tar.gz'
         shell: cmd
