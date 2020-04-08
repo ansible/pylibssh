@@ -2,8 +2,9 @@
 
 """Tests suite for session."""
 
-import unittest
+from pylibsshext.session import Session
 
 
-class TestSession(unittest.TestCase):
-    """Tests collection for session."""
+def test_make_session():
+    """Smoke-test Session instance creation."""
+    assert Session()
