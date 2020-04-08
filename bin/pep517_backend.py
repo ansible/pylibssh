@@ -113,7 +113,7 @@ def _emit_opt_pairs(opt_pair):
         sub_pairs = ((flag_value, ), )
 
     for pair in sub_pairs:  # noqa: WPS526
-        yield '='.join(map(str, (flag_opt, *pair)))
+        yield '='.join(map(str, (flag_opt, ) + pair))
 
 
 def pre_build_cython(orig_func):  # noqa: WPS210
@@ -140,6 +140,9 @@ def pre_build_cython(orig_func):  # noqa: WPS210
             map(_emit_opt_pairs, config['kwargs'].items()),
         ))
         cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
+        if sys.version_info[0] == 2:  # cythonize wants str() internally
+            # turn Unicode into native Python 2 `str`:
+            cythonize_args = [arg.encode() for arg in cythonize_args]
         with patched_env(config['env']):
             cythonize_cli_cmd(cythonize_args)
         return orig_func(*args, **kwargs)
