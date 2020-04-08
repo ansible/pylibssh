@@ -10,6 +10,8 @@ import contextlib
 import functools
 import os
 import sys
+from distutils.command.install import install as distutils_install_cmd
+from distutils.core import Distribution as distutils_distribution  # noqa: N813
 from itertools import chain
 
 from setuptools.build_meta import (
@@ -20,6 +22,7 @@ from setuptools.build_meta import (
 # noqa: I001, I004, E800  # flake8-isort is drunk
 import toml  # noqa: I001
 from Cython.Build.Cythonize import main as cythonize_cli_cmd  # noqa: I001
+from expandvars import expandvars  # noqa: I001
 
 __all__ = (  # noqa: WPS317, WPS410
     'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',
@@ -87,6 +90,42 @@ def get_config():
 
 
 @contextlib.contextmanager
+def patched_distutils_cmd_install():
+    """Make `install_lib` of `install` cmd always use `platlib`.
+
+    :yields: None
+    """
+    # Without this, build_lib puts stuff under `*.data/purelib/` folder
+    orig_finalize = distutils_install_cmd.finalize_options
+
+    def new_finalize_options(self):  # noqa: WPS430
+        self.install_lib = self.install_platlib
+        orig_finalize(self)
+
+    distutils_install_cmd.finalize_options = new_finalize_options
+    try:  # noqa: WPS501
+        yield
+    finally:
+        distutils_install_cmd.finalize_options = orig_finalize
+
+
+@contextlib.contextmanager
+def patched_dist_has_ext_modules():
+    """Make `has_ext_modules` of `Distribution` always return `True`.
+
+    :yields: None
+    """
+    # Without this, build_lib puts stuff under `*.data/platlib/` folder
+    orig_func = distutils_distribution.has_ext_modules
+
+    distutils_distribution.has_ext_modules = lambda *args, **kwargs: True
+    try:  # noqa: WPS501
+        yield
+    finally:
+        distutils_distribution.has_ext_modules = orig_func
+
+
+@contextlib.contextmanager
 def patched_env(env):
     """Temporary set given env vars.
 
@@ -96,7 +135,8 @@ def patched_env(env):
     :yields: None
     """
     orig_env = os.environ.copy()
-    os.environ.update(env)
+    expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
+    os.environ.update(expanded_env)
     try:  # noqa: WPS501
         yield
     finally:
@@ -113,7 +153,7 @@ def _emit_opt_pairs(opt_pair):
         sub_pairs = ((flag_value, ), )
 
     for pair in sub_pairs:  # noqa: WPS526
-        yield '='.join(map(str, (flag_opt, *pair)))
+        yield '='.join(map(str, (flag_opt, ) + pair))
 
 
 def pre_build_cython(orig_func):  # noqa: WPS210
@@ -140,9 +180,14 @@ def pre_build_cython(orig_func):  # noqa: WPS210
             map(_emit_opt_pairs, config['kwargs'].items()),
         ))
         cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
+        if sys.version_info[0] == 2:  # cythonize wants str() internally
+            # turn Unicode into native Python 2 `str`:
+            cythonize_args = [arg.encode() for arg in cythonize_args]
         with patched_env(config['env']):
             cythonize_cli_cmd(cythonize_args)
-        return orig_func(*args, **kwargs)
+        with patched_distutils_cmd_install():
+            with patched_dist_has_ext_modules():
+                return orig_func(*args, **kwargs)
     return func_wrapper
 
 
