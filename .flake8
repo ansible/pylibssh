@@ -57,7 +57,7 @@ per-file-ignores =
 
   # There are multiple `assert`s (S101)
   # and subprocesses (import – S404; call – S603) in tests:
-  test/**.py: S101, S404, S603
+  tests/**.py: S101, S404, S603
 
 # flake8-pytest-style
 # PT001:
