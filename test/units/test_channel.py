@@ -2,8 +2,9 @@
 
 """Tests suite for channel."""
 
-import unittest
+from pylibsshext.channel import Channel
 
 
-class TestChannel(unittest.TestCase):
-    """Tests collection for channel."""
+def test_make_channel():
+    """Smoke-test Channel instance creation."""
+    assert Channel()

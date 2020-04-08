@@ -7,4 +7,9 @@ filename =
 per-file-ignores =
   # Exclude errors that don't make sense for Cython
   src/pylibsshext/*.pyx: E225,E227,E999
+
+  # There are multiple `assert`s (S101)
+  # and subprocesses (import – S404; call – S603) in tests:
+  test/units/test_*.py: S101, S404, S603
+
 max-line-length = 160

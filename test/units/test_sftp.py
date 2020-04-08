@@ -2,8 +2,9 @@
 
 """Tests suite for sftp."""
 
-import unittest
+from pylibsshext.sftp import SFTP
 
 
-class TestSftp(unittest.TestCase):
-    """Tests collection for sftp."""
+def test_make_sftp():
+    """Smoke-test SFTP instance creation."""
+    assert SFTP()
