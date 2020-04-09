@@ -5,11 +5,12 @@
 import sys
 
 import pytest
-# isort: on  # noqa: E800
-from pylibsshext.session import Session
 
-try:
+# isort: on  # noqa: E800
+
+try:  # noqa: WPS229  # session imports channel under the hood too
     from pylibsshext.channel import Channel  # noqa: WPS433
+    from pylibsshext.session import Session
 except ImportError:
     if sys.version_info[0] != 2:
         raise
