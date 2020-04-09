@@ -10,7 +10,7 @@ import pytest
 
 try:  # noqa: WPS229  # session imports channel under the hood too
     from pylibsshext.channel import Channel  # noqa: WPS433
-    from pylibsshext.session import Session
+    from pylibsshext.session import Session  # noqa: WPS433
 except ImportError:
     if sys.version_info[0] != 2:
         raise
