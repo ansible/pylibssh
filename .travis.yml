@@ -7,6 +7,12 @@ jobs:
     python: 3.8
     env:
       TOXENV: lint
+  - name: build manylinux wheels
+    language: minimal
+    env:
+      TOXENV: build-dists-manylinux
+    before_install:
+    - python -m pip install tox --user
 
 cache:
   pip: true
@@ -16,8 +22,9 @@ cache:
   - $HOME/virtualenv/python$(python -c 'import platform; print(platform.python_version())')
   - $HOME/Library/Caches/Homebrew
 
-install:
+before_install:
 - python -m pip install tox
+install:
 - python -m tox --notest  # Pre-populate a virtualenv with dependencies
 
 script:
