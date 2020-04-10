@@ -37,7 +37,9 @@ pylibssh requires libssh to be installed in particular:
 Building the module
 -------------------
 
-Build the extension:
+In the local env, assumes there's a libssh shared library
+on the system, build toolchain is present and env vars
+are set properly:
 
 .. code-block:: shell
 
@@ -45,6 +47,21 @@ Build the extension:
     cd pylibssh
     pip install tox
     tox -e build-dists
+
+`manylinux`-compatible wheels:
+
+.. code-block:: shell
+
+    git clone https://github.com/ansible/pylibssh.git
+    cd pylibssh
+    pip install tox
+    tox -e build-dists-manylinux  # with Docker
+
+    # or with Podman
+    DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux
+
+    # to enable shell script debug mode use
+    tox -e build-dists-manylinux -- -e DEBUG=1
 
 License
 -------
