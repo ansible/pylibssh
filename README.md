@@ -2,8 +2,7 @@
 
 The [PyCA](https://github.com/pyca) operates a significant amount of
 infrastructure in the form of continuous integration. This repository holds the
-configuration for building the various docker containers we use in testing, as
-well as wheel builders for external projects.
+configuration for building the various docker containers we use in testing.
 
 ## Ansible
 
@@ -16,7 +15,7 @@ making sure it's running.
 
 ## Docker Containers
 
-Docker containers are built on merge by Azure Pipelines and then uploaded to [Docker
-Hub](https://hub.docker.com/u/pyca/). Each repository on Docker Hub corresponds
-to a directory in `runners`.
+Docker containers are built on merge by Github Actions and then uploaded to
+[Docker Hub](https://hub.docker.com/u/pyca/). Each repository on Docker Hub
+corresponds to a directory in `runners`.
 
