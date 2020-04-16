@@ -99,22 +99,11 @@ ARCH=`uname -m`
 >&2 echo
 >&2 echo
 >&2 echo ========================
->&2 echo Installing system deps...
+>&2 echo Installing build deps...
 >&2 echo ========================
 >&2 echo
-# Install a system package required by our library
-yum -y install \
-    git libffi-devel \
-    pkgconfig \
-    cmake3  # ==cmake-3.6
-##########
-#curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz | \
-#    tar xzvC "${BUILD_DIR}" -f -
-#/opt/python/cp37-cp37m/bin/pip install --user cmake
-#export PATH="/root/.local/bin/:${CMAKE_DOWNLOAD_DIR}/bin:$PATH"
 /opt/python/cp37-cp37m/bin/pip install cmake
 ln -sfv /opt/python/cp37-cp37m/bin/cmake /usr/local/bin/cmake3
-##########
 
 >&2 echo
 >&2 echo
