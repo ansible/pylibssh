@@ -102,8 +102,9 @@ ARCH=`uname -m`
 >&2 echo Installing build deps...
 >&2 echo ========================
 >&2 echo
-/opt/python/cp37-cp37m/bin/pip install cmake
-ln -sfv /opt/python/cp37-cp37m/bin/cmake /usr/local/bin/cmake3
+/opt/python/cp38-cp38/bin/pip install --user cmake
+ln -sfv /root/.local/bin/cmake /usr/local/bin/cmake3
+export PATH="$PATH:${HOME}/.local/bin/"
 
 >&2 echo
 >&2 echo
