@@ -31,6 +31,8 @@ PYTHONS="cp38-cp38 cp37-cp37m cp36-cp36m cp35-cp35m cp27-cp27mu cp27-cp27m"
 # Avoid creation of __pycache__/*.py[c|o]
 export PYTHONDONTWRITEBYTECODE=1
 
+export PATH="$PATH:${HOME}/.local/bin/"
+
 PIP_GLOBAL_ARGS=
 if [ -n "$DEBUG" ]
 then
@@ -103,8 +105,6 @@ ARCH=`uname -m`
 >&2 echo ========================
 >&2 echo
 /opt/python/cp38-cp38/bin/pip install --user cmake
-ln -sfv /root/.local/bin/cmake /usr/local/bin/cmake3
-export PATH="$PATH:${HOME}/.local/bin/"
 
 >&2 echo
 >&2 echo
@@ -154,7 +154,7 @@ pushd "${LIBSSH_BUILD_DIR}"
 # ```
 # Also, when compiled statically, manylinux2010 container turns dist
 # into manylinux1 but because of the reason above, it doesn't make sense.
-cmake3 "${LIBSSH_CLONE_DIR}" \
+cmake "${LIBSSH_CLONE_DIR}" \
     -DCMAKE_INSTALL_PREFIX="${STATIC_DEPS_PREFIX}" \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DBUILD_SHARED_LIBS=ON \
