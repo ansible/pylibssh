@@ -108,14 +108,6 @@ ARCH=`uname -m`
 
 >&2 echo
 >&2 echo
->&2 echo =======================
->&2 echo Upgrading auditwheel...
->&2 echo =======================
->&2 echo
-/opt/python/cp37-cp37m/bin/python -m pip install --no-compile -U auditwheel ${PIP_GLOBAL_ARGS}
-
->&2 echo
->&2 echo
 >&2 echo ============================================
 >&2 echo downloading source of zlib v${ZLIB_VERSION}:
 >&2 echo ============================================
