@@ -1,3 +1,4 @@
+name: Windows OpenSSL
 on:
   pull_request:
     paths:
