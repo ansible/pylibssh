@@ -5,12 +5,14 @@ on:
     paths:
       - '.github/workflows/build-docker-images.yml'
       - 'runners/**'
+      - 'cryptography-manylinux/**'
   push:
     branches:
       - master
     paths:
       - '.github/workflows/build-docker-images.yml'
       - 'runners/**'
+      - 'cryptography-manylinux/**'
 
 jobs:
   build:
