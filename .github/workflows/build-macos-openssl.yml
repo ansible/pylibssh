@@ -1,0 +1,41 @@
+name: macOS OpenSSL
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/build-mac-openssl.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/build-mac-openssl.yml'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    name: "Build OpenSSL for macOS"
+    steps:
+      - uses: actions/checkout@master
+      - name: Download OpenSSL
+        run: |
+          curl -o openssl.tar.gz https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+          shasum -a 256 -c <<< 'ddb04774f1e32f0c49751e21b67216ac87852ceb056b75209af2443400636d46 *openssl.tar.gz'
+      - name: Extract OpenSSL
+        run: |
+          tar zxf openssl.tar.gz
+      - name: Build OpenSSL
+        run: |
+          set -x
+          mkdir artifact
+          BASEDIR=$(pwd)
+          cd openssl*
+          # Use the brew openssldir so pyopenssl users with homebrew installed will have roots for TLS
+          # This is obviously not great but we live in an imperfect world.
+          export CFLAGS="-mmacosx-version-min=10.9 -march=core2"
+          perl ./Configure --prefix="${BASEDIR}/artifact" --openssldir=/usr/local/etc/openssl@1.1 no-ssl3 no-ssl3-method no-zlib darwin64-x86_64-cc enable-ec_nistp_64_gcc_128 no-shared no-comp no-dynamic-engine
+          make -j$(sysctl -n hw.logicalcpu)
+          make install_sw
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: "openssl-macos"
+          path: artifact/
