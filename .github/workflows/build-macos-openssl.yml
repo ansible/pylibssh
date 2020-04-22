@@ -2,12 +2,12 @@ name: macOS OpenSSL
 on:
   pull_request:
     paths:
-      - '.github/workflows/build-mac-openssl.yml'
+      - '.github/workflows/build-macos-openssl.yml'
   push:
     branches:
       - master
     paths:
-      - '.github/workflows/build-mac-openssl.yml'
+      - '.github/workflows/build-macos-openssl.yml'
 
 jobs:
   build:
