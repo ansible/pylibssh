@@ -17,8 +17,9 @@ jobs:
       - uses: actions/checkout@master
       - name: Download OpenSSL
         run: |
-          curl -o openssl.tar.gz https://www.openssl.org/source/openssl-1.1.1g.tar.gz
-          shasum -a 256 -c <<< 'ddb04774f1e32f0c49751e21b67216ac87852ceb056b75209af2443400636d46 *openssl.tar.gz'
+          source ./cryptography-manylinux/openssl-version.sh
+          curl -o openssl.tar.gz https://www.openssl.org/source/$OPENSSL_VERSION.tar.gz
+          shasum -a 256 -c <<< "$OPENSSL_SHA256 *openssl.tar.gz"
       - name: Extract OpenSSL
         run: |
           tar zxf openssl.tar.gz

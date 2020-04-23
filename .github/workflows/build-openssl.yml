@@ -32,10 +32,16 @@ jobs:
            --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --passive --norestart
         shell: powershell
         if: matrix.MSVC_VERSION == '2019'
+      - name: Export OpenSSL version
+        run: |
+          source ./cryptography-manylinux/openssl-version.sh
+          echo "::set-env name=OPENSSL_VERSION::$OPENSSL_VERSION"
+          echo "::set-env name=OPENSSL_SHA256::$OPENSSL_SHA256"
+        shell: bash
       - name: Download OpenSSL source
         run: |
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget 'https://www.openssl.org/source/openssl-1.1.1g.tar.gz' -OutFile 'openssl-latest.tar.gz'
-          if ((Get-FileHash openssl-latest.tar.gz -Algorithm SHA256).Hash -ne "ddb04774f1e32f0c49751e21b67216ac87852ceb056b75209af2443400636d46") {
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget "https://www.openssl.org/source/${env:OPENSSL_VERSION}.tar.gz" -OutFile 'openssl-latest.tar.gz'
+          if ((Get-FileHash openssl-latest.tar.gz -Algorithm SHA256).Hash -ne $env:OPENSSL_SHA256) {
               Write-Error 'Hashes do not match' -ErrorAction Stop
           }
         shell: powershell
