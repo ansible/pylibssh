@@ -2,7 +2,7 @@ ARG RELEASE
 FROM ubuntu:${RELEASE}
 
 # Increment this to blow away the docker cache
-ENV CACHE_BUSTER 1
+ENV CACHE_BUSTER 2
 
 ENV DEBIAN_FRONTEND noninteractive
 
