@@ -2,14 +2,18 @@ name: Windows OpenSSL
 on:
   pull_request:
     paths:
-      - '.github/workflows/build-openssl.yml'
+      - '.github/workflows/build-windows-openssl.yml'
       - 'windows/openssl/**'
+      # Contains the OpenSSL version we'll build
+      - 'cryptography-manylinux/openssl-version.sh'
   push:
     branches:
       - master
     paths:
-      - '.github/workflows/build-openssl.yml'
+      - '.github/workflows/build-windows-openssl.yml'
       - 'windows/openssl/**'
+      # Contains the OpenSSL version we'll build
+      - 'cryptography-manylinux/openssl-version.sh'
 
 jobs:
   build:

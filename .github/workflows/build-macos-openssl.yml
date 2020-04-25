@@ -3,11 +3,15 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build-macos-openssl.yml'
+      # Contains the OpenSSL version we'll build
+      - 'cryptography-manylinux/openssl-version.sh'
   push:
     branches:
       - master
     paths:
       - '.github/workflows/build-macos-openssl.yml'
+      # Contains the OpenSSL version we'll build
+      - 'cryptography-manylinux/openssl-version.sh'
 
 jobs:
   build:
