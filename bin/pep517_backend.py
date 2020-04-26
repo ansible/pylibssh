@@ -191,5 +191,4 @@ def pre_build_cython(orig_func):  # noqa: WPS210
     return func_wrapper
 
 
-build_sdist = pre_build_cython(build_sdist)  # pylint: disable=invalid-name
 build_wheel = pre_build_cython(build_wheel)  # pylint: disable=invalid-name
