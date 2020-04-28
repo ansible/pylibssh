@@ -3,10 +3,6 @@ language: python
 jobs:
   fast_finish: true
   include:
-  - name: pre-commit.com tool linters
-    python: 3.8
-    env:
-      TOXENV: lint
   - name: build manylinux wheels
     language: minimal
     env:
