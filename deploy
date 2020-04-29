@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -e
-set -x
-
-ansible-playbook -i ansible/hosts ansible/playbook.yml

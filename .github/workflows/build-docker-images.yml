@@ -23,8 +23,6 @@ jobs:
     strategy:
       matrix:
         IMAGE:
-          - {TAG_NAME: "pyca/caddy", DOCKERFILE_PATH: "caddy"}
-
           - {TAG_NAME: "pyca/cryptography-runner-centos7", DOCKERFILE_PATH: "runners/centos7"}
           - {TAG_NAME: "pyca/cryptography-runner-centos8", DOCKERFILE_PATH: "runners/centos8"}
 
