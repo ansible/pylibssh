@@ -1,4 +1,4 @@
-name: 🏗 Python 📦 distributions
+name: 🏗 📦 & test & publish
 
 on:
   push:
