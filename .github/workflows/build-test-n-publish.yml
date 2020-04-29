@@ -174,7 +174,7 @@ jobs:
         ${{ steps.install-python.outputs.binary }}
         -m pytest
     - name: Store the binary wheel
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: >-
           dist-wheel-${{ runner.os }}-python${{ matrix.python-version }}
@@ -207,7 +207,7 @@ jobs:
     - name: Build dists and verify wheel metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: dist-wheels-manylinux
         path: dist
@@ -240,7 +240,7 @@ jobs:
     - name: Build sdist and verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: dist-src
         path: dist
@@ -255,7 +255,7 @@ jobs:
     steps:
     - name: >-
         Download all the dists
-      uses: actions/download-artifact@v2-preview  # FIXME: switch to v2
+      uses: actions/download-artifact@v2
       with:
         path: .github/workflows/.tmp/artifacts
     - name: Copy all the dists into the dist/ folder
@@ -267,7 +267,7 @@ jobs:
     - name: >-
         Store the whole distributions
         matrix as a combined artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: all-the-dists
         path: dist
@@ -299,7 +299,7 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Download all the dists
-      uses: actions/download-artifact@v1  # FIXME: switch to v2
+      uses: actions/download-artifact@v2
       with:
         name: all-the-dists
         path: dist/
