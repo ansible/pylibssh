@@ -1,7 +1,7 @@
 [run]
 branch = true
 parallel = true
-plugins = Cython.Coverage
+# plugins = Cython.Coverage
 
 [report]
 skip_covered = True
