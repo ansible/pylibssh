@@ -17,7 +17,7 @@ check_sha256sum ${OPENSSL_VERSION}.tar.gz ${OPENSSL_SHA256}
 tar zxf ${OPENSSL_VERSION}.tar.gz
 PATH=/opt/perl/bin:$PATH
 pushd ${OPENSSL_VERSION}
-./config no-comp enable-ec_nistp_64_gcc_128 no-shared no-dynamic-engine --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
+./config $OPENSSL_BUILD_FLAGS --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 make depend
 make -j4
 # avoid installing the docs

@@ -2,7 +2,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\BuildTools\
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
 SET PATH=%PATH%;C:\Program Files\NASM
 
-perl Configure no-comp no-shared VC-WIN32
+perl Configure %OPENSSL_BUILD_FLAGS_WINDOWS% VC-WIN32
 nmake
 if %errorlevel% neq 0 exit /b %errorlevel%
 

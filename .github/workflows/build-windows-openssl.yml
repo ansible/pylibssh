@@ -41,6 +41,7 @@ jobs:
           source ./cryptography-manylinux/openssl-version.sh
           echo "::set-env name=OPENSSL_VERSION::$OPENSSL_VERSION"
           echo "::set-env name=OPENSSL_SHA256::$OPENSSL_SHA256"
+          echo "::set-env name=OPENSSL_BUILD_FLAGS_WINDOWS::$OPENSSL_BUILD_FLAGS_WINDOWS"
         shell: bash
       - name: Download OpenSSL source
         run: |
