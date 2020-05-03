@@ -14,7 +14,7 @@
    :target: https://docs.ansible.com/ansible/latest/community/code_of_conduct.html
    :alt: Ansible Code of Conduct
 
-.. image:: https://img.shields.io/github/workflow/status/ansible/pylibssh/🏗 📦 & test & publish/devel?label=GitHub%20Actions%20%5Btests%5D&logo=github
+.. image:: https://img.shields.io/github/workflow/status/ansible/pylibssh/🏗%20📦%20&%20test%20&%20publish/devel?label=GitHub%20Actions%20%5Btests%5D&logo=github
    :alt: GitHub Workflow Status (🏗 📦 & test & publish/devel)
    :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%22%F0%9F%8F%97+%F0%9F%93%A6+%26+test+%26+publish%22+branch%3Adevel
 
