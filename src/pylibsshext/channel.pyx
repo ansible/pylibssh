@@ -126,11 +126,15 @@ cdef class Channel:
                 if not data:
                     if timeout:
                         time.sleep(timeout)
-                else:
-                    recv_buff.write(data)
-                    offset = recv_buff.tell() - size if recv_buff.tell() > size else 0
-                    recv_buff.seek(offset)
-                    response += recv_buff.read()
+                    continue
+
+                recv_buff.write(data)
+                offset = recv_buff.tell() - size
+                if offset < 0:
+                    offset = 0
+
+                recv_buff.seek(offset)
+                response += recv_buff.read()
 
         return response
 
