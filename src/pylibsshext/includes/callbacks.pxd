@@ -66,7 +66,6 @@ cdef extern from "libssh/callbacks.h" nogil:
                                                         ssh_channel channel,
                                                         void *userdata)
 
-
     ctypedef void (*ssh_channel_auth_agent_req_callback) (ssh_session session,
                                                           ssh_channel channel,
                                                           void *userdata)
