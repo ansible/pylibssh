@@ -60,7 +60,7 @@ repos:
       ^.*\.rst$
 
 - repo: git://github.com/pycqa/pydocstyle.git
-  rev: 4.0.1
+  rev: 5.0.2
   hooks:
   - id: pydocstyle
 
