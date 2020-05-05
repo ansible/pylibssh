@@ -53,7 +53,8 @@ per-file-ignores =
   bin/pep517_backend.py: WPS402
 
   # Exclude errors that don't make sense for Cython
-  src/pylibsshext/*.pyx: E225,E227,E999
+  src/pylibsshext/*.pxd: E225, E227, E999
+  src/pylibsshext/*.pyx: E225, E227, E999
 
   # There are multiple `assert`s (S101)
   # and subprocesses (import – S404; call – S603) in tests:
