@@ -4,11 +4,18 @@ repos:
   rev: 4.3.21
   hooks:
   - id: isort
+    # FIXME: isort can be enabled for cython once v5.0.0 is out
+    # files: >-
+    #   ^.*\.p(xd|y|yx)$
+    # types: [file]
 
 - repo: git://github.com/asottile/add-trailing-comma
   rev: v0.7.1
   hooks:
   - id: add-trailing-comma
+    files: >-
+      ^.*\.p(xd|y|yx)$
+    types: [file]
 
 - repo: git://github.com/Lucas-C/pre-commit-hooks
   rev: v1.1.6
@@ -49,8 +56,12 @@ repos:
   - id: flake8
     additional_dependencies:
     - flake8-2020
+    - flake8-docstrings
     - flake8-pytest-style
     - wemake-python-styleguide
+    files: >-
+      ^.*\.p(xd|y|yx)$
+    types: [file]
 
 - repo: git://github.com/Lucas-C/pre-commit-hooks-markup
   rev: v1.0.0
@@ -63,6 +74,9 @@ repos:
   rev: 5.0.2
   hooks:
   - id: pydocstyle
+    files: >-
+      ^.*\.p(xd|y|yx)$
+    types: [file]
 
 # - repo: local
 #   hooks:

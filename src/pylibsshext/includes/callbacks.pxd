@@ -34,8 +34,8 @@ cdef extern from "libssh/callbacks.h" nogil:
                                                void *userdata)
 
     ctypedef void (*ssh_channel_close_callback) (ssh_session session,
-                                                ssh_channel channel,
-                                                void *userdata)
+                                                 ssh_channel channel,
+                                                 void *userdata)
 
     ctypedef void (*ssh_channel_signal_callback) (ssh_session session,
                                                   ssh_channel channel,
@@ -48,12 +48,12 @@ cdef extern from "libssh/callbacks.h" nogil:
                                                        void *userdata)
 
     ctypedef void (*ssh_channel_exit_signal_callback) (ssh_session session,
-                                                      ssh_channel channel,
-                                                      const char *signal,
-                                                      int core,
-                                                      const char *errmsg,
-                                                      const char *lang,
-                                                      void *userdata)
+                                                       ssh_channel channel,
+                                                       const char *signal,
+                                                       int core,
+                                                       const char *errmsg,
+                                                       const char *lang,
+                                                       void *userdata)
 
     ctypedef int (*ssh_channel_pty_request_callback) (ssh_session session,
                                                       ssh_channel channel,
@@ -65,7 +65,6 @@ cdef extern from "libssh/callbacks.h" nogil:
     ctypedef int (*ssh_channel_shell_request_callback) (ssh_session session,
                                                         ssh_channel channel,
                                                         void *userdata)
-
 
     ctypedef void (*ssh_channel_auth_agent_req_callback) (ssh_session session,
                                                           ssh_channel channel,
