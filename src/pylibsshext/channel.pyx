@@ -15,8 +15,13 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from libc.string cimport memset
+import time
+
+from io import BytesIO
+
 from cpython.bytes cimport PyBytes_AS_STRING
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from libc.string cimport memcpy, memset
 
 from pylibsshext.session cimport get_libssh_session
 from pylibsshext.errors cimport LibsshChannelException
@@ -43,9 +48,11 @@ cdef class Channel:
     def __cinit__(self, session):
         self._libssh_session = get_libssh_session(session)
         self._libssh_channel = libssh.ssh_channel_new(self._libssh_session)
+
         if self._libssh_channel is NULL:
             raise MemoryError
         rc = libssh.ssh_channel_open_session(self._libssh_channel)
+
         if rc != libssh.SSH_OK:
             self._libssh_channel = NULL
             libssh.ssh_channel_free(self._libssh_channel)
@@ -104,6 +111,25 @@ cdef class Channel:
 
     def sendall(self, data):
         return self.write(data)
+
+    def read_bulk_response(self, size=1024, stderr=0, timeout=0.001, retry=5):
+        recv = BytesIO()
+        response = b""
+        while retry:
+            data = self.read_nonblocking(size=size, stderr=stderr)
+            if not data:
+                if timeout:
+                    time.sleep(timeout)
+            else:
+                recv.write(data)
+                offset = recv.tell() - size if recv.tell() > size else 0
+                recv.seek(offset)
+                response += recv.read()
+
+            retry = retry - 1
+
+        recv.close()
+        return response
 
     def exec_command(self, command):
         cdef libssh.ssh_channel channel = libssh.ssh_channel_new(self._libssh_session)
