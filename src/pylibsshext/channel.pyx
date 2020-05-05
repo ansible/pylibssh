@@ -25,7 +25,52 @@ from libc.string cimport memcpy, memset
 
 from pylibsshext.session cimport get_libssh_session
 from pylibsshext.errors cimport LibsshChannelException
-from subprocess import CalledProcessError, CompletedProcess
+from subprocess import CalledProcessError
+
+
+# Defined CompletedProcess here to be compliant with py2
+class CompletedProcess(object):
+    """A process that has finished running.
+    This is returned by run().
+    Attributes:
+      args: The list or str args passed to run().
+      returncode: The exit code of the process, negative for signals.
+      stdout: The standard output (None if not captured).
+      stderr: The standard error (None if not captured).
+    """
+    def __init__(self, args, returncode, stdout=None, stderr=None):
+        self.args = args
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def __repr__(self):
+        args = ['args={!r}'.format(self.args),
+                'returncode={!r}'.format(self.returncode)]
+        if self.stdout is not None:
+            args.append('stdout={!r}'.format(self.stdout))
+        if self.stderr is not None:
+            args.append('stderr={!r}'.format(self.stderr))
+        return "{}({})".format(type(self).__name__, ', '.join(args))
+
+
+    def check_returncode(self):
+        """Raise CalledProcessError if the exit code is non-zero."""
+        if self.returncode:
+            raise CalledProcessError(self.returncode, self.args, self.stdout,
+                                     self.stderr)
+
+
+class BufferManager():
+    def __init__(self, filename, mode):
+        self.recv = BytesIO()
+
+    def __enter__(self):
+        return self.recv
+
+    def __exit__(self):
+        if self.recv:
+            self.recv.close()
 
 
 cdef int _process_outputs(libssh.ssh_session session,
@@ -113,22 +158,21 @@ cdef class Channel:
         return self.write(data)
 
     def read_bulk_response(self, size=1024, stderr=0, timeout=0.001, retry=5):
-        recv = BytesIO()
         response = b""
-        while retry:
-            data = self.read_nonblocking(size=size, stderr=stderr)
-            if not data:
-                if timeout:
-                    time.sleep(timeout)
-            else:
-                recv.write(data)
-                offset = recv.tell() - size if recv.tell() > size else 0
-                recv.seek(offset)
-                response += recv.read()
+        with BufferManager() as recv:
+            while retry:
+                data = self.read_nonblocking(size=size, stderr=stderr)
+                if not data:
+                    if timeout:
+                        time.sleep(timeout)
+                else:
+                    recv.write(data)
+                    offset = recv.tell() - size if recv.tell() > size else 0
+                    recv.seek(offset)
+                    response += recv.read()
 
-            retry = retry - 1
+                retry = retry - 1
 
-        recv.close()
         return response
 
     def exec_command(self, command):
