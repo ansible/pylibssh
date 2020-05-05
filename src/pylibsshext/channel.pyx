@@ -113,22 +113,21 @@ cdef class Channel:
         return self.write(data)
 
     def read_bulk_response(self, size=1024, stderr=0, timeout=0.001, retry=5):
-        recv = BytesIO()
         response = b""
-        while retry:
-            data = self.read_nonblocking(size=size, stderr=stderr)
-            if not data:
-                if timeout:
-                    time.sleep(timeout)
-            else:
-                recv.write(data)
-                offset = recv.tell() - size if recv.tell() > size else 0
-                recv.seek(offset)
-                response += recv.read()
+        with BytesIO() as recv_buff:
+            while retry:
+                data = self.read_nonblocking(size=size, stderr=stderr)
+                if not data:
+                    if timeout:
+                        time.sleep(timeout)
+                else:
+                    recv_buff.write(data)
+                    offset = recv_buff.tell() - size if recv_buff.tell() > size else 0
+                    recv_buff.seek(offset)
+                    response += recv_buff.read()
 
-            retry = retry - 1
+                retry = retry - 1
 
-        recv.close()
         return response
 
     def exec_command(self, command):
