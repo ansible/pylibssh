@@ -13,9 +13,6 @@ repos:
   rev: v0.7.1
   hooks:
   - id: add-trailing-comma
-    files: >-
-      ^.*\.p(xd|y|yx)$
-    types: [file]
 
 - repo: git://github.com/Lucas-C/pre-commit-hooks
   rev: v1.1.6
