@@ -18,6 +18,7 @@
 import time
 
 from io import BytesIO
+from subprocess import CalledProcessError
 
 from cpython.bytes cimport PyBytes_AS_STRING
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
@@ -25,7 +26,6 @@ from libc.string cimport memcpy, memset
 
 from pylibsshext.session cimport get_libssh_session
 from pylibsshext.errors cimport LibsshChannelException
-from subprocess import CalledProcessError
 
 
 # Defined CompletedProcess here to be compliant with py2
