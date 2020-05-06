@@ -71,9 +71,6 @@ repos:
   rev: 5.0.2
   hooks:
   - id: pydocstyle
-    files: >-
-      ^.*\.p(xd|y|yx)$
-    types: [file]
 
 # - repo: local
 #   hooks:
