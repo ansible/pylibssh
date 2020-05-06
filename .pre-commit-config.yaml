@@ -50,11 +50,16 @@ repos:
   # Heavy checks:
   - id: check-ast
   - id: debug-statements
+
+- repo: https://gitlab.com/pycqa/flake8.git
+  rev: 3.8.0a2
+  hooks:
   - id: flake8
+    language_version: python3
     additional_dependencies:
-    - flake8-2020
+    - flake8-2020>=1.6.0
     - flake8-docstrings
-    - flake8-pytest-style
+    - flake8-pytest-style>=1.0.0
     - wemake-python-styleguide
     files: >-
       ^.*\.p(xd|y|yx)$

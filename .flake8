@@ -55,8 +55,9 @@ per-file-ignores =
   # Exclude errors that don't make sense for Cython
   # Examples:
   # * "E211 whitespace before '('" happening to "typedef int (*smth) ..."
-  src/pylibsshext/*.pxd: E211, E225, E227, E999
-  src/pylibsshext/*.pyx: E225, E227, E999
+  # * "E226 missing whitespace around arithmetic operator"
+  src/pylibsshext/*.pxd: E211, E225, E226, E227, E999
+  src/pylibsshext/*.pyx: E225, E226, E227, E999
 
   # There are multiple `assert`s (S101)
   # and subprocesses (import – S404; call – S603) in tests:
