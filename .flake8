@@ -57,6 +57,9 @@ per-file-ignores =
   # in-tree PEP517 build backend nees a lot of legit `noqa`s
   bin/pep517_backend.py: WPS402
 
+  # The package has imports exposing private things to the public:
+  src/pylibsshext/__init__.py: WPS412
+
   # Exclude errors that don't make sense for Cython
   # Examples:
   # * "E211 whitespace before '('" happening to "typedef int (*smth) ..."

@@ -9,8 +9,8 @@ requires = [
   "expandvars",  # needed by in-tree build backend for env vars interpolation
 
   # Plugins
-  "setuptools_scm>=1.15",
-  "setuptools_scm_git_archive>=1.0",
+  "setuptools_scm[toml]>=3.5",
+  "setuptools_scm_git_archive>=1.1",
 ]
 backend-path = ["bin"]  # requires 'Pip>=20' or 'pep517>=0.6.0'
 build-backend = "pep517_backend"
@@ -58,3 +58,9 @@ keep-going = false
 [tool.local.cythonize.kwargs.options]
 # This section can contain cythonize options
 # NAME = "VALUE"
+
+# ATTENTION: the following section must be kept last in
+# `pyproject.toml` because the CI appends one line in
+# the end when publishing non-tagged versions.
+[tool.setuptools_scm]
+write_to = "src/pylibsshext/_scm_version.py"
