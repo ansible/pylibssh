@@ -145,8 +145,17 @@ jobs:
         tox
     - name: Check out src from Git
       uses: actions/checkout@v2
+    - name: Get history and tags for SCM versioning to work
+      run: |
+        git fetch --prune --unshallow
+        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
+    - name: Instruct setuptools-scm not to add a local version part
+      run: >-
+        echo 'local_scheme = "no-local-version"'
+        >>
+        pyproject.toml
     - name: Build dist
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
     - name: Bundle external shared libs
@@ -202,8 +211,17 @@ jobs:
         tox
     - name: Check out src from Git
       uses: actions/checkout@v2
+    - name: Get history and tags for SCM versioning to work
+      run: |
+        git fetch --prune --unshallow
+        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
+    - name: Instruct setuptools-scm not to add a local version part
+      run: >-
+        echo 'local_scheme = "no-local-version"'
+        >>
+        pyproject.toml
     - name: Build dists and verify wheel metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
@@ -235,8 +253,17 @@ jobs:
         tox
     - name: Check out src from Git
       uses: actions/checkout@v2
+    - name: Get history and tags for SCM versioning to work
+      run: |
+        git fetch --prune --unshallow
+        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
+    - name: Instruct setuptools-scm not to add a local version part
+      run: >-
+        echo 'local_scheme = "no-local-version"'
+        >>
+        pyproject.toml
     - name: Build sdist and verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
@@ -368,11 +395,12 @@ jobs:
       with:
         name: all-the-dists
         path: dist/
-    - name: Build sdist and verify metadata
+    - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Publish 🐍📦 to TestPyPI
       if: >-
-        1 != 1
+        github.event_name == 'push' &&
+        github.ref == 'devel'
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.testpypi_password }}
@@ -380,7 +408,8 @@ jobs:
     - name: Publish 🐍📦 to PyPI
       if: >-
         1 != 1 &&
-        startsWith(github.event.ref, 'refs/tags')
+        github.event_name == 'push' &&
+        startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.pypi_password }}
