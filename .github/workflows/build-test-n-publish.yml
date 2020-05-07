@@ -397,16 +397,10 @@ jobs:
         path: dist/
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
-    - name: Print out debug context bits
-      run: |
-        echo github.event_name ${{ github.event_name }}
-        echo github.head_ref ${{ github.head_ref }}
-        echo github.ref ${{ github.ref }}
-        echo github.event.ref ${{ github.event.ref }}
     - name: Publish 🐍📦 to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        github.ref == 'devel'
+        github.ref == 'refs/heads/devel'
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.testpypi_password }}
