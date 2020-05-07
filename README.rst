@@ -7,13 +7,6 @@
 .. image:: https://img.shields.io/pypi/pyversions/ansible-pylibssh.svg?logo=Python&logoColor=white
    :target: https://pypi.org/project/ansible-pylibssh
 
-.. image:: https://img.shields.io/badge/style-wemake-000000.svg
-   :target: https://github.com/wemake-services/wemake-python-styleguide
-
-.. image:: https://img.shields.io/badge/Code%20of%20Conduct-Ansible-silver.svg
-   :target: https://docs.ansible.com/ansible/latest/community/code_of_conduct.html
-   :alt: Ansible Code of Conduct
-
 .. image:: https://img.shields.io/github/workflow/status/ansible/pylibssh/🏗%20📦%20&%20test%20&%20publish/devel?label=GitHub%20Actions%20%5Btests%5D&logo=github
    :alt: GitHub Workflow Status (🏗 📦 & test & publish/devel)
    :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%22%F0%9F%8F%97+%F0%9F%93%A6+%26+test+%26+publish%22+branch%3Adevel
@@ -21,6 +14,13 @@
 .. image:: https://img.shields.io/github/workflow/status/ansible/pylibssh/🚨/devel?label=GitHub%20Actions%20%5Bquality%5D&logo=github
    :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%F0%9F%9A%A8+branch%3Adevel
    :alt: GitHub Workflow Status (🚨/devel)
+
+.. image:: https://img.shields.io/badge/style-wemake-000000.svg
+   :target: https://github.com/wemake-services/wemake-python-styleguide
+
+.. image:: https://img.shields.io/badge/Code%20of%20Conduct-Ansible-silver.svg
+   :target: https://docs.ansible.com/ansible/latest/community/code_of_conduct.html
+   :alt: Ansible Code of Conduct
 
 pylibssh: Python bindings to client functionality of libssh specific to Ansible use case
 ========================================================================================
