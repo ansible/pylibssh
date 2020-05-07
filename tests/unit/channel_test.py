@@ -2,27 +2,10 @@
 
 """Tests suite for channel."""
 
-import sys
-
 import pytest
 
-# isort: on  # noqa: E800
-
-try:  # noqa: WPS229  # session imports channel under the hood too
-    from pylibsshext.channel import Channel  # noqa: WPS433
-    from pylibsshext.session import Session  # noqa: WPS433
-except ImportError:
-    if sys.version_info[0] != 2:
-        raise
-    pytestmark = pytest.mark.skip(
-        sys.version_info[0] == 2,
-        reason='Channel import fails under Python 2',
-    )
-else:
-    pytestmark = pytest.mark.xfail(
-        sys.version_info[0] == 2,
-        reason='Channel import fails under Python 2',
-    )
+from pylibsshext.channel import Channel
+from pylibsshext.session import Session
 
 
 @pytest.mark.xfail(
