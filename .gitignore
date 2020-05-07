@@ -393,3 +393,6 @@ $RECYCLE.BIN/
 
 /.github/workflows/.tmp
 /.test-results
+
+# setuptools-scm write_to:
+/src/pylibsshext/_scm_version.py

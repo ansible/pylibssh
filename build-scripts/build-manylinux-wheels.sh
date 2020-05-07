@@ -276,8 +276,26 @@ from __future__ import print_function  # needed for file=sys.stderr
 import sys
 
 import ${IMPORTABLE_PKG}
-from ${IMPORTABLE_PKG}.version import LIBSSH_VERSION
-print('libssh version: {!s}\n'.format(LIBSSH_VERSION))
+from ${IMPORTABLE_PKG} import (
+    __full_version__, __libssh_version__,
+    __version__, __version_info__,
+)
+print(
+    'libssh version: {!s}\n'.format(__libssh_version__),
+    file=sys.stderr,
+)
+print(
+    'pylibsshext version: {!s}\n'.format(__version__),
+    file=sys.stderr,
+)
+print(
+    'pylibsshext version tuple: {!r}\n'.format(__version_info__),
+    file=sys.stderr,
+)
+print(
+    'combined pylibsshext version: {!s}\n'.format(__full_version__),
+    file=sys.stderr,
+)
 
 from ${IMPORTABLE_PKG}.channel import Channel
 from ${IMPORTABLE_PKG}.errors import LibsshSessionException
