@@ -89,6 +89,7 @@ cdef class Session:
 
     def set_ssh_options(self, key, value):
         cdef unsigned int port_i
+        cdef long timeout_i
 
         key_m = None
         if key in OPTS_DIR_MAP:
@@ -100,6 +101,9 @@ cdef class Session:
         if key == "port":
             port_i = value
             libssh.ssh_options_set(self._libssh_session, OPTS_MAP["port"], &port_i)
+        elif key == "timeout":
+            timeout_i = value
+            libssh.ssh_options_set(self._libssh_session, OPTS_MAP["timeout"], &timeout_i)
         else:
             if isinstance(value, basestring):
                 value = value.encode("utf-8")
