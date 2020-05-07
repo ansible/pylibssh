@@ -3,6 +3,7 @@
 """Tests suite for sftp."""
 
 import pytest
+
 # isort: on  # noqa: E800
 from pylibsshext.errors import LibsshSFTPException
 from pylibsshext.session import Session
