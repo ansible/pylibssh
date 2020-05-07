@@ -39,6 +39,11 @@ filename =
   # Cython files:
   *.pyx
 
+# Completely and unconditionally ignore the following errors:
+ignore =
+  WPS306  # "Found class without a base class: *" -- we have metaclass shims
+  WPS422  # "Found future import: *" -- we need these for multipython
+
 # Let's not overcomplicate the code:
 max-complexity = 10
 
