@@ -279,17 +279,7 @@ import ${IMPORTABLE_PKG}
 from ${IMPORTABLE_PKG}.version import LIBSSH_VERSION
 print('libssh version: {!s}\n'.format(LIBSSH_VERSION))
 
-try:
-    from ${IMPORTABLE_PKG}.channel import Channel
-except ImportError as imp_exc:
-    print(
-        'Failed to import Channel from '
-        '${IMPORTABLE_PKG}.channel: {!r}'.
-        format(imp_exc), file=sys.stderr,
-    )
-    if sys.version_info[0] != 2:  # FIXME: drop if fixed
-        raise
-    Channel = None
+from ${IMPORTABLE_PKG}.channel import Channel
 from ${IMPORTABLE_PKG}.errors import LibsshSessionException
 from ${IMPORTABLE_PKG}.session import Session
 from ${IMPORTABLE_PKG}.sftp import SFTP
