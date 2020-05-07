@@ -400,7 +400,7 @@ jobs:
     - name: Publish 🐍📦 to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        github.ref == 'devel'
+        github.head_ref == 'refs/heads/devel'
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.testpypi_password }}
