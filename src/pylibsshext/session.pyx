@@ -91,6 +91,7 @@ class RejectPolicy(MissingHostKeyPolicy):
     def missing_host_key(self, session, hostname, username, key_type, fingerprint, message):
         raise LibsshSessionException(message)
 
+
 cdef class Session(object):
     def __init__(self, host=None, **kwargs):
         self._policy = RejectPolicy()
@@ -244,7 +245,7 @@ cdef class Session(object):
         cdef size_t hash_len
 
         rc = libssh.ssh_get_server_publickey(self._libssh_session, &srv_pubkey)
-        if  rc != libssh.SSH_OK:
+        if rc != libssh.SSH_OK:
             return
 
         rc = libssh.ssh_get_publickey_hash(srv_pubkey, libssh.SSH_PUBLICKEY_HASH_SHA1, &hash, &hash_len)
