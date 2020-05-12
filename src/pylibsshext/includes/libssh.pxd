@@ -55,6 +55,23 @@ cdef extern from "libssh/libssh.h" nogil:
         SSH_PUBLICKEY_HASH_MD5,
         SSH_PUBLICKEY_HASH_SHA256
 
+    cdef enum ssh_keytypes_e:
+        SSH_KEYTYPE_UNKNOWN,
+        SSH_KEYTYPE_DSS,
+        SSH_KEYTYPE_RSA,
+        SSH_KEYTYPE_RSA1,
+        SSH_KEYTYPE_ECDSA,
+        SSH_KEYTYPE_ED25519,
+        SSH_KEYTYPE_DSS_CERT01,
+        SSH_KEYTYPE_RSA_CERT01,
+        SSH_KEYTYPE_ECDSA_P256,
+        SSH_KEYTYPE_ECDSA_P384,
+        SSH_KEYTYPE_ECDSA_P521,
+        SSH_KEYTYPE_ECDSA_P256_CERT01,
+        SSH_KEYTYPE_ECDSA_P384_CERT01,
+        SSH_KEYTYPE_ECDSA_P521_CERT01,
+        SSH_KEYTYPE_ED25519_CERT01
+
     cdef enum ssh_options_e:
         SSH_OPTIONS_HOST,
         SSH_OPTIONS_PORT,
@@ -129,6 +146,10 @@ cdef extern from "libssh/libssh.h" nogil:
 
     int ssh_get_publickey_hash(const ssh_key key, ssh_publickey_hash_type type, unsigned char **hash, size_t *hlen)
     char *ssh_get_hexa(const unsigned char *what, size_t len)
+    char *ssh_get_fingerprint_hash(ssh_publickey_hash_type type, unsigned char *hash, size_t len)
+    const char *ssh_key_type_to_char(ssh_keytypes_e type)
+    ssh_keytypes_e ssh_key_type(ssh_key key)
+    int ssh_session_update_known_hosts(ssh_session session)
 
     int ssh_userauth_publickey_auto(ssh_session session, const char *username, const char *passphrase)
     int ssh_userauth_password(ssh_session session, const char *username, const char *password)
