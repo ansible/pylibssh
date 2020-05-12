@@ -21,5 +21,9 @@ from pylibsshext.includes cimport libssh
 cdef class Session:
     cdef libssh.ssh_session _libssh_session
     cdef _opts
+    cdef _policy
+    cdef _hash_py
+    cdef _fingerprint_py
+    cdef _keytype_py
 
 cdef libssh.ssh_session get_libssh_session(Session session)

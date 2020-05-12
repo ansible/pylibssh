@@ -44,8 +44,60 @@ LOG_MAP = {
     logging.CRITICAL: libssh.SSH_LOG_TRACE
 }
 
+KNOW_HOST_MSG_MAP = {
+    libssh.SSH_KNOWN_HOSTS_CHANGED: "Host key for server has changed: ",
+    libssh.SSH_KNOWN_HOSTS_OTHER: "Host key type for server has changed: ",
+    libssh.SSH_KNOWN_HOSTS_UNKNOWN: "Host is unknown: "
+}
 
-cdef class Session:
+HOST_KEY_AUTO_ADD_MSG_MAP = {
+    libssh.SSH_AUTH_ERROR: " A serious error happened.",
+    libssh.SSH_AUTH_DENIED: "The server doesn't accept that public key as an authentication token. Try another key or another method.",
+    libssh.SSH_AUTH_PARTIAL: "You've been partially authenticated, you still have to use another method.",
+    libssh.SSH_AUTH_AGAIN: "In nonblocking mode, you've got to call this again later."
+}
+
+
+class MissingHostKeyPolicy(object):
+    """
+    Interface for defining the policy that `.SSHClient` should use when the
+    SSH server's hostname is not in either the system host keys or the
+    application's keys.
+    """
+    def missing_host_key(self, session, hostname, username, key_type, fingerprint, message):
+        """
+        Called when an `.Session` receives a server key for a server that
+        isn't in either the system or local known host.  To accept
+        the key, simply return.  To reject, raised an exception (which will
+        be passed to the calling application).
+        """
+        pass
+
+
+class AutoAddPolicy(MissingHostKeyPolicy):
+    """
+    Policy for automatically adding the hostname and new host key.
+    """
+
+    def missing_host_key(self, session, hostname, username, key_type, fingerprint, message):
+        return session.hostkey_auto_add(username)
+
+
+class RejectPolicy(MissingHostKeyPolicy):
+    """
+    Policy for automatically rejecting the unknown hostname & key.
+    """
+
+    def missing_host_key(self, session, hostname, username, key_type, fingerprint, message):
+        raise LibsshSessionException(message)
+
+cdef class Session(object):
+    def __init__(self, host=None, **kwargs):
+        self._policy = RejectPolicy()
+        self._hash_py = None
+        self._fingerprint_py = None
+        self._keytype_py = None
+
     def __cinit__(self, host=None, **kwargs):
         self._libssh_session = libssh.ssh_new()
         if self._libssh_session is NULL:
@@ -112,6 +164,37 @@ cdef class Session:
                 self._opts[key] = value
 
     def connect(self, **kwargs):
+        """Conenct to ssh server and negotiate libssh session by
+        optionally verifying the server's host key and authenticate
+        either by password or private key.
+
+        :param host: The address of the remote host
+        :type host: str
+
+        :param user: The username to authenticate with
+        :type user: str
+
+        :param look_for_keys: Flag to enable searching for private keys in ``~/.ssh/``.
+        The default is set to false
+        :type look_for_keys: boolean
+
+        :param password: The password to authenticate the ssh session
+        :type password: str
+
+        :param host_key_checking: The flag to control is the server key in knownhosts
+        file should be validated. It defaults to True
+        :type host_key_checking: boolean
+
+        :param timeout: The timeout in seconds for the TCP connect
+        :type timeout: long integer
+
+        :param port: The ssh server port to connect to
+        :type port: integer
+
+        :param proxycommand: The proxycommand use to setup a ssh connection using
+        jumphost
+        :type proxycommand: str
+        """
         cdef LibsshSessionException saved_execption = None
 
         for key in kwargs:
@@ -121,24 +204,25 @@ cdef class Session:
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
             raise LibsshSessionException("ssh connect failed: %s" % self._get_session_error_str())
-
-        try:
-            self.verify_knownhost()
-        except Exception:
-            libssh.ssh_disconnect(self._libssh_session)
-            raise
-
-        # try authenticating with public keys
-        try:
-            self.authenticate_pubkey()
-            return
-        except LibsshSessionException as ex:
-            saved_execption = ex
+        if kwargs.get('host_key_checking', True):
+            try:
+                self.verify_knownhost()
+            except Exception:
+                libssh.ssh_disconnect(self._libssh_session)
+                raise
 
         # try authenticating with a password
         if kwargs.get('password'):
             try:
                 self.authenticate_password(kwargs["password"])
+                return
+            except LibsshSessionException as ex:
+                saved_execption = ex
+
+        if kwargs.get('look_for_keys', True):
+            # try authenticating with public keys
+            try:
+                self.authenticate_pubkey()
                 return
             except LibsshSessionException as ex:
                 saved_execption = ex
@@ -154,36 +238,68 @@ cdef class Session:
     def disconnect(self):
         libssh.ssh_disconnect(self._libssh_session)
 
-    def get_server_publickey(self):
+    def _load_server_publickey(self):
         cdef libssh.ssh_key srv_pubkey = NULL
         cdef unsigned char * hash = NULL
         cdef size_t hash_len
-        if libssh.ssh_get_server_publickey(self._libssh_session, &srv_pubkey) != libssh.SSH_OK:
-            return None
+
+        rc = libssh.ssh_get_server_publickey(self._libssh_session, &srv_pubkey)
+        if  rc != libssh.SSH_OK:
+            return
+
         rc = libssh.ssh_get_publickey_hash(srv_pubkey, libssh.SSH_PUBLICKEY_HASH_SHA1, &hash, &hash_len)
+
+        cdef libssh.ssh_keytypes_e key_type = libssh.ssh_key_type(srv_pubkey)
+        cdef const char * keytype_hex = libssh.ssh_key_type_to_char(key_type)
+
+        if keytype_hex is not NULL:
+            self._keytype_py = keytype_hex.decode("ascii")
+
         libssh.ssh_key_free(srv_pubkey)
+
         if rc != libssh.SSH_OK:
-            return None
-        cdef char *hash_hex = libssh.ssh_get_hexa(hash, hash_len)
-        hash_py = hash_hex.decode("ascii")
-        libssh.ssh_string_free_char(hash_hex)
-        return hash_py
+            return
+
+        cdef char * hash_hex = libssh.ssh_get_hexa(hash, hash_len)
+        cdef char * fingerprint_hex = libssh.ssh_get_fingerprint_hash(libssh.SSH_PUBLICKEY_HASH_SHA1,
+                                                                      hash, hash_len)
+
+        self._hash_py = hash_hex.decode("ascii")
+        self._fingerprint_py = fingerprint_hex.decode("ascii")
+
+        libssh.ssh_string_free_char(<char *>hash_hex)
+        libssh.ssh_string_free_char(fingerprint_hex)
+
+    def hostkey_auto_add(self, username, passphrase_py=None):
+        cdef char * passphrase = NULL
+
+        if passphrase_py is not None:
+            passphrase = PyBytes_AS_STRING(passphrase_py)
+
+        rc = libssh.ssh_session_update_known_hosts(self._libssh_session)
+        if rc != libssh.SSH_OK:
+            raise LibsshSessionException("host key auto add failed: %s" % self._get_session_error_str())
 
     def verify_knownhost(self):
         cdef libssh.ssh_known_hosts_e state = libssh.ssh_session_is_known_server(self._libssh_session)
+
         if state == libssh.SSH_KNOWN_HOSTS_OK:
             return True
-        hash = self.get_server_publickey()
+        self._load_server_publickey()
+
         if state == libssh.SSH_KNOWN_HOSTS_ERROR:
             raise LibsshSessionException("verify know host failed: %s" % self._get_session_error_str())
 
-        msg_map = {
-            libssh.SSH_KNOWN_HOSTS_CHANGED: "Host key for server has changed: " + hash,
-            libssh.SSH_KNOWN_HOSTS_OTHER: "Host key type for server has changed: " + hash,
-            libssh.SSH_KNOWN_HOSTS_NOT_FOUND: "Host file not found",
-            libssh.SSH_KNOWN_HOSTS_UNKNOWN: "Host is unknown: " + hash,
-        }
-        raise LibsshSessionException(msg_map[state])
+        if state == libssh.SSH_KNOWN_HOSTS_NOT_FOUND:
+            raise LibsshSessionException("Host file not found: %s" % self._get_session_error_str())
+
+        know_host_msg = KNOW_HOST_MSG_MAP[state] + self._hash_py
+        self._policy.missing_host_key(self,
+                                      self.get_ssh_options('host'),
+                                      self.get_ssh_options('user'),
+                                      self._keytype_py,
+                                      self._fingerprint_py,
+                                      know_host_msg)
 
     def authenticate_pubkey(self):
         cdef int rc
@@ -225,6 +341,13 @@ cdef class Session:
                 libssh.ssh_disconnect(self._libssh_session)
             libssh.ssh_free(self._libssh_session)
             self._libssh_session = NULL
+
+    def set_missing_host_key_policy(self, policy):
+        """The policy to use if the know host key is missing.
+        """
+        if inspect.isclass(policy):
+            policy = policy()
+        self._policy = policy
 
     def _get_session_error_str(self):
         return libssh.ssh_get_error(<void*>self._libssh_session).decode()
