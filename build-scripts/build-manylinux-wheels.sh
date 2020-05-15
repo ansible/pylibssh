@@ -31,7 +31,7 @@ PYTHONS="cp38-cp38 cp37-cp37m cp36-cp36m cp35-cp35m cp27-cp27mu cp27-cp27m"
 # Avoid creation of __pycache__/*.py[c|o]
 export PYTHONDONTWRITEBYTECODE=1
 
-export PATH="$PATH:${HOME}/.local/bin/"
+export PATH="${HOME}/.tools-venv/bin:${HOME}/.local/bin/:$PATH"
 
 PIP_GLOBAL_ARGS=
 if [ -n "$DEBUG" ]
@@ -100,11 +100,13 @@ ARCH=`uname -m`
 
 >&2 echo
 >&2 echo
->&2 echo ========================
->&2 echo Installing build deps...
->&2 echo ========================
+>&2 echo ==============================================
+>&2 echo Installing build deps into a dedicated venv...
+>&2 echo ==============================================
 >&2 echo
-/opt/python/cp38-cp38/bin/pip install --user cmake
+/opt/python/cp38-cp38/bin/python -m venv ~/.tools-venv
+~/.tools-venv/bin/pip install -U pip setuptools
+~/.tools-venv/bin/pip install --unstable-feature=resolver auditwheel cmake
 
 >&2 echo
 >&2 echo
