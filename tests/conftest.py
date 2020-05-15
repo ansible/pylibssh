@@ -3,12 +3,15 @@
 
 """Pytest plugins and fixtures configuration."""
 
+import getpass
 import shutil
 import socket
 import subprocess
 import time
 
 import pytest
+
+from pylibsshext.session import Session
 
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600
@@ -91,6 +94,28 @@ def ssh_clientkey_path(sshd_path):
     subprocess.check_call(keygen_cmd)
     path.chmod(_FILE_PRIV_RW_OWNER)
     return path
+
+
+@pytest.fixture
+def ssh_client_session(sshd_addr, ssh_clientkey_path):
+    """Authenticate against SSHD with a private SSH key.
+
+    :return: Pre-authenticated SSH session.
+    :rtype: pylibsshext.session.Session
+
+    # noqa: DAR101
+    """
+    hostname, port = sshd_addr
+    ssh_session = Session()
+    ssh_session.connect(
+        host=hostname,
+        port=port,
+        user=getpass.getuser(),
+        private_key=ssh_clientkey_path.read_bytes(),
+        host_key_checking=False,
+        look_for_keys=False,
+    )
+    return ssh_session
 
 
 @pytest.fixture
