@@ -196,7 +196,7 @@ cdef class Session(object):
         jumphost
         :type proxycommand: str
         """
-        cdef LibsshSessionException saved_execption = None
+        cdef LibsshSessionException saved_exception = None
 
         for key in kwargs:
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
@@ -218,7 +218,7 @@ cdef class Session(object):
                 self.authenticate_password(kwargs["password"])
                 return
             except LibsshSessionException as ex:
-                saved_execption = ex
+                saved_exception = ex
 
         if kwargs.get('look_for_keys', True):
             # try authenticating with public keys
@@ -226,11 +226,11 @@ cdef class Session(object):
                 self.authenticate_pubkey()
                 return
             except LibsshSessionException as ex:
-                saved_execption = ex
+                saved_exception = ex
 
-        if saved_execption is not None:
+        if saved_exception is not None:
             libssh.ssh_disconnect(self._libssh_session)
-            raise saved_execption
+            raise saved_exception
 
     @property
     def is_connected(self):
