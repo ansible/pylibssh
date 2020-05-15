@@ -47,9 +47,9 @@ keep-going = false
 # exclude = "**.py"
 # parallel = 12
 
-[tool.local.cythonize.kwargs.directives]
+[tool.local.cythonize.kwargs.directive]
 # This section can contain compiler directives
-# NAME = "VALUE"
+embedsignature = true
 
 [tool.local.cythonize.kwargs.compile-time-env]
 # This section can contain compile time env vars
