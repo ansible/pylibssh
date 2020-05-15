@@ -183,6 +183,9 @@ def pre_build_cython(orig_func):  # noqa: WPS210
         if sys.version_info[0] == 2:  # cythonize wants str() internally
             # turn Unicode into native Python 2 `str`:
             cythonize_args = [arg.encode() for arg in cythonize_args]
+        print('=================')
+        print(cythonize_args)
+        print('=================')
         with patched_env(config['env']):
             cythonize_cli_cmd(cythonize_args)
         with patched_distutils_cmd_install():
