@@ -341,6 +341,7 @@ done
 >&2 echo Running test suite against wheels:
 >&2 echo ==================================
 >&2 echo
+yum install -y openssh-server  # needed for sshd pytest fixtures
 cp -vr "${TESTS_SRC_DIR}" "${TESTS_DIR}"
 cp -v "${SRC_DIR}/pytest.ini" "${TESTS_DIR}/"
 #cp -v "${SRC_DIR}/.coveragerc" "${TESTS_DIR}/"
