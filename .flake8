@@ -68,8 +68,9 @@ per-file-ignores =
   src/pylibsshext/*.pyx: E225, E226, E227, E999
 
   # There are multiple `assert`s (S101)
-  # and subprocesses (import – S404; call – S603) in tests:
-  tests/**.py: S101, S404, S603
+  # and subprocesses (import – S404; call – S603) in tests;
+  # also, using fixtures looks like shadowing the outer scope (WPS442):
+  tests/**.py: S101, S404, S603, WPS442
 
 # flake8-pytest-style
 # PT001:
