@@ -176,7 +176,7 @@ cdef class Session(object):
         :type user: str
 
         :param look_for_keys: Flag to enable searching for private keys in ``~/.ssh/``.
-        The default is set to false
+        The default is set to True.
         :type look_for_keys: boolean
 
         :param password: The password to authenticate the ssh session
