@@ -179,6 +179,13 @@ cdef class Session(object):
         The default is set to True.
         :type look_for_keys: boolean
 
+        :param private_key: A private key to authenticate \
+                            the SSH session.
+        :type private_key: bytes
+
+        :param private_key_password: A password for the private key.
+        :type private_key_password: bytes
+
         :param password: The password to authenticate the ssh session
         :type password: str
 
@@ -211,6 +218,17 @@ cdef class Session(object):
             except Exception:
                 libssh.ssh_disconnect(self._libssh_session)
                 raise
+
+        if kwargs.get('private_key'):
+            # try authenticating with a given private key
+            try:
+                self.authenticate_specific_pubkey(
+                    kwargs['private_key'],
+                    kwargs.get('private_key_password'),
+                )
+                return
+            except LibsshSessionException as ex:
+                saved_exception = ex
 
         # try authenticating with a password
         if kwargs.get('password'):
@@ -301,6 +319,54 @@ cdef class Session(object):
                                       self._keytype_py,
                                       self._fingerprint_py,
                                       know_host_msg)
+
+    def authenticate_specific_pubkey(
+            self,
+            bytes private_key_b64 not None,
+            private_key_password=None,
+    ):
+        """Authenticate this session using a private key.
+
+        If a password is provided, it'll be used to decrypt the key.
+
+        :param private_key_b64: A private key.
+        :type private_key_b64: bytes
+
+        :param private_key_password: A password for the private key \
+                                     (if it's protected), defaults to \
+                                     no password.
+        :type private_key_password: bytes, optional
+
+        :raises LibsshSessionException: If authentication failed.
+
+        :return: Nothing.
+        :rtype: NoneType
+        """
+        cdef const char *c_private_key_b64 = private_key_b64
+        cdef bytes b_password
+        cdef const char *c_password = NULL
+        cdef libssh.ssh_key _private_key
+        cdef int rc
+        if private_key_password is not None:
+            if isinstance(private_key_password, bytes):
+                b_password = private_key_password
+            else:
+                b_password = private_key_password.encode()
+            c_password = b_password
+        libssh.ssh_pki_import_privkey_base64(
+            c_private_key_b64, c_password,
+            NULL, NULL,
+            &_private_key,
+        )
+        rc = libssh.ssh_userauth_publickey(
+            self._libssh_session, NULL, &_private_key,
+        )
+        if rc != libssh.SSH_AUTH_SUCCESS:
+            raise LibsshSessionException(
+                "Failed to authenticate a specific public key: "
+                "{!s} (RC={!r})".
+                format(self._get_session_error_str(), rc),
+            )
 
     def authenticate_pubkey(self):
         cdef int rc

@@ -151,6 +151,14 @@ cdef extern from "libssh/libssh.h" nogil:
     ssh_keytypes_e ssh_key_type(ssh_key key)
     int ssh_session_update_known_hosts(ssh_session session)
 
+    ctypedef int(*ssh_auth_callback)(
+        const char *prompt, char *buf, size_t len,
+        int echo, int verify, void *userdata)
+    int ssh_pki_import_privkey_base64(
+        const char *b64_key, const char *passphrase,
+        ssh_auth_callback auth_fn, void *auth_data, ssh_key *pkey)
+
+    int ssh_userauth_publickey(ssh_session session, const char *username, const ssh_key *privkey)
     int ssh_userauth_publickey_auto(ssh_session session, const char *username, const char *passphrase)
     int ssh_userauth_password(ssh_session session, const char *username, const char *password)
 
