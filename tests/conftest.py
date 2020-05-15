@@ -104,7 +104,7 @@ def ssh_authorized_keys_path(sshd_path, ssh_clientkey_path):
     """
     path = sshd_path / 'authorized_keys'
     public_key_path = ssh_clientkey_path.with_suffix('.pub')
-    shutil.copyfile(public_key_path, path)
+    shutil.copyfile(str(public_key_path), str(path))
     path.chmod(_FILE_PRIV_RW_OWNER)
     return path
 
