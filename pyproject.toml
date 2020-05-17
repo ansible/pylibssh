@@ -22,6 +22,8 @@ src = ["src/**/*.pyx"]
 [tool.local.cythonize.env]
 # Env vars provisioned during cythonize call
 LDFLAGS = "-lssh ${LDFLAGS}"
+CYTHON_TRACE = "1"
+CYTHON_TRACE_NOGIL = "1"
 
 [tool.local.cythonize.flags]
 # This section can contain the following booleans:
@@ -49,15 +51,24 @@ keep-going = false
 
 [tool.local.cythonize.kwargs.directive]
 # This section can contain compiler directives
-embedsignature = true
+# Ref: https://github.com/cython/cython/blob/d6e6de9/Cython/Compiler/Options.py#L170-L242
+embedsignature = "True"
+linetrace = "True"
+profile = "True"
 
 [tool.local.cythonize.kwargs.compile-time-env]
 # This section can contain compile time env vars
-# NAME = "VALUE"
+CYTHON_TRACE = 1
+CYTHON_TRACE_NOGIL = 1
 
-[tool.local.cythonize.kwargs.options]
+[tool.local.cythonize.kwargs.option]
 # This section can contain cythonize options
-# NAME = "VALUE"
+# Ref: https://github.com/cython/cython/blob/d6e6de9/Cython/Compiler/Options.py#L694-L730
+#docstrings = "True"
+#embed_pos_in_docstring = "True"
+#warning_errors = "True"
+#error_on_unknown_names = "True"
+#error_on_uninitialized = "True"
 
 # ATTENTION: the following section must be kept last in
 # `pyproject.toml` because the CI appends one line in
