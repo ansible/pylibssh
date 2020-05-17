@@ -142,7 +142,7 @@ cdef extern from "libssh/libssh.h" nogil:
     int ssh_options_set(ssh_session session, ssh_options_e type, const void *value)
 
     int ssh_get_server_publickey(ssh_session session, ssh_key *key)
-    void ssh_key_free(ssh_key)
+    void ssh_key_free(ssh_key key)
 
     int ssh_get_publickey_hash(const ssh_key key, ssh_publickey_hash_type type, unsigned char **hash, size_t *hlen)
     char *ssh_get_hexa(const unsigned char *what, size_t len)
@@ -158,7 +158,7 @@ cdef extern from "libssh/libssh.h" nogil:
         const char *b64_key, const char *passphrase,
         ssh_auth_callback auth_fn, void *auth_data, ssh_key *pkey)
 
-    int ssh_userauth_publickey(ssh_session session, const char *username, const ssh_key *privkey)
+    int ssh_userauth_publickey(ssh_session session, const char *username, const ssh_key privkey)
     int ssh_userauth_publickey_auto(ssh_session session, const char *username, const char *passphrase)
     int ssh_userauth_password(ssh_session session, const char *username, const char *password)
 

@@ -358,15 +358,18 @@ cdef class Session(object):
             NULL, NULL,
             &_private_key,
         )
+
         rc = libssh.ssh_userauth_publickey(
-            self._libssh_session, NULL, &_private_key,
+            self._libssh_session, NULL, _private_key,
         )
+
         if rc != libssh.SSH_AUTH_SUCCESS:
             raise LibsshSessionException(
                 "Failed to authenticate a specific public key: "
                 "{!s} (RC={!r})".
                 format(self._get_session_error_str(), rc),
             )
+        libssh.ssh_key_free(_private_key)
 
     def authenticate_pubkey(self):
         cdef int rc
