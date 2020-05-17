@@ -10,6 +10,7 @@ import subprocess
 
 import pytest
 
+from _service_utils import wait_for_svc_ready_state  # noqa: WPS300, WPS436
 from pylibsshext.session import Session
 
 _DIR_PRIV_RW_OWNER = 0o700
@@ -147,8 +148,9 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
     opt = '-o'
     cmd = (  # noqa: WPS317
         '/usr/sbin/sshd',
-        '-D', '-ddd',
+        '-D',
         '-f', '/dev/null',
+        opt, 'LogLevel=DEBUG3',
         opt, 'HostKey={key!s}'.format(key=sshd_hostkey_path),
         opt, 'PidFile={pid!s}'.format(pid=sshd_path / 'sshd.pid'),
         opt, 'UsePAM=no',
@@ -164,18 +166,9 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
         opt, 'AcceptEnv=LANG LC_*',
         opt, 'Subsystem=sftp internal-sftp',
     )
-    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)  #, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(cmd)
 
-    # Wait for sshd to fully bind to the target socket:
-    sshd_ready_log_line = (
-        'Server listening on {host!s} port {port:d}.\r\n'.
-        format(host=hostname, port=free_port_num).
-        encode()
-    )
-    for sshd_stderr_line in iter(proc.stderr.readline, ''):
-        if sshd_stderr_line == sshd_ready_log_line:
-            # sshd is ready to accept connections
-            break
+    wait_for_svc_ready_state(hostname, free_port_num, b'SSH-2.0-OpenSSH_')
 
     if proc.returncode:
         raise RuntimeError('sshd boom 💣')
