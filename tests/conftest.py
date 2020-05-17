@@ -7,7 +7,6 @@ import getpass
 import shutil
 import socket
 import subprocess
-import time
 
 import pytest
 
@@ -15,7 +14,6 @@ from pylibsshext.session import Session
 
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600
-_SSHD_SPAWN_TIME = 0.009
 
 
 @pytest.fixture
@@ -145,6 +143,7 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
 
     # noqa: DAR101
     """
+    hostname = '127.0.0.1'
     opt = '-o'
     cmd = (  # noqa: WPS317
         '/usr/sbin/sshd',
@@ -160,17 +159,28 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
         opt, 'HostbasedAuthentication=no',
         opt, 'IgnoreUserKnownHosts=yes',
         opt, 'Port={port:d}'.format(port=free_port_num),  # port before addr
-        opt, 'ListenAddress=127.0.0.1',  # addr after port
+        opt, 'ListenAddress={host!s}'.format(host=hostname),  # addr after port
         opt, 'AuthorizedKeysFile={auth_keys!s}'.format(auth_keys=ssh_authorized_keys_path),
         opt, 'AcceptEnv=LANG LC_*',
         opt, 'Subsystem=sftp internal-sftp',
     )
-    proc = subprocess.Popen(cmd)  # , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    time.sleep(_SSHD_SPAWN_TIME)
+    proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)  #, stderr=subprocess.PIPE)
+
+    # Wait for sshd to fully bind to the target socket:
+    sshd_ready_log_line = (
+        'Server listening on {host!s} port {port:d}.\r\n'.
+        format(host=hostname, port=free_port_num).
+        encode()
+    )
+    for sshd_stderr_line in iter(proc.stderr.readline, ''):
+        if sshd_stderr_line == sshd_ready_log_line:
+            # sshd is ready to accept connections
+            break
+
     if proc.returncode:
-        raise RuntimeError('sshd boom')
+        raise RuntimeError('sshd boom 💣')
     try:  # noqa: WPS501
-        yield '127.0.0.1', free_port_num
+        yield hostname, free_port_num
     finally:
         proc.terminate()
         proc.wait()
