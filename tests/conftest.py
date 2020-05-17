@@ -159,11 +159,11 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
         opt, 'Protocol=2',
         opt, 'HostbasedAuthentication=no',
         opt, 'IgnoreUserKnownHosts=yes',
-        opt, 'ListenAddress=127.0.0.1',
+        opt, 'Port={port:d}'.format(port=free_port_num),  # port before addr
+        opt, 'ListenAddress=127.0.0.1',  # addr after port
         opt, 'AuthorizedKeysFile={auth_keys!s}'.format(auth_keys=ssh_authorized_keys_path),
         opt, 'AcceptEnv=LANG LC_*',
         opt, 'Subsystem=sftp internal-sftp',
-        opt, 'Port={port:d}'.format(port=free_port_num),
     )
     proc = subprocess.Popen(cmd)  # , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(_SSHD_SPAWN_TIME)
