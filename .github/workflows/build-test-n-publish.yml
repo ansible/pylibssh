@@ -152,6 +152,9 @@ jobs:
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
+      if: >-
+        github.event_name == 'push' &&
+        github.ref == 'refs/heads/devel'
       run: >-
         echo 'local_scheme = "no-local-version"'
         >>
@@ -218,6 +221,9 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
+      if: >-
+        github.event_name == 'push' &&
+        github.ref == 'refs/heads/devel'
       run: >-
         echo 'local_scheme = "no-local-version"'
         >>
@@ -260,6 +266,9 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
+      if: >-
+        github.event_name == 'push' &&
+        github.ref == 'refs/heads/devel'
       run: >-
         echo 'local_scheme = "no-local-version"'
         >>
