@@ -2,17 +2,7 @@
 
 """Tests suite for sftp."""
 
-import pytest
 
-from pylibsshext.errors import LibsshSFTPException
-from pylibsshext.session import Session
-from pylibsshext.sftp import SFTP
-
-
-@pytest.mark.xfail(
-    reason='Fails for an unknown reason',
-    raises=LibsshSFTPException,
-)
-def test_make_sftp():
+def test_make_sftp(ssh_client_session):
     """Smoke-test SFTP instance creation."""
-    assert SFTP(Session())
+    assert ssh_client_session.sftp()
