@@ -365,7 +365,7 @@ jobs:
       run: python -m tox -p auto --parallel-live -vvvv
 
   deploy:
-    name: Publish 🐍📦 (currently only lists stuff)
+    name: Publish 🐍📦 to (Test)PyPI
     needs:
     - test-matrix
     runs-on: ubuntu-latest
