@@ -30,7 +30,7 @@ def test_exec_command(ssh_channel):
 
 def test_double_close(ssh_channel):
     """Test that closing the channel multiple times doesn't explode."""
-    for _ in range(3):
+    for _ in range(3):  # noqa: WPS122
         ssh_channel.close()
 
 
