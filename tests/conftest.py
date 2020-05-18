@@ -3,16 +3,18 @@
 
 """Pytest plugins and fixtures configuration."""
 
+import getpass
 import shutil
 import socket
 import subprocess
-import time
 
 import pytest
 
+from _service_utils import wait_for_svc_ready_state  # noqa: WPS300, WPS436
+from pylibsshext.session import Session
+
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600
-_SSHD_SPAWN_TIME = 0.009
 
 
 @pytest.fixture
@@ -94,6 +96,28 @@ def ssh_clientkey_path(sshd_path):
 
 
 @pytest.fixture
+def ssh_client_session(sshd_addr, ssh_clientkey_path):
+    """Authenticate against SSHD with a private SSH key.
+
+    :return: Pre-authenticated SSH session.
+    :rtype: pylibsshext.session.Session
+
+    # noqa: DAR101
+    """
+    hostname, port = sshd_addr
+    ssh_session = Session()
+    ssh_session.connect(
+        host=hostname,
+        port=port,
+        user=getpass.getuser(),
+        private_key=ssh_clientkey_path.read_bytes(),
+        host_key_checking=False,
+        look_for_keys=False,
+    )
+    return ssh_session
+
+
+@pytest.fixture
 def ssh_authorized_keys_path(sshd_path, ssh_clientkey_path):
     """Populate authorized_keys.
 
@@ -120,11 +144,13 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
 
     # noqa: DAR101
     """
+    hostname = '127.0.0.1'
     opt = '-o'
     cmd = (  # noqa: WPS317
         '/usr/sbin/sshd',
-        '-D', '-ddd',
+        '-D',
         '-f', '/dev/null',
+        opt, 'LogLevel=DEBUG3',
         opt, 'HostKey={key!s}'.format(key=sshd_hostkey_path),
         opt, 'PidFile={pid!s}'.format(pid=sshd_path / 'sshd.pid'),
         opt, 'UsePAM=no',
@@ -134,18 +160,20 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
         opt, 'Protocol=2',
         opt, 'HostbasedAuthentication=no',
         opt, 'IgnoreUserKnownHosts=yes',
-        opt, 'ListenAddress=127.0.0.1',
+        opt, 'Port={port:d}'.format(port=free_port_num),  # port before addr
+        opt, 'ListenAddress={host!s}'.format(host=hostname),  # addr after port
         opt, 'AuthorizedKeysFile={auth_keys!s}'.format(auth_keys=ssh_authorized_keys_path),
         opt, 'AcceptEnv=LANG LC_*',
         opt, 'Subsystem=sftp internal-sftp',
-        opt, 'Port={port:d}'.format(port=free_port_num),
     )
-    proc = subprocess.Popen(cmd)  # , stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    time.sleep(_SSHD_SPAWN_TIME)
+    proc = subprocess.Popen(cmd)
+
+    wait_for_svc_ready_state(hostname, free_port_num, b'SSH-2.0-OpenSSH_')
+
     if proc.returncode:
-        raise RuntimeError('sshd boom')
+        raise RuntimeError('sshd boom 💣')
     try:  # noqa: WPS501
-        yield '127.0.0.1', free_port_num
+        yield hostname, free_port_num
     finally:
         proc.terminate()
         proc.wait()

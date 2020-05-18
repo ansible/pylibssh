@@ -34,7 +34,7 @@ repos:
   # Non-modifying checks:
   - id: name-tests-test
     files: >-
-      ^tests/.*\.py$
+      ^tests/[^_].*\.py$
   - id: check-added-large-files
   - id: check-byte-order-marker
   - id: check-case-conflict
