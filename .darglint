@@ -1,3 +1,4 @@
 [darglint]
 docstring_style=sphinx
+enable=DAR104
 strictness=long
