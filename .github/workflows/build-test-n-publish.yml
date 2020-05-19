@@ -375,6 +375,9 @@ jobs:
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Run tests
       run: python -m tox -p auto --parallel-live -vvvv
+    - name: Setup tmate session
+      if: failure() && runner.os == 'macOS'
+      uses: mxschmitt/action-tmate@v2
 
   deploy:
     name: Publish 🐍📦 to (Test)PyPI
