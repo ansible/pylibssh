@@ -15,4 +15,7 @@ __full_version__ = (
     '<pylibsshext v{wrapper_ver!s} with libssh v{backend_ver!s}>'.
     format(wrapper_ver=__version__, backend_ver=__libssh_version__)
 )
-__version_info__ = __version__.split('.')
+__version_info__ = tuple(
+    (int(chunk) if chunk.isdigit() else chunk)
+    for chunk in __version__.split('.')
+)
