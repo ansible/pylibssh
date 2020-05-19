@@ -18,7 +18,7 @@ def test_dunder_version_info():
     assert len(__version_info__) >= 3
     assert all(
         type(digit) == int  # noqa: WPS516
-        for digit in __version_info__[:3]
+        for digit in __version_info__[:2]
     )
 
 
