@@ -185,6 +185,9 @@ jobs:
       run: >-
         ${{ steps.install-python.outputs.binary }}
         -m pytest
+    - name: Setup tmate session
+      if: failure()
+      uses: mxschmitt/action-tmate@v2
     - name: Store the binary wheel
       uses: actions/upload-artifact@v2
       with:
