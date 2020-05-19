@@ -69,8 +69,9 @@ per-file-ignores =
 
   # There are multiple `assert`s (S101)
   # and subprocesses (import – S404; call – S603) in tests;
-  # also, using fixtures looks like shadowing the outer scope (WPS442):
-  tests/**.py: S101, S404, S603, WPS442
+  # also, using fixtures looks like shadowing the outer scope (WPS442);
+  # and finally it's impossible to have <= members in tests (WPS202):
+  tests/**.py: S101, S404, S603, WPS202, WPS442
 
 # flake8-pytest-style
 # PT001:
