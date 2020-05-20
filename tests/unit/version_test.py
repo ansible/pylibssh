@@ -2,9 +2,13 @@
 
 """Tests for the version info representation."""
 
+import pytest
+
 from pylibsshext import (
     __full_version__, __libssh_version__, __version__, __version_info__,
 )
+
+pytestmark = pytest.mark.smoke
 
 
 def test_dunder_version():

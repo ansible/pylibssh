@@ -260,58 +260,6 @@ for PY in $PYTHONS; do
     done
 done
 
-# Running analysis
->&2 echo
->&2 echo
->&2 echo =============
->&2 echo SMOKE TESTING
->&2 echo =============
->&2 echo
-for PY_BIN in `ls ${VENVS_DIR}/*/bin/python`; do
-    cleanup_garbage
-    >&2 echo
-    >&2 echo Smoke-testing ${IMPORTABLE_PKG} imports under ${PY_BIN}...
-    $PY_BIN -B -V
-    $PY_BIN -B -c "
-from __future__ import print_function  # needed for file=sys.stderr
-
-import sys
-
-import ${IMPORTABLE_PKG}
-from ${IMPORTABLE_PKG} import (
-    __full_version__, __libssh_version__,
-    __version__, __version_info__,
-)
-print(
-    'libssh version: {!s}\n'.format(__libssh_version__),
-    file=sys.stderr,
-)
-print(
-    'pylibsshext version: {!s}\n'.format(__version__),
-    file=sys.stderr,
-)
-print(
-    'pylibsshext version tuple: {!r}\n'.format(__version_info__),
-    file=sys.stderr,
-)
-print(
-    'combined pylibsshext version: {!s}\n'.format(__full_version__),
-    file=sys.stderr,
-)
-
-from ${IMPORTABLE_PKG}.channel import Channel
-from ${IMPORTABLE_PKG}.errors import LibsshSessionException
-from ${IMPORTABLE_PKG}.session import Session
-from ${IMPORTABLE_PKG}.sftp import SFTP
-
-print(
-    'imported objects: {!r} {!r} {!r} {!r}\n'.
-    format(Channel, LibsshSessionException, Session, SFTP),
-    file=sys.stderr,
-)
-    "
-done
-
 cleanup_garbage
 >&2 echo
 >&2 echo ==============
@@ -337,11 +285,10 @@ done
 
 >&2 echo
 >&2 echo
->&2 echo ==================================
->&2 echo Running test suite against wheels:
->&2 echo ==================================
+>&2 echo ===================================
+>&2 echo Running smoke tests against wheels:
+>&2 echo ===================================
 >&2 echo
-yum install -y openssh-server  # needed for sshd pytest fixtures
 cp -vr "${TESTS_SRC_DIR}" "${TESTS_DIR}"
 cp -v "${SRC_DIR}/pytest.ini" "${TESTS_DIR}/"
 #cp -v "${SRC_DIR}/.coveragerc" "${TESTS_DIR}/"
@@ -350,7 +297,7 @@ for PY_BIN in `ls ${VENVS_DIR}/*/bin/python`; do
     cleanup_garbage
     #$PY_BIN -B -m pip install --no-compile Cython pytest pytest-cov pytest-xdist ${PIP_GLOBAL_ARGS}
     $PY_BIN -B -m pip install --no-compile pytest pytest-cov pytest-xdist ${PIP_GLOBAL_ARGS}
-    $PY_BIN -B -m pytest "${TESTS_DIR}"
+    $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}"
 done
 popd
 

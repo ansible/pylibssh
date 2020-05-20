@@ -185,6 +185,7 @@ jobs:
       run: >-
         ${{ steps.install-python.outputs.binary }}
         -m pytest
+        -m smoke
     - name: Store the binary wheel
       uses: actions/upload-artifact@v2
       with:
