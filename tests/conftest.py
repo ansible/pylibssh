@@ -99,8 +99,8 @@ def ssh_clientkey_path(sshd_path):
 def ssh_client_session(sshd_addr, ssh_clientkey_path):
     """Authenticate against SSHD with a private SSH key.
 
-    :return: Pre-authenticated SSH session.
-    :rtype: pylibsshext.session.Session
+    :yields: Pre-authenticated SSH session.
+    :ytype: pylibsshext.session.Session
 
     # noqa: DAR101
     """
@@ -114,7 +114,11 @@ def ssh_client_session(sshd_addr, ssh_clientkey_path):
         host_key_checking=False,
         look_for_keys=False,
     )
-    return ssh_session
+    try:  # noqa: WPS501
+        yield ssh_session
+    finally:
+        ssh_session.close()
+        del ssh_session  # noqa: WPS420
 
 
 @pytest.fixture
