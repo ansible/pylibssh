@@ -53,6 +53,7 @@ keep-going = false
 # This section can contain compiler directives
 # Ref: https://github.com/cython/cython/blob/d6e6de9/Cython/Compiler/Options.py#L170-L242
 embedsignature = "True"
+emit_code_comments = "True"
 linetrace = "True"
 profile = "True"
 
