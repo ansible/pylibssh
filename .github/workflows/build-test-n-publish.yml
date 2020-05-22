@@ -373,6 +373,10 @@ jobs:
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Run tests
       run: python -m tox -p auto --parallel-live -vvvv
+    - name: Send coverage data to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: .test-results/pytest/cov.xml
 
   deploy:
     name: Publish 🐍📦 to (Test)PyPI

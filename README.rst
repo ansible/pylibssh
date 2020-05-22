@@ -15,6 +15,10 @@
    :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%F0%9F%9A%A8+branch%3Adevel
    :alt: GitHub Workflow Status (🚨/devel)
 
+.. image:: https://img.shields.io/codecov/c/gh/ansible/pylibssh/devel?logo=codecov&logoColor=white
+   :target: https://codecov.io/gh/ansible/pylibssh
+   :alt: devel branch coverage via Codecov
+
 .. image:: https://img.shields.io/badge/style-wemake-000000.svg
    :target: https://github.com/wemake-services/wemake-python-styleguide
 
