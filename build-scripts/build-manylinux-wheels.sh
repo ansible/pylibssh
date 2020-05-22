@@ -297,7 +297,7 @@ for PY_BIN in `ls ${VENVS_DIR}/*/bin/python`; do
     cleanup_garbage
     $PY_BIN -B -m pip install --no-compile Cython pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
     #$PY_BIN -B -m pip install --no-compile pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
-    $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}"
+    $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}" --no-cov
 done
 popd
 
