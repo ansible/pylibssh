@@ -22,6 +22,7 @@ cover_pylib = false
 parallel = true
 # FIXME: https://github.com/cython/cython/issues/3636
 # plugins = Cython.Coverage
+plugins = cython_coverage
 relative_files = true
 source =
   pylibsshext
