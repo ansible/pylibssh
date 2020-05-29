@@ -332,9 +332,6 @@ jobs:
         dist-type:
         - binary
         - source
-        exclude:
-        - dist-type: source
-          runner-vm-os: ubuntu
 
     env:
       PY_COLORS: 1
@@ -346,7 +343,7 @@ jobs:
       if: >-
         matrix.dist-type == 'source' &&
         runner.os == 'Linux'
-      run: sudo apt update && sudo apt install libssh-dev libssl-dev build-essential
+      run: sudo apt update && sudo apt install libssh-dev libssl-dev build-essential python3-dev python-dev gcc
     - name: Install libssh and openssl headers on macOS
       if: >-
         matrix.dist-type == 'source' &&
