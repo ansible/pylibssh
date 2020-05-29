@@ -22,6 +22,7 @@ src = ["src/**/*.pyx"]
 [tool.local.cythonize.env]
 # Env vars provisioned during cythonize call
 LDFLAGS = "-lssh ${LDFLAGS}"
+CFLAGS = "-DCYTHON_TRACE=1"
 CYTHON_TRACE = "1"
 CYTHON_TRACE_NOGIL = "1"
 
