@@ -1,6 +1,3 @@
-# cython: linetrace=True, lineprofile=True
-# distutils: define_macros=CYTHON_TRACE_NOGIL=1
-# distutils: define_macros=CYTHON_TRACE=1
 #
 # This file is part of the pylibssh library
 #
