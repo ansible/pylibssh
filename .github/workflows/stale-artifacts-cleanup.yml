@@ -1,7 +1,7 @@
 name: 🗑 Wipe stale artifacts
 on:
   schedule:
-  - cron: 23 * * * *  # every hour
+  - cron: 37 * * * *  # every hour
 
 jobs:
   cleanup-artifacts:
@@ -13,6 +13,6 @@ jobs:
     - name: Remove old artifacts
       uses: c-hive/gha-remove-artifacts@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        expire-in: 1 week  # Setting this to 0 will delete all artifacts
+        age: 1 week  # Setting this to 0 will delete all artifacts
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         skip-recent: 24
