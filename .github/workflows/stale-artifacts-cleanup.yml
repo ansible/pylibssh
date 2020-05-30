@@ -15,3 +15,4 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         expire-in: 1 week  # Setting this to 0 will delete all artifacts
+        skip-recent: 24
