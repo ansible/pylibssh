@@ -1,7 +1,7 @@
 name: 🗑 Wipe stale artifacts
 on:
   schedule:
-  - cron: '16 * * * *'  # every hour
+  - cron: 23 * * * *  # every hour
 
 jobs:
   cleanup-artifacts:
