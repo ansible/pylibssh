@@ -16,8 +16,11 @@ IS_PY2 = sys.version_info[0] == 2
 def sftp_session(ssh_client_session):
     """Initialize an SFTP session and destroy it after testing."""
     sftp_sess = ssh_client_session.sftp()
-    yield sftp_sess
-    del sftp_sess  # noqa: WPS420
+    try:  # noqa: WPS501
+        yield sftp_sess
+    finally:
+        sftp_sess.close()
+        del sftp_sess  # noqa: WPS420
 
 
 @pytest.fixture

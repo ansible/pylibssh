@@ -100,5 +100,10 @@ cdef class SFTP:
                     raise LibsshSFTPException("Opening remote file [%s] for read failed" % remote_file)
         sftp.sftp_close(rf)
 
+    def close(self):
+        if self._libssh_sftp_session is not NULL:
+            sftp.sftp_free(self._libssh_sftp_session)
+            self._libssh_sftp_session = NULL
+
     def _get_sftp_error_str(self):
         return sftp.sftp_get_error(self._libssh_sftp_session)
