@@ -356,7 +356,7 @@ jobs:
     - name: Install libssh headers on Linux for cythonize+coverage
       if: >-
         runner.os == 'Linux'
-      run: sudo apt update && sudo apt install libssh-dev
+      run: sudo add-apt-repository ppa:kedazo/libssh-0.7.x && sudo apt update && sudo apt install libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
