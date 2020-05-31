@@ -373,6 +373,9 @@ jobs:
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Run tests
       run: python -m tox -p auto --parallel-live -vvvv
+    - name: Setup tmate session
+      if: failure()
+      uses: mxschmitt/action-tmate@v2
     - name: Send coverage data to Codecov
       uses: codecov/codecov-action@v1
       with:
