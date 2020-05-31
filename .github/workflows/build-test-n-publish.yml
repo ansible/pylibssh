@@ -350,7 +350,6 @@ jobs:
       run: sudo apt update && sudo apt install libssh-dev libssl-dev build-essential
     - name: Install libssh and openssl headers on macOS
       if: >-
-        #matrix.dist-type == 'source' &&
         runner.os == 'macOS'
       run: brew install libssh
     - name: Install libssh headers on Linux for cythonize+coverage
