@@ -174,7 +174,6 @@ cdef extern from "libssh/libssh.h" nogil:
     int ssh_channel_read(ssh_channel channel, void *dest, uint32_t count, int is_stderr)
     int ssh_channel_read_nonblocking(ssh_channel channel, void *dest, uint32_t count, int is_stderr)
     int ssh_channel_poll_timeout(ssh_channel channel, int timeout, int is_stderr)
-    int ssh_channel_close(ssh_channel channel)
     int ssh_channel_request_exec(ssh_channel channel, const char *cmd)
     int ssh_channel_get_exit_status(ssh_channel channel)
     int ssh_channel_send_eof(ssh_channel channel)

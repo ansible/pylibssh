@@ -61,8 +61,6 @@ cdef class Channel:
             raise LibsshChannelException("Failed to open_session: [%d]" % rc)
 
     def __dealloc__(self):
-        if self._libssh_channel is not NULL:
-            libssh.ssh_channel_close(self._libssh_channel)
         libssh.ssh_channel_free(self._libssh_channel)
         self._libssh_channel = NULL
 
@@ -151,7 +149,6 @@ cdef class Channel:
 
         rc = libssh.ssh_channel_request_exec(channel, command.encode("utf-8"))
         if rc != libssh.SSH_OK:
-            libssh.ssh_channel_close(channel)
             libssh.ssh_channel_free(channel)
             raise CalledProcessError()
 
@@ -166,7 +163,6 @@ cdef class Channel:
         libssh.ssh_channel_send_eof(channel)
         result.returncode = libssh.ssh_channel_get_exit_status(channel)
 
-        libssh.ssh_channel_close(channel)
         libssh.ssh_channel_free(channel)
 
         return result
@@ -175,7 +171,5 @@ cdef class Channel:
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
 
     def close(self):
-        if self._libssh_channel is not NULL:
-            libssh.ssh_channel_close(self._libssh_channel)
         libssh.ssh_channel_free(self._libssh_channel)
         self._libssh_channel = NULL
