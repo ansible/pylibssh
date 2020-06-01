@@ -91,14 +91,17 @@ cdef class SFTP:
                 break
             elif file_data < 0:
                 sftp.sftp_close(rf)
-                raise LibsshSFTPException("Opening remote file [%s] for read failed" % remote_file)
+                raise LibsshSFTPException("Reading data from remote file [%s] failed with error [%s]"
+                                          % (remote_file, MSG_MAP.get(self._get_sftp_error_str())))
 
             with open(local_file, 'w+') as f:
                 bytes_wrote = f.write(read_buffer[:file_data].decode("UTF-8"))
                 if file_data != bytes_wrote:
                     sftp.sftp_close(rf)
-                    raise LibsshSFTPException("Opening remote file [%s] for read failed" % remote_file)
-        sftp.sftp_close(rf)
+                raise LibsshSFTPException("Number of bytes [%s] read from remote file [%s]"
+                                          " does not match number of bytes [%s] written to local file [%s]"
+                                          % (file_data, remote_file, bytes_wrote, local_file))
+            sftp.sftp_close(rf)
 
     def close(self):
         if self._libssh_sftp_session is not NULL:
