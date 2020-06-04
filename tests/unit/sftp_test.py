@@ -2,7 +2,6 @@
 
 """Tests suite for sftp."""
 
-import sys
 import uuid
 
 import pytest
