@@ -64,11 +64,6 @@ def test_put(dst_path, src_path, sftp_session, transmit_payload):
     assert dst_path.read_bytes() == transmit_payload
 
 
-@pytest.mark.xfail(
-    IS_PY2,
-    raises=LibsshSFTPException,
-    reason='Some fs permissions error.',
-)
 def test_get(dst_path, src_path, sftp_session, transmit_payload):
     """Check that SFTP file download works."""
     sftp_session.get(str(src_path), str(dst_path))
