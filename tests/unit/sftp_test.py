@@ -8,9 +8,6 @@ import uuid
 import pytest
 
 
-IS_PY2 = sys.version_info[0] == 2
-
-
 @pytest.fixture
 def sftp_session(ssh_client_session):
     """Initialize an SFTP session and destroy it after testing."""
