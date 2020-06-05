@@ -11,9 +11,9 @@ ENV LANG C.UTF-8
 RUN addgroup -g 2000 travis
 RUN adduser -u 2000 -G travis -D travis
 
-RUN apk add --no-cache git libffi-dev curl python-dev \
+RUN apk add --no-cache git libffi-dev curl \
     python3-dev libressl-dev bash gcc musl-dev
 
-RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
+RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
 
 RUN pip install -q tox
