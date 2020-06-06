@@ -291,12 +291,10 @@ done
 >&2 echo
 cp -vr "${TESTS_SRC_DIR}" "${TESTS_DIR}"
 cp -v "${SRC_DIR}/pytest.ini" "${TESTS_DIR}/"
-cp -v "${SRC_DIR}/.coveragerc" "${TESTS_DIR}/"
 pushd "${TESTS_DIR}"
 for PY_BIN in `ls ${VENVS_DIR}/*/bin/python`; do
     cleanup_garbage
-    $PY_BIN -B -m pip install --no-compile Cython pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
-    #$PY_BIN -B -m pip install --no-compile pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
+    $PY_BIN -B -m pip install --no-compile pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
     $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}" --no-cov
 done
 popd
