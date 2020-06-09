@@ -24,6 +24,7 @@ def ssh_channel(ssh_client_session):
 
 @pytest.mark.xfail(
     reason='This test causes SEGFAULT, flakily.',
+    run=False,
     strict=False,
 )
 @pytest.mark.forked
