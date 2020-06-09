@@ -179,8 +179,6 @@ jobs:
         --no-index -f dist
         --only-binary ansible-pylibssh
         ansible-pylibssh
-    - name: Disable Cython coverage plugin
-      run: sed -i.bak 's/.*Cython.Coverage//' .coveragerc
     - name: Run tests using pytest
       run: >-
         ${{ steps.install-python.outputs.binary }}
