@@ -155,10 +155,9 @@ jobs:
       if: >-
         github.event_name == 'push' &&
         github.ref == 'refs/heads/devel'
-      run: >-
-        echo 'local_scheme = "no-local-version"'
-        >>
-        pyproject.toml
+      run: |
+        echo 'local_scheme = "no-local-version"' >> pyproject.toml
+        git update-index --assume-unchanged pyproject.toml
     - name: Build dist
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
     - name: Bundle external shared libs
@@ -224,10 +223,9 @@ jobs:
       if: >-
         github.event_name == 'push' &&
         github.ref == 'refs/heads/devel'
-      run: >-
-        echo 'local_scheme = "no-local-version"'
-        >>
-        pyproject.toml
+      run: |
+        echo 'local_scheme = "no-local-version"' >> pyproject.toml
+        git update-index --assume-unchanged pyproject.toml
     - name: Build dists and verify wheel metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
@@ -269,10 +267,9 @@ jobs:
       if: >-
         github.event_name == 'push' &&
         github.ref == 'refs/heads/devel'
-      run: >-
-        echo 'local_scheme = "no-local-version"'
-        >>
-        pyproject.toml
+      run: |
+        echo 'local_scheme = "no-local-version"' >> pyproject.toml
+        git update-index --assume-unchanged pyproject.toml
     - name: Build sdist and verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
