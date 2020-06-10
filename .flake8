@@ -39,8 +39,9 @@ filename =
   # Cython files:
   *.pyx
 
+# IMPORTANT: avoid using ignore option, always use extend-ignore instead
 # Completely and unconditionally ignore the following errors:
-ignore =
+extend-ignore =
   WPS306  # "Found class without a base class: *" -- we have metaclass shims
   WPS422  # "Found future import: *" -- we need these for multipython
 
