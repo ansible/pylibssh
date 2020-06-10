@@ -169,7 +169,7 @@ popd
 >&2 echo Building wheels:
 >&2 echo ================
 >&2 echo
-export CFLAGS="'-I${LIBSSH_CLONE_DIR}/include' '-I${STATIC_DEPS_PREFIX}/include' '-I${BUILD_DIR}/libssh/include' -DCYTHON_TRACE=1 ${CFLAGS}"
+export CFLAGS="'-I${LIBSSH_CLONE_DIR}/include' '-I${STATIC_DEPS_PREFIX}/include' '-I${BUILD_DIR}/libssh/include' ${CFLAGS}"
 for PY in $PYTHONS; do
     PIP_BIN="/opt/python/${PY}/bin/pip"
     cleanup_garbage

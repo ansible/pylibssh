@@ -21,10 +21,9 @@ src = ["src/**/*.pyx"]
 
 [tool.local.cythonize.env]
 # Env vars provisioned during cythonize call
+ANSIBLE_PYLIBSSH_TRACING = "1"
+#CFLAGS = "-DCYTHON_TRACE=1 ${CFLAGS}"
 LDFLAGS = "-lssh ${LDFLAGS}"
-#CFLAGS = "-DCYTHON_TRACE=1"
-CYTHON_TRACE = "1"
-CYTHON_TRACE_NOGIL = "1"
 
 [tool.local.cythonize.flags]
 # This section can contain the following booleans:

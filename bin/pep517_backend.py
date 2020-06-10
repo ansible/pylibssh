@@ -137,6 +137,12 @@ def patched_env(env):
     orig_env = os.environ.copy()
     expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
     os.environ.update(expanded_env)
+    if os.getenv('ANSIBLE_PYLIBSSH_TRACING') == '1':
+        os.environ['CFLAGS'] = ' '.join((
+            os.getenv('CFLAGS', ''),
+            '-DCYTHON_TRACE=1',
+            '-DCYTHON_TRACE_NOGIL=1',
+        )).strip()
     try:  # noqa: WPS501
         yield
     finally:
