@@ -59,8 +59,6 @@ profile = "True"
 
 [tool.local.cythonize.kwargs.compile-time-env]
 # This section can contain compile time env vars
-CYTHON_TRACE = 1
-CYTHON_TRACE_NOGIL = 1
 
 [tool.local.cythonize.kwargs.option]
 # This section can contain cythonize options
