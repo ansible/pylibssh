@@ -19,7 +19,7 @@ from libc.stdint cimport uint32_t
 
 from pylibsshext.includes.libssh cimport ssh_session, ssh_channel
 
-cdef extern from "libssh/callbacks.h" nogil:
+cdef extern from "libssh/callbacks.h":
 
     void ssh_callbacks_init(void *)
 
