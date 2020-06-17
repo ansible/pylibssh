@@ -5,8 +5,71 @@ on:
   pull_request:
 
 jobs:
+  pre-setup:
+    name: Pre-set global build settings
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: python
+    outputs:
+      dist_version: ${{ steps.scm_version.outputs.dist_version }}
+      is_untagged_devel: >-
+        ${{ steps.not_tagged_check.outputs.is_untagged_devel || false }}
+      is_tagged: ${{ steps.tagged_check.outputs.is_tagged || false }}
+      profiling_enabled: >-
+        ${{ steps.profiling_check.outputs.profiling_enabled || false }}
+    steps:
+    - name: >-
+        Mark the build as non-tagged
+        ${{ github.event.repository.default_branch }} build
+      id: not_tagged_check
+      if: >-
+        github.event_name == 'push' &&
+        github.ref == format(
+          'refs/heads/{0}', github.event.repository.default_branch
+        )
+      run: >-
+        print('::set-output name=is_untagged_devel::true')
+    - name: Mark the build as tagged
+      id: tagged_check
+      if: >-
+        github.event_name == 'push' &&
+        startsWith(github.ref, 'refs/tags')
+      run: >-
+        print('::set-output name=is_tagged::true')
+    - name: Enable profiling of the build
+      id: profiling_check
+      if: >-
+        steps.tagged_check.outputs.is_tagged != 'true'
+      run: >-
+        print('::set-output name=profiling_enabled::true')
+    - name: Set up versioning prerequisites
+      run: >-
+        python -m
+        pip install
+        --user
+        setuptools-scm
+      shell: bash
+    - name: Check out src from Git
+      uses: actions/checkout@v2
+    - name: Get history and tags for SCM versioning to work
+      run: |
+        git fetch --prune --unshallow
+        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      shell: bash
+    - name: Set the current dist version
+      id: scm_version
+      run: |
+        import setuptools_scm
+        ver = setuptools_scm.get_version(
+          ${{ steps.not_tagged_check.outputs.is_untagged_devel == 'true' && 'local_scheme="no-local-version"' || '' }}
+        )
+        print('::set-output name=dist_version::{ver}'.format(ver=ver))
+
   build-bin-macos:
     name: 🏗 macOS 📦 for 🐍 ${{ matrix.python-version }}
+    needs:
+    - pre-setup
     # NOTE: I tried also making wheels for 32-bit runtime but it's
     # NOTE: proven to be useless and hard to maintain. Also macOS
     # NOTE: Catalina ditched support for 32-bit executables so it
@@ -152,9 +215,7 @@ jobs:
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/devel'
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
         echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
@@ -193,6 +254,8 @@ jobs:
 
   build-bin-manylinux:
     name: 🏗 manylinux 📦
+    needs:
+    - pre-setup
     runs-on: ubuntu-latest
 
     env:
@@ -220,9 +283,7 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/devel'
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
         echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
@@ -236,6 +297,8 @@ jobs:
 
   build-src:
     name: 🏗 an sdist 📦
+    needs:
+    - pre-setup
     runs-on: ubuntu-latest
 
     env:
@@ -264,9 +327,7 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/devel'
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
         echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
@@ -281,6 +342,7 @@ jobs:
   all-the-dists-combo:
     name: Combine 🐍 dists 📦
     needs:
+    - pre-setup  # transitive, for accessing settings
     - build-bin-macos
     - build-bin-manylinux
     - build-src
@@ -380,6 +442,7 @@ jobs:
   deploy:
     name: Publish 🐍📦 to (Test)PyPI
     needs:
+    - pre-setup  # transitive, for accessing settings
     - test-matrix
     runs-on: ubuntu-latest
 
@@ -411,17 +474,13 @@ jobs:
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Publish 🐍📦 to TestPyPI
-      if: >-
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/devel'
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.testpypi_password }}
         repository_url: https://test.pypi.org/legacy/
     - name: Publish 🐍📦 to PyPI
-      if: >-
-        github.event_name == 'push' &&
-        startsWith(github.ref, 'refs/tags')
+      if: fromJSON(needs.pre-setup.outputs.is_tagged)
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.pypi_password }}
