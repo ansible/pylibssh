@@ -228,7 +228,7 @@ jobs:
         git update-index --assume-unchanged pyproject.toml
     - name: Build dists and verify wheel metadata
       run: python -m tox -p auto --parallel-live -vvvv
-    - name: Store the source distribution
+    - name: Store the binary wheels
       uses: actions/upload-artifact@v2
       with:
         name: dist-wheels-manylinux
