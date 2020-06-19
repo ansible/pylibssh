@@ -1,6 +1,7 @@
 name: 🏗 📦 & test & publish
 
 on:
+  create:  # branch or tag created, need to filter on publish
   push:
   pull_request:
 
@@ -32,9 +33,9 @@ jobs:
         print('::set-output name=is_untagged_devel::true')
     - name: Mark the build as tagged
       id: tagged_check
-      if: >-
-        github.event_name == 'push' &&
-        startsWith(github.ref, 'refs/tags')
+      if: >-  # "create" workflows run separately from "push" & "pull_request"
+        github.event_name == 'create' &&
+        github.event.ref_type == 'tag'
       run: >-
         print('::set-output name=is_tagged::true')
     - name: Enable profiling of the build
