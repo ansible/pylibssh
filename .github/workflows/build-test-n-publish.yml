@@ -475,7 +475,9 @@ jobs:
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Publish 🐍📦 to TestPyPI
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
+        fromJSON(needs.pre-setup.outputs.is_tagged)
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.testpypi_password }}
