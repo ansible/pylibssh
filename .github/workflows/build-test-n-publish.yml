@@ -89,6 +89,8 @@ jobs:
         - 3.5
 
     env:
+      ANSIBLE_PYLIBSSH_TRACING: >-
+        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       PEP517_ARGS: --binary
       PY_COLORS: 1
       TOXENV: build-wheels-pip,delocate-macos-wheels,metadata-validation
@@ -260,6 +262,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      ANSIBLE_PYLIBSSH_TRACING: >-
+        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       PY_COLORS: 1
       TOXENV: build-dists-manylinux,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
@@ -303,6 +307,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      ANSIBLE_PYLIBSSH_TRACING: >-
+        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       PEP517_ARGS: --source
       PY_COLORS: 1
       TOXENV: build-dists,metadata-validation
@@ -375,6 +381,7 @@ jobs:
       ${{ matrix.runner-vm-os }}
       ${{ matrix.dist-type }} dists
     needs:
+    - pre-setup  # transitive, for accessing settings
     - all-the-dists-combo
     runs-on: ${{ matrix.runner-vm-os }}-latest
     strategy:
@@ -396,6 +403,8 @@ jobs:
           runner-vm-os: ubuntu
 
     env:
+      ANSIBLE_PYLIBSSH_TRACING: >-
+        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       PY_COLORS: 1
       TOXENV: test-${{ matrix.dist-type }}-dists
       TOX_PARALLEL_NO_SPINNER: 1
