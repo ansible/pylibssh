@@ -491,7 +491,6 @@ jobs:
       with:
         password: ${{ secrets.testpypi_password }}
         repository_url: https://test.pypi.org/legacy/
-        skip_existing: true
     - name: Publish 🐍📦 to PyPI
       if: fromJSON(needs.pre-setup.outputs.is_tagged)
       uses: pypa/gh-action-pypi-publish@master
