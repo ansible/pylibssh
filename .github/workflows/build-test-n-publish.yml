@@ -5,6 +5,8 @@ on:
     tags:  # any tag regardless of its name, no branches
   push:  # publishes to TestPyPI pushes to the main branch
     branches:  # any branch but not tag
+    - >-
+      **
     tags-ignore:
     - >-
       **
