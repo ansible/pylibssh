@@ -1,8 +1,10 @@
 name: 🏗 📦 & test & publish
 
 on:
-  create:  # branch or tag created, need to filter on publish
-  push:
+  create:  # is used for publishing to PyPI and TestPyPI
+    tags:  # any tag regardless of its name, no branches
+  push:  # publishes to TestPyPI pushes to the main branch
+    branches:  # any branch but not tag
   pull_request:
 
 jobs:
@@ -57,6 +59,14 @@ jobs:
       run: |
         git fetch --prune --unshallow
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      shell: bash
+    - name: Drop Git tags from HEAD for non-tag-create events
+      if: >-
+        steps.tagged_check.outputs.is_tagged != 'true'
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
       shell: bash
     - name: Set the current dist version
       id: scm_version
@@ -215,6 +225,14 @@ jobs:
       run: |
         git fetch --prune --unshallow
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+    - name: Drop Git tags from HEAD for non-tag-create events
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.is_tagged)
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
@@ -285,6 +303,14 @@ jobs:
       run: |
         git fetch --prune --unshallow
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+    - name: Drop Git tags from HEAD for non-tag-create events
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.is_tagged)
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
@@ -331,6 +357,14 @@ jobs:
       run: |
         git fetch --prune --unshallow
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+    - name: Drop Git tags from HEAD for non-tag-create events
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.is_tagged)
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
