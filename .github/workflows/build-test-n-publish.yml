@@ -62,7 +62,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+          ${{ steps.tagged_check.outputs.is_tagged == 'true' && 1 || 0 }}
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
