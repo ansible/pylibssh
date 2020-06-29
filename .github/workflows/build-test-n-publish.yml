@@ -60,6 +60,8 @@ jobs:
       shell: bash
     - name: Check out src from Git
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --prune --unshallow
@@ -226,6 +228,8 @@ jobs:
         tox
     - name: Check out src from Git
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --prune --unshallow
@@ -304,6 +308,8 @@ jobs:
         tox
     - name: Check out src from Git
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --prune --unshallow
@@ -358,6 +364,8 @@ jobs:
         tox
     - name: Check out src from Git
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --prune --unshallow
