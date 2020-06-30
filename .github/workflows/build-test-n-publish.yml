@@ -63,10 +63,6 @@ jobs:
       with:
         fetch-depth: >-
           ${{ steps.tagged_check.outputs.is_tagged == 'true' && 1 || 0 }}
-    - name: Get history and tags for SCM versioning to work
-      run: |
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      shell: bash
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         steps.tagged_check.outputs.is_tagged != 'true'
@@ -231,9 +227,6 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
-    - name: Get history and tags for SCM versioning to work
-      run: |
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -311,9 +304,6 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
-    - name: Get history and tags for SCM versioning to work
-      run: |
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -367,9 +357,6 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
-    - name: Get history and tags for SCM versioning to work
-      run: |
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
