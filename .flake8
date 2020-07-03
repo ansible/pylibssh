@@ -85,3 +85,6 @@ pytest-parametrize-names-type = tuple
 # PT007:
 pytest-parametrize-values-type = tuple
 pytest-parametrize-values-row-type = tuple
+
+# wemake-python-styleguide
+show-source = true
