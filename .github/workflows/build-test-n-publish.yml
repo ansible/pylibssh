@@ -483,11 +483,11 @@ jobs:
       with:
         file: .test-results/pytest/cov.xml
 
-  deploy:
-    name: Publish 🐍📦 to (Test)PyPI
+  dist-meta:
+    name: Verify 🐍📦 metadata
     needs:
     - pre-setup  # transitive, for accessing settings
-    - test-matrix
+    - all-the-dists-combo
     runs-on: ubuntu-latest
 
     env:
@@ -497,7 +497,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.8 by default
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: 3.8
     - name: Install tox
@@ -517,6 +517,24 @@ jobs:
         path: dist/
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
+
+  deploy:
+    name: Publish 🐍📦 to (Test)PyPI
+    needs:
+    - dist-meta
+    - pre-setup  # transitive, for accessing settings
+    - test-matrix
+    if: >-
+      fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
+      fromJSON(needs.pre-setup.outputs.is_tagged)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v2
+      with:
+        name: all-the-dists
+        path: dist/
     - name: Publish 🐍📦 to TestPyPI
       if: >-
         fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
