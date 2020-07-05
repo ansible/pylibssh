@@ -8,6 +8,7 @@ then
 fi
 
 LIBSSH_VERSION="$1"
+PYTHON_TARGET="$2"
 
 set -Eeuo pipefail
 
@@ -25,7 +26,25 @@ then
     exit 1
 fi
 
-PYTHONS="cp38-cp38 cp37-cp37m cp36-cp36m cp35-cp35m cp27-cp27mu cp27-cp27m"
+PYTHONS="$(ls -1 /opt/python/ | sort -r)"
+if [ -n "${PYTHON_TARGET}" ]
+then
+    if &>/dev/null grep -ow "^${PYTHON_TARGET}$" <<<"$PYTHONS"
+    then
+        >&2 echo Using the target Python requested \
+            by the second argument ${PYTHON_TARGET}
+        PYTHONS="${PYTHON_TARGET}"
+    else
+        >&2 echo Invalid Python target requested \
+            by the second CLI argument ${PYTHON_TARGET}
+        exit 1
+    fi
+else
+    >&2 echo Using all Python targets found in this env
+fi
+
+>&2 echo Selected Python targets for this build run:
+echo "${PYTHONS}" | >&2 tr ' ' '\n'
 
 
 # Avoid creation of __pycache__/*.py[c|o]
