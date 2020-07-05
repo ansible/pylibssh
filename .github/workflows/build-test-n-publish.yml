@@ -276,10 +276,23 @@ jobs:
         path: dist
 
   build-bin-manylinux:
-    name: 🏗 manylinux 📦
+    name: 🏗 manylinux 📦 for 🐍 ${{ matrix.manylinux-python-target }}
     needs:
     - pre-setup
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        manylinux-python-target:
+        # NOTE: Must be from this list:
+        # NOTE: $ podman run -it --rm \
+        # NOTE:   quay.io/pypa/manylinux1_x86_64 \
+        # NOTE:   ls -1 /opt/python
+        - cp38-cp38
+        - cp37-cp37m
+        - cp36-cp36m
+        - cp35-cp35m
+        - cp27-cp27mu
+        - cp27-cp27m
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
@@ -319,12 +332,18 @@ jobs:
       run: |
         echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
-    - name: Build dists and verify wheel metadata
-      run: python -m tox -p auto --parallel-live -vvvv
-    - name: Store the binary wheels
+    - name: >-
+        Build ${{ matrix.manylinux-python-target }} dist
+        and verify wheel metadata
+      run: >-
+        python -m
+        tox -p auto --parallel-live -vvvv
+        --
+        ${{ matrix.manylinux-python-target }}
+    - name: Store ${{ matrix.manylinux-python-target }} binary wheel
       uses: actions/upload-artifact@v2
       with:
-        name: dist-wheels-manylinux
+        name: dist-wheel-manylinux-${{ matrix.manylinux-python-target }}
         path: dist
 
   build-src:
@@ -398,7 +417,7 @@ jobs:
       run: |
         mkdir -pv dist/
         cp -v \
-          .github/workflows/.tmp/artifacts/dist-{src/*.tar.gz,wheel{s-manylinux,-macOS-python*}/*.whl} \
+          .github/workflows/.tmp/artifacts/dist-{src/*.tar.gz,wheel{-manylinux-cp*-cp*{,m{,u}},-macOS-python*}/*.whl} \
           dist/
     - name: >-
         Store the whole distributions
