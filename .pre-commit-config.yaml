@@ -57,6 +57,7 @@ repos:
   - id: flake8
     language_version: python3
     additional_dependencies:
+    - darglint<1.5.0  # https://github.com/terrencepreilly/darglint/issues/107
     - flake8-2020>=1.6.0
     - flake8-docstrings
     - flake8-pytest-style>=1.0.0
