@@ -573,6 +573,59 @@ jobs:
       with:
         password: ${{ secrets.pypi_password }}
 
+  dumb-pypi:
+    name: Publish nightlies to Dumb PyPI  # https://ansible.github.io/pylibssh/
+    needs:
+    - dist-meta
+    - pre-setup  # transitive, for accessing settings
+    - test-matrix
+    if: >-
+      fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
+      fromJSON(needs.pre-setup.outputs.is_tagged)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download the recent published versions from TestPyPI
+      run: >-
+        python -m
+        pip download
+        --index-url https://test.pypi.org/simple/
+        --dest dist/
+        --no-deps
+        --pre
+        ansible-pylibssh
+    - name: Download all the dists
+      uses: actions/download-artifact@v2
+      with:
+        name: all-the-dists
+        path: dist/
+
+    - name: Switch to Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dumb-pypi dist from PyPI
+      run: python -m pip install dumb-pypi --user
+    - name: Generate a dumb PyPI website
+      run: |
+        python -m dumb_pypi.main \
+          --package-list <(ls dist/) \
+          --packages-url https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/dist \
+          --output-dir gh-pages-dumb-pypi
+      shell: bash
+
+    - name: >-
+        Copy dists from this build and TestPyPI
+        to the generated dumb PyPI website dir
+      run: cp -av dist gh-pages-dumb-pypi/
+
+    - name: Publish the dumb PyPI website to GH Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        force_orphan: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: gh-pages-dumb-pypi
+
 
 # TODO: Test install from sdist
 #
