@@ -3,6 +3,11 @@ name: 🏗 📦 & test & publish
 on:
   create:  # is used for publishing to PyPI and TestPyPI
     tags:  # any tag regardless of its name, no branches
+    - >-
+      **
+    branches-ignore:
+    - >-
+      **
   push:  # publishes to TestPyPI pushes to the main branch
     branches:  # any branch but not tag
     - >-
