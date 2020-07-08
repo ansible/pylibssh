@@ -2,7 +2,11 @@
 
 """Tests suite for channel."""
 
+import time
+
 import pytest
+
+COMMAND_TIMEOUT = 30
 
 
 @pytest.fixture
@@ -45,3 +49,19 @@ def test_channel_exit_status(ssh_channel):
     """Test retrieving a channel exit status upon close."""
     ssh_channel.close()
     assert ssh_channel.get_channel_exit_status() == -1
+
+
+def test_read_bulk_response(ssh_client_session):
+    """Test getting the output of a remotely executed command."""
+    ssh_shell = ssh_client_session.invoke_shell()
+    ssh_shell.sendall(b'echo -n Hello World')
+    response = b''
+    timeout = 2
+    while b'Hello World' not in response:
+        response += ssh_shell.read_bulk_response()
+        time.sleep(timeout)
+        timeout += 2
+        if timeout == COMMAND_TIMEOUT:
+            break
+
+    assert b'Hello World' in response  # noqa: WPS302
