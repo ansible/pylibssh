@@ -26,7 +26,7 @@ then
     exit 1
 fi
 
-PYTHONS="$(ls -1 /opt/python/ | sort -r)"
+PYTHONS="$(ls -1 --ignore=cp34-cp34m /opt/python/ | sort -r)"
 if [ -n "${PYTHON_TARGET}" ]
 then
     if &>/dev/null grep -ow "^${PYTHON_TARGET}$" <<<"$PYTHONS"
