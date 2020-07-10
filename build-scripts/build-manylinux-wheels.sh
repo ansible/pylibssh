@@ -14,6 +14,7 @@ set -Eeuo pipefail
 
 SRC_DIR=/io
 PERM_REF_HOST_FILE="${SRC_DIR}/setup.cfg"
+PEP517_CONFIG_FILE="${SRC_DIR}/pyproject.toml"
 DIST_NAME="$(cat "${PERM_REF_HOST_FILE}" | grep '^name = ' | awk '{print$3}' | sed s/-/_/)"
 IMPORTABLE_PKG="$(ls "${SRC_DIR}/src/")"  # must contain only one dir
 
@@ -75,35 +76,7 @@ MANYLINUX_DIR="${BUILD_DIR}/manylinux-wheelhouse"
 WHEELHOUSE_DIR="${SRC_DIR}/dist"
 UNPACKED_WHEELS_DIR="${BUILD_DIR}/unpacked-wheels"
 VENVS_DIR="${BUILD_DIR}/venvs"
-
-function cleanup_garbage() {
-    # clear python cache
-    >&2 echo
-    >&2 echo
-    >&2 echo ===========================================
-    >&2 echo Cleaning up python bytecode cache files...
-    >&2 echo ===========================================
-    >&2 echo
-    find "${SRC_DIR}" \
-        -type f \
-        -name *.pyc -o -name *.pyo \
-        -print0 | xargs -0 rm -fv
-    find "${SRC_DIR}" \
-        -type d \
-        -name __pycache__ \
-        -print0 | xargs -0 rm -rfv
-
-    # clear python cache
-    >&2 echo
-    >&2 echo
-    >&2 echo ======================================
-    >&2 echo Cleaning up files untracked by Git...
-    >&2 echo ======================================
-    >&2 echo
-    git ${GIT_GLOBAL_ARGS} clean -fxd src/ build/ bin/__pycache__/
-}
-
-cleanup_garbage
+ISOLATED_SRC_DIRS="${BUILD_DIR}/src"
 
 export PYCA_OPENSSL_PATH=/opt/pyca/cryptography/openssl
 export OPENSSL_PATH=/opt/openssl
@@ -184,6 +157,19 @@ popd
 
 >&2 echo
 >&2 echo
+>&2 echo ===============================================
+>&2 echo Copying the source repo to temporary locations:
+>&2 echo ===============================================
+>&2 echo
+for PY in $PYTHONS; do
+    >&2 echo Creating "${ISOLATED_SRC_DIRS}/${PY}"...
+    git ${GIT_GLOBAL_ARGS} worktree add --detach \
+      "${ISOLATED_SRC_DIRS}/${PY}"
+    cp -v "${PEP517_CONFIG_FILE}" "${ISOLATED_SRC_DIRS}/${PY}"/
+done
+
+>&2 echo
+>&2 echo
 >&2 echo ================
 >&2 echo Building wheels:
 >&2 echo ================
@@ -191,10 +177,9 @@ popd
 export CFLAGS="'-I${LIBSSH_CLONE_DIR}/include' '-I${STATIC_DEPS_PREFIX}/include' '-I${BUILD_DIR}/libssh/include' ${CFLAGS}"
 for PY in $PYTHONS; do
     PIP_BIN="/opt/python/${PY}/bin/pip"
-    cleanup_garbage
     >&2 echo Using "${PIP_BIN}"...
     ${PIP_BIN} install -U 'pip >= 20' setuptools wheel ${PIP_GLOBAL_ARGS}
-    ${PIP_BIN} wheel "${SRC_DIR}" -w "${ORIG_WHEEL_DIR}" ${PIP_GLOBAL_ARGS}
+    ${PIP_BIN} wheel "${ISOLATED_SRC_DIRS}/${PY}" -w "${ORIG_WHEEL_DIR}" ${PIP_GLOBAL_ARGS}
 done
 
 >&2 echo
@@ -207,7 +192,6 @@ done
 for PY in $PYTHONS; do
     for whl in ${ORIG_WHEEL_DIR}/${DIST_NAME}-*-${PY}-linux_${ARCH}.whl; do
         for MANYLINUX_VER in 1 2010 2014; do
-            cleanup_garbage
             >&2 echo Reparing "${whl}" for manylinux${MANYLINUX_VER}_${ARCH}...
             auditwheel repair --plat manylinux${MANYLINUX_VER}_${ARCH} "${whl}" -w ${MANYLINUX_DIR}
         done
@@ -236,7 +220,6 @@ for PY in $PYTHONS; do
     #for WHEEL_FILE in `ls ${MANYLINUX_DIR}/{1,2010,2014}/${DIST_NAME}-*-${PY}-manylinux{1,2010,2014}_${ARCH}.whl`; do
     for WHEEL_FILE in `ls ${MANYLINUX_DIR}/1/${DIST_NAME}-*-${PY}-manylinux{1,2010,2014}_${ARCH}.whl`; do
         PIP_BIN="/opt/python/${PY}/bin/pip"
-        cleanup_garbage
         >&2 echo Downloading ${WHEEL_FILE} deps using ${PIP_BIN}...
         ${PIP_BIN} download -d "${WHEEL_DEP_DIR}" "${WHEEL_FILE}" ${PIP_GLOBAL_ARGS}
     done
@@ -273,13 +256,11 @@ for PY in $PYTHONS; do
         VENV_NAME="${PY}-${MANYLINUX_VER}"
         VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
         PIP_BIN="${VENV_PATH}/bin/pip"
-        cleanup_garbage
         >&2 echo Using ${PIP_BIN}...
         ${PIP_BIN} install --no-compile "${DIST_NAME}" --no-index -f "${MANYLINUX_DIR}/${MANYLINUX_VER}/" ${PIP_GLOBAL_ARGS}
     done
 done
 
-cleanup_garbage
 >&2 echo
 >&2 echo ==============
 >&2 echo WHEEL ANALYSIS
@@ -312,7 +293,6 @@ cp -vr "${TESTS_SRC_DIR}" "${TESTS_DIR}"
 cp -v "${SRC_DIR}/pytest.ini" "${TESTS_DIR}/"
 pushd "${TESTS_DIR}"
 for PY_BIN in `ls ${VENVS_DIR}/*/bin/python`; do
-    cleanup_garbage
     $PY_BIN -B -m pip install --no-compile pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
     $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}" --no-cov
 done
@@ -324,8 +304,6 @@ popd
 >&2 echo SELF-TEST COMPLETE
 >&2 echo ==================
 >&2 echo
-
-cleanup_garbage
 
 >&2 echo Copying built manylinux wheels back to the host...
 chown -R --reference="${PERM_REF_HOST_FILE}" "${MANYLINUX_DIR}"/*
