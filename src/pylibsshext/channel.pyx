@@ -62,8 +62,7 @@ cdef class Channel:
 
     def __dealloc__(self):
         if self._libssh_channel is not NULL:
-            libssh.ssh_channel_free(self._libssh_channel)
-            self._libssh_channel = NULL
+            self.close()
 
     def request_shell(self):
         self.request_pty()
