@@ -26,12 +26,6 @@ def ssh_channel(ssh_client_session):
         chan.close()
 
 
-@pytest.mark.xfail(
-    reason='This test causes SEGFAULT, flakily. '
-    'Ref: https://github.com/ansible/pylibssh/issues/57',  # noqa: WPS326
-    run=False,
-    strict=False,
-)
 @pytest.mark.forked
 def test_exec_command(ssh_channel):
     """Test getting the output of a remotely executed command."""
