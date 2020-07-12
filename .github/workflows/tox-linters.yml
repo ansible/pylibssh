@@ -22,15 +22,8 @@ jobs:
         os:
         - ubuntu-latest
         env:
-        #- TOXENV: build-dists,metadata-validation
-        #- TOXENV: docs
         - TOXENV: lint
-        # - TOXENV: pre-commit
-        # - TOXENV: setup-check
-        # - TOXENV: pre-commit-failing
-        # - TOXENV: pre-commit-ci
-        # - TOXENV: check-docs
-        # - TOXENV: build-docs
+        - TOXENV: build-docs
 
     env:
       PY_COLORS: 1
