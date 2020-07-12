@@ -35,7 +35,7 @@ cdef int _process_outputs(libssh.ssh_session session,
                           void *data,
                           libssh.uint32_t len,
                           int is_stderr,
-                          void *userdata):
+                          void *userdata) with gil:
     if len == 0:
         return 0
     data_b = <bytes>(<char *>data)[:len]
