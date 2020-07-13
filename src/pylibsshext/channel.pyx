@@ -136,13 +136,13 @@ cdef class Channel:
         rc = libssh.ssh_channel_request_exec(self._libssh_channel, command.encode("utf-8"))
 
         if rc != libssh.SSH_OK:
-            libssh.ssh_channel_free(self._libssh_channel)
+            self.close()
             raise CalledProcessError()
+        result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
 
         cdef callbacks.ssh_channel_callbacks_struct cb
         memset(&cb, 0, sizeof(cb))
         cb.channel_data_function = <callbacks.ssh_channel_data_callback>&_process_outputs
-        result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
         cb.userdata = <void *>result
         callbacks.ssh_callbacks_init(&cb)
         callbacks.ssh_set_channel_callbacks(self._libssh_channel, &cb)
@@ -158,5 +158,6 @@ cdef class Channel:
 
     def close(self):
         if self._libssh_channel is not NULL:
+            libssh.ssh_channel_close(self._libssh_channel)
             libssh.ssh_channel_free(self._libssh_channel)
             self._libssh_channel = NULL
