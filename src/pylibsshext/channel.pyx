@@ -61,8 +61,7 @@ cdef class Channel:
             raise LibsshChannelException("Failed to open_session: [%d]" % rc)
 
     def __dealloc__(self):
-        if self._libssh_channel is not NULL:
-            self.close()
+        self.close()
 
     def request_shell(self):
         self.request_pty()
