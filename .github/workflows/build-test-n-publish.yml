@@ -31,8 +31,6 @@ jobs:
       is_tagged: ${{ steps.tagged_check.outputs.is_tagged || false }}
       profiling_enabled: >-
         ${{ steps.profiling_check.outputs.profiling_enabled || false }}
-      cache_key_py: >-
-        ${{ steps.calc_cache_key_py.outputs.py_hash_key }}
       cache_key_files: >-
         ${{ steps.calc_cache_key_files.outputs.files_hash_key }}
     steps:
@@ -276,6 +274,16 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc_cache_key_py
+      run: |
+        from hashlib import sha512
+        from sys import version
+        hash = sha512(version.encode()).hexdigest()
+        print(f'::set-output name=py_hash_key::{hash}')
+      shell: python
     - name: Set up pip cache
       uses: actions/cache@v2
       with:
@@ -287,10 +295,10 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          needs.pre-setup.calc_cache_key_py.outputs.cache_key_py }}-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.calc_cache_key_files.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ needs.pre-setup.calc_cache_key_py.outputs.cache_key_py }}-
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
@@ -383,6 +391,16 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc_cache_key_py
+      run: |
+        from hashlib import sha512
+        from sys import version
+        hash = sha512(version.encode()).hexdigest()
+        print(f'::set-output name=py_hash_key::{hash}')
+      shell: python
     - name: Set up pip cache
       uses: actions/cache@v2
       with:
@@ -394,10 +412,10 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          needs.pre-setup.calc_cache_key_py.outputs.cache_key_py }}-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.calc_cache_key_files.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ needs.pre-setup.calc_cache_key_py.outputs.cache_key_py }}-
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
@@ -459,6 +477,16 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc_cache_key_py
+      run: |
+        from hashlib import sha512
+        from sys import version
+        hash = sha512(version.encode()).hexdigest()
+        print(f'::set-output name=py_hash_key::{hash}')
+      shell: python
     - name: Set up pip cache
       uses: actions/cache@v2
       with:
@@ -470,10 +498,10 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          needs.pre-setup.calc_cache_key_py.outputs.cache_key_py }}-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.calc_cache_key_files.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ needs.pre-setup.calc_cache_key_py.outputs.cache_key_py }}-
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
