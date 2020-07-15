@@ -82,15 +82,17 @@ jobs:
       run: >-
         print(
           '::set-output name=files_hash_key::{value}'.
-          format(value='-'.join((
-            "${{ hashFiles('setup.cfg') }}",
-            "${{ hashFiles('tox.ini')}}",
-            "${{ hashFiles('pyproject.toml') }}",
-            "${{ hashFiles('.pre-commit-config.yaml') }}",
-            "${{ hashFiles('pytest.ini') }}",
-            "${{ hashFiles('requirements-build.*') }}",
-            "${{ hashFiles('docs/requirements.*') }}",
-          ))
+          format(
+            value='-'.join((
+              "${{ hashFiles('setup.cfg') }}",
+              "${{ hashFiles('tox.ini')}}",
+              "${{ hashFiles('pyproject.toml') }}",
+              "${{ hashFiles('.pre-commit-config.yaml') }}",
+              "${{ hashFiles('pytest.ini') }}",
+              "${{ hashFiles('requirements-build.*') }}",
+              "${{ hashFiles('docs/requirements.*') }}",
+            )),
+          ),
         )
     - name: Set up pip cache
       uses: actions/cache@v2
