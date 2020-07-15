@@ -269,11 +269,12 @@ jobs:
     #    make
     #    make install/strip
     #  working_directory: libssh/build
-    - name: Check out src from Git
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: Install tox
+      run: >-
+        ${{ steps.install-python.outputs.binary }} -m
+        pip install
+        --user
+        tox
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -303,6 +304,11 @@ jobs:
           ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
+    - name: Check out src from Git
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: >-
+          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -311,12 +317,6 @@ jobs:
         |
         xargs git tag --delete
       shell: bash
-    - name: Install tox
-      run: >-
-        ${{ steps.install-python.outputs.binary }} -m
-        pip install
-        --user
-        tox
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
@@ -388,11 +388,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
-    - name: Check out src from Git
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -422,6 +417,17 @@ jobs:
           ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
+    - name: Install tox
+      run: >-
+        python -m
+        pip install
+        --user
+        tox
+    - name: Check out src from Git
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: >-
+          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -430,12 +436,6 @@ jobs:
         |
         xargs git tag --delete
       shell: bash
-    - name: Install tox
-      run: >-
-        python -m
-        pip install
-        --user
-        tox
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
@@ -476,11 +476,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
-    - name: Check out src from Git
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -510,6 +505,17 @@ jobs:
           ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
+    - name: Install tox
+      run: >-
+        python -m
+        pip install
+        --user
+        tox
+    - name: Check out src from Git
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: >-
+          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -518,12 +524,6 @@ jobs:
         |
         xargs git tag --delete
       shell: bash
-    - name: Install tox
-      run: >-
-        python -m
-        pip install
-        --user
-        tox
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
