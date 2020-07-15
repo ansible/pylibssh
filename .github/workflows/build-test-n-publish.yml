@@ -75,29 +75,24 @@ jobs:
       id: calc_cache_key_py
       run: |
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{value}'.format(value=hash))
+        from sys import version
+        hash = sha512(version.encode()).hexdigest()
+        print(f'::set-output name=py_hash_key::{hash}')
     - name: >-
         Calculate dependency files' combined hash value
         for use in the cache key
       id: calc_cache_key_files
-      run: >-
-        print(
-          '::set-output name=files_hash_key::{value}'.
-          format(
-            value='-'.join((
-              "${{ hashFiles('setup.cfg') }}",
-              "${{ hashFiles('tox.ini')}}",
-              "${{ hashFiles('pyproject.toml') }}",
-              "${{ hashFiles('.pre-commit-config.yaml') }}",
-              "${{ hashFiles('pytest.ini') }}",
-              "${{ hashFiles('requirements-build.*') }}",
-              "${{ hashFiles('docs/requirements.*') }}",
-            )),
-          ),
-        )
+      run: |
+        hashes_combo = '-'.join((
+          "${{ hashFiles('setup.cfg') }}",
+          "${{ hashFiles('tox.ini')}}",
+          "${{ hashFiles('pyproject.toml') }}",
+          "${{ hashFiles('.pre-commit-config.yaml') }}",
+          "${{ hashFiles('pytest.ini') }}",
+          "${{ hashFiles('requirements-build.*') }}",
+          "${{ hashFiles('docs/requirements.*') }}",
+        ))
+        print(f'::set-output name=files_hash_key::{hashes_combo}')
     - name: Set up pip cache
       uses: actions/cache@v2
       with:
