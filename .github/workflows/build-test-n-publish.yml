@@ -65,7 +65,7 @@ jobs:
         hash = sha512(b_version).hexdigest()
         print('::set-output name=py_hash_key::{value}'.format(value=hash))
     - name: Set up pip cache
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: ~/.cache/pip
         key: >-
