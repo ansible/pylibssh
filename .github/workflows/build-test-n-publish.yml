@@ -78,6 +78,7 @@ jobs:
           }}-${{ hashFiles('docs/requirements.in')
           }}-${{ hashFiles('docs/requirements.txt') }}
         restore-keys: |
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Set up versioning prerequisites
