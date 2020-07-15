@@ -67,7 +67,12 @@ jobs:
     - name: Set up pip cache
       uses: actions/cache@v2
       with:
-        path: ~/.cache/pip
+        path: >-
+          ${{
+              runner.os == 'Linux'
+              && '~/.cache/pip'
+              || '~/Library/Caches/pip'
+          }}
         key: >-
           ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key
           }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini')
