@@ -36,6 +36,10 @@ jobs:
       cache_key_files: >-
         ${{ steps.calc_cache_key_files.outputs.files_hash_key }}
     steps:
+    - name: Switch to using Python 3.8 by default
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
     - name: >-
         Mark the build as non-tagged
         ${{ github.event.repository.default_branch }} build
