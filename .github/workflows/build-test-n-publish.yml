@@ -282,6 +282,23 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: Set up pip cache
+      uses: actions/cache@v2
+      with:
+        path: >-
+          ${{
+              runner.os == 'Linux'
+              && '~/.cache/pip'
+              || '~/Library/Caches/pip'
+          }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          steps.calc_cache_key_files.outputs.files_hash_key }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -372,6 +389,23 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: Set up pip cache
+      uses: actions/cache@v2
+      with:
+        path: >-
+          ${{
+              runner.os == 'Linux'
+              && '~/.cache/pip'
+              || '~/Library/Caches/pip'
+          }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          steps.calc_cache_key_files.outputs.files_hash_key }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -431,6 +465,23 @@ jobs:
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+    - name: Set up pip cache
+      uses: actions/cache@v2
+      with:
+        path: >-
+          ${{
+              runner.os == 'Linux'
+              && '~/.cache/pip'
+              || '~/Library/Caches/pip'
+          }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          steps.calc_cache_key_files.outputs.files_hash_key }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         !fromJSON(needs.pre-setup.outputs.is_tagged)
