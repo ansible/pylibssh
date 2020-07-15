@@ -56,7 +56,9 @@ jobs:
         steps.tagged_check.outputs.is_tagged != 'true'
       run: >-
         print('::set-output name=profiling_enabled::true')
-    - name: Calculate Python interpreter version SHA-512 hash value
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
       id: calc_cache_key
       run: |
         from hashlib import sha512
