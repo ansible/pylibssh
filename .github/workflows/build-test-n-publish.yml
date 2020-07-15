@@ -68,7 +68,15 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}-${{ hashFiles('requirements-build.in') }}-${{ hashFiles('requirements-build.txt') }}-${{ hashFiles('docs/requirements.in') }}-${{ hashFiles('docs/requirements.txt') }}
+        key: >-
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key
+          }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini')
+          }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml')
+          }}-${{ hashFiles('pytest.ini')
+          }}-${{ hashFiles('requirements-build.in')
+          }}-${{ hashFiles('requirements-build.txt')
+          }}-${{ hashFiles('docs/requirements.in')
+          }}-${{ hashFiles('docs/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
