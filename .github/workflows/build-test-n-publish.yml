@@ -76,7 +76,7 @@ jobs:
       run: |
         from hashlib import sha512
         from sys import version, version_info
-        b_version = version.encode() if version_info == 2 else version
+        b_version = version if version_info == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
         print('::set-output name=py_hash_key::{value}'.format(value=hash))
     - name: >-
