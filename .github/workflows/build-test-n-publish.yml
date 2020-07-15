@@ -31,6 +31,10 @@ jobs:
       is_tagged: ${{ steps.tagged_check.outputs.is_tagged || false }}
       profiling_enabled: >-
         ${{ steps.profiling_check.outputs.profiling_enabled || false }}
+      cache_key_py: >-
+        ${{ steps.calc_cache_key_py.outputs.py_hash_key }}
+      cache_key_files: >-
+        ${{ steps.calc_cache_key_files.outputs.files_hash_key }}
     steps:
     - name: >-
         Mark the build as non-tagged
@@ -56,16 +60,38 @@ jobs:
         steps.tagged_check.outputs.is_tagged != 'true'
       run: >-
         print('::set-output name=profiling_enabled::true')
+    - name: Check out src from Git
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: >-
+          ${{ steps.tagged_check.outputs.is_tagged == 'true' && 1 || 0 }}
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key
+      id: calc_cache_key_py
       run: |
         from hashlib import sha512
         from sys import version, version_info
         b_version = version.encode() if version_info == 2 else version
         hash = sha512(b_version).hexdigest()
         print('::set-output name=py_hash_key::{value}'.format(value=hash))
+    - name: >-
+        Calculate dependency files' combined hash value
+        for use in the cache key
+      id: calc_cache_key_files
+      run: >-
+        print(
+          '::set-output name=files_hash_key::{value}'.
+          format(value='-'.join((
+            "${{ hashFiles('setup.cfg') }}",
+            "${{ hashFiles('tox.ini')}}",
+            "${{ hashFiles('pyproject.toml') }}",
+            "${{ hashFiles('.pre-commit-config.yaml') }}",
+            "${{ hashFiles('pytest.ini') }}",
+            "${{ hashFiles('requirements-build.*') }}",
+            "${{ hashFiles('docs/requirements.*') }}",
+          ))
+        )
     - name: Set up pip cache
       uses: actions/cache@v2
       with:
@@ -76,28 +102,13 @@ jobs:
               || '~/Library/Caches/pip'
           }}
         key: >-
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key
-          }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini')
-          }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml')
-          }}-${{ hashFiles('pytest.ini')
-          }}-${{ hashFiles('requirements-build.*')
-          }}-${{ hashFiles('docs/requirements.*') }}
+          ${{ runner.os }}-pip-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          steps.calc_cache_key_files.outputs.files_hash_key }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
-    - name: Set up versioning prerequisites
-      run: >-
-        python -m
-        pip install
-        --user
-        setuptools-scm
-      shell: bash
-    - name: Check out src from Git
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: >-
-          ${{ steps.tagged_check.outputs.is_tagged == 'true' && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
         steps.tagged_check.outputs.is_tagged != 'true'
@@ -105,6 +116,13 @@ jobs:
         git tag --points-at HEAD
         |
         xargs git tag --delete
+      shell: bash
+    - name: Set up versioning prerequisites
+      run: >-
+        python -m
+        pip install
+        --user
+        setuptools-scm
       shell: bash
     - name: Set the current dist version
       id: scm_version
