@@ -56,6 +56,22 @@ jobs:
         steps.tagged_check.outputs.is_tagged != 'true'
       run: >-
         print('::set-output name=profiling_enabled::true')
+    - name: Calculate Python interpreter version SHA-512 hash value
+      id: calc_cache_key
+      run: |
+        from hashlib import sha512
+        from sys import version, version_info
+        b_version = version.encode() if version_info == 2 else version
+        hash = sha512(b_version).hexdigest()
+        print('::set-output name=py_hash_key::{value}'.format(value=hash))
+    - name: Set up pip cache
+      uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ steps.calc_cache_key.outputs.py_hash_key }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}-${{ hashFiles('requirements-build.in') }}-${{ hashFiles('requirements-build.txt') }}-${{ hashFiles('docs/requirements.in') }}-${{ hashFiles('docs/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
     - name: Set up versioning prerequisites
       run: >-
         python -m
