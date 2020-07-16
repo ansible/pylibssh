@@ -584,9 +584,7 @@ jobs:
       if: >-
         matrix.dist-type == 'source' &&
         runner.os == 'Linux'
-      run: >-
-        sudo apt update &&
-        sudo apt install libssh-4 libssh-dev libssl-dev build-essential
+      run: sudo apt update && sudo apt install libssh-dev libssl-dev build-essential
     - name: Install libssh and openssl headers on macOS
       if: >-
         runner.os == 'macOS'
