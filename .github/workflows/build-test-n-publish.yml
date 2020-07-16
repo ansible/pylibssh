@@ -571,6 +571,8 @@ jobs:
           runner-vm-os: ubuntu-16.04  # has too old libssh in the repos
         - dist-type: source
           runner-vm-os: ubuntu-18.04
+        - dist-type: source
+          runner-vm-os: ubuntu-20.04  # undefined symbol: ssh_disconnect
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
