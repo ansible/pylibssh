@@ -549,7 +549,7 @@ jobs:
     - build-bin-manylinux
     - build-src
     - pre-setup  # transitive, for accessing settings
-    runs-on: ${{ matrix.runner-vm-os }}-latest
+    runs-on: ${{ matrix.runner-vm-os }}
     strategy:
       matrix:
         python-version:
@@ -559,14 +559,14 @@ jobs:
         - 3.6
         - 3.5
         runner-vm-os:
-        - ubuntu
-        - macos
+        - ubuntu-18.04
+        - macos-latest
         dist-type:
         - binary
         - source
         exclude:
         - dist-type: source
-          runner-vm-os: ubuntu
+          runner-vm-os: ubuntu-18.04
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
