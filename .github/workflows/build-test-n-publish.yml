@@ -353,8 +353,7 @@ jobs:
     - name: Store the binary wheel
       uses: actions/upload-artifact@v2
       with:
-        name: >-
-          dist-wheel-${{ runner.os }}-python${{ matrix.python-version }}
+        name: python-package-distributions
         path: dist
 
   build-bin-manylinux:
@@ -454,7 +453,7 @@ jobs:
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
       uses: actions/upload-artifact@v2
       with:
-        name: dist-wheel-manylinux-${{ matrix.manylinux-python-target }}
+        name: python-package-distributions
         path: dist
 
   build-src:
@@ -536,35 +535,7 @@ jobs:
     - name: Store the source distribution
       uses: actions/upload-artifact@v2
       with:
-        name: dist-src
-        path: dist
-
-  all-the-dists-combo:
-    name: Combine 🐍 dists 📦
-    needs:
-    - pre-setup  # transitive, for accessing settings
-    - build-bin-macos
-    - build-bin-manylinux
-    - build-src
-    runs-on: ubuntu-latest
-    steps:
-    - name: >-
-        Download all the dists
-      uses: actions/download-artifact@v2
-      with:
-        path: .github/workflows/.tmp/artifacts
-    - name: Copy all the dists into the dist/ folder
-      run: |
-        mkdir -pv dist/
-        cp -v \
-          .github/workflows/.tmp/artifacts/dist-{src/*.tar.gz,wheel{-manylinux-cp*-cp*{,m{,u}},-macOS-python*}/*.whl} \
-          dist/
-    - name: >-
-        Store the whole distributions
-        matrix as a combined artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: all-the-dists
+        name: python-package-distributions
         path: dist
 
   test-matrix:
@@ -574,8 +545,10 @@ jobs:
       ${{ matrix.runner-vm-os }}
       ${{ matrix.dist-type }} dists
     needs:
+    - build-bin-macos
+    - build-bin-manylinux
+    - build-src
     - pre-setup  # transitive, for accessing settings
-    - all-the-dists-combo
     runs-on: ${{ matrix.runner-vm-os }}-latest
     strategy:
       matrix:
@@ -660,7 +633,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v2
       with:
-        name: all-the-dists
+        name: python-package-distributions
         path: dist/
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
@@ -674,8 +647,10 @@ jobs:
   dist-meta:
     name: Verify 🐍📦 metadata
     needs:
+    - build-bin-macos
+    - build-bin-manylinux
+    - build-src
     - pre-setup  # transitive, for accessing settings
-    - all-the-dists-combo
     runs-on: ubuntu-latest
 
     env:
@@ -730,7 +705,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v2
       with:
-        name: all-the-dists
+        name: python-package-distributions
         path: dist/
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
@@ -750,7 +725,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v2
       with:
-        name: all-the-dists
+        name: python-package-distributions
         path: dist/
     - name: Publish 🐍📦 to TestPyPI
       if: >-
@@ -790,7 +765,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v2
       with:
-        name: all-the-dists
+        name: python-package-distributions
         path: dist/
 
     - name: Switch to Python 3.8
