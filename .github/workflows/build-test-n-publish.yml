@@ -568,6 +568,8 @@ jobs:
         - source
         exclude:
         - dist-type: source
+          runner-vm-os: ubuntu-16.04  # has too old libssh in the repos
+        - dist-type: source
           runner-vm-os: ubuntu-18.04
 
     env:
