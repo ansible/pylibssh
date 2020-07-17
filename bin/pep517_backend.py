@@ -13,7 +13,6 @@ import sys
 from itertools import chain
 
 import toml
-from Cython.Build.Cythonize import main as cythonize_cli_cmd
 from expandvars import expandvars
 from setuptools.build_meta import (
     build_sdist, build_wheel, get_requires_for_build_sdist,
@@ -23,6 +22,8 @@ from setuptools.build_meta import (
 # isort: split
 from distutils.command.install import install as distutils_install_cmd
 from distutils.core import Distribution as distutils_distribution  # noqa: N813
+
+from Cython.Build.Cythonize import main as cythonize_cli_cmd
 
 __all__ = (  # noqa: WPS317, WPS410
     'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',
