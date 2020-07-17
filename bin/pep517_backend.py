@@ -10,19 +10,19 @@ import contextlib
 import functools
 import os
 import sys
-from distutils.command.install import install as distutils_install_cmd
-from distutils.core import Distribution as distutils_distribution  # noqa: N813
 from itertools import chain
 
+import toml
+from Cython.Build.Cythonize import main as cythonize_cli_cmd
+from expandvars import expandvars
 from setuptools.build_meta import (
     build_sdist, build_wheel, get_requires_for_build_sdist,
     get_requires_for_build_wheel, prepare_metadata_for_build_wheel,
 )
 
-# noqa: I001, I004, E800  # flake8-isort is drunk
-import toml  # noqa: I001
-from Cython.Build.Cythonize import main as cythonize_cli_cmd  # noqa: I001
-from expandvars import expandvars  # noqa: I001
+# isort: split
+from distutils.command.install import install as distutils_install_cmd
+from distutils.core import Distribution as distutils_distribution  # noqa: N813
 
 __all__ = (  # noqa: WPS317, WPS410
     'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',

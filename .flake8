@@ -45,6 +45,7 @@ format = wemake
 # IMPORTANT: avoid using ignore option, always use extend-ignore instead
 # Completely and unconditionally ignore the following errors:
 extend-ignore =
+  I  # flake8-isort is drunk + we have isort integrated into pre-commit
   WPS306  # "Found class without a base class: *" -- we have metaclass shims
   WPS422  # "Found future import: *" -- we need these for multipython
 
@@ -59,7 +60,9 @@ max-line-length = 160
 # Allow certain violations in certain files:
 per-file-ignores =
   # in-tree PEP517 build backend nees a lot of legit `noqa`s
-  bin/pep517_backend.py: WPS402
+  # also E800 reports a lot of false-positives for legit
+  # tool-related comments:
+  bin/pep517_backend.py: E800, WPS402
 
   # Sphinx builds aren't supposed to Python 2:
   docs/conf.py: WPS305
