@@ -35,7 +35,7 @@ cdef int _process_outputs(libssh.ssh_session session,
                           void *data,
                           libssh.uint32_t len,
                           int is_stderr,
-                          void *userdata):
+                          void *userdata) with gil:
     if len == 0:
         return 0
     data_b = <bytes>(<char *>data)[:len]
@@ -61,8 +61,7 @@ cdef class Channel:
             raise LibsshChannelException("Failed to open_session: [%d]" % rc)
 
     def __dealloc__(self):
-        libssh.ssh_channel_free(self._libssh_channel)
-        self._libssh_channel = NULL
+        self.close()
 
     def request_shell(self):
         self.request_pty()
@@ -133,31 +132,23 @@ cdef class Channel:
         return response
 
     def exec_command(self, command):
-        cdef libssh.ssh_channel channel = libssh.ssh_channel_new(self._libssh_session)
-        if channel is NULL:
-            raise MemoryError
-        rc = libssh.ssh_channel_open_session(channel)
-        if rc != libssh.SSH_OK:
-            libssh.ssh_channel_free(channel)
-            raise CalledProcessError()
+        rc = libssh.ssh_channel_request_exec(self._libssh_channel, command.encode("utf-8"))
 
-        rc = libssh.ssh_channel_request_exec(channel, command.encode("utf-8"))
         if rc != libssh.SSH_OK:
-            libssh.ssh_channel_free(channel)
+            self.close()
             raise CalledProcessError()
+        result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
 
         cdef callbacks.ssh_channel_callbacks_struct cb
         memset(&cb, 0, sizeof(cb))
         cb.channel_data_function = <callbacks.ssh_channel_data_callback>&_process_outputs
-        result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
         cb.userdata = <void *>result
         callbacks.ssh_callbacks_init(&cb)
-        callbacks.ssh_set_channel_callbacks(channel, &cb)
+        callbacks.ssh_set_channel_callbacks(self._libssh_channel, &cb)
 
-        libssh.ssh_channel_send_eof(channel)
-        result.returncode = libssh.ssh_channel_get_exit_status(channel)
+        libssh.ssh_channel_send_eof(self._libssh_channel)
 
-        libssh.ssh_channel_free(channel)
+        result.returncode = self.get_channel_exit_status()
 
         return result
 
@@ -165,5 +156,7 @@ cdef class Channel:
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
 
     def close(self):
-        libssh.ssh_channel_free(self._libssh_channel)
-        self._libssh_channel = NULL
+        if self._libssh_channel is not NULL:
+            libssh.ssh_channel_close(self._libssh_channel)
+            libssh.ssh_channel_free(self._libssh_channel)
+            self._libssh_channel = NULL
