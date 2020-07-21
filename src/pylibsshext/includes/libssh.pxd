@@ -18,6 +18,7 @@
 
 from libc.stdint cimport uint32_t
 
+
 cdef extern from "libssh/libssh.h" nogil:
 
     cpdef const char * libssh_version "SSH_STRINGIFY(LIBSSH_VERSION)"

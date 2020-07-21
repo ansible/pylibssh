@@ -1,16 +1,14 @@
 ---
 repos:
 - repo: git://github.com/timothycrosley/isort
-  # rev: 4.3.21-2
   rev: 5.1.1
   hooks:
   - id: isort
-    # args:
-    # - --honor-noqa
-    # FIXME: isort can be enabled for cython once v5.0.0 is out
-    # files: >-
-    #   ^.*\.p(xd|y|yx)$
-    # types: [file]
+    args:
+    - --honor-noqa
+    files: >-
+      ^.*\.p(xd|y|yx)$
+    types: [file]
 
 - repo: git://github.com/asottile/add-trailing-comma
   rev: v0.7.1

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from setuptools_scm import get_version
 
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,

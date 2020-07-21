@@ -15,11 +15,12 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 
-from cpython.bytes cimport PyBytes_AS_STRING
-from posix.fcntl cimport O_WRONLY, O_CREAT, O_TRUNC, O_RDONLY
+from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
 
-from pylibsshext.session cimport get_libssh_session
+from cpython.bytes cimport PyBytes_AS_STRING
+
 from pylibsshext.errors cimport LibsshSFTPException
+from pylibsshext.session cimport get_libssh_session
 
 
 MSG_MAP = {

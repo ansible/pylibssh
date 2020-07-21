@@ -19,11 +19,13 @@ from setuptools.build_meta import (
     get_requires_for_build_wheel, prepare_metadata_for_build_wheel,
 )
 
+
 # isort: split
 from distutils.command.install import install as distutils_install_cmd
 from distutils.core import Distribution as distutils_distribution  # noqa: N813
 
 from Cython.Build.Cythonize import main as cythonize_cli_cmd
+
 
 __all__ = (  # noqa: WPS317, WPS410
     'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',

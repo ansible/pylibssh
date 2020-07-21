@@ -17,7 +17,8 @@
 #
 from libc.stdint cimport uint32_t
 
-from pylibsshext.includes.libssh cimport ssh_session, ssh_channel
+from pylibsshext.includes.libssh cimport ssh_channel, ssh_session
+
 
 cdef extern from "libssh/callbacks.h":
 

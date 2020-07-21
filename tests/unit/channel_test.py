@@ -6,6 +6,7 @@ import time
 
 import pytest
 
+
 COMMAND_TIMEOUT = 30
 
 

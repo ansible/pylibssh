@@ -7,6 +7,7 @@ import socket
 import sys
 import time
 
+
 IS_MACOS = sys.platform == 'darwin'
 PY3_PLUS = sys.version_info[0] > 2
 _MACOS_RECONNECT_ATTEMPT_DELAY = 0.06
