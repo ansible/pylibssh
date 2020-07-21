@@ -221,7 +221,9 @@ cdef class Session(object):
                 libssh.ssh_disconnect(self._libssh_session)
                 raise
 
-        if kwargs.get('private_key'):
+        supported_auth = libssh.ssh_userauth_list(self._libssh_session, NULL)
+
+        if kwargs.get('private_key') and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
             # try authenticating with a given private key
             try:
                 self.authenticate_specific_pubkey(
@@ -233,14 +235,22 @@ cdef class Session(object):
                 saved_exception = ex
 
         # try authenticating with a password
-        if kwargs.get('password'):
+        if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_PASSWORD:
             try:
                 self.authenticate_password(kwargs["password"])
                 return
             except LibsshSessionException as ex:
                 saved_exception = ex
 
-        if kwargs.get('look_for_keys', True):
+        # try authenticating with keyboard-interactive (without the interactive)
+        if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_INTERACTIVE:
+            try:
+                self.authenticate_interactive(kwargs["password"])
+                return
+            except LibsshSessionException as ex:
+                saved_exception = ex
+
+        if kwargs.get('look_for_keys', True) and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
             # try authenticating with public keys
             try:
                 self.authenticate_pubkey()
@@ -385,6 +395,26 @@ cdef class Session(object):
         if rc == libssh.SSH_AUTH_ERROR or rc == libssh.SSH_AUTH_DENIED:
             raise LibsshSessionException("Failed to authenticate with password: %s" % self._get_session_error_str())
 
+    def authenticate_interactive(self, password):
+        """Authenticate this session using keyboard-interactive authentication.
+
+        :param password: The password to authenticate with.
+        :type password: str
+
+        :raises LibsshSessionException: If authentication failed.
+
+        :return: Nothing.
+        :rtype: NoneType
+        """
+        cdef int rc
+        rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
+        if rc == libssh.SSH_AUTH_ERROR or rc == libssh.SSH_AUTH_DENIED:
+            raise LibsshSessionException("Failed to authenticate with password: %s" % self._get_session_error_str())
+
+        prompt_count = libssh.ssh_userauth_kbdint_getnprompts(self._libssh_session)
+        for prompt in len(prompt_count):
+            rc = libssh.ssh_userauth_kbdint_setanswer(self._libssh_session, prompt, password.encode())
+
     def new_channel(self):
         return Channel(self)
 
@@ -423,6 +453,7 @@ cdef class Session(object):
 
     def _get_session_error_str(self):
         return libssh.ssh_get_error(<void*>self._libssh_session).decode()
+
 
 cdef libssh.ssh_session get_libssh_session(Session session):
     return session._libssh_session
