@@ -10,6 +10,11 @@ Welcome to ansible-pylibssh's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+.. toctree::
+   :caption: Contributing
+
+   contributing/security.rst
+
 
 
 Indices and tables
