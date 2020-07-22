@@ -38,6 +38,10 @@ version = '.'.join(
 # The full version, including alpha/beta/rc tags
 release = get_version(root=(Path(__file__).parents[1]).resolve())
 
+rst_epilog = f"""
+.. |project| replace:: {project}
+"""  # pylint: disable=invalid-name
+
 
 # -- General configuration ---------------------------------------------------
 
