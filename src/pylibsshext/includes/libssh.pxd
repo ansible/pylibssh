@@ -116,6 +116,14 @@ cdef extern from "libssh/libssh.h" nogil:
         SSH_OPTIONS_REKEY_DATA,
         SSH_OPTIONS_REKEY_TIME
 
+    cdef int SSH_AUTH_METHOD_UNKNOWN
+    cdef int SSH_AUTH_METHOD_NONE
+    cdef int SSH_AUTH_METHOD_PASSWORD
+    cdef int SSH_AUTH_METHOD_PUBLICKEY
+    cdef int SSH_AUTH_METHOD_HOSTBASED
+    cdef int SSH_AUTH_METHOD_INTERACTIVE
+    cdef int SSH_AUTH_METHOD_GSSAPI_MIC
+
     cdef int SSH_OK
     cdef int SSH_ERROR
     cdef int SSH_AGAIN
@@ -159,9 +167,19 @@ cdef extern from "libssh/libssh.h" nogil:
         const char *b64_key, const char *passphrase,
         ssh_auth_callback auth_fn, void *auth_data, ssh_key *pkey)
 
+    int ssh_userauth_list(ssh_session session, const char *username)
     int ssh_userauth_publickey(ssh_session session, const char *username, const ssh_key privkey)
+    int ssh_userauth_agent(ssh_session session, const char *username)
     int ssh_userauth_publickey_auto(ssh_session session, const char *username, const char *passphrase)
     int ssh_userauth_password(ssh_session session, const char *username, const char *password)
+    int ssh_userauth_kbdint(ssh_session session, const char *username, const char *submethods)
+    const char *ssh_userauth_kbdint_getinstruction(ssh_session session)
+    const char *ssh_userauth_kbdint_getname(ssh_session session)
+    int ssh_userauth_kbdint_getnprompts(ssh_session session)
+    const char *ssh_userauth_kbdint_getprompt(ssh_session session, unsigned int i, char *echo)
+    int ssh_userauth_kbdint_getnanswers(ssh_session session)
+    const char *ssh_userauth_kbdint_getanswer(ssh_session session, unsigned int i)
+    int ssh_userauth_kbdint_setanswer(ssh_session session, unsigned int i, const char *answer)
 
     ssh_channel ssh_channel_new(ssh_session session)
     void ssh_channel_free(ssh_channel channel)
