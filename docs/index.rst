@@ -14,6 +14,7 @@ Welcome to ansible-pylibssh's documentation!
    :caption: Contributing
 
    contributing/code_of_conduct.rst
+   contributing/guidelines.rst
    contributing/security.rst
 
 
