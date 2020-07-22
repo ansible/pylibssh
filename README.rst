@@ -26,8 +26,12 @@
    :target: https://docs.ansible.com/ansible/latest/community/code_of_conduct.html
    :alt: Ansible Code of Conduct
 
+.. DO-NOT-REMOVE-docs-badges-END
+
 pylibssh: Python bindings to client functionality of libssh specific to Ansible use case
 ========================================================================================
+
+.. DO-NOT-REMOVE-docs-intro-START
 
 Nightlies @ Dumb PyPI @ GitHub Pages
 ------------------------------------
@@ -73,7 +77,7 @@ are set properly:
     $ pip install tox
     $ tox -e build-dists
 
-`manylinux`-compatible wheels:
+``manylinux``-compatible wheels:
 
 .. code-block:: shell-session
 
