@@ -4,6 +4,7 @@
 
 from ._libssh_version import LIBSSH_VERSION as __libssh_version__  # noqa: N811, WPS300, WPS436
 
+
 try:
     from ._scm_version import version as __version__  # noqa: WPS300, WPS433, WPS436
 except ImportError:

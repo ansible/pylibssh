@@ -15,10 +15,9 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from pylibsshext.includes cimport sftp
-from pylibsshext.includes cimport libssh
-
+from pylibsshext.includes cimport libssh, sftp
 from pylibsshext.session cimport Session
+
 
 cdef class SFTP:
     cdef Session session

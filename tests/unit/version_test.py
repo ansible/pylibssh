@@ -8,6 +8,7 @@ from pylibsshext import (
     __full_version__, __libssh_version__, __version__, __version_info__,
 )
 
+
 pytestmark = pytest.mark.smoke
 
 

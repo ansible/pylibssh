@@ -18,9 +18,11 @@ import inspect
 import logging
 
 from cpython.bytes cimport PyBytes_AS_STRING
+
 from pylibsshext.channel import Channel
 from pylibsshext.errors cimport LibsshSessionException
 from pylibsshext.sftp import SFTP
+
 
 OPTS_MAP = {
     "host": libssh.SSH_OPTIONS_HOST,

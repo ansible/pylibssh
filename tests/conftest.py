@@ -9,9 +9,10 @@ import socket
 import subprocess
 
 import pytest
-
 from _service_utils import wait_for_svc_ready_state  # noqa: WPS300, WPS436
+
 from pylibsshext.session import Session
+
 
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600

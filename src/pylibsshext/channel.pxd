@@ -15,8 +15,8 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-from pylibsshext.includes cimport libssh
-from pylibsshext.includes cimport callbacks
+from pylibsshext.includes cimport callbacks, libssh
+
 
 cdef class Channel:
     cdef libssh.ssh_channel _libssh_channel
