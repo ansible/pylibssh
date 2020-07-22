@@ -38,12 +38,12 @@ by `dumb-pypi <https://pypi.org/project/dumb-pypi/>`_.
 
 The web view is @ https://ansible.github.io/pylibssh/.
 
-.. code-block:: shell
+.. code-block:: shell-session
 
-    pip install \
-      --extra-index-url=https://ansible.github.io/pylibssh/simple/ \
-      --pre \
-      ansible-pylibssh
+    $ pip install \
+        --extra-index-url=https://ansible.github.io/pylibssh/simple/ \
+        --pre \
+        ansible-pylibssh
 
 
 Requirements
@@ -66,27 +66,27 @@ In the local env, assumes there's a libssh shared library
 on the system, build toolchain is present and env vars
 are set properly:
 
-.. code-block:: shell
+.. code-block:: shell-session
 
-    git clone https://github.com/ansible/pylibssh.git
-    cd pylibssh
-    pip install tox
-    tox -e build-dists
+    $ git clone https://github.com/ansible/pylibssh.git
+    $ cd pylibssh
+    $ pip install tox
+    $ tox -e build-dists
 
 `manylinux`-compatible wheels:
 
-.. code-block:: shell
+.. code-block:: shell-session
 
-    git clone https://github.com/ansible/pylibssh.git
-    cd pylibssh
-    pip install tox
-    tox -e build-dists-manylinux  # with Docker
+    $ git clone https://github.com/ansible/pylibssh.git
+    $ cd pylibssh
+    $ pip install tox
+    $ tox -e build-dists-manylinux  # with Docker
 
     # or with Podman
-    DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux
+    $ DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux
 
     # to enable shell script debug mode use
-    tox -e build-dists-manylinux -- -e DEBUG=1
+    $ tox -e build-dists-manylinux -- -e DEBUG=1
 
 License
 -------
