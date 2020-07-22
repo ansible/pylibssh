@@ -13,6 +13,7 @@ Welcome to ansible-pylibssh's documentation!
 .. toctree::
    :caption: Contributing
 
+   contributing/code_of_conduct.rst
    contributing/security.rst
 
 
