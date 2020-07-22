@@ -221,6 +221,14 @@ cdef class Session(object):
                 libssh.ssh_disconnect(self._libssh_session)
                 raise
 
+        # We need to userauth_none before we can query the available auth types
+        rc = libssh.ssh_userauth_none(self._libssh_session, NULL)
+        if rc == libssh.SSH_AUTH_SUCCESS:
+            # Huh, it worked?
+            return
+        if rc == libssh.SSH_AUTH_ERROR:
+            raise LibsshSessionException("Something went wrong ):")
+
         supported_auth = libssh.ssh_userauth_list(self._libssh_session, NULL)
 
         if kwargs.get('private_key') and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
@@ -261,6 +269,7 @@ cdef class Session(object):
         if saved_exception is not None:
             libssh.ssh_disconnect(self._libssh_session)
             raise saved_exception
+        raise LibsshSessionException("Failed to find any acceptable way to authenticate")
 
     @property
     def is_connected(self):

@@ -168,6 +168,7 @@ cdef extern from "libssh/libssh.h" nogil:
         ssh_auth_callback auth_fn, void *auth_data, ssh_key *pkey)
 
     int ssh_userauth_list(ssh_session session, const char *username)
+    int ssh_userauth_none(ssh_session session, const char *username)
     int ssh_userauth_publickey(ssh_session session, const char *username, const ssh_key privkey)
     int ssh_userauth_agent(ssh_session session, const char *username)
     int ssh_userauth_publickey_auto(ssh_session session, const char *username, const char *passphrase)
