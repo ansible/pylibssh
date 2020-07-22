@@ -408,12 +408,25 @@ cdef class Session(object):
         """
         cdef int rc
         rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
-        if rc == libssh.SSH_AUTH_ERROR or rc == libssh.SSH_AUTH_DENIED:
-            raise LibsshSessionException("Failed to authenticate with password: %s" % self._get_session_error_str())
+        if rc == libssh.SSH_AUTH_SUCCESS:
+            return
 
-        prompt_count = libssh.ssh_userauth_kbdint_getnprompts(self._libssh_session)
-        for prompt in len(prompt_count):
-            rc = libssh.ssh_userauth_kbdint_setanswer(self._libssh_session, prompt, password.encode())
+        if rc == libssh.SSH_AUTH_INFO:
+            prompt_count = libssh.ssh_userauth_kbdint_getnprompts(self._libssh_session)
+            if prompt_count == 0:
+                # No prompts, but still need to call kbdint again
+                pass
+            elif prompt_count == 1:
+                rc = libssh.ssh_userauth_kbdint_setanswer(self._libssh_session, 0, password.encode())
+            else:
+                raise LibsshSessionException("Server aksed more questions than I was expecting ({count}), bailing...".format(count=prompt_count))
+
+        if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
+            raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
+
+        # If we didn't get SSH_AUTH_SUCCESS this time, we have to call
+        # userauth_kbdint again until we do (or fail)
+        return self.authenticate_interactive(password)
 
     def new_channel(self):
         return Channel(self)
