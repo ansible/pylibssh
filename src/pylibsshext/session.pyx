@@ -441,8 +441,6 @@ cdef class Session(object):
         if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
             raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
 
-        if rc == libssh.SSH_AUTH_SUCCESS:
-            return
 
     def new_channel(self):
         return Channel(self)
