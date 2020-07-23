@@ -243,8 +243,8 @@ cdef class Session(object):
             else:
                 return
 
-        # try authenticating with a password
         if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_PASSWORD:
+            # try authenticating with a password
             try:
                 self.authenticate_password(kwargs["password"])
             except LibsshSessionException as ex:
@@ -252,8 +252,10 @@ cdef class Session(object):
             else:
                 return
 
-        # try authenticating with keyboard-interactive (without the interactive)
         if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_INTERACTIVE:
+            # try authenticating with keyboard-interactive
+            # This will be neither user-interactive nor involve a keyboard,
+            # but rather emulate the exchange using the provided password
             try:
                 self.authenticate_interactive(kwargs["password"])
             except LibsshSessionException as ex:
@@ -434,13 +436,12 @@ cdef class Session(object):
                     raise LibsshSessionException("None of the prompts looked like password prompts to me")
                 rc = libssh.ssh_userauth_kbdint_setanswer(self._libssh_session, prompt, password.encode())
 
-            # We didn't get SSH_AUTH_SUCCESS this time, so we have to call
-            # userauth_kbdint again until we do (or fail)
+            # We need to keep calling ssh_userauth_kbdint until it stops returning SSH_AUTH_INFO
+            # (ie, asking for more information and has made a decison as to whether we are allowed in)
             rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
 
         if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
             raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
-
 
     def new_channel(self):
         return Channel(self)
