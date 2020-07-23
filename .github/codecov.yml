@@ -1,0 +1,19 @@
+comment:
+  layout: header, reach, diff, files
+  behavior: new
+  require_changes: no
+  after_n_builds: 25  # Wait for the most of the GHA matrix before posting
+
+coverage:
+  precision: 2
+  round: nearest
+  range: 68..100
+  status:
+    # Only consider coverage of the code snippet changed in PR
+    # https://docs.codecov.io/docs/commit-status
+    project: no
+    patch: yes
+    changes: yes
+
+notify:
+  after_n_builds: 25  # Wait for the most of the GHA matrix before posting
