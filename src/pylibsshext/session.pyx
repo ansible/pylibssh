@@ -227,7 +227,7 @@ cdef class Session(object):
             # Huh, it worked?
             return
         if rc == libssh.SSH_AUTH_ERROR:
-            raise LibsshSessionException("Something went wrong ):")
+            raise LibsshSessionException("Error while fetching list of supported authentication methods")
 
         supported_auth = libssh.ssh_userauth_list(self._libssh_session, NULL)
 
@@ -238,33 +238,37 @@ cdef class Session(object):
                     kwargs['private_key'],
                     kwargs.get('private_key_password'),
                 )
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
         # try authenticating with a password
         if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_PASSWORD:
             try:
                 self.authenticate_password(kwargs["password"])
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
         # try authenticating with keyboard-interactive (without the interactive)
         if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_INTERACTIVE:
             try:
                 self.authenticate_interactive(kwargs["password"])
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
         if kwargs.get('look_for_keys', True) and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
             # try authenticating with public keys
             try:
                 self.authenticate_pubkey()
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
         if saved_exception is not None:
             libssh.ssh_disconnect(self._libssh_session)
