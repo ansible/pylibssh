@@ -643,6 +643,11 @@ jobs:
         path: dist/
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
+    - name: Configure tox to run pytest under catchsegv
+      if: runner.os == 'Linux'
+      run: >-
+        print("::set-env name=CATCHSEGV_BINARY::catchsegv")
+      shell: python
     - name: Run tests
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Send coverage data to Codecov
