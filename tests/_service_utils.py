@@ -41,7 +41,7 @@ def _match_proto_start(sock, b_proto_id):
 
 def wait_for_svc_ready_state(  # noqa: WPS317
         host, port, protocol_identifier,  # noqa: WPS318
-        max_conn_attempts=10,
+        max_conn_attempts=20,
         reconnect_attempt_delay=_DEFAULT_RECONNECT_ATTEMPT_DELAY,
 ):
     """Verify that the serivce is up and running.
