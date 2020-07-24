@@ -430,10 +430,10 @@ cdef class Session(object):
             if prompt_count > 0:
                 for prompt in range(prompt_count):
                     prompt_text = libssh.ssh_userauth_kbdint_getprompt(self._libssh_session, prompt, &should_echo)
-                    if prompt_text == b"Password: ":
+                    if prompt_text.lower()[:9] == b"password:":
                         break
                 else:
-                    raise LibsshSessionException("None of the prompts looked like password prompts to me")
+                    raise LibsshSessionException("None of the prompts looked like password prompts")
                 rc = libssh.ssh_userauth_kbdint_setanswer(self._libssh_session, prompt, password.encode())
 
             # We need to keep calling ssh_userauth_kbdint until it stops returning SSH_AUTH_INFO
