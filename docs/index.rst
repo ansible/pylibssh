@@ -16,6 +16,9 @@ Welcome to |project|'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   guide/installation_guide/index.rst
+   guide/user_guide/index.rst
+
 .. toctree::
    :caption: What's new
 
@@ -27,6 +30,7 @@ Welcome to |project|'s documentation!
    contributing/code_of_conduct.rst
    contributing/guidelines.rst
    contributing/security.rst
+   guide/testing_guide/index.rst
 
 
 

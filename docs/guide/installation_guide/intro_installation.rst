@@ -30,7 +30,7 @@ ansible-pylibssh can be installed with ``pip``, the Python package manager.  If 
     $ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
     $ python get-pip.py --user
 
-Then install ansible-pylibssh [1]_::
+Then install ansible-pylibssh::
 
     $ pip install --user ansible-pylibssh
 
@@ -57,7 +57,7 @@ ansible-pylibssh can be installed from source::
     $ pip install tox
     $ tox -e build-dists
 
-`manylinux`-compatible wheels::
+``manylinux``-compatible wheels::
 
     $ git clone https://github.com/ansible/pylibssh.git
     $ cd pylibssh
@@ -70,7 +70,7 @@ ansible-pylibssh can be installed from source::
     # to enable shell script debug mode use
     $ tox -e build-dists-manylinux -- -e DEBUG=1
 
-ansible-pylibssh also uses the following Python modules that need to be installed [1]_:
+ansible-pylibssh also uses the following Python modules that need to be installed:
 
 .. code-block:: bash
 
