@@ -9,5 +9,5 @@ This guide covers how to work with ansible-pylibssh.
 .. toctree::
    :maxdepth: 2
 
-    ../installation_guide/index
+   ../installation_guide/index
    intro_getting_started
