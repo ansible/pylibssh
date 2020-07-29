@@ -98,7 +98,7 @@ ARCH=`uname -m`
 >&2 echo
 /opt/python/cp38-cp38/bin/python -m venv ~/.tools-venv
 ~/.tools-venv/bin/pip install -U pip setuptools
-~/.tools-venv/bin/pip install --unstable-feature=resolver auditwheel cmake
+~/.tools-venv/bin/pip install --use-feature=2020-resolver auditwheel cmake
 
 >&2 echo
 >&2 echo
