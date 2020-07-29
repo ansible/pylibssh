@@ -1,0 +1,2 @@
+Enhance sftp error handling code to match
+with libssh error messages - by :user:`ganeshrn`
