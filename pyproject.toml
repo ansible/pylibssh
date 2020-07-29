@@ -74,3 +74,4 @@ profile = "True"
 # the end when publishing non-tagged versions.
 [tool.setuptools_scm]
 write_to = "src/pylibsshext/_scm_version.py"
+# ATTENTION: DO NOT ADD ANYTHING AFTER THIS SECTION ^
