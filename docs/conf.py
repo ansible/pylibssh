@@ -22,6 +22,7 @@ github_repo_org = 'ansible'
 github_repo_name = 'pylibssh'
 github_repo_slug = f'{github_repo_org}/{github_repo_name}'
 github_repo_url = f'{github_url}/{github_repo_slug}'
+github_sponsors_url = f'{github_url}/sponsors'
 
 project = f'{github_repo_org}-{github_repo_name}'
 author = 'Ansible, Inc.'
@@ -124,12 +125,14 @@ extlinks = {
     'pr': (f'{github_repo_url}/pull/%s', 'PR #'),  # noqa: WPS323
     'commit': (f'{github_repo_url}/commit/%s', ''),  # noqa: WPS323
     'gh': (f'{github_url}/%s', 'GitHub: '),  # noqa: WPS323
+    'user': (f'{github_sponsors_url}/%s', '@'),  # noqa: WPS323
 }
 
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
+    'cython': ('https://cython.readthedocs.io/en/latest', None),
     'python': ('https://docs.python.org/3', None),
     'python2': ('https://docs.python.org/2', None),
 }
