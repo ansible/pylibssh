@@ -17,7 +17,8 @@ In order to contribute, you'll need to:
 
   1. Fork the repository.
 
-  2. Create a branch, push your changes there.
+  2. Create a branch, push your changes there. Don't forget to
+     :ref:`include news files for the changelog <howto_add_change_notes>`.
 
   3. Send it to us as a PR.
 
