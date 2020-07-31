@@ -25,4 +25,7 @@ file ``docs/changelog-fragments/57.bugfix.rst``:
     Fixed flaky SEGFAULTs in ``pylibsshext.channel.Channel.exec_command()``
     calls -- by :user:`ganeshrn`
 
-See ``pyproject.toml`` for all available categories  (``tool.towncrier.type``).
+.. tip::
+
+   See ``pyproject.toml`` for all available categories
+   (``tool.towncrier.type``).
