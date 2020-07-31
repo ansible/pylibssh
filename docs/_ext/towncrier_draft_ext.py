@@ -133,8 +133,7 @@ class TowncrierDraftEntriesDirective(SphinxDirective):
                 config_path=config.towncrier_draft_config_path,
             )
         except subprocess.CalledProcessError as proc_exc:
-            self.error(proc_exc)
-            raise
+            raise self.error(proc_exc)
         except LookupError:
             return []
 
