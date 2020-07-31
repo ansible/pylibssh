@@ -95,5 +95,5 @@ are set properly:
 License
 -------
 
-This library is distributed under the terms of LGPL 2.1,
-see file LICENSE.rst in this repository.
+This library is distributed under the terms of LGPL 2 or higher,
+see file ``LICENSE.rst`` in this repository.
