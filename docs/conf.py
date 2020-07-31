@@ -3,6 +3,7 @@
 # Ref: https://www.sphinx-doc.org/en/master/usage/configuration.html
 """Configuration for the Sphinx documentation generator."""
 
+import sys
 from pathlib import Path
 
 from setuptools_scm import get_version
@@ -13,6 +14,13 @@ from setuptools_scm import get_version
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute.
+PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
+SPHINX_EXTENSIONS_DIR = (Path(__file__).parent / '_ext').resolve()
+# Make in-tree extension importable in non-tox setups/envs, like RTD.
+# Refs:
+# https://github.com/readthedocs/readthedocs.org/issues/6311
+# https://github.com/readthedocs/readthedocs.org/issues/7182
+sys.path.insert(0, str(SPHINX_EXTENSIONS_DIR))
 
 
 # -- Project information -----------------------------------------------------
@@ -32,7 +40,7 @@ copyright = f'2020, {author}'  # noqa: WPS125
 version = '.'.join(
     get_version(
         local_scheme='no-local-version',
-        root=(Path(__file__).parents[1]).resolve(),
+        root=PROJECT_ROOT_DIR,
     ).split('.')[:3],
 )
 
@@ -63,6 +71,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     # 'sphinxcontrib.apidoc',
+    'towncrier_draft_ext',  # in-tree
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -170,3 +179,10 @@ linkcheck_ignore = [
     r'https://github\.com/ansible/pylibssh/workflows/[^/]+/badge\.svg',
 ]
 linkcheck_workers = 25
+
+# -- Options for towncrier_draft extension -----------------------------------
+
+towncrier_draft_autoversion_mode = 'scm-draft'  # or: 'scm', 'draft', 'sphinx-version', 'sphinx-release'
+towncrier_draft_include_empty = True
+towncrier_draft_working_directory = PROJECT_ROOT_DIR
+# Not yet supported: towncrier_draft_config_path = 'pyproject.toml'  # relative to cwd

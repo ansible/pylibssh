@@ -67,6 +67,14 @@ per-file-ignores =
   # Sphinx builds aren't supposed to Python 2:
   docs/conf.py: WPS305
 
+  # WPS305 is unnecessary because this extension is
+  # Python 3 only and so f-strings are allowed,
+  # WPS317/WPS318 enforces weird indents,
+  # WPS326 doesn't allow implicit string concat,
+  # E800 reports a lot of false-positives for legit
+  # tool-related comments:
+  docs/_ext/towncrier_draft_ext.py: E800, WPS305, WPS317, WPS318, WPS326
+
   # The package has imports exposing private things to the public:
   src/pylibsshext/__init__.py: WPS412
 

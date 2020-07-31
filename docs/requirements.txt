@@ -20,6 +20,10 @@ chardet==3.0.4 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
     --hash=sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691 \
     # via requests
+click==7.1.2 \
+    --hash=sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a \
+    --hash=sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc \
+    # via towncrier
 docutils==0.16 \
     --hash=sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af \
     --hash=sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc \
@@ -32,10 +36,14 @@ imagesize==1.2.0 \
     --hash=sha256:6965f19a6a2039c7d48bca7dba2473069ff854c36ae6f19d2cde309d998228a1 \
     --hash=sha256:b1f6b5a4eab1f73479a50fb79fcf729514a900c341d8503d62a62dbc4127a2b1 \
     # via sphinx
+incremental==17.5.0 \
+    --hash=sha256:717e12246dddf231a349175f48d74d93e2897244939173b01974ab6661406b9f \
+    --hash=sha256:7b751696aaf36eebfab537e458929e194460051ccad279c72b755a167eebd4b3 \
+    # via towncrier
 jinja2==2.11.2 \
     --hash=sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0 \
     --hash=sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035 \
-    # via sphinx
+    # via sphinx, towncrier
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
     --hash=sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161 \
@@ -151,6 +159,14 @@ sphinxcontrib-serializinghtml==1.1.4 \
     --hash=sha256:eaa0eccc86e982a9b939b2b82d12cc5d013385ba5eadcc7e4fed23f4405f77bc \
     --hash=sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a \
     # via sphinx
+toml==0.10.1 \
+    --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
+    --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88 \
+    # via towncrier
+towncrier==19.2.0 \
+    --hash=sha256:48251a1ae66d2cf7e6fa5552016386831b3e12bb3b2d08eb70374508c17a8196 \
+    --hash=sha256:de19da8b8cb44f18ea7ed3a3823087d2af8fcf497151bb9fd1e1b092ff56ed8d \
+    # via -r docs/requirements.in
 urllib3==1.25.9 \
     --hash=sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527 \
     --hash=sha256:88206b0eb87e6d677d424843ac5209e3fb9d0190d0ee169599165ec25e9d9115 \
