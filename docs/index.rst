@@ -17,6 +17,11 @@ Welcome to |project|'s documentation!
    :caption: Contents:
 
 .. toctree::
+   :caption: What's new
+
+   changelog
+
+.. toctree::
    :caption: Contributing
 
    contributing/code_of_conduct.rst
