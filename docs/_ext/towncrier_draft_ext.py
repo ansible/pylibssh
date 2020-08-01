@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Union
 
 from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import nodes
+from sphinx.util.nodes import nested_parse_with_titles, nodes
 
 
 # isort: split
@@ -106,6 +106,21 @@ def _get_draft_version_fallback(strategy: str, sphinx_config: Dict[str, Any]):
     return ' '.join(msg_chunks)
 
 
+def _nodes_from_rst(state: statemachine.State, rst: str) -> List[nodes.Node]:
+    """Turn an RST string into a node that can be used in the document."""
+    node = nodes.Element()
+    node.document = state.document
+    nested_parse_with_titles(
+        state=state,
+        content=statemachine.ViewList(
+            rst.splitlines(),
+            source='towncrier-fragments',
+        ),
+        node=node,
+    )
+    return node.children
+
+
 class TowncrierDraftEntriesDirective(SphinxDirective):
     """Definition of the ``towncrier-draft-entries`` directive."""
 
@@ -119,7 +134,6 @@ class TowncrierDraftEntriesDirective(SphinxDirective):
                 f'Error in "{self.name!s}" directive: '
                 'only one argument permitted.',
             )
-
         config = self.state.document.settings.env.config  # noqa: WPS219
         autoversion_mode = config.towncrier_draft_autoversion_mode
         include_empty = config.towncrier_draft_include_empty
@@ -137,11 +151,7 @@ class TowncrierDraftEntriesDirective(SphinxDirective):
         except LookupError:
             return []
 
-        self.state_machine.insert_input(
-            statemachine.string2lines(draft_changes),
-            '[towncrier draft]',
-        )
-        return []
+        return _nodes_from_rst(state=self.state, rst=draft_changes)
 
 
 def setup(app: Sphinx) -> Dict[str, Union[bool, str]]:
