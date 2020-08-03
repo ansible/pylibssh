@@ -1,6 +1,13 @@
 .. _installation_guide:
 .. _intro_installation_guide:
 
+******************
+Installation Guide
+******************
+
+Welcome to the |project| Installation Guide!
+
+
 Installing |project|
 ====================
 
@@ -82,3 +89,4 @@ Running |project| from source (devel)
 
    :ref:`intro_getting_started`
        Examples of getting started
+

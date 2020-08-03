@@ -9,5 +9,5 @@ This guide covers how to work with |project|.
 .. toctree::
    :maxdepth: 2
 
-   ../installation_guide/index
+   ../../installation_guide
    intro_getting_started
