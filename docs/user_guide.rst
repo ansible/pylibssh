@@ -1,5 +1,13 @@
 .. _intro_getting_started:
 
+##########
+User Guide
+##########
+
+Welcome to the |project| User Guide!
+
+This guide covers how to work with |project|.
+
 ***************
 Getting Started
 ***************

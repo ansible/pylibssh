@@ -17,7 +17,7 @@ Welcome to |project|'s documentation!
    :caption: Contents:
 
    installation_guide.rst
-   guide/user_guide/index.rst
+   user_guide.rst
 
 .. toctree::
    :caption: What's new
