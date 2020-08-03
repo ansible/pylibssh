@@ -2,9 +2,9 @@
 User Guide
 ##########
 
-Welcome to the ansible-pylibssh User Guide!
+Welcome to the |project| User Guide!
 
-This guide covers how to work with ansible-pylibssh.
+This guide covers how to work with |project|.
 
 .. toctree::
    :maxdepth: 2

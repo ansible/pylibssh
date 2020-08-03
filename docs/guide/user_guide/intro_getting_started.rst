@@ -4,7 +4,7 @@
 Getting Started
 ***************
 
-Now that you have read the :ref:`installation guide<installation_guide>` and installed ansible-pylibssh on a your system.
+Now that you have read the :ref:`installation guide<installation_guide>` and installed |project| on a your system.
 
 .. contents::
    :local:

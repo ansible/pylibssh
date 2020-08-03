@@ -2,7 +2,7 @@
 Installation Guide
 ******************
 
-Welcome to the ansible-pylibssh Installation Guide!
+Welcome to the |project| Installation Guide!
 
 
 .. toctree::
