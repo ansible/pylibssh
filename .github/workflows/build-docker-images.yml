@@ -30,14 +30,13 @@ jobs:
           - {TAG_NAME: "pyca/cryptography-runner-fedora", DOCKERFILE_PATH: "runners/fedora"}
           - {TAG_NAME: "pyca/cryptography-runner-alpine", DOCKERFILE_PATH: "runners/alpine"}
 
-          - {TAG_NAME: "pyca/cryptography-runner-jessie", DOCKERFILE_PATH: "runners/debian", BUILD_ARGS: "--build-arg RELEASE=jessie"}
           - {TAG_NAME: "pyca/cryptography-runner-stretch", DOCKERFILE_PATH: "runners/debian", BUILD_ARGS: "--build-arg RELEASE=stretch"}
           - {TAG_NAME: "pyca/cryptography-runner-buster", DOCKERFILE_PATH: "runners/debian", BUILD_ARGS: "--build-arg RELEASE=buster"}
           - {TAG_NAME: "pyca/cryptography-runner-bullseye", DOCKERFILE_PATH: "runners/debian", BUILD_ARGS: "--build-arg RELEASE=bullseye"}
           - {TAG_NAME: "pyca/cryptography-runner-sid", DOCKERFILE_PATH: "runners/debian", BUILD_ARGS: "--build-arg RELEASE=sid"}
 
-          - {TAG_NAME: "pyca/cryptography-runner-ubuntu-trusty", DOCKERFILE_PATH: "runners/ubuntu", BUILD_ARGS: "--build-arg RELEASE=trusty"}
-          - {TAG_NAME: "pyca/cryptography-runner-ubuntu-xenial", DOCKERFILE_PATH: "runners/ubuntu", BUILD_ARGS: "--build-arg RELEASE=xenial"}
+          - {TAG_NAME: "pyca/cryptography-runner-ubuntu-bionic", DOCKERFILE_PATH: "runners/ubuntu", BUILD_ARGS: "--build-arg RELEASE=bionic"}
+          - {TAG_NAME: "pyca/cryptography-runner-ubuntu-focal", DOCKERFILE_PATH: "runners/ubuntu", BUILD_ARGS: "--build-arg RELEASE=focal"}
           - {TAG_NAME: "pyca/cryptography-runner-ubuntu-rolling", DOCKERFILE_PATH: "runners/ubuntu", BUILD_ARGS: "--build-arg RELEASE=rolling"}
 
           - {TAG_NAME: "pyca/cryptography-manylinux1:x86_64", DOCKERFILE_PATH: "cryptography-manylinux", BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux1"}
