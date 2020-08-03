@@ -16,7 +16,7 @@ Welcome to |project|'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   guide/user_guide/index.rst
+   user_guide
 
 .. toctree::
    :caption: What's new
