@@ -1,10 +1,10 @@
 .. _installation_guide:
 .. _intro_installation_guide:
 
-Installing ansible-pylibssh
-===========================
+Installing |project|
+====================
 
-This page describes how to install ansible-pylibssh on different platforms.
+This page describes how to install |project| on different platforms.
 
 .. contents::
   :local:
@@ -22,17 +22,19 @@ pylibssh requires libssh to be installed in particular:
 
 .. _from_pip:
 
-Installing ansible-pylibssh with ``pip``
-----------------------------------------
+Installing |project| with ``pip``
+---------------------------------
 
-ansible-pylibssh can be installed with ``pip``, the Python package manager.  If ``pip`` isn't already available on your system of Python, run the following commands to install it::
+|project| can be installed with ``pip``, the Python package manager.  If ``pip`` isn't already available on your system of Python, run the following commands to install it::
 
     $ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
     $ python get-pip.py --user
 
-Then install ansible-pylibssh::
+Then install |project|:
 
-    $ pip install --user ansible-pylibssh
+.. parsed-literal::
+
+    $ pip install --user |project|
 
 .. note::
 
@@ -41,16 +43,16 @@ Then install ansible-pylibssh::
 .. note::
 
     Older versions of ``pip`` default to http://pypi.python.org/simple, which no longer works.
-    Please make sure you have the latest version of ``pip`` before installing ansible-pylibssh.
+    Please make sure you have the latest version of ``pip`` before installing |project|.
     If you have an older version of ``pip`` installed, you can upgrade by following `pip's upgrade instructions <https://pip.pypa.io/en/stable/installing/#upgrading-pip>`_ .
 
 
 .. _from_source:
 
-Running ansible-pylibssh from source (devel)
+Running |project| from source (devel)
 --------------------------------------------
 
-ansible-pylibssh can be installed from source::
+|project| can be installed from source::
 
     $ git clone https://github.com/ansible/pylibssh.git
     $ cd pylibssh
@@ -70,7 +72,7 @@ ansible-pylibssh can be installed from source::
     # to enable shell script debug mode use
     $ tox -e build-dists-manylinux -- -e DEBUG=1
 
-ansible-pylibssh also uses the following Python modules that need to be installed:
+|project| also uses the following Python modules that need to be installed:
 
 .. code-block:: bash
 
