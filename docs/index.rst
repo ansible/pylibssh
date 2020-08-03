@@ -16,7 +16,7 @@ Welcome to |project|'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   guide/installation_guide/index
+   installation_guide
    user_guide
 
 .. toctree::
