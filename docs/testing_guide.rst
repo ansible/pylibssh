@@ -1,5 +1,10 @@
 .. _testing_guide:
-.. _unit_testing_guide:
+
+*************
+Testing Guide
+*************
+
+Welcome to the |project| Testing Guide!
 
 
 Getting the source code

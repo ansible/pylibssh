@@ -30,7 +30,7 @@ Welcome to |project|'s documentation!
    contributing/code_of_conduct.rst
    contributing/guidelines.rst
    contributing/security.rst
-   guide/testing_guide/index.rst
+   testing_guide.rst
 
 
 
