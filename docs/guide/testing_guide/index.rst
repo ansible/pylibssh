@@ -2,7 +2,7 @@
 Testing Guide
 *************
 
-Welcome to the ansible-pylibssh Testing Guide!
+Welcome to the |project| Testing Guide!
 
 
 .. toctree::
