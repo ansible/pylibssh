@@ -117,11 +117,7 @@ cdef class Session(object):
             self.set_ssh_options(key, kwargs[key])
 
     def __dealloc__(self):
-        if self._libssh_session is not NULL:
-            if libssh.ssh_is_connected(self._libssh_session):
-                libssh.ssh_disconnect(self._libssh_session)
-            libssh.ssh_free(self._libssh_session)
-            self._libssh_session = NULL
+        self.close()
 
     @property
     def port(self):
@@ -527,7 +523,7 @@ cdef class Session(object):
         else:
             raise LibsshSessionException("Invalid log level [%d]" % level)
 
-    def close(self):
+    cpdef close(self):
         if self._libssh_session is not NULL:
             if libssh.ssh_is_connected(self._libssh_session):
                 libssh.ssh_disconnect(self._libssh_session)
