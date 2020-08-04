@@ -159,16 +159,11 @@ cdef class Channel:
         callbacks.ssh_callbacks_init(&cb)
         callbacks.ssh_set_channel_callbacks(channel, &cb)
 
-        libssh.ssh_channel_send_eof(channel)
-        result.returncode = libssh.ssh_channel_get_exit_status(channel)
         if channel is not NULL:
             libssh.ssh_channel_close(channel)
             libssh.ssh_channel_free(channel)
 
         return result
-
-    def get_channel_exit_status(self):
-        return libssh.ssh_channel_get_exit_status(self._libssh_channel)
 
     def close(self):
         if self._libssh_channel is not NULL:
