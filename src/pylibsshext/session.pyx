@@ -108,7 +108,6 @@ cdef class Session(object):
         self._fingerprint_py = None
         self._keytype_py = None
 
-    def __cinit__(self, host=None, **kwargs):
         self._libssh_session = libssh.ssh_new()
         if self._libssh_session is NULL:
             raise MemoryError
@@ -116,7 +115,7 @@ cdef class Session(object):
         for key in kwargs:
             self.set_ssh_options(key, kwargs[key])
 
-    def __dealloc__(self):
+    def __del__(self):
         self.close()
 
     @property
@@ -523,7 +522,7 @@ cdef class Session(object):
         else:
             raise LibsshSessionException("Invalid log level [%d]" % level)
 
-    cpdef close(self):
+    def close(self):
         if self._libssh_session is not NULL:
             if libssh.ssh_is_connected(self._libssh_session):
                 libssh.ssh_disconnect(self._libssh_session)

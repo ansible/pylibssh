@@ -45,7 +45,7 @@ cdef int _process_outputs(libssh.ssh_session session,
     return len
 
 cdef class Channel:
-    def __cinit__(self, session):
+    def __init__(self, session):
         self._libssh_session = get_libssh_session(session)
         self._libssh_channel = libssh.ssh_channel_new(self._libssh_session)
 
@@ -58,7 +58,7 @@ cdef class Channel:
             self._libssh_channel = NULL
             raise LibsshChannelException("Failed to open_session: [%d]" % rc)
 
-    def __dealloc__(self):
+    def __del__(self):
         self.close()
 
     def request_shell(self):
@@ -170,7 +170,7 @@ cdef class Channel:
     def get_channel_exit_status(self):
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
 
-    cpdef close(self):
+    def close(self):
         if self._libssh_channel is not NULL:
             libssh.ssh_channel_close(self._libssh_channel)
             libssh.ssh_channel_free(self._libssh_channel)
