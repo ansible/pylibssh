@@ -172,6 +172,7 @@ cdef class Channel:
 
     def close(self):
         if self._libssh_channel is not NULL:
-            libssh.ssh_channel_close(self._libssh_channel)
+            if not libssh.ssh_channel_is_closed(self._libssh_channel):
+                libssh.ssh_channel_close(self._libssh_channel)
             libssh.ssh_channel_free(self._libssh_channel)
             self._libssh_channel = NULL
