@@ -1,2 +1,2 @@
 Add support for host key checking with
-authentication - by :user:`ganeshrn`
+authentication -- by :user:`ganeshrn`

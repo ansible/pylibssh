@@ -1,1 +1,1 @@
-Change pylibssh dir to pylibsshext to avoid ns collision - by :user:`ganeshrn`
+Change pylibssh dir to pylibsshext to avoid ns collision -- by :user:`ganeshrn`

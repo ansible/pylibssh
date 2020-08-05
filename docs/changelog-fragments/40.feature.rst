@@ -1,2 +1,2 @@
 Add support to receive bulk response
-for remote shell - by :user:`ganeshrn`
+for remote shell -- by :user:`ganeshrn`
