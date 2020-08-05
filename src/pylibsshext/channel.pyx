@@ -165,6 +165,9 @@ cdef class Channel:
 
         return result
 
+    def get_channel_exit_status(self):
+        return libssh.ssh_channel_get_exit_status(self._libssh_channel)
+
     def close(self):
         if self._libssh_channel is not NULL:
             if not libssh.ssh_channel_is_closed(self._libssh_channel):
