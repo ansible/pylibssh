@@ -1,2 +1,2 @@
 Add proxycommand support for session and
-update session execption to ``LibsshSessionException`` -- by :user:`ganeshrn`
+update session exeception to ``LibsshSessionException`` -- by :user:`ganeshrn`
