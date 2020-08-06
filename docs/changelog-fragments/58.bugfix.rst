@@ -1,7 +1,7 @@
-Fixed sftp file get issue on py2
-The file ``write()`` method returns None on py2
-is bytes are written to file successfully, whereas
+Fixed sftp file get issue. On py2
+The file ``write()`` method returns ``None`` on py2
+if bytes are written to file successfully, whereas
 on py3 it returns total number of bytes written
-to file. Add fix to check for the number of
+to file. Added a fix to check for the number of
 bytes written only in the case when ``write()``
-is not returning ``None`` -- by :user:`ganeshrn`
+does not return ``None`` -- by :user:`ganeshrn`
