@@ -1,2 +1,0 @@
-Update requirements file to replace
-``requirements.txt`` with ``requirements-build.in`` -- by :user:`akasurde`
