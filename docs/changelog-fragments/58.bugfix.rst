@@ -1,4 +1,4 @@
-Fix sftp file get issue on py2
+Fixed sftp file get issue on py2
 The file ``write()`` method returns None on py2
 is bytes are written to file successfully, whereas
 on py3 it returns total number of bytes written

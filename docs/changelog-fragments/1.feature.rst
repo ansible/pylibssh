@@ -1,2 +1,2 @@
-Add cython extension for libssh client
+Added cython extension for libssh client
 API's initial commit -- by :user:`ganeshrn`
