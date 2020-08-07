@@ -1,8 +1,8 @@
 .. _howto_add_change_notes:
 
-=================================
+---------------------------------
 Adding change notes with your PRs
-=================================
+---------------------------------
 
 Examples for changelog entries adding to your Pull Requests:
 
