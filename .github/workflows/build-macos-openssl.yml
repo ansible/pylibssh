@@ -1,5 +1,8 @@
 name: macOS OpenSSL
 on:
+  schedule:
+    # Run once a week on Fridays
+    - cron: "0 0 * * FRI"
   pull_request:
     paths:
       - '.github/workflows/build-macos-openssl.yml'
