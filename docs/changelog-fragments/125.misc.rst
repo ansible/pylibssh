@@ -1,0 +1,5 @@
+Turned the Townrier fragments README doc title into subtitle
+-- by :user:`webknjaz`
+
+The effect is that it doesn't show up in the side bar as an
+individual item anymore.

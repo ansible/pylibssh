@@ -71,6 +71,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     # 'sphinxcontrib.apidoc',
+    'myst_parser',  # extended markdown; https://pypi.org/project/myst-parser/
     'towncrier_draft_ext',  # in-tree
 ]
 

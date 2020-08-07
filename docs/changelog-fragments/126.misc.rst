@@ -1,0 +1,2 @@
+Integrated Markdown support into docs via the `MyST parser
+<https://myst-parser.readthedocs.io/>`__ -- by :user:`webknjaz`

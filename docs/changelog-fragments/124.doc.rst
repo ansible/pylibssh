@@ -1,0 +1,3 @@
+Documented how to compose `Towncrier
+<https://towncrier.readthedocs.io/en/actual-freaking-docs/>`__
+news fragments -- by :user:`webknjaz`
