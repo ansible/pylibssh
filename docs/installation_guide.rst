@@ -87,6 +87,5 @@ Running |project| from source (devel)
 
 .. seealso::
 
-   :ref:`intro_getting_started`
-       Examples of getting started
-
+   :ref:`Getting Started with |project|`
+       Examples of using |project|
