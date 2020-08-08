@@ -50,7 +50,11 @@ repos:
 
   # Heavy checks:
   - id: check-ast
+    exclude: >-
+      ^docs/_samples/.*\.py$
   - id: debug-statements
+    exclude: >-
+      ^docs/_samples/.*\.py$
 
 - repo: https://gitlab.com/pycqa/flake8.git
   rev: 3.8.2
@@ -65,6 +69,8 @@ repos:
     - wemake-python-styleguide
     files: >-
       ^.*\.p(xd|y|yx)$
+    exclude: >-
+      ^docs/_samples/.*\.py$
     types: [file]
 
 - repo: git://github.com/Lucas-C/pre-commit-hooks-markup
@@ -78,6 +84,8 @@ repos:
   rev: 5.0.2
   hooks:
   - id: pydocstyle
+    exclude: >-
+      ^docs/_samples/.*\.py$
 
 # - repo: local
 #   hooks:

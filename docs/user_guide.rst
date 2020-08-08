@@ -7,91 +7,85 @@ Now that you have read the :ref:`installation guide <installation_guide>` and in
 .. contents::
    :local:
 
-Checking libssh version
-=======================
 
-.. code-block:: python
+.. tip::
 
-   from pylibsshext._libssh_version import LIBSSH_VERSION
+   The examples on this page use Python 3.8. If your interpreter
+   is older, you may need to modify the syntax when copying the
+   snippets.
 
-   print(LIBSSH_VERSION)
+
+Checking software versions
+==========================
+
+.. literalinclude:: _samples/get_version.py
+   :language: python
+
 
 Creating a SSH session
 ======================
 
-.. code-block:: python
+.. attention::
 
-   from pylibsshext.session import Session
-   from pylibsshext.errors import LibsshSessionException
+   The APIs that are shown below, are low-level. You should
+   take a great care to ensure you process any exceptions that
+   arise and always close all the resources once they are no
+   longer necessary.
 
-   ssh = Session()
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: -5
+   :emphasize-lines: 5
 
 
 Connecting with remote SSH server
 =================================
 
-.. code-block:: python
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: 7-23
+   :emphasize-lines: 7-13
 
-  HOST = "CHANGEME"
-  USER = "CHANGEME"
-  PASSWORD = "CHANGEME"
-  TIMEOUT = 30
-  PORT = 22
-  try:
-      ssh.connect(
-          host=HOST,
-          user=USER,
-          password=PASSWORD,
-          timeout=TIMEOUT,
-          port=PORT,
-      )
-  except LibsshSessionException as ex:
-     print(str(ex))
-
-  print(ssh.is_connected)
 
 Passing a command and reading response
 ======================================
 
-.. code-block:: python
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: 25-30
+   :emphasize-lines: 2
 
-  chan = ssh.new_channel()
-  print("stdout:\n%s\n stderr:\n%s\n returncode:\n%s\n" % (resp.stdout, resp.stderr, resp.returncode))
-  chan.close()
 
 Opening a remote shell passing command and receiving response
 =============================================================
-.. code-block:: python
 
-  chan_shell = ssh.invoke_shell()
-  chan_shell.sendall("ls")
-  data = chan_shell.read_bulk_response(timeout=2, retry=10)
-  chan_shell.close()
-  print(data)
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: 32-36
+   :emphasize-lines: 2-3
+
 
 Fetch file from remote host
 ===========================
-.. code-block:: python
 
-  remote_file = '/etc/hosts'
-  local_file = '/tmp/hosts'
-  sftp = SFTP(ssh)
-  sftp.get(remote_file, local_file)
-  sftp.close()
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: 38-42
+   :emphasize-lines: 3-4
 
-Copy file from remote host
-===========================
-.. code-block:: python
 
-  remote_file = '/etc/hosts'
-  local_file = '/tmp/hosts'
-  sftp = SFTP(ssh)
-  sftp.put(remote_file, local_file)
-  sftp.close()
+Copy file to remote host
+========================
+
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: 44-48
+   :emphasize-lines: 3-4
+
 
 Closing SSH session
 ===================
 
-.. code-block:: python
-
-   ssh.close()
+.. literalinclude:: _samples/copy_files.py
+   :language: python
+   :lines: 50
