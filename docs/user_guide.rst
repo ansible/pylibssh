@@ -1,18 +1,8 @@
-.. _intro_getting_started:
+******************************
+Getting Started with |project|
+******************************
 
-##########
-User Guide
-##########
-
-Welcome to the |project| User Guide!
-
-This guide covers how to work with |project|.
-
-***************
-Getting Started
-***************
-
-Now that you have read the :ref:`installation guide<installation_guide>` and installed |project| on a your system.
+Now that you have read the :ref:`installation guide <installation_guide>` and installed |project| on a your system.
 
 .. contents::
    :local:
