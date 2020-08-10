@@ -1,0 +1,2 @@
+Made tox's main env pick up the in-tree :pep:`517` build
+backend -- by :user:`webknjaz`
