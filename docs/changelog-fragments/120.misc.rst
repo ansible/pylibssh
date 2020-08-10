@@ -1,0 +1,4 @@
+Hotfixed the directive in the in-tree sphinx extension to
+always trigger the changelog document rebuilds so that it'd
+pick up any changelog fragments from disk
+-- by :user:`webknjaz`
