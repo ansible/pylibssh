@@ -128,6 +128,8 @@ class TowncrierDraftEntriesDirective(SphinxDirective):
 
     def run(self) -> List[nodes.Node]:
         """Generate a node tree in place of the directive."""
+        self.env.note_reread()  # rebuild the current RST doc unconditionally
+
         target_version = self.content[:1][0] if self.content[:1] else None
         if self.content[1:]:  # inner content present
             raise self.error(
