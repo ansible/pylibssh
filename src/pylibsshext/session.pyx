@@ -221,36 +221,61 @@ cdef class Session(object):
                 libssh.ssh_disconnect(self._libssh_session)
                 raise
 
-        if kwargs.get('private_key'):
+        # We need to userauth_none before we can query the available auth types
+        rc = libssh.ssh_userauth_none(self._libssh_session, NULL)
+        if rc == libssh.SSH_AUTH_SUCCESS:
+            # Huh, it worked?
+            return
+        if rc == libssh.SSH_AUTH_ERROR:
+            raise LibsshSessionException("Error while fetching list of supported authentication methods")
+
+        supported_auth = libssh.ssh_userauth_list(self._libssh_session, NULL)
+
+        if kwargs.get('private_key') and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
             # try authenticating with a given private key
             try:
                 self.authenticate_specific_pubkey(
                     kwargs['private_key'],
                     kwargs.get('private_key_password'),
                 )
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
-        # try authenticating with a password
-        if kwargs.get('password'):
+        if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_PASSWORD:
+            # try authenticating with a password
             try:
                 self.authenticate_password(kwargs["password"])
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
-        if kwargs.get('look_for_keys', True):
+        if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_INTERACTIVE:
+            # try authenticating with keyboard-interactive
+            # This will be neither user-interactive nor involve a keyboard,
+            # but rather emulate the exchange using the provided password
+            try:
+                self.authenticate_interactive(kwargs["password"])
+            except LibsshSessionException as ex:
+                saved_exception = ex
+            else:
+                return
+
+        if kwargs.get('look_for_keys', True) and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
             # try authenticating with public keys
             try:
                 self.authenticate_pubkey()
-                return
             except LibsshSessionException as ex:
                 saved_exception = ex
+            else:
+                return
 
         if saved_exception is not None:
             libssh.ssh_disconnect(self._libssh_session)
             raise saved_exception
+        raise LibsshSessionException("Failed to find any acceptable way to authenticate")
 
     @property
     def is_connected(self):
@@ -385,6 +410,39 @@ cdef class Session(object):
         if rc == libssh.SSH_AUTH_ERROR or rc == libssh.SSH_AUTH_DENIED:
             raise LibsshSessionException("Failed to authenticate with password: %s" % self._get_session_error_str())
 
+    def authenticate_interactive(self, password):
+        """Authenticate this session using keyboard-interactive authentication.
+
+        :param password: The password to authenticate with.
+        :type password: str
+
+        :raises LibsshSessionException: If authentication failed.
+
+        :return: Nothing.
+        :rtype: NoneType
+        """
+        cdef int rc
+        cdef char should_echo
+        rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
+
+        while rc == libssh.SSH_AUTH_INFO:
+            prompt_count = libssh.ssh_userauth_kbdint_getnprompts(self._libssh_session)
+            if prompt_count > 0:
+                for prompt in range(prompt_count):
+                    prompt_text = libssh.ssh_userauth_kbdint_getprompt(self._libssh_session, prompt, &should_echo)
+                    if prompt_text.lower()[:9] == b"password:":
+                        break
+                else:
+                    raise LibsshSessionException("None of the prompts looked like password prompts")
+                rc = libssh.ssh_userauth_kbdint_setanswer(self._libssh_session, prompt, password.encode())
+
+            # We need to keep calling ssh_userauth_kbdint until it stops returning SSH_AUTH_INFO
+            # (ie, asking for more information and has made a decison as to whether we are allowed in)
+            rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
+
+        if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
+            raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
+
     def new_channel(self):
         return Channel(self)
 
@@ -423,6 +481,7 @@ cdef class Session(object):
 
     def _get_session_error_str(self):
         return libssh.ssh_get_error(<void*>self._libssh_session).decode()
+
 
 cdef libssh.ssh_session get_libssh_session(Session session):
     return session._libssh_session
