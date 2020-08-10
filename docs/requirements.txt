@@ -155,7 +155,7 @@ sphinx-rtd-theme==0.5.0 \
 sphinx==3.3.0 \
     --hash=sha256:1c21e7c5481a31b531e6cbf59c3292852ccde175b504b00ce2ff0b8f4adc3649 \
     --hash=sha256:3abdb2c57a65afaaa4f8573cbabd5465078eb6fd282c1e4f87f006875a7ec0c7 \
-    # via -r docs/requirements.in, myst-parser, sphinx-rtd-theme, sphinxcontrib-apidoc
+    # via -r docs/requirements.in, myst-parser, sphinx-rtd-theme, sphinxcontrib-apidoc, sphinxcontrib-towncrier
 sphinxcontrib-apidoc==0.3.0 \
     --hash=sha256:6671a46b2c6c5b0dca3d8a147849d159065e50443df79614f921b42fbd15cb09 \
     --hash=sha256:729bf592cf7b7dd57c4c05794f732dc026127275d785c2a5494521fdde773fb9 \
@@ -184,6 +184,10 @@ sphinxcontrib-serializinghtml==1.1.4 \
     --hash=sha256:eaa0eccc86e982a9b939b2b82d12cc5d013385ba5eadcc7e4fed23f4405f77bc \
     --hash=sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a \
     # via sphinx
+sphinxcontrib-towncrier==0.1.0a1 \
+    --hash=sha256:3be22318c7928ccb1e4874f56d2376eddab8b9e65d68db9b2e5309c357c99eaa \
+    --hash=sha256:ecf0906802bc52e9af090b801716e65861e9691a82a56dbbfdda0c1d9c9b26ba \
+    # via -r docs/requirements.in
 toml==0.10.1 \
     --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
     --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88 \
@@ -191,7 +195,7 @@ toml==0.10.1 \
 towncrier==19.2.0 \
     --hash=sha256:48251a1ae66d2cf7e6fa5552016386831b3e12bb3b2d08eb70374508c17a8196 \
     --hash=sha256:de19da8b8cb44f18ea7ed3a3823087d2af8fcf497151bb9fd1e1b092ff56ed8d \
-    # via -r docs/requirements.in
+    # via sphinxcontrib-towncrier
 urllib3==1.25.9 \
     --hash=sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527 \
     --hash=sha256:88206b0eb87e6d677d424843ac5209e3fb9d0190d0ee169599165ec25e9d9115 \
