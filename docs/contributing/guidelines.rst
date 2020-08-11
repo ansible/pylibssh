@@ -1,5 +1,10 @@
 .. include:: ../../.github/CONTRIBUTING.rst
 
+.. seealso::
+
+   :ref:`Testing Guide`
+       Running the tests suite locally
+
 -----------------
 Contributing docs
 -----------------
