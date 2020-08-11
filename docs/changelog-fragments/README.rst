@@ -1,5 +1,3 @@
-.. _howto_add_change_notes:
-
 ---------------------------------
 Adding change notes with your PRs
 ---------------------------------

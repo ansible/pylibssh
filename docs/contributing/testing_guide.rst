@@ -1,5 +1,3 @@
-.. _testing_guide:
-
 *************
 Testing Guide
 *************
@@ -28,5 +26,5 @@ Running tests
 
 .. seealso::
 
-   :ref:`intro_installation_guide`
+   :ref:`Installation Guide`
        Installation from source

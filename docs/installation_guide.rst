@@ -1,6 +1,3 @@
-.. _installation_guide:
-.. _intro_installation_guide:
-
 ******************
 Installation Guide
 ******************
@@ -27,8 +24,6 @@ pylibssh requires libssh to be installed in particular:
   To install libssh refer to its `Downloads page
   <https://www.libssh.org/get-it/>`__.
 
-.. _from_pip:
-
 Installing |project| with ``pip``
 ---------------------------------
 
@@ -53,8 +48,6 @@ Then install |project|:
     Please make sure you have the latest version of ``pip`` before installing |project|.
     If you have an older version of ``pip`` installed, you can upgrade by following `pip's upgrade instructions <https://pip.pypa.io/en/stable/installing/#upgrading-pip>`_ .
 
-
-.. _from_source:
 
 Running |project| from source (devel)
 --------------------------------------------
