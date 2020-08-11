@@ -2,7 +2,8 @@
 Getting Started with |project|
 ******************************
 
-Now that you have read the :ref:`installation guide <installation_guide>` and installed |project| on a your system.
+Now that you have read the :ref:`installation guide <Installation Guide>` and
+installed |project| on a your system.
 
 .. contents::
    :local:
