@@ -16,8 +16,8 @@ Welcome to |project|'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   installation_guide.rst
-   user_guide.rst
+   installation_guide
+   user_guide
 
 .. toctree::
    :caption: What's new
@@ -27,10 +27,10 @@ Welcome to |project|'s documentation!
 .. toctree::
    :caption: Contributing
 
-   contributing/code_of_conduct.rst
-   contributing/guidelines.rst
-   contributing/security.rst
-   contributing/testing_guide.rst
+   contributing/code_of_conduct
+   contributing/guidelines
+   contributing/security
+   contributing/testing_guide
 
 
 
