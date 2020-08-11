@@ -24,9 +24,9 @@ Welcome to |project|'s documentation!
 .. toctree::
    :caption: Contributing
 
-   contributing/code_of_conduct.rst
-   contributing/guidelines.rst
-   contributing/security.rst
+   contributing/code_of_conduct
+   contributing/guidelines
+   contributing/security
 
 
 
