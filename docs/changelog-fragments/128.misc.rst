@@ -1,4 +1,0 @@
-Enabled `sphinx.ext.autosectionlabel Sphinx extension
-<https://myst-parser.readthedocs.io/>`__ to automatically generate
-reference targets for document sections that can be linked
-against using ``:ref:`` -- by :user:`webknjaz`

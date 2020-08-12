@@ -1,1 +1,0 @@
-Added the support for keyboard-authentication method -- by :user:`Qalthos`

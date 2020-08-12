@@ -1,1 +1,0 @@
-Documented how to contribute to the docs -- by :user:`webknjaz`

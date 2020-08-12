@@ -1,2 +1,0 @@
-Added proxycommand support for session and
-update session exeception to ``LibsshSessionException`` -- by :user:`ganeshrn`

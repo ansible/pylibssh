@@ -1,3 +1,0 @@
-Fixed double close issue, added logic to free
-the channel allocated memory within
-`__dealloc__() <finalization_method>` -- by :user:`ganeshrn`
