@@ -1,0 +1,4 @@
+Updated the package name to ``ansible-pylibssh`` to reflect
+that the library only intends to implement a set of APIs that
+are necessary to implement an Ansible connection plugin
+-- by :user:`ganeshrn`
