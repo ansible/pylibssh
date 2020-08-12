@@ -1,3 +1,0 @@
-Fixed session timeout issue, the data type
-of timeout is expected by ``ssh_options_set``
-is of type ``long int`` -- by :user:`ganeshrn`

@@ -1,5 +1,0 @@
-Switched the builder on `Read the Docs
-<https://readthedocs.org/>`__ to `dirhtml
-<https://www.sphinx-doc.org/en/master/usage/builders/index.html#sphinx.builders.dirhtml.DirectoryHTMLBuilder>`__
-so it now generates a dir-based URL layout for the website
--- by :user:`webknjaz`

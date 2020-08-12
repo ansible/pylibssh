@@ -1,1 +1,0 @@
-Changed pylibssh dir to pylibsshext to avoid ns collision -- by :user:`ganeshrn`

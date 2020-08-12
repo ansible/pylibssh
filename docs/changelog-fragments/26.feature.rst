@@ -1,2 +1,0 @@
-Added sftp get functionality to fetch file
-from remote host -- by :user:`amolkahat`
