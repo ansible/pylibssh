@@ -11,3 +11,7 @@ Docker containers are built on merge by Github Actions and then uploaded to
 [Docker Hub](https://hub.docker.com/u/pyca/). Each repository on Docker Hub
 corresponds to a directory in `runners`.
 
+### New Images
+
+When making a new image create a repository on Docker Hub, select permissions, 
+and add the "robots" group as Read & Write capable.
