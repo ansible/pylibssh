@@ -26,3 +26,6 @@ RUN if grep -q "sid" /etc/debian_version; then apt-get -qq update && apt-get ins
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
 
 RUN pip install -q tox
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+ENV PATH="$HOME/.cargo/bin:$PATH"

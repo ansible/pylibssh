@@ -20,3 +20,6 @@ RUN yum install -y gcc libffi-devel python-devel openssl-devel git which
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+ENV PATH="$HOME/.cargo/bin:$PATH"

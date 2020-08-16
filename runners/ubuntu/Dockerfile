@@ -28,3 +28,6 @@ RUN apt-get -qq update && apt-get install -qq -y \
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install -q tox
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+ENV PATH="$HOME/.cargo/bin:$PATH"

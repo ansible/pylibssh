@@ -9,3 +9,6 @@ ADD openssl-version.sh /root/openssl-version.sh
 RUN sh install_openssl.sh manylinux2010
 ADD install_virtualenv.sh /root/install_virtualenv.sh
 RUN sh install_virtualenv.sh manylinux2010
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+ENV PATH="$HOME/.cargo/bin:$PATH"
