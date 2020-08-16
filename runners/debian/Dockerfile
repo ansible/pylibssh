@@ -8,10 +8,6 @@ ENV CACHE_BUSTER 5
 # "ANSI_X3.4-1968".
 ENV LANG C.UTF-8
 
-# Also add a travis user
-RUN groupadd -g 2000 travis
-RUN useradd -u 2000 -g 2000 -m -s /bin/bash travis
-
 RUN apt-get -qq update && apt-get install -qq -y \
     build-essential \
     libssl-dev \
@@ -28,4 +24,4 @@ RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
 RUN pip install -q tox
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
-ENV PATH="$HOME/.cargo/bin:$PATH"
+ENV PATH="/root/.cargo/bin:$PATH"

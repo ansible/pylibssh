@@ -4,10 +4,6 @@ FROM registry.fedoraproject.org/fedora:latest
 # "ANSI_X3.4-1968".
 ENV LANG C.UTF-8
 
-# also add a travis user
-RUN groupadd -g 2000 travis
-RUN useradd -u 2000 -g 2000 -m -s /bin/bash travis
-
 RUN dnf install -y gcc redhat-rpm-config libffi-devel python python-devel \
     python3-devel openssl-devel git findutils which
 
@@ -16,4 +12,4 @@ RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 RUN pip install -q tox
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
-ENV PATH="$HOME/.cargo/bin:$PATH"
+ENV PATH="/root/.cargo/bin:$PATH"
