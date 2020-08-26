@@ -1,0 +1,15 @@
+FROM quay.io/pypa/manylinux2014_aarch64
+MAINTAINER Python Cryptographic Authority
+WORKDIR /root
+# RUN yum -y install prelink && yum -y clean all
+RUN yum -y clean all
+ADD install_libffi.sh /root/install_libffi.sh
+RUN sh install_libffi.sh manylinux2014
+ADD install_openssl.sh /root/install_openssl.sh
+ADD openssl-version.sh /root/openssl-version.sh
+RUN sh install_openssl.sh manylinux2014
+ADD install_virtualenv.sh /root/install_virtualenv.sh
+RUN sh install_virtualenv.sh manylinux2014
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:$PATH"
