@@ -16,6 +16,8 @@ Welcome to |project|'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   user_guide
+
 .. toctree::
    :caption: What's new
 

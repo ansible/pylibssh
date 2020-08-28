@@ -1,0 +1,2 @@
+Added the initial user guide to docs
+-- by :user:`ganeshrn` and :user:`webknjaz`
