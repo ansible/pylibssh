@@ -16,6 +16,8 @@ on:
     - >-
       **
   pull_request:
+    paths-ignore:  # NOTE: cannot be combined with "paths"
+    - docs/**
 
 jobs:
   pre-setup:
