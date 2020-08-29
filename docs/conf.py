@@ -182,6 +182,12 @@ linkcheck_ignore = [
 ]
 linkcheck_workers = 25
 
+# -- Options for sphinx.ext.autosectionlabel extension -----------------------
+
+# Ref:
+# https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html
+autosectionlabel_maxdepth = 2  # mitigate Towncrier nested subtitles collision
+
 # -- Options for towncrier_draft extension -----------------------------------
 
 towncrier_draft_autoversion_mode = 'scm-draft'  # or: 'scm', 'draft', 'sphinx-version', 'sphinx-release'
