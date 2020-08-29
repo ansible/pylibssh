@@ -23,8 +23,3 @@ Running tests
 .. code-block:: shell-session
 
     $ tox -e test-binary-dists
-
-.. seealso::
-
-   :ref:`Installation Guide`
-       Installation from source
