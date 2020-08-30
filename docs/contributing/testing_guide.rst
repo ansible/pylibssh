@@ -83,6 +83,14 @@ Once you sort out the toolchain, get |project|'s source:
 Running tests
 ==============
 
+To run tests under your current Python interpreter, run:
+
 .. code-block:: shell-session
 
-    $ tox -e test-binary-dists
+    [dir:pylibssh] $ python -m tox
+
+If you want to target some other Python version, do:
+
+.. code-block:: shell-session
+
+    [dir:pylibssh] $ python -m tox -e py38
