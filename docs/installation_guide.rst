@@ -80,6 +80,6 @@ Running |project| from source (devel)
 
 .. seealso::
 
-   :ref:`intro_getting_started`
+   :ref:`Getting Started with |project|`
        Examples of getting started
 

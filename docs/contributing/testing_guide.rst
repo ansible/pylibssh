@@ -61,6 +61,11 @@ your machine.
 .. _tox v3.8.0:
    https://tox.readthedocs.io/en/latest/changelog.html#v3-8-0-2019-03-27
 
+.. seealso::
+
+   :ref:`Installation Guide`
+       Installation from source
+
 Getting the source code
 =======================
 
