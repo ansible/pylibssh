@@ -29,6 +29,7 @@ Welcome to |project|'s documentation!
    contributing/code_of_conduct
    contributing/guidelines
    contributing/security
+   contributing/testing_guide
 
 
 

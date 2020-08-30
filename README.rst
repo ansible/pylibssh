@@ -36,6 +36,8 @@ pylibssh: Python bindings to client functionality of libssh specific to Ansible 
 Nightlies @ Dumb PyPI @ GitHub Pages
 ------------------------------------
 
+.. DO-NOT-REMOVE-nightlies-START
+
 We publish nightlies on tags and pushes to devel.
 They are hosted on a GitHub Pages based index generated
 by `dumb-pypi <https://pypi.org/project/dumb-pypi/>`_.
@@ -48,6 +50,8 @@ The web view is @ https://ansible.github.io/pylibssh/.
         --extra-index-url=https://ansible.github.io/pylibssh/simple/ \
         --pre \
         ansible-pylibssh
+
+.. DO-NOT-REMOVE-nightlies-END
 
 
 Requirements
