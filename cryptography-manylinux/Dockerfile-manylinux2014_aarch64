@@ -1,7 +1,6 @@
 FROM quay.io/pypa/manylinux2014_aarch64
 MAINTAINER Python Cryptographic Authority
 WORKDIR /root
-# RUN yum -y install prelink && yum -y clean all
 RUN yum -y clean all
 ADD install_libffi.sh /root/install_libffi.sh
 RUN sh install_libffi.sh manylinux2014
