@@ -135,4 +135,11 @@ https://test.pypi.org/project/ansible-pylibssh/ and tagged
 commits are published to
 https://pypi.org/project/ansible-pylibssh/.
 
+Besides, if you want to test your project against unreleased
+versions of |project|, you may want to go for nightlies.
+
+.. include:: ../../README.rst
+   :start-after: DO-NOT-REMOVE-nightlies-START
+   :end-before: DO-NOT-REMOVE-nightlies-END
+
 .. _GitHub Actions workflows CI/CD: https://github.com/features/actions
