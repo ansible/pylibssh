@@ -95,6 +95,23 @@ If you want to target some other Python version, do:
 
     [dir:pylibssh] $ python -m tox -e py38
 
+Continuous integration
+^^^^^^^^^^^^^^^^^^^^^^
+
+In the CI, the testing is done slightly differently. First,
+the Python package distributions are built with:
+
+.. code-block:: shell-session
+
+    [dir:pylibssh] $ python -m tox -e build-dists
+
+Then, they are tested in a matrix of separate jobs across
+different OS and CPython version combinations:
+
+.. code-block:: shell-session
+
+    [dir:pylibssh] $ python -m tox -e test-binary-dists
+
 Quality and sanity
 ^^^^^^^^^^^^^^^^^^
 
@@ -105,3 +122,17 @@ Additionally, there's a separate workflow that runs linting\
 
     [dir:pylibssh] $ python -m tox -e build-docs  # Sphinx docs build
     [dir:pylibssh] $ python -m tox -e lint  # pre-commit.com tool
+
+Continuous delivery
+^^^^^^^^^^^^^^^^^^^
+
+Besides testing and linting, |project| also has `GitHub
+Actions workflows CI/CD`_ set up to publish those same
+Python package distributions **after** they've been tested.
+
+Commits from ``devel`` get published to
+https://test.pypi.org/project/ansible-pylibssh/ and tagged
+commits are published to
+https://pypi.org/project/ansible-pylibssh/.
+
+.. _GitHub Actions workflows CI/CD: https://github.com/features/actions
