@@ -94,3 +94,14 @@ If you want to target some other Python version, do:
 .. code-block:: shell-session
 
     [dir:pylibssh] $ python -m tox -e py38
+
+Quality and sanity
+^^^^^^^^^^^^^^^^^^
+
+Additionally, there's a separate workflow that runs linting\
+-related checks that can be reproduced locally as follows:
+
+.. code-block:: shell-session
+
+    [dir:pylibssh] $ python -m tox -e build-docs  # Sphinx docs build
+    [dir:pylibssh] $ python -m tox -e lint  # pre-commit.com tool
