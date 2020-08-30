@@ -58,6 +58,9 @@ rst_epilog = f"""
 default_role = 'any'
 
 nitpicky = True
+nitpick_ignore = [
+    ('envvar', 'PATH'),
+]
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
