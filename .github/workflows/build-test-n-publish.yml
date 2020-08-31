@@ -12,6 +12,8 @@ on:
     branches:  # any branch but not tag
     - >-
       **
+    - >-  # NOTE: "branches-ignore" cannot be used with "branches"
+      !dependabot/**
     tags-ignore:
     - >-
       **
