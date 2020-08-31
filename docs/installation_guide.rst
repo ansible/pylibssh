@@ -1,6 +1,6 @@
-******************
-Installation Guide
-******************
+********************
+Installing |project|
+********************
 
 Welcome to the |project| Installation Guide!
 

@@ -63,7 +63,7 @@ your machine.
 
 .. seealso::
 
-   :ref:`Installation Guide`
+   :ref:`Installing |project|`
        Installation from source
 
 Getting the source code
