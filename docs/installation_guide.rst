@@ -14,7 +14,7 @@ This page describes how to install |project| on different platforms.
   :local:
 
 Prerequisites
---------------
+==============
 You need Python 2.7 or 3.5+
 
 pylibssh requires libssh to be installed in particular:
@@ -25,7 +25,7 @@ pylibssh requires libssh to be installed in particular:
   <https://www.libssh.org/get-it/>`__.
 
 Installing |project| with ``pip``
----------------------------------
+=================================
 
 |project| can be installed with ``pip``, the Python package manager.  If ``pip`` isn't already available on your system of Python, run the following commands to install it::
 
@@ -50,7 +50,7 @@ Then install |project|:
 
 
 Running |project| from source (devel)
---------------------------------------------
+============================================
 
 |project| can be installed from source::
 
