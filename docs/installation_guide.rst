@@ -2,13 +2,10 @@
 Installing |project|
 ********************
 
-Welcome to the |project| Installation Guide!
-
-
-Installing |project|
-====================
-
-This page describes how to install |project| on different platforms.
+This page describes how to install |project| using
+:std:doc:`pip:index`. Consult with :std:doc:`pip docs
+<pip:installing>` if you are not sure whether you have it
+set up.
 
 .. contents::
   :local:
@@ -27,12 +24,7 @@ pylibssh requires libssh to be installed in particular:
 Installing |project| with ``pip``
 =================================
 
-|project| can be installed with ``pip``, the Python package manager.  If ``pip`` isn't already available on your system of Python, run the following commands to install it::
-
-    $ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    $ python get-pip.py --user
-
-Then install |project|:
+Now, let's install |project|:
 
 .. parsed-literal::
 
@@ -42,11 +34,18 @@ Then install |project|:
 
     Running ``pip`` with ``sudo`` will make global changes to the system. Since ``pip`` does not coordinate with system package managers, it could make changes to your system that leaves it in an inconsistent or non-functioning state. This is particularly true for macOS. Installing with ``--user`` is recommended unless you understand fully the implications of modifying global files on the system.
 
-.. note::
+.. attention::
 
-    Older versions of ``pip`` default to http://pypi.python.org/simple, which no longer works.
-    Please make sure you have the latest version of ``pip`` before installing |project|.
-    If you have an older version of ``pip`` installed, you can upgrade by following `pip's upgrade instructions <https://pip.pypa.io/en/stable/installing/#upgrading-pip>`_ .
+    Older versions of :std:doc:`pip <pip:index>` default to
+    http://pypi.python.org/simple, which no longer works.
+
+    Please make sure you have the latest version of
+    :std:doc:`pip <pip:index>` before installing |project|.
+
+    If you have an older version of :std:doc:`pip
+    <pip:index>` installed, you can upgrade by following
+    :std:ref:`pip's upgrade instructions <pip:upgrading
+    pip>`.
 
 
 Running |project| from source (devel)
