@@ -1,2 +1,4 @@
-indentation:
-  indent-sequences: false
+rules:
+  indentation:
+    indent-sequences: false
+    level: error
