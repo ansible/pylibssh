@@ -10,42 +10,58 @@ set up.
 .. contents::
   :local:
 
-Prerequisites
-==============
-You need Python 2.7 or 3.5+
-
-pylibssh requires libssh to be installed in particular:
-
-- libssh version 0.9.0 and later.
-
-  To install libssh refer to its `Downloads page
-  <https://www.libssh.org/get-it/>`__.
-
-Installing |project| with ``pip``
+Pre-compiled binary distributions
 =================================
 
-Now, let's install |project|:
+|project| contains :std:doc:`Cython <cython:index>`-based
+:std:term:`CPython C-extension modules <python:extension
+module>`. Unlike :std:term:`pure-Python modules
+<python:module>`, these must be pre-compiled
+before consumption.
+
+We publish :std:ref:`platform-specific wheels <platform
+wheels>` to PyPI. They are built against different arch,
+CPython and OS versions so in 99% of cases, you may
+seamlessly install |project| not needing any external
+dependencies on your system.
+
+It should be enough for you to just have Python 2.7 or
+3.5+ and a recent :std:doc:`pip <pip:index>` installed.
+
+.. attention::
+
+    Please make sure you have the latest version of
+    :std:doc:`pip <pip:index>` before installing |project|.
+
+    If you have a version of :std:doc:`pip <pip:index>`
+    older than 8.1, it'll be unable to pick up OS-specific
+    Python package distributions from PyPI and will try to
+    fall back to building it from source which would require
+    more extra dependencies to succeed.
+    You can upgrade by following :std:ref:`pip's upgrade
+    instructions <pip:upgrading pip>`.
+
+To install |project|, just run:
 
 .. parsed-literal::
 
     $ pip install --user |project|
 
-.. note::
+.. tip::
 
-    Running ``pip`` with ``sudo`` will make global changes to the system. Since ``pip`` does not coordinate with system package managers, it could make changes to your system that leaves it in an inconsistent or non-functioning state. This is particularly true for macOS. Installing with ``--user`` is recommended unless you understand fully the implications of modifying global files on the system.
+    Avoid running :std:doc:`pip <pip:index>` with
+    :command:`sudo` as this will make global changes to the
+    system. Since :std:doc:`pip <pip:index>` does not
+    coordinate with system package managers, it could make
+    changes to your system that leaves it in an inconsistent
+    or non-functioning state. This is particularly true for
+    macOS. Installing with :std:ref:`\-\\\\-user
+    <pip:install_--user>` is recommended unless you
+    understand fully the implications of modifying global
+    files on the system.
 
-.. attention::
 
-    Older versions of :std:doc:`pip <pip:index>` default to
-    http://pypi.python.org/simple, which no longer works.
 
-    Please make sure you have the latest version of
-    :std:doc:`pip <pip:index>` before installing |project|.
-
-    If you have an older version of :std:doc:`pip
-    <pip:index>` installed, you can upgrade by following
-    :std:ref:`pip's upgrade instructions <pip:upgrading
-    pip>`.
 
 
 Running |project| from source (devel)
