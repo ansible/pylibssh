@@ -60,9 +60,29 @@ To install |project|, just run:
     understand fully the implications of modifying global
     files on the system.
 
+Installing |project| from source distribution (PyPI)
+====================================================
 
+Installing |project| from source is a bit more complicated.
+First, pylibssh requires libssh to be compiled against, in
+particular, version 0.9.0 or newer. Please refer to `libssh
+Downloads page <https://www.libssh.org/get-it/>`__ for more
+information about installing it. Make sure that you have the
+development headers too.
 
+Another essential build dependency is GCC. You may already
+have it installed but if not, consult with your OS docs.
 
+Once you have the build prerequisites, the following command
+should download the tarball, build it and then install into
+your current env:
+
+.. parsed-literal::
+
+    $ pip install \\
+        --user \\
+        --no-binary |project| \\
+        |project|
 
 Running |project| from source (devel)
 ============================================
