@@ -84,28 +84,43 @@ your current env:
         --no-binary |project| \\
         |project|
 
-Running |project| from source (devel)
-============================================
+Building |project| dists from the ``devel`` branch in Git
+=========================================================
 
-|project| can be installed from source::
+Since our build processes are tox_-centric, let's
+install it first:
 
-    $ git clone https://github.com/ansible/pylibssh.git
-    $ cd pylibssh
-    $ pip install tox
-    $ tox -e build-dists
+.. code-block:: shell-session
 
-``manylinux``-compatible wheels::
+    $ python -m pip install 'tox >= 3.19.0' --user
 
-    $ git clone https://github.com/ansible/pylibssh.git
-    $ cd pylibssh
-    $ pip install tox
-    $ tox -e build-dists-manylinux  # with Docker
+.. _tox: https://tox.readthedocs.io
 
-    # or with Podman
-    $ DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux
+Now, let's grab the source of |project|:
 
-    # to enable shell script debug mode use
-    $ tox -e build-dists-manylinux -- -e DEBUG=1
+.. code-block:: shell-session
+
+    $ git clone https://github.com/ansible/pylibssh.git ~/src/github/ansible/pylibssh
+    $ # or, if you use SSH:
+    $ git clone git@github.com:ansible/pylibssh.git ~/src/github/ansible/pylibssh
+    $ cd ~/src/github/ansible/pylibssh
+    [dir:pylibssh] $
+
+Finally, you can build the dists for the current env using:
+
+.. code-block:: shell-session
+
+    [dir:pylibssh] $ tox -e build-dists
+
+If you want to generate the whole matrix of ``manylinux``-\
+compatible wheels, use:
+
+.. code-block:: shell-session
+
+    [dir:pylibssh] $ tox -e build-dists-manylinux  # with Docker
+
+    [dir:pylibssh] $ # or with Podman
+    [dir:pylibssh] $ DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux
 
 .. seealso::
 
