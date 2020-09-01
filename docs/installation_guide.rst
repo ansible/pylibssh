@@ -112,3 +112,5 @@ Running |project| from source (devel)
    :ref:`Getting Started with |project|`
        Examples of getting started
 
+   :ref:`Continuous delivery`
+       Using nightly builds to test your project against

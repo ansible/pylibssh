@@ -129,7 +129,7 @@ Additionally, there's a separate workflow that runs linting\
     [dir:pylibssh] $ python -m tox -e lint  # pre-commit.com tool
 
 Continuous delivery
-^^^^^^^^^^^^^^^^^^^
+===================
 
 Besides testing and linting, |project| also has `GitHub
 Actions workflows CI/CD`_ set up to publish those same
