@@ -107,12 +107,6 @@ Running |project| from source (devel)
     # to enable shell script debug mode use
     $ tox -e build-dists-manylinux -- -e DEBUG=1
 
-|project| also uses the following Python modules that need to be installed:
-
-.. code-block:: bash
-
-    $ pip install --user -r ./requirements.txt
-
 .. seealso::
 
    :ref:`Getting Started with |project|`
