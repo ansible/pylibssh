@@ -61,6 +61,11 @@ your machine.
 .. _tox v3.8.0:
    https://tox.readthedocs.io/en/latest/changelog.html#v3-8-0-2019-03-27
 
+.. seealso::
+
+   :ref:`Installing |project|`
+       Installation from source
+
 Getting the source code
 =======================
 
@@ -124,7 +129,7 @@ Additionally, there's a separate workflow that runs linting\
     [dir:pylibssh] $ python -m tox -e lint  # pre-commit.com tool
 
 Continuous delivery
-^^^^^^^^^^^^^^^^^^^
+===================
 
 Besides testing and linting, |project| also has `GitHub
 Actions workflows CI/CD`_ set up to publish those same
