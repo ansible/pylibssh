@@ -14,10 +14,11 @@ RUN apt-get -qq update && apt-get install -qq -y \
     libffi-dev \
     python3-dev \
     git \
-    curl \
-    libenchant-dev
+    curl
 
-RUN if grep -q "sid" /etc/debian_version; then apt-get -qq update && apt-get install -qq -y python3-distutils python2-dev; else apt-get install -qq -y python-dev; fi
+RUN apt-get -qq update; if grep -q "sid" /etc/debian_version; then apt-get install -qq -y python3-distutils python2-dev; else apt-get install -qq -y python-dev; fi
+
+RUN apt-get -qq update; if egrep -q "sid|bullseye" /etc/debian_version; then apt-get install -qq -y libenchant-2-dev; else apt-get install -qq -y libenchant-dev; fi
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
 
