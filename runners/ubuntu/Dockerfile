@@ -18,7 +18,6 @@ RUN apt-get -qq update && apt-get install -qq -y \
     python3-dev \
     git \
     curl \
-    libenchant-dev \
     tzdata
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
