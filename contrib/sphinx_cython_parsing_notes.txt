@@ -1,0 +1,246 @@
+Idea
+^^^^
+
+It appears that it's possible to leverage the Cython internal parser
+to generate a tree for any module and then generate a sphinx autodoc
+out of it:
+
+
+    from pathlib import Path
+    from Cython.Compiler.TreeFragment import parse_from_strings
+
+    relative_module_fspath = 'src/pylibsshext/_libssh_version.pyx'
+    module_fspath = Path(relative_module_fspath)
+
+    src_tree = parse_from_strings(
+        relative_module_fspath,
+        module_fspath.read_text(),
+    )
+
+
+Log
+^^^
+
+pylibssh on  devel [$!?] via 🐍 3.7.1 3.6.6 2.7.15 2.6.9 3.8-dev
+➜ ipython
+imPython 3.7.1 (default, Jan 28 2019, 08:25:13)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.1.1 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: import Cython
+
+In [2]: import Cython.Parser
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-2-29542b584af8> in <module>
+----> 1 import Cython.Parser
+
+ModuleNotFoundError: No module named 'Cython.Parser'
+
+In [3]: Cython
+Out[3]: <module 'Cython' from '/home/wk/.pyenv/versions/3.7.1/lib/python3.7/site-packages/Cython/__init__.py'>
+
+In [4]: from Cython.Compiler.Parsing import Ctx, p_code, p_module
+
+In [5]: from Cython.Compiler.Scanning import PyrexScanner
+
+In [6]: from Cython.Compiler.TreeFragment import parse_from_strings
+
+In [7]: from pathlib import Path
+
+In [8]: name = 'src/pylibsshext/_libssh_version.pyx'
+
+In [9]: pth = Path(name)
+
+In [10]: src_tree = parse_from_strings(name, pth.read_text())
+
+In [11]: src_tree
+Out[11]: <Cython.Compiler.ModuleNode.ModuleNode at 0x7feed53b4780>
+
+In [12]: src_tree.analyse_declarations
+Out[12]: <bound method ModuleNode.analyse_declarations of <Cython.Compiler.ModuleNode.ModuleNode object at 0x7feed53b4780>>
+
+In [13]: src_tree.analyse_declarations()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-13-3b04387fe5e6> in <module>
+----> 1 src_tree.analyse_declarations()
+
+TypeError: analyse_declarations() missing 1 required positional argument: 'env'
+
+In [14]: src_tree.annotate
+Out[14]: <bound method Node.annotate of <Cython.Compiler.ModuleNode.ModuleNode object at 0x7feed53b4780>>
+
+In [15]: src_tree.annotate()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-15-9c3295da4f69> in <module>
+----> 1 src_tree.annotate()
+
+TypeError: annotate() missing 1 required positional argument: 'code'
+
+In [16]: src_tree.api_name
+Out[16]: <bound method ModuleNode.api_name of <Cython.Compiler.ModuleNode.ModuleNode object at 0x7feed53b4780>>
+
+In [17]: src_tree.api_name()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-17-0c8649fbdac3> in <module>
+----> 1 src_tree.api_name()
+
+TypeError: api_name() missing 1 required positional argument: 'env'
+
+In [18]: src_tree.body
+Out[18]: <Cython.Compiler.Nodes.StatListNode at 0x7feed53b4978>
+
+In [19]: src_tree.child_attrs
+Out[19]: ['body']
+
+In [20]: src_tree.body.child_attrs
+Out[20]: ['stats']
+
+In [21]: src_tree.body.stats
+Out[21]:
+[<Cython.Compiler.Nodes.FromCImportStatNode at 0x7feed53b4828>,
+ <Cython.Compiler.Nodes.SingleAssignmentNode at 0x7feed53b49e8>]
+
+In [22]: src_tree.body.stats[0]
+Out[22]: <Cython.Compiler.Nodes.FromCImportStatNode at 0x7feed53b4828>
+
+In [23]: src_tree.body.stats[0].child_attrs
+Out[23]: []
+
+In [24]: src_tree.body.stats[1]
+Out[24]: <Cython.Compiler.Nodes.SingleAssignmentNode at 0x7feed53b49e8>
+
+In [25]: src_tree.body.stats[1].child_attrs
+Out[25]: ['lhs', 'rhs']
+
+In [26]: src_tree.body.stats[1].body
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-26-2102de374f92> in <module>
+----> 1 src_tree.body.stats[1].body
+
+AttributeError: 'SingleAssignmentNode' object has no attribute 'body'
+
+In [27]: src_tree.body.stats[1].child_attrs.lhs
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-27-58510d06bb97> in <module>
+----> 1 src_tree.body.stats[1].child_attrs.lhs
+
+AttributeError: 'list' object has no attribute 'lhs'
+
+In [28]: src_tree.body.stats[1].child_attrs
+Out[28]: ['lhs', 'rhs']
+
+In [29]: src_tree.body.stats[1].lhs
+Out[29]: <Cython.Compiler.ExprNodes.NameNode at 0x7feed53b4860>
+
+In [30]: src_tree.body.stats[1].lhs.name
+Out[30]: 'LIBSSH_VERSION'
+
+In [31]: src_tree.body.stats[1].lhs.value
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-31-9e834da24f23> in <module>
+----> 1 src_tree.body.stats[1].lhs.value
+
+AttributeError: 'NameNode' object has no attribute 'value'
+
+In [32]: src_tree.body.stats[1].rhs
+Out[32]: <Cython.Compiler.ExprNodes.SimpleCallNode at 0x7feed53b49b0>
+
+In [33]: src_tree.body.stats[1].rhs
+Out[33]: <Cython.Compiler.ExprNodes.SimpleCallNode at 0x7feed53b49b0>
+
+In [34]: src_tree.body.stats[1].rhs.name
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-34-e7624e2b5e19> in <module>
+----> 1 src_tree.body.stats[1].rhs.name
+
+AttributeError: 'SimpleCallNode' object has no attribute 'name'
+
+In [35]: src_tree.body.stats[1].rhs.value
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-35-4e1bb6354f94> in <module>
+----> 1 src_tree.body.stats[1].rhs.value
+
+AttributeError: 'SimpleCallNode' object has no attribute 'value'
+
+In [36]: src_tree.body.stats[1].rhs.child_attrs
+Out[36]: ['self', 'coerced_self', 'function', 'args', 'arg_tuple']
+
+In [37]: src_tree.body.stats[1].rhs.self
+
+In [38]: src_tree.body.stats[1].rhs.coerced_self
+
+In [39]: src_tree.body.stats[1].rhs.function
+Out[39]: <Cython.Compiler.ExprNodes.AttributeNode at 0x7feed53b4908>
+
+In [40]: src_tree.body.stats[1].rhs.args
+Out[40]: [<Cython.Compiler.ExprNodes.StringNode at 0x7feed53b4940>]
+
+In [41]: src_tree.body.stats[1].rhs.arg_tuple
+
+In [42]: src_tree.body.stats[1].rhs.function.name
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-42-749c09fe2662> in <module>
+----> 1 src_tree.body.stats[1].rhs.function.name
+
+AttributeError: 'AttributeNode' object has no attribute 'name'
+
+In [43]: src_tree.body.stats[1].rhs.function.child_attrs
+Out[43]: ['obj']
+
+In [44]: src_tree.body.stats[1].rhs.function.obj
+Out[44]: <Cython.Compiler.ExprNodes.NameNode at 0x7feed53b4898>
+
+In [45]: src_tree.body.stats[1].rhs.function.obj.name
+Out[45]: 'libssh_version'
+
+In [46]: src_tree.body.stats[1].rhs.args
+Out[46]: [<Cython.Compiler.ExprNodes.StringNode at 0x7feed53b4940>]
+
+In [47]: src_tree.body.stats[1].rhs.args[0]
+Out[47]: <Cython.Compiler.ExprNodes.StringNode at 0x7feed53b4940>
+
+In [48]: src_tree.body.stats[1].rhs.args[0].name
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-48-345b9164eb41> in <module>
+----> 1 src_tree.body.stats[1].rhs.args[0].name
+
+AttributeError: 'StringNode' object has no attribute 'name'
+
+In [49]: src_tree.body.stats[1].rhs.args[0].value
+Out[49]: b'ascii'
+
+In [50]: src_tree.body.stats[1].rhs.function.obj.name
+Out[50]: 'libssh_version'
+
+In [51]: src_tree.body.stats[1].rhs.child_attrs
+Out[51]: ['self', 'coerced_self', 'function', 'args', 'arg_tuple']
+
+In [52]: src_tree.body.stats[1].rhs.coerced_self
+
+In [53]: src_tree.body.stats[1].rhs.child_attrs
+Out[53]: ['self', 'coerced_self', 'funtion', 'args', 'arg_tuple']
+
+In [54]: src_tree.body.stats[1].rhs.function.obj.name
+Out[54]: 'libssh_version'
+
+In [55]: src_tree.body.stats[1].rhs.function.obj
+Out[55]: <Cython.Compiler.ExprNodes.NameNode at 0x7feed53b4898>
+
+In [56]: src_tree.body.stats[1].rhs.function.obj.child_attrs
+Out[56]: []
+
+In [57]: src_tree.body.stats[1].rhs.function.child_attrs
+Out[57]: ['obj']
+
+In [58]:c
