@@ -42,9 +42,9 @@ jobs:
       - name: Export OpenSSL version
         run: |
           source ./cryptography-manylinux/openssl-version.sh
-          echo "::set-env name=OPENSSL_VERSION::$OPENSSL_VERSION"
-          echo "::set-env name=OPENSSL_SHA256::$OPENSSL_SHA256"
-          echo "::set-env name=OPENSSL_BUILD_FLAGS_WINDOWS::$OPENSSL_BUILD_FLAGS_WINDOWS"
+          echo "OPENSSL_VERSION=$OPENSSL_VERSION" >> $GITHUB_ENV
+          echo "OPENSSL_SHA256=$OPENSSL_SHA256" >> $GITHUB_ENV
+          echo "OPENSSL_BUILD_FLAGS_WINDOWS=$OPENSSL_BUILD_FLAGS_WINDOWS" >> $GITHUB_ENV
         shell: bash
       - name: Download OpenSSL source
         run: |
