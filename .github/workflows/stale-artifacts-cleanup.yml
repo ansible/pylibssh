@@ -11,11 +11,9 @@ jobs:
 
     steps:
     - name: Remove old artifacts
+      continue-on-error: true
       uses: c-hive/gha-remove-artifacts@v1
       with:
         age: 4 days  # Setting this to 0 will delete all artifacts
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         skip-recent: 24
-    - name: Mark job as success
-      if: failure()
-      run: true
