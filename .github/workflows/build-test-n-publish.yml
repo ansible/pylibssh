@@ -362,6 +362,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist
+        retention-days: 4
 
   build-bin-manylinux:
     name: 🏗 manylinux 📦 for 🐍 ${{ matrix.manylinux-python-target }}
@@ -462,6 +463,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist
+        retention-days: 4
 
   build-src:
     name: 🏗 an sdist 📦
@@ -544,6 +546,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist
+        retention-days: 4
 
   test-matrix:
     name: >-
