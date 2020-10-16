@@ -1,0 +1,1 @@
+Declared official support of CPython 3.9 -- by :user:`webknjaz`

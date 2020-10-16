@@ -22,12 +22,20 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
+        - 3.9
         - 3.8
         os:
         - ubuntu-latest
         env:
         - TOXENV: lint
         - TOXENV: build-docs
+        exclude:
+        - env:
+            TOXENV: lint
+          python-version: 3.9
+        - env:
+            TOXENV: build-docs
+          python-version: 3.8
 
     env:
       PY_COLORS: 1
