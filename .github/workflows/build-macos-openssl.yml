@@ -44,7 +44,7 @@ jobs:
           make -j$(sysctl -n hw.logicalcpu)
           make install_sw
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2.2.0
         with:
           name: "openssl-macos"
           path: artifact/
