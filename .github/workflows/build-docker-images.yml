@@ -74,12 +74,13 @@ jobs:
     name: "Building docker image ${{ matrix.IMAGE.TAG_NAME }}"
     steps:
       - uses: actions/checkout@v2
-      - name: Docker Buildx
-        id: buildx
-        uses: crazy-max/ghaction-docker-buildx@v3.3.0
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1
         with:
-          buildx-version: latest
-          qemu-version: latest
+          platforms: all
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
       # Pull the previous image, but if it fails return true anyway.
       # Sometimes we add new docker images and if they've never been pushed
       # they can't be pulled.
