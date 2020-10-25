@@ -45,7 +45,7 @@ jobs:
 
     name: "Building docker image ${{ matrix.IMAGE.TAG_NAME }}"
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       # Pull the previous image, but if it fails return true anyway.
       # Sometimes we add new docker images and if they've never been pushed
       # they can't be pulled.
@@ -73,7 +73,7 @@ jobs:
 
     name: "Building docker image ${{ matrix.IMAGE.TAG_NAME }}"
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - name: Docker Buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v3.3.0

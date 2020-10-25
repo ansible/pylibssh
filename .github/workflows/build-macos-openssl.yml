@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-latest
     name: "Build OpenSSL for macOS"
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - name: Download OpenSSL
         run: |
           source ./cryptography-manylinux/openssl-version.sh

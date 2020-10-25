@@ -27,7 +27,7 @@ jobs:
         MSVC_VERSION: ["2010", "2019"]
     name: "Build OpenSSL for ${{ matrix.ARCH }} on MSVC ${{ matrix.MSVC_VERSION }}"
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - run: choco install -y nasm winrar
       - name: Install MSVC 2010
         run: powershell -Command windows\openssl\install_tools.ps1 -InstallURI https://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDK_EN_DVD.iso
