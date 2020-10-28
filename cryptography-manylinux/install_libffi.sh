@@ -1,8 +1,8 @@
 #!/bin/bash
 set -xe
 
-LIBFFI_SHA256="d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37"
-LIBFFI_VERSION="3.2.1"
+LIBFFI_SHA256="72fba7922703ddfa7a028d513ac15a85c8d54c8d67f55fa5a4802885dc652056"
+LIBFFI_VERSION="3.3"
 
 function check_sha256sum {
     local fname=$1
