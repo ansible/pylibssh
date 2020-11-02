@@ -11,7 +11,7 @@ RUN if [ "$FIPS" = "1" ] ; then touch /etc/system-fips && echo "FIPS mode"; else
 
 RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python2
 
-RUN pip install -q tox
+RUN pip install tox coverage
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:$PATH"
