@@ -9,7 +9,7 @@ RUN yum install -y gcc libffi-devel python2-devel python3-devel openssl-devel gi
 
 RUN if [ "$FIPS" = "1" ] ; then touch /etc/system-fips && echo "FIPS mode"; else echo "Not FIPS mode"; fi
 
-RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python2
+RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
 
 RUN pip install tox coverage
 

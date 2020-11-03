@@ -20,7 +20,7 @@ RUN apt-get -qq update && apt-get install -qq -y \
     curl \
     tzdata
 
-RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
+RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
 
 RUN pip install tox coverage
 
