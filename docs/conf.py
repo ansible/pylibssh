@@ -3,7 +3,6 @@
 # Ref: https://www.sphinx-doc.org/en/master/usage/configuration.html
 """Configuration for the Sphinx documentation generator."""
 
-import sys
 from pathlib import Path
 
 from setuptools_scm import get_version
@@ -11,16 +10,11 @@ from setuptools_scm import get_version
 
 # -- Path setup --------------------------------------------------------------
 
+PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute.
-PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
-SPHINX_EXTENSIONS_DIR = (Path(__file__).parent / '_ext').resolve()
-# Make in-tree extension importable in non-tox setups/envs, like RTD.
-# Refs:
-# https://github.com/readthedocs/readthedocs.org/issues/6311
-# https://github.com/readthedocs/readthedocs.org/issues/7182
-sys.path.insert(0, str(SPHINX_EXTENSIONS_DIR))
 
 
 # -- Project information -----------------------------------------------------
@@ -75,8 +69,8 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     # 'sphinxcontrib.apidoc',
+    'sphinxcontrib.towncrier',  # provides `towncrier-draft-entries` directive
     'myst_parser',  # extended markdown; https://pypi.org/project/myst-parser/
-    'towncrier_draft_ext',  # in-tree
 ]
 
 # Add any paths that contain templates here, relative to this directory.
