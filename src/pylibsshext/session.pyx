@@ -21,6 +21,7 @@ from cpython.bytes cimport PyBytes_AS_STRING
 
 from pylibsshext.channel import Channel
 from pylibsshext.errors cimport LibsshSessionException
+from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
 
 
@@ -453,6 +454,9 @@ cdef class Session(object):
 
     def invoke_shell(self):
         return self.new_shell_channel()
+
+    def scp(self):
+        return SCP(self)
 
     def sftp(self):
         return SFTP(self)
