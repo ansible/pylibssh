@@ -36,5 +36,8 @@ cdef class LibsshSessionException(LibsshException):
 cdef class LibsshChannelException(LibsshException):
     pass
 
+cdef class LibsshSCPException(LibsshException):
+    pass
+
 cdef class LibsshSFTPException(LibsshException):
     pass

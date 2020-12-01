@@ -35,6 +35,10 @@ cdef extern from "libssh/libssh.h" nogil:
         pass
     ctypedef ssh_channel_struct* ssh_channel
 
+    cdef struct ssh_scp_struct:
+        pass
+    ctypedef ssh_scp_struct* ssh_scp
+
     cdef enum ssh_known_hosts_e:
         SSH_KNOWN_HOSTS_ERROR,
         SSH_KNOWN_HOSTS_NOT_FOUND,
@@ -135,6 +139,16 @@ cdef extern from "libssh/libssh.h" nogil:
     cdef int SSH_LOG_DEBUG
     cdef int SSH_LOG_TRACE
 
+    cdef int SSH_SCP_WRITE
+    cdef int SSH_SCP_READ
+    cdef int SSH_SCP_RECURSIVE
+
+    cdef int SSH_SCP_REQUEST_NEWDIR
+    cdef int SSH_SCP_REQUEST_NEWFILE
+    cdef int SSH_SCP_REQUEST_EOF
+    cdef int SSH_SCP_REQUEST_ENDDIR
+    cdef int SSH_SCP_REQUEST_WARNING
+
     const char *ssh_get_error(void *)
     void ssh_string_free_char(char *)
 
@@ -201,5 +215,25 @@ cdef extern from "libssh/libssh.h" nogil:
 
     int ssh_set_log_level(int level)
 
+    ssh_scp ssh_scp_new (ssh_session session, int mode, const char *location)
+    int ssh_scp_init(ssh_scp scp)
+    int ssh_scp_close(ssh_scp scp)
+    void ssh_scp_free(ssh_scp scp)
+    int ssh_scp_push_directory(ssh_scp scp, const char *dirname, int mode)
+    int ssh_scp_leave_directory(ssh_scp scp)
+    int ssh_scp_push_file(ssh_scp scp, const char *filename, size_t size, int mode)
+    int ssh_scp_response(ssh_scp scp, char **response)
+    int ssh_scp_write(ssh_scp scp, const void *buffer, size_t len)
+    int ssh_scp_read_string(ssh_scp scp, char *buffer, size_t len)
+    int ssh_scp_pull_request(ssh_scp scp)
+    int ssh_scp_deny_request(ssh_scp scp, const char *reason)
+    int ssh_scp_accept_request(ssh_scp scp)
+    int ssh_scp_read(ssh_scp scp, void *buffer, size_t size)
+    const char * ssh_scp_request_get_filename(ssh_scp scp)
+    int ssh_scp_request_get_permissions(ssh_scp scp)
+    size_t ssh_scp_request_get_size(ssh_scp scp)
+
 cdef extern from "sys/stat.h" nogil:
     cdef int S_IRWXU
+    cdef int S_IRUSR
+    cdef int S_IWUSR
