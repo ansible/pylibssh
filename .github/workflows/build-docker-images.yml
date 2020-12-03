@@ -1,6 +1,7 @@
 name: Docker Image Builder
 
 on:
+  workflow_dispatch:
   schedule:
     # Run once a week on Fridays
     - cron: "0 0 * * FRI"
