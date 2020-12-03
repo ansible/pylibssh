@@ -37,11 +37,13 @@ cdef class SCP:
         remote_file_b = remote_file
         if isinstance(remote_file_b, unicode):
             remote_file_b = remote_file.encode("utf-8")
+        remote_dir_b, filename_b = os.path.split(remote_file_b)
 
         with open(local_file, "rb") as f:
             file_size = os.fstat(f.fileno()).st_size
 
-            scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE | libssh.SSH_SCP_RECURSIVE, remote_file_b)
+            # Create the SCP session in write mode
+            scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE | libssh.SSH_SCP_RECURSIVE, remote_dir_b)
             if scp is NULL:
                 raise LibsshSCPException(
                     "Allocating SCP session of remote file [{path!s}] for "
@@ -49,6 +51,7 @@ cdef class SCP:
                     format(path=remote_file, err=self._get_ssh_error_str()),
                 )
 
+            # Initialize the SCP channel
             rc = libssh.ssh_scp_init(scp)
             if rc != libssh.SSH_OK:
                 libssh.ssh_scp_free(scp)
@@ -58,27 +61,20 @@ cdef class SCP:
                     format(path=remote_file, err=self._get_ssh_error_str()),
                 )
 
-            directory, filename = os.path.split(remote_file)
             try:
-                rc = libssh.ssh_scp_push_directory(scp, directory, libssh.S_IRWXU)
-                if rc != libssh.SSH_OK:
-                    raise LibsshSCPException("Can't create remote directory: %s" % self._get_ssh_error_str())
-
-                rc = libssh.ssh_scp_push_file(scp, filename, file_size, libssh.S_IRUSR |  libssh.S_IWUSR)
+                # Begin to send to the file
+                rc = libssh.ssh_scp_push_file(scp, filename_b, file_size, libssh.S_IRUSR |  libssh.S_IWUSR)
                 if rc != libssh.SSH_OK:
                     raise LibsshSCPException("Can't open remote file: %s" % self._get_ssh_error_str())
 
+                # Write to the open file
                 rc = libssh.ssh_scp_write(scp, PyBytes_AS_STRING(f.read()), file_size)
                 if rc != libssh.SSH_OK:
                     raise LibsshSCPException("Can't write to remote file: %s" % self._get_ssh_error_str())
-            except LibsshSCPException:
+            finally:
                 libssh.ssh_scp_close(scp)
                 libssh.ssh_scp_free(scp)
-                raise
 
-
-            libssh.ssh_scp_close(scp)
-            libssh.ssh_scp_free(scp)
             return libssh.SSH_OK
 
     def get(self, remote_file, local_file):
@@ -87,20 +83,25 @@ cdef class SCP:
         remote_file_b = remote_file
         if isinstance(remote_file_b, unicode):
             remote_file_b = remote_file.encode("utf-8")
+            remote_dir_b, filename_b = os.path.split(remote_file_b)
 
+        # Create the SCP session in read mode
         scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_READ, remote_file_b)
         if scp is NULL:
             raise LibsshSCPException("Allocating SCP session of remote file [%s] for write failed with error [%s]" % (remote_file, self._get_ssh_error_str()))
 
+        # Initialize the SCP channel
         rc = libssh.ssh_scp_init(scp)
         if rc != libssh.SSH_OK:
             libssh.ssh_scp_free(scp)
             raise LibsshSCPException("Initializing SCP session of remote file [%s] for write failed with error [%s]" % (remote_file, self._get_ssh_error_str()))
 
         try:
+            # Request to pull the file
             rc = libssh.ssh_scp_pull_request(scp)
             if rc != libssh.SSH_SCP_REQUEST_NEWFILE:
-                raise LibsshSCPException("Error receiving information about file: %s", self._get_ssh_error_str())
+                raise LibsshSCPException("Error receiving information about file: %s" % self._get_ssh_error_str())
+
             size = libssh.ssh_scp_request_get_size(scp)
             mode = libssh.ssh_scp_request_get_permissions(scp)
 
@@ -108,28 +109,28 @@ cdef class SCP:
             if read_buffer is NULL:
                 raise LibsshSCPException("Memory allocation error")
 
+            # Indicate the transfer is ready to begin
             libssh.ssh_scp_accept_request(scp)
+            # Read the file
             rc = libssh.ssh_scp_read(scp, read_buffer, size)
             if rc == libssh.SSH_ERROR:
                 PyMem_Free(read_buffer)
                 raise LibsshSCPException("Error receiving file data: %s" % self._get_ssh_error_str())
 
             with open(local_file, "w+") as f:
-                f.write(read_buffer.decode["utf-8"])
+                f.write(read_buffer.decode("utf-8"))
             PyMem_Free(read_buffer)
 
+            # Make sure we have finished requesting files
             rc = libssh.ssh_scp_pull_request(scp)
             if rc != libssh.SSH_SCP_REQUEST_EOF:
                 raise LibsshSCPException("Unexpected request: %s" % self._get_ssh_error_str())
 
-        except LibsshSCPException:
+        finally:
             libssh.ssh_scp_close(scp)
             libssh.ssh_scp_free(scp)
-            raise
 
-        libssh.ssh_scp_close(scp)
-        libssh.ssh_scp_free(scp)
-        return libssh.SSH_OK;
+        return libssh.SSH_OK
 
     def close(self):
         if self._libssh_session is not NULL:
