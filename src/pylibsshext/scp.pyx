@@ -29,10 +29,6 @@ cdef class SCP:
         self.session = session
         self._libssh_session = get_libssh_session(session)
 
-    def __dealloc__(self):
-        if self._libssh_session is not NULL:
-            self._libssh_session = NULL
-
     def put(self, local_file, remote_file):
         remote_file_b = remote_file
         if isinstance(remote_file_b, unicode):
@@ -83,7 +79,6 @@ cdef class SCP:
         remote_file_b = remote_file
         if isinstance(remote_file_b, unicode):
             remote_file_b = remote_file.encode("utf-8")
-            remote_dir_b, filename_b = os.path.split(remote_file_b)
 
         # Create the SCP session in read mode
         scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_READ, remote_file_b)
@@ -131,10 +126,6 @@ cdef class SCP:
             libssh.ssh_scp_free(scp)
 
         return libssh.SSH_OK
-
-    def close(self):
-        if self._libssh_session is not NULL:
-            self._libssh_session = NULL
 
     def _get_ssh_error_str(self):
         return libssh.ssh_get_error(self._libssh_session)
