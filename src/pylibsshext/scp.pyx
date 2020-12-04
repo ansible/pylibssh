@@ -36,7 +36,9 @@ cdef class SCP:
         remote_dir_b, filename_b = os.path.split(remote_file_b)
 
         with open(local_file, "rb") as f:
-            file_size = os.fstat(f.fileno()).st_size
+            file_stat = os.fstat(f.fileno())
+            file_size = file_stat.st_size
+            file_mode = file_stat.st_mode
 
             # Create the SCP session in write mode
             scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE | libssh.SSH_SCP_RECURSIVE, remote_dir_b)
@@ -59,7 +61,7 @@ cdef class SCP:
 
             try:
                 # Begin to send to the file
-                rc = libssh.ssh_scp_push_file(scp, filename_b, file_size, libssh.S_IRUSR |  libssh.S_IWUSR)
+                rc = libssh.ssh_scp_push_file(scp, filename_b, file_size, file_mode)
                 if rc != libssh.SSH_OK:
                     raise LibsshSCPException("Can't open remote file: %s" % self._get_ssh_error_str())
 
@@ -114,8 +116,11 @@ cdef class SCP:
             if rc == libssh.SSH_ERROR:
                 raise LibsshSCPException("Error receiving file data: %s" % self._get_ssh_error_str())
 
-            with open(local_file, "w+") as f:
-                f.write(read_buffer.decode("utf-8"))
+            py_file_bytes = read_buffer[:size]
+            with open(local_file, "wb") as f:
+                f.write(py_file_bytes)
+            if mode >= 0:
+                os.chmod(local_file, mode)
 
             # Make sure we have finished requesting files
             rc = libssh.ssh_scp_pull_request(scp)
