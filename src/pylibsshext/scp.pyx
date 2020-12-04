@@ -114,12 +114,10 @@ cdef class SCP:
             # Read the file
             rc = libssh.ssh_scp_read(scp, read_buffer, size)
             if rc == libssh.SSH_ERROR:
-                PyMem_Free(read_buffer)
                 raise LibsshSCPException("Error receiving file data: %s" % self._get_ssh_error_str())
 
             with open(local_file, "w+") as f:
                 f.write(read_buffer.decode("utf-8"))
-            PyMem_Free(read_buffer)
 
             # Make sure we have finished requesting files
             rc = libssh.ssh_scp_pull_request(scp)
@@ -127,6 +125,8 @@ cdef class SCP:
                 raise LibsshSCPException("Unexpected request: %s" % self._get_ssh_error_str())
 
         finally:
+            if read_buffer is not NULL:
+                PyMem_Free(read_buffer)
             libssh.ssh_scp_close(scp)
             libssh.ssh_scp_free(scp)
 
