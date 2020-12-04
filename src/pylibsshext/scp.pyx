@@ -106,6 +106,9 @@ cdef class SCP:
 
             # Indicate the transfer is ready to begin
             libssh.ssh_scp_accept_request(scp)
+            if rc == libssh.SSH_ERROR:
+                raise LibsshSCPException("Failed to start read request: %s" % self._get_ssh_error_str())
+
             # Read the file
             rc = libssh.ssh_scp_read(scp, read_buffer, size)
             if rc == libssh.SSH_ERROR:
