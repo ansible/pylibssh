@@ -100,5 +100,9 @@ pytest-parametrize-names-type = tuple
 pytest-parametrize-values-type = tuple
 pytest-parametrize-values-row-type = tuple
 
+# flake8-eradicate
+# E800:
+eradicate-whitelist-extend = distutils:\s+libraries\s+=\s+
+
 # wemake-python-styleguide
 show-source = true
