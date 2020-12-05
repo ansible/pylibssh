@@ -175,7 +175,7 @@ jobs:
       run: |
         from __future__ import print_function
         import os
-        open(os.environ['GITHUB_ENV'], 'a') as env_file:
+        with open(os.environ['GITHUB_ENV'], 'a') as env_file:
             env_file.write(
                 'HOME={home_dir}\n'.
                 format(home_dir=os.environ['HOME'])
@@ -668,7 +668,7 @@ jobs:
       run: |
         from __future__ import print_function
         import os
-        open(os.environ['GITHUB_ENV'], 'a') as env_file:
+        with open(os.environ['GITHUB_ENV'], 'a') as env_file:
             env_file.write('CATCHSEGV_BINARY=catchsegv\n')
       shell: python
     - name: Run tests
