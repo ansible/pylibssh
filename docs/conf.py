@@ -189,7 +189,7 @@ autosectionlabel_maxdepth = 2  # mitigate Towncrier nested subtitles collision
 
 # -- Options for towncrier_draft extension -----------------------------------
 
-towncrier_draft_autoversion_mode = 'scm-draft'  # or: 'scm', 'draft', 'sphinx-version', 'sphinx-release'
+towncrier_draft_autoversion_mode = 'draft'  # or: 'sphinx-version', 'sphinx-release'
 towncrier_draft_include_empty = True
 towncrier_draft_working_directory = PROJECT_ROOT_DIR
 # Not yet supported: towncrier_draft_config_path = 'pyproject.toml'  # relative to cwd
