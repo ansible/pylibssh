@@ -173,7 +173,14 @@ jobs:
     steps:
     - name: Patch env context to match docs expectations
       run: |
-        echo "::set-env name=HOME::${HOME}"
+        from __future__ import print_function
+        import os
+        open(os.environ['GITHUB_ENV'], 'a') as env_file:
+            env_file.write(
+                'HOME={home_dir}\n'.
+                format(home_dir=os.environ['HOME'])
+            )
+      shell: python
     - name: >-
         Find the download URL for official
         CPython distribution from python.org
@@ -224,7 +231,7 @@ jobs:
         sudo installer -verboseR -dumplog -pkg "${INSTALLER_PATH}" -target /
 
         >&2 echo Setting up '$PATH' and a binary output var for Python ${LONG_VER}
-        echo "::add-path::${INSTALL_PATH}"
+        echo "${INSTALL_PATH}" >> "${GITHUB_PATH}"
         echo "::set-output name=binary::${PYTHON_BIN}"
       env:
         DOWNLOAD_URL: ${{ steps.probe-python.outputs.download_url }}
@@ -658,8 +665,11 @@ jobs:
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Configure tox to run pytest under catchsegv
       if: runner.os == 'Linux'
-      run: >-
-        print("::set-env name=CATCHSEGV_BINARY::catchsegv")
+      run: |
+        from __future__ import print_function
+        import os
+        open(os.environ['GITHUB_ENV'], 'a') as env_file:
+            env_file.write('CATCHSEGV_BINARY=catchsegv\n')
       shell: python
     - name: Run tests
       run: python -m tox -p auto --parallel-live -vvvv

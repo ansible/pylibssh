@@ -48,18 +48,38 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: set PY_SHA256
-      run: echo "::set-env name=PY_SHA256::$(python -VV | sha256sum | cut -d' ' -f1)"
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc_cache_key_py
+      run: |
+        from hashlib import sha512
+        from sys import version
+        hash = sha512(version.encode()).hexdigest()
+        print(f'::set-output name=py_hash_key::{hash}')
+      shell: python
     - name: Pre-commit cache
       uses: actions/cache@v2
       with:
         path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ env.PY_SHA256 }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}
+        key: >-
+          ${{ runner.os }}-pre-commit-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{
+          hashFiles('pyproject.toml') }}-${{
+          hashFiles('.pre-commit-config.yaml') }}-${{
+          hashFiles('pytest.ini') }}
     - name: Pip cache
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ env.PY_SHA256 }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{
+          hashFiles('pyproject.toml') }}-${{
+          hashFiles('.pre-commit-config.yaml') }}-${{
+          hashFiles('pytest.ini') }}
         restore-keys: |
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
