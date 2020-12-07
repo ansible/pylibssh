@@ -38,7 +38,7 @@ cdef class SCP:
         with open(local_file, "rb") as f:
             file_stat = os.fstat(f.fileno())
             file_size = file_stat.st_size
-            file_mode = file_stat.st_mode
+            file_mode = file_stat.st_mode & 0o777
 
             # Create the SCP session in write mode
             scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE | libssh.SSH_SCP_RECURSIVE, remote_dir_b)
