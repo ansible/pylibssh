@@ -33,7 +33,7 @@ Creating a SSH session
    arise and always close all the resources once they are no
    longer necessary.
 
-.. literalinclude:: _samples/copy_files.py
+.. literalinclude:: _samples/shell.py
    :language: python
    :lines: -5
    :emphasize-lines: 5
@@ -42,7 +42,7 @@ Creating a SSH session
 Connecting with remote SSH server
 =================================
 
-.. literalinclude:: _samples/copy_files.py
+.. literalinclude:: _samples/shell.py
    :language: python
    :lines: 7-23
    :emphasize-lines: 7-13
@@ -51,7 +51,7 @@ Connecting with remote SSH server
 Passing a command and reading response
 ======================================
 
-.. literalinclude:: _samples/copy_files.py
+.. literalinclude:: _samples/shell.py
    :language: python
    :lines: 25-30
    :emphasize-lines: 2
@@ -60,7 +60,7 @@ Passing a command and reading response
 Opening a remote shell passing command and receiving response
 =============================================================
 
-.. literalinclude:: _samples/copy_files.py
+.. literalinclude:: _samples/shell.py
    :language: python
    :lines: 32-36
    :emphasize-lines: 2-3
@@ -69,24 +69,42 @@ Opening a remote shell passing command and receiving response
 Fetch file from remote host
 ===========================
 
-.. literalinclude:: _samples/copy_files.py
+Using SCP:
+
+.. literalinclude:: _samples/copy_files_scp.py
    :language: python
-   :lines: 38-42
+   :lines: 25-28
+   :emphasize-lines: 3-4
+
+Using SFTP:
+
+.. literalinclude:: _samples/copy_files_sftp.py
+   :language: python
+   :lines: 25-29
    :emphasize-lines: 3-4
 
 
 Copy file to remote host
 ========================
 
-.. literalinclude:: _samples/copy_files.py
+Using SCP:
+
+.. literalinclude:: _samples/copy_files_scp.py
    :language: python
-   :lines: 44-48
+   :lines: 30-33
+   :emphasize-lines: 3-4
+
+Using SFTP:
+
+.. literalinclude:: _samples/copy_files_sftp.py
+   :language: python
+   :lines: 31-35
    :emphasize-lines: 3-4
 
 
 Closing SSH session
 ===================
 
-.. literalinclude:: _samples/copy_files.py
+.. literalinclude:: _samples/shell.py
    :language: python
-   :lines: 50
+   :lines: 38
