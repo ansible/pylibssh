@@ -34,6 +34,8 @@ cdef class SCP:
         if isinstance(remote_file_b, unicode):
             remote_file_b = remote_file.encode("utf-8")
         remote_dir_b, filename_b = os.path.split(remote_file_b)
+        if not remote_dir_b:
+            remote_dir_b = b"."
 
         with open(local_file, "rb") as f:
             file_stat = os.fstat(f.fileno())
@@ -41,7 +43,7 @@ cdef class SCP:
             file_mode = file_stat.st_mode & 0o777
 
             # Create the SCP session in write mode
-            scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE | libssh.SSH_SCP_RECURSIVE, remote_dir_b)
+            scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE, remote_file_b)
             if scp is NULL:
                 raise LibsshSCPException(
                     "Allocating SCP session of remote file [{path!s}] for "
