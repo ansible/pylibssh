@@ -52,6 +52,7 @@ jobs:
       # they can't be pulled.
       - name: Pull existing image
         run: docker pull ${{ matrix.IMAGE.TAG_NAME }} || true
+        if: github.event_name != 'schedule'
       - name: Build image
         run: docker build --pull --cache-from ${{ matrix.IMAGE.TAG_NAME }} -t ${{ matrix.IMAGE.TAG_NAME }} ${{ matrix.IMAGE.DOCKERFILE_PATH }} ${{ matrix.IMAGE.BUILD_ARGS }}
       - name: Login to docker
@@ -87,6 +88,7 @@ jobs:
       # they can't be pulled.
       - name: Pull existing image
         run: docker pull ${{ matrix.IMAGE.TAG_NAME }}:latest || true
+        if: github.event_name != 'schedule'
       - name: Build image
         run: >
           docker buildx build --platform linux/arm64 --pull --cache-from ${{ matrix.IMAGE.TAG_NAME }}
