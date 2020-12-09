@@ -18,8 +18,17 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
-    name: "Build OpenSSL for macOS"
+    runs-on: macos-11.0
+    strategy:
+      matrix:
+        ARCH:
+          - NAME: x86_64
+            ARTIFACT_NAME: x86-64
+            CFLAGS: "-mmacosx-version-min=10.10 -march=core2"
+          - NAME: arm64
+            ARTIFACT_NAME: arm64
+            CFLAGS: "-mmacosx-version-min=11.0"
+    name: "Build OpenSSL for macOS (${{ matrix.ARCH.NAME }})"
     steps:
       - uses: actions/checkout@v2
       - name: Download OpenSSL
@@ -37,14 +46,20 @@ jobs:
           mkdir artifact
           BASEDIR=$(pwd)
           cd openssl*
-          # Use the brew openssldir so pyopenssl users with homebrew installed will have roots for TLS
-          # This is obviously not great but we live in an imperfect world.
-          export CFLAGS="-mmacosx-version-min=10.10 -march=core2"
-          perl ./Configure --prefix="${BASEDIR}/artifact" --openssldir=/usr/local/etc/openssl@1.1 darwin64-x86_64-cc $OPENSSL_BUILD_FLAGS
+          # Use the brew openssldir so pyopenssl users with homebrew installed
+          # will have roots for TLS. This is obviously not great but we live in
+          # an imperfect world.
+          perl ./Configure \
+              --prefix="${BASEDIR}/artifact" \
+              --openssldir=/usr/local/etc/openssl@1.1 \
+              darwin64-${{ matrix.ARCH.NAME }}-cc \
+              $OPENSSL_BUILD_FLAGS
           make -j$(sysctl -n hw.logicalcpu)
           make install_sw
+        env:
+          CFLAGS: ${{ matrix.ARCH.CFLAGS }}
 
       - uses: actions/upload-artifact@v2.2.1
         with:
-          name: "openssl-macos-x86-64"
+          name: "openssl-macos-${{ matrix.ARCH.ARTIFACT_NAME }}"
           path: artifact/
