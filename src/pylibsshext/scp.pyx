@@ -30,6 +30,15 @@ cdef class SCP:
         self._libssh_session = get_libssh_session(session)
 
     def put(self, local_file, remote_file):
+        """
+        Create an SCP channel and send a file to the remote host over that channel.
+
+        :param local_file: The path on the local host where the file will be read from
+        :type local_file: str
+
+        :param remote_file: The path on the remote host where the file should be placed
+        :type remote_file: str
+        """
         remote_file_b = remote_file
         if isinstance(remote_file_b, unicode):
             remote_file_b = remote_file.encode("utf-8")
@@ -78,6 +87,15 @@ cdef class SCP:
             return libssh.SSH_OK
 
     def get(self, remote_file, local_file):
+        """
+        Create an SCP channel and retrieve a file from the remote host over that channel.
+
+        :param remote_file: The path on the remote host where the file will be read from
+        :type remote_file: str
+
+        :param local_file: The path on the local host where the file should be placed
+        :type local_file: str
+        """
         cdef char *read_buffer
 
         remote_file_b = remote_file
