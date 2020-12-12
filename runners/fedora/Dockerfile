@@ -11,5 +11,5 @@ RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python
 
 RUN pip install tox coverage
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal
 ENV PATH="/root/.cargo/bin:$PATH"

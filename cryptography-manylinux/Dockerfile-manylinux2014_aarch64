@@ -10,5 +10,5 @@ RUN sh install_openssl.sh manylinux2014
 ADD install_virtualenv.sh /root/install_virtualenv.sh
 RUN sh install_virtualenv.sh manylinux2014
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal
 ENV PATH="/root/.cargo/bin:$PATH"
