@@ -42,6 +42,7 @@ jobs:
 
           - {TAG_NAME: "cryptography-manylinux1:x86_64", DOCKERFILE_PATH: "cryptography-manylinux", BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux1"}
           - {TAG_NAME: "cryptography-manylinux2010:x86_64", DOCKERFILE_PATH: "cryptography-manylinux", BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux2010"}
+          - {TAG_NAME: "cryptography-manylinux2014:x86_64", DOCKERFILE_PATH: "cryptography-manylinux", BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux2014"}
 
     name: "Building docker image ${{ matrix.IMAGE.TAG_NAME }}"
     steps:
