@@ -16,6 +16,7 @@ fi
 
 manylinux1_image_prefix="quay.io/pypa/manylinux1_"
 manylinux1_image_prefix="pyca/cryptography-manylinux1:"
+manylinux1_image_prefix="ghcr.io/pyca/cryptography-manylinux1:"
 #manylinux1_image_prefix="quay.io/pypa/manylinux2010_"
 #manylinux1_image_prefix="pyca/cryptography-manylinux2010:"
 dock_ext_args=""
