@@ -86,5 +86,8 @@ jobs:
     - name: Initialize pre-commit envs if needed
       run: |
         test -d .tox/lint && .tox/lint/bin/python -m pre_commit install-hooks || :
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: matrix.toxenv == 'lint'
     - name: Test with tox
       run: python -m tox --parallel auto --parallel-live
