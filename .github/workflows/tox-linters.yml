@@ -16,7 +16,7 @@ on:
 jobs:
   linters:
     name: >-
-      ${{ matrix.env.TOXENV }}/${{ matrix.python-version }}@${{ matrix.os }}
+      ${{ matrix.toxenv }}/${{ matrix.python-version }}@${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -25,14 +25,14 @@ jobs:
         - 3.9
         os:
         - ubuntu-latest
-        env:
-        - TOXENV: lint
-        - TOXENV: build-docs
+        toxenv:
+        - lint
+        - build-docs
 
     env:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
-      TOXENV: ${{ matrix.env.TOXENV }}
+      TOXENV: ${{ matrix.toxenv }}
 
     steps:
     - uses: actions/checkout@v2
