@@ -35,16 +35,4 @@ data = chan_shell.read_bulk_response(timeout=2, retry=10)
 chan_shell.close()
 print(data)
 
-remote_file = '/etc/hosts'
-local_file = '/tmp/hosts'
-sftp = SFTP(ssh)
-sftp.get(remote_file, local_file)
-sftp.close()
-
-remote_file = '/etc/hosts'
-local_file = '/tmp/hosts'
-sftp = SFTP(ssh)
-sftp.put(remote_file, local_file)
-sftp.close()
-
 ssh.close()

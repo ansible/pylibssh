@@ -1,3 +1,4 @@
+# distutils: libraries = ssh
 #
 # This file is part of the pylibssh library
 #
@@ -15,29 +16,10 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-cdef class LibsshException(Exception):
-    def __init__(self, message=''):
-        self.message = message
-        super(LibsshException, self).__init__(message)
-
-    def __str__(self):
-        return self.message
-
-    def __repr__(self):
-        return self.message
-
-    def _get_session_error_str(self, obj):
-        return libssh.ssh_get_error(<void*>obj._libssh_session).decode()
+from pylibsshext.includes cimport libssh
+from pylibsshext.session cimport Session
 
 
-cdef class LibsshSessionException(LibsshException):
-    pass
-
-cdef class LibsshChannelException(LibsshException):
-    pass
-
-cdef class LibsshSCPException(LibsshException):
-    pass
-
-cdef class LibsshSFTPException(LibsshException):
-    pass
+cdef class SCP:
+    cdef Session session
+    cdef libssh.ssh_session _libssh_session
