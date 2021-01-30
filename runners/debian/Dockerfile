@@ -18,7 +18,8 @@ RUN apt-get -qq update && apt-get install -qq -y \
 
 RUN apt-get -qq update; if grep -q "sid" /etc/debian_version; then apt-get install -qq -y python3-distutils python2-dev; else apt-get install -qq -y python-dev; fi
 
-RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3
+# Remove /3.5/ when we drop stretch!
+RUN curl -sSL https://bootstrap.pypa.io/3.5/get-pip.py | python3
 
 RUN pip install tox coverage
 
