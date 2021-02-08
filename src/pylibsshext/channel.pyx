@@ -103,7 +103,9 @@ cdef class Channel:
             size_m = sizeof(buffer)
         nbytes = libssh.ssh_channel_read_nonblocking(self._libssh_channel, buffer, size_m, stderr)
         if nbytes == libssh.SSH_ERROR:
-            raise LibsshChannelException("Failed to read from channel")
+            # This is what Session._get_session_error_str() does, but we don't have the Python object
+            error = libssh.ssh_get_error(<void*>self._libssh_session).decode()
+            raise LibsshChannelException("Failed to read from channel: %s" % error)
         return <bytes>buffer[:nbytes]
 
     def recv(self, size=1024, stderr=0):
