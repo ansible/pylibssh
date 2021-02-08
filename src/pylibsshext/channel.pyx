@@ -102,6 +102,8 @@ cdef class Channel:
         if size_m > sizeof(buffer):
             size_m = sizeof(buffer)
         nbytes = libssh.ssh_channel_read_nonblocking(self._libssh_channel, buffer, size_m, stderr)
+        if nbytes == libssh.SSH_ERROR:
+            raise LibsshChannelException("Failed to read from channel")
         return <bytes>buffer[:nbytes]
 
     def recv(self, size=1024, stderr=0):
