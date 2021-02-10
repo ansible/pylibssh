@@ -82,9 +82,7 @@ per-file-ignores =
   # Examples:
   # * "E211 whitespace before '('" happening to "typedef int (*smth) ..."
   # * "E226 missing whitespace around arithmetic operator"
-  # * "E800: Found commented out code" (remove once the regression is fixed)
-  #   Ref: https://github.com/wemake-services/flake8-eradicate/issues/182
-  src/pylibsshext/*.pxd: E211, E225, E226, E227, E800, E999
+  src/pylibsshext/*.pxd: E211, E225, E226, E227, E999
   src/pylibsshext/*.pyx: E225, E226, E227, E999
 
   # There are multiple `assert`s (S101)
