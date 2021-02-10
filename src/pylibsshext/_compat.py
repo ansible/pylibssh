@@ -1,4 +1,3 @@
-#
 # This file is part of the pylibssh library
 #
 # This library is free software; you can redistribute it and/or
@@ -14,7 +13,6 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
-#
 """Compatibility shim for cross-platform hybrid Python 2/3 support."""
 
 from __future__ import absolute_import, division, print_function
