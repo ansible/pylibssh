@@ -59,21 +59,11 @@ max-line-length = 160
 
 # Allow certain violations in certain files:
 per-file-ignores =
-  # in-tree PEP517 build backend nees a lot of legit `noqa`s
-  # also E800 reports a lot of false-positives for legit
-  # tool-related comments:
-  bin/pep517_backend.py: E800, WPS402
+  # in-tree PEP517 build backend needs a lot of legit `noqa`s:
+  bin/pep517_backend.py: WPS402
 
   # Sphinx builds aren't supposed to Python 2:
   docs/conf.py: WPS305
-
-  # WPS305 is unnecessary because this extension is
-  # Python 3 only and so f-strings are allowed,
-  # WPS317/WPS318 enforces weird indents,
-  # WPS326 doesn't allow implicit string concat,
-  # E800 reports a lot of false-positives for legit
-  # tool-related comments:
-  docs/_ext/towncrier_draft_ext.py: E800, WPS305, WPS317, WPS318, WPS326
 
   # The package has imports exposing private things to the public:
   src/pylibsshext/__init__.py: WPS412
@@ -102,7 +92,7 @@ pytest-parametrize-values-row-type = tuple
 
 # flake8-eradicate
 # E800:
-eradicate-whitelist-extend = distutils:\s+libraries\s+=\s+
+eradicate-whitelist-extend = distutils:\s+libraries\s+=\s+|isort:\s+\w+
 
 # wemake-python-styleguide
 show-source = true
