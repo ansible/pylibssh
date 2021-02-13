@@ -10,7 +10,7 @@ on:
       - 'cryptography-manylinux/openssl-version.sh'
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/build-macos-openssl.yml'
       # Contains the OpenSSL version we'll build
@@ -25,11 +25,11 @@ jobs:
           - NAME: x86_64
             ARTIFACT_NAME: x86-64
             CFLAGS: "-mmacosx-version-min=10.10 -march=core2"
-            OPENSSLDIR: "/usr/local/etc/openssl@1.1" 
+            OPENSSLDIR: "/usr/local/etc/openssl@1.1"
           - NAME: arm64
             ARTIFACT_NAME: arm64
             CFLAGS: "-mmacosx-version-min=11.0"
-            OPENSSLDIR: "/opt/homebrew/etc/openssl@1.1" 
+            OPENSSLDIR: "/opt/homebrew/etc/openssl@1.1"
     name: "Build OpenSSL for macOS (${{ matrix.ARCH.NAME }})"
     steps:
       - uses: actions/checkout@v2

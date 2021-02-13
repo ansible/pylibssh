@@ -12,7 +12,7 @@ on:
       - 'cryptography-manylinux/**'
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/build-docker-images.yml'
       - 'runners/**'
@@ -60,10 +60,10 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
           DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/master'
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
       - name: Push image
         run: docker push ghcr.io/pyca/${{ matrix.IMAGE.TAG_NAME }}
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/master'
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
 
   # Build the manylinux2014_aarch64 container
   build_manylinux2014_aarch64:
@@ -99,10 +99,10 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
           DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/master'
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
       - name: Push image
         run: >
           docker buildx build --cache-from "type=local,src=/tmp/.buildx-cache"
           --platform linux/arm64 --output "type=image,push=true" -t ghcr.io/pyca/${{ matrix.IMAGE.TAG_NAME }}
           ${{ matrix.IMAGE.DOCKERFILE_PATH }} ${{ matrix.IMAGE.BUILD_ARGS }}
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/master'
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'

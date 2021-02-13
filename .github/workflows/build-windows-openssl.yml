@@ -11,7 +11,7 @@ on:
       - 'cryptography-manylinux/openssl-version.sh'
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/build-windows-openssl.yml'
       - 'windows/openssl/**'
