@@ -39,7 +39,7 @@ cdef class LibsshChannelException(LibsshException):
 
 
 class LibsshChannelReadFailure(LibsshChannelException, ConnectionError):
-    pass
+    """Raised when there is a failure to read from a libssh channel."""
 
 
 cdef class LibsshSCPException(LibsshException):
