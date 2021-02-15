@@ -53,9 +53,9 @@ jinja2==2.11.2 \
     #   myst-parser
     #   sphinx
     #   towncrier
-markdown-it-py==0.6.0 \
-    --hash=sha256:1c1413df39ef7baa55bca755d32c565d72e8b4114dcdd3da65eb468a61886659 \
-    --hash=sha256:f90912a0ff1ac328627d1551bd5a17bce0ef1d483df222d460336e59213c6d29
+markdown-it-py==0.6.2 \
+    --hash=sha256:30b3e9f8198dc82a5df0dcb73fd31d56cd9a43bf8a747feb10b2ba74f962bcb1 \
+    --hash=sha256:c3b9f995be0792cbbc8ab2f53d74072eb7ff8a8b622be8d61d38ab879709eca3
     # via
     #   mdit-py-plugins
     #   myst-parser
@@ -94,15 +94,15 @@ markupsafe==1.1.1 \
     --hash=sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7 \
     --hash=sha256:e8313f01ba26fbbe36c7be1966a7b7424942f670f38e666995b88d012765b9be
     # via jinja2
-mdit-py-plugins==0.2.4 \
-    --hash=sha256:e7db0de4a3466941faa433f77a98d09a09a0b877e79eace79506fd0d083e490f \
-    --hash=sha256:f13ad035e977db0dd268af4a372716f3b555f1435f9623b4aed10c3c8bbf618c
+mdit-py-plugins==0.2.5 \
+    --hash=sha256:06dbda99e7d81184c4f6de7c7e3409b29f5cef35404beed6feaf624646219bf5 \
+    --hash=sha256:3c78db5cfdcf8f55f0af2b096de391bffcef0b3600222f434efb016d7c267cec
     # via
     #   markdown-it-py
     #   myst-parser
-myst-parser==0.13.3 \
-    --hash=sha256:4f40e1355708182195c28c00bc35375a536f819b67a730d13fecb058d3004a97 \
-    --hash=sha256:530a3ad80d2383494af272d3d81fdfeca2c28215c39e97d2a35d83f1695d9080
+myst-parser==0.13.4 \
+    --hash=sha256:585a51a026aaebbc33c2bdb76ae9fcca6ee815c0a8c0aa4cbca2931eeb3e5ce8 \
+    --hash=sha256:714e542640ddba2734ab8cfb40ad1a415bdb0abb6a96a04fb5a47e10d8bea5dd
     # via -r docs/requirements.in
 packaging==20.4 \
     --hash=sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8 \
