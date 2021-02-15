@@ -24,6 +24,7 @@ from cpython.mem cimport PyMem_Free, PyMem_Malloc, PyMem_Realloc
 from libc.string cimport memcpy, memset
 
 from pylibsshext.errors cimport LibsshChannelException
+from pylibsshext.errors import LibsshChannelReadFailure
 from pylibsshext.session cimport get_libssh_session
 
 from ._compat import CompletedProcess
@@ -105,7 +106,7 @@ cdef class Channel:
         if nbytes == libssh.SSH_ERROR:
             # This is what Session._get_session_error_str() does, but we don't have the Python object
             error = libssh.ssh_get_error(<void*>self._libssh_session).decode()
-            raise LibsshChannelException("Failed to read from channel: %s" % error)
+            raise LibsshChannelReadFailure(error)
         return <bytes>buffer[:nbytes]
 
     def recv(self, size=1024, stderr=0):

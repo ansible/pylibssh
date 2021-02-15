@@ -33,11 +33,18 @@ cdef class LibsshException(Exception):
 cdef class LibsshSessionException(LibsshException):
     pass
 
+
 cdef class LibsshChannelException(LibsshException):
     pass
 
+
+class LibsshChannelReadFailure(LibsshChannelException, ConnectionError):
+    pass
+
+
 cdef class LibsshSCPException(LibsshException):
     pass
+
 
 cdef class LibsshSFTPException(LibsshException):
     pass
