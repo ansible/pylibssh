@@ -115,7 +115,7 @@ html_context = {
     'current_version': version,
     'latest_version': 'latest',
     'available_versions': ('latest', ),
-    'css_files': (),
+    'css_files': [],  # https://github.com/sphinx-doc/sphinx/issues/8889
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
