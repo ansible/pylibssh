@@ -38,7 +38,13 @@ cdef class LibsshChannelException(LibsshException):
     pass
 
 
-class LibsshChannelReadFailure(LibsshChannelException, ConnectionError):
+try:  # py3
+    connection_error_exc = ConnectionError
+except NameError:  # py2
+    connection_error_exc = OSError
+
+
+class LibsshChannelReadFailure(LibsshChannelException, connection_error_exc):
     """Raised when there is a failure to read from a libssh channel."""
 
 
