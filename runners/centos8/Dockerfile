@@ -5,7 +5,7 @@ ARG FIPS
 # "ANSI_X3.4-1968".
 ENV LANG C.UTF-8
 
-RUN yum install -y gcc libffi-devel python2-devel python3-devel openssl-devel git which
+RUN yum install -y gcc libffi-devel python3-devel openssl-devel git which
 
 RUN if [ "$FIPS" = "1" ] ; then touch /etc/system-fips && echo "FIPS mode"; else echo "Not FIPS mode"; fi
 

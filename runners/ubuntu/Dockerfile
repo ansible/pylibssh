@@ -14,7 +14,6 @@ RUN apt-get -qq update && apt-get install -qq -y \
     build-essential \
     libssl-dev \
     libffi-dev \
-    python-dev \
     python3-dev \
     git \
     curl \

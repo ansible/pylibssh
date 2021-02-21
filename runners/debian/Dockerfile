@@ -16,7 +16,9 @@ RUN apt-get -qq update && apt-get install -qq -y \
     git \
     curl
 
-RUN apt-get -qq update; if grep -q "sid" /etc/debian_version; then apt-get install -qq -y python3-distutils python2-dev; else apt-get install -qq -y python-dev; fi
+# Remove when we drop 2.7 support from pyOpenSSL
+RUN apt-get -qq update; if grep -q "stretch" /etc/debian_version; then apt-get install -qq -y python-dev; fi
+RUN apt-get -qq update; if grep -q "sid" /etc/debian_version; then apt-get install -qq -y python3-distutils; fi
 
 # Remove /3.5/ when we drop stretch!
 RUN curl -sSL https://bootstrap.pypa.io/3.5/get-pip.py | python3
