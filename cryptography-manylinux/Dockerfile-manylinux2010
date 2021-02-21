@@ -10,5 +10,9 @@ RUN sh install_openssl.sh manylinux2010
 ADD install_virtualenv.sh /root/install_virtualenv.sh
 RUN sh install_virtualenv.sh manylinux2010
 
+# Install PyPy
+RUN curl https://downloads.python.org/pypy/pypy3.6-v7.3.3-linux64.tar.bz2 | tar jxf - -C /opt/ && mv /opt/pypy3.6* /opt/pypy3.6
+RUN curl https://downloads.python.org/pypy/pypy3.7-v7.3.3-linux64.tar.bz2 | tar jxf - -C /opt/ && mv /opt/pypy3.7* /opt/pypy3.7
+
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal
 ENV PATH="/root/.cargo/bin:$PATH"
