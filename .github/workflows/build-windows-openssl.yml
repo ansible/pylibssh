@@ -24,21 +24,16 @@ jobs:
     strategy:
       matrix:
         ARCH: ["win32", "win64"]
-        MSVC_VERSION: ["2010", "2019"]
-    name: "Build OpenSSL for ${{ matrix.ARCH }} on MSVC ${{ matrix.MSVC_VERSION }}"
+    name: "Build OpenSSL for ${{ matrix.ARCH }} on MSVC 2019"
     steps:
       - uses: actions/checkout@v2
       - run: choco install -y nasm winrar
-      - name: Install MSVC 2010
-        run: powershell -Command windows\openssl\install_tools.ps1 -InstallURI https://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDK_EN_DVD.iso
-        if: matrix.MSVC_VERSION == '2010'
       - name: Install nmake
         run: |
           & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify `
            --installPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" `
            --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --passive --norestart
         shell: powershell
-        if: matrix.MSVC_VERSION == '2019'
       - name: Export OpenSSL version
         run: |
           source ./cryptography-manylinux/openssl-version.sh
@@ -55,9 +50,9 @@ jobs:
         shell: powershell
       - run: '"C:\Program Files\WinRAR\WinRAR.exe" -INUL x openssl-latest.tar.gz'
         shell: cmd
-      - run: windows\openssl\build_openssl.bat ${{ matrix.ARCH }} ${{ matrix.MSVC_VERSION }}
+      - run: windows\openssl\build_openssl.bat ${{ matrix.ARCH }}
         shell: cmd
       - uses: actions/upload-artifact@v2.2.2
         with:
-          name: "openssl-${{ matrix.ARCH }}-${{ matrix.MSVC_VERSION }}"
+          name: "openssl-${{ matrix.ARCH }}-2019"
           path: build\
