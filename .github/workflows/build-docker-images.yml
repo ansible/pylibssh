@@ -70,7 +70,7 @@ jobs:
     strategy:
       matrix:
         IMAGE:
-          - {TAG_NAME: "cryptography-manylinux2014_aarch64", DOCKERFILE_PATH: "cryptography-manylinux", BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux2014_aarch64"}
+          - {TAG_NAME: "cryptography-manylinux2014_aarch64", DOCKERFILE_PATH: "cryptography-manylinux", BUILD_ARGS: "-f cryptography-manylinux/Dockerfile-manylinux --build-arg RELEASE=manylinux2014_aarch64"}
 
     name: "Building docker image ${{ matrix.IMAGE.TAG_NAME }}"
     steps:
