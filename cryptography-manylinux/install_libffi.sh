@@ -17,12 +17,7 @@ check_sha256sum "libffi_${LIBFFI_VERSION}.orig.tar.gz" ${LIBFFI_SHA256}
 tar zxf libffi*.orig.tar.gz
 PATH=/opt/perl/bin:$PATH
 pushd libffi*
-if [ "$1" == "manylinux1" ]; then
-  STACK_PROTECTOR_FLAGS="-fstack-protector --param=ssp-buffer-size=4"
-else
-  STACK_PROTECTOR_FLAGS="-fstack-protector-strong"
-fi
-./configure CFLAGS="-g -O2 $STACK_PROTECTOR_FLAGS -Wformat -Werror=format-security"
+./configure CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
 make install
 popd
 rm -rf libffi*

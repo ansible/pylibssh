@@ -1,12 +1,13 @@
-FROM quay.io/pypa/manylinux2010_x86_64
+ARG RELEASE
+FROM quay.io/pypa/${RELEASE}
 MAINTAINER Python Cryptographic Authority
 WORKDIR /root
 RUN yum -y install prelink && yum -y clean all
 ADD install_libffi.sh /root/install_libffi.sh
-RUN sh install_libffi.sh manylinux2010
+RUN sh install_libffi.sh
 ADD install_openssl.sh /root/install_openssl.sh
 ADD openssl-version.sh /root/openssl-version.sh
-RUN sh install_openssl.sh manylinux2010
+RUN sh install_openssl.sh
 
 # Install PyPy
 RUN curl https://downloads.python.org/pypy/pypy3.6-v7.3.3-linux64.tar.bz2 | tar jxf - -C /opt/ && mv /opt/pypy3.6* /opt/pypy3.6
