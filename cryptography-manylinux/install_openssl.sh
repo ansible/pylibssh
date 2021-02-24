@@ -1,6 +1,8 @@
 #!/bin/bash
 set -xe
 
+unset RELEASE
+
 OPENSSL_URL="https://www.openssl.org/source/"
 source /root/openssl-version.sh
 
