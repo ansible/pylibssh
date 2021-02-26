@@ -1,0 +1,90 @@
+name: ♲ manylinux containers
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run once a week on Mondays
+    - cron: 0 0 * * MON
+  pull_request:
+    paths:
+      - .github/workflows/build-docker-images.yml
+      - build-scripts/manylinux-container-image/**
+  push:
+    branches:
+      - devel
+    paths:
+      - .github/workflows/build-docker-images.yml
+      - build-scripts/manylinux-container-image/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        IMAGE:
+          # Build containers for x86_64
+          - ARCH: x86_64
+            YEAR: 1  # CentOS 5
+          - ARCH: x86_64
+            YEAR: 2010  # CentOS 6
+          - ARCH: x86_64
+            YEAR: 2014  # CentOS 7
+
+          # Build the manylinux2014_aarch64 container
+          - ARCH: aarch64
+            YEAR: 2014  # It's the first year ARM was included in PEP
+
+    env:
+      PYPA_MANYLINUX_TAG: manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      FULL_IMAGE_TAG: ghcr.io/ansible/pylibssh-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}:latest
+
+    defaults:
+      run:
+        working-directory: build-scripts/manylinux-container-image/
+
+    name: >-  # can't use `env` in this context:
+      🐳
+      manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup QEMU
+        if: matrix.IMAGE.ARCH == 'aarch64'
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+      - name: Setup Docker Buildx
+        if: matrix.IMAGE.ARCH == 'aarch64'
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      # Pull the previous image, but if it fails return true anyway.
+      # Sometimes we add new docker images and if they've never been pushed
+      # they can't be pulled.
+      - name: Pull existing image
+        run: docker pull "${{ env.FULL_IMAGE_TAG }}" || true
+        if: github.event_name != 'schedule'
+      - name: Build image
+        if: matrix.IMAGE.ARCH != 'aarch64'
+        run: >
+          docker build --pull --cache-from "${{ env.FULL_IMAGE_TAG }}"
+          -t "${{ env.FULL_IMAGE_TAG }}" . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
+      - name: Build image
+        if: matrix.IMAGE.ARCH == 'aarch64'
+        run: >
+          docker buildx build --platform linux/arm64 --pull --cache-from "${{ env.FULL_IMAGE_TAG }}"
+          --cache-to "type=local,dest=/tmp/.buildx-cache" --output "type=image,push=false"
+          -t "${{ env.FULL_IMAGE_TAG }}" . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
+      - name: Login to docker
+        run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" ghcr.io
+        env:
+          DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
+          DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+      - name: Push image
+        run: docker push -t "${{ env.FULL_IMAGE_TAG }}"
+        if: matrix.IMAGE.ARCH == 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+      - name: Push image
+        run: >
+          docker buildx build --cache-from "type=local,src=/tmp/.buildx-cache"
+          --platform linux/arm64 --output "type=image,push=true" -t "${{ env.FULL_IMAGE_TAG }}"
+          . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
+        if: matrix.IMAGE.ARCH != 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
