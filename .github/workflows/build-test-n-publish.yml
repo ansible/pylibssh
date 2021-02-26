@@ -20,6 +20,13 @@ on:
   pull_request:
     paths-ignore:  # NOTE: cannot be combined with "paths"
     - docs/**
+  workflow_run:
+    workflows:
+    - ♲ manylinux containers
+    branches:
+    - devel
+    types:
+    - completed
 
 jobs:
   pre-setup:
