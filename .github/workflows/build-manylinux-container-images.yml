@@ -79,7 +79,7 @@ jobs:
         | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
       if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
     - name: Push image
-      run: docker push -t "${{ env.FULL_IMAGE_TAG }}"
+      run: docker push "${{ env.FULL_IMAGE_TAG }}"
       if: matrix.IMAGE.ARCH == 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
     - name: Push image
       run: >
