@@ -78,13 +78,13 @@ jobs:
       env:
         DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
         DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
-      if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+      if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
     - name: Push image
       run: docker push -t "${{ env.FULL_IMAGE_TAG }}"
-      if: matrix.IMAGE.ARCH == 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+      if: matrix.IMAGE.ARCH == 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
     - name: Push image
       run: >
         docker buildx build --cache-from "type=local,src=/tmp/.buildx-cache"
         --platform linux/arm64 --output "type=image,push=true" -t "${{ env.FULL_IMAGE_TAG }}"
         . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
-      if: matrix.IMAGE.ARCH != 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+      if: matrix.IMAGE.ARCH != 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
