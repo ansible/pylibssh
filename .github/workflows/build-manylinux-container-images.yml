@@ -7,13 +7,13 @@ on:
   - cron: 0 0 * * MON
   pull_request:
     paths:
-    - .github/workflows/build-docker-images.yml
+    - .github/workflows/build-manylinux-container-images.yml
     - build-scripts/manylinux-container-image/**
   push:
     branches:
     - devel
     paths:
-    - .github/workflows/build-docker-images.yml
+    - .github/workflows/build-manylinux-container-images.yml
     - build-scripts/manylinux-container-image/**
 
 jobs:
