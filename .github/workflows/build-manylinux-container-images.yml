@@ -73,11 +73,10 @@ jobs:
         docker buildx build --platform linux/arm64 --pull --cache-from "${{ env.FULL_IMAGE_TAG }}"
         --cache-to "type=local,dest=/tmp/.buildx-cache" --output "type=image,push=false"
         -t "${{ env.FULL_IMAGE_TAG }}" . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
-    - name: Login to docker
-      run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" ghcr.io
-      env:
-        DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
-        DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
+    - name: Login to GitHub Container Registry
+      run: >-
+        echo "${{ secrets.GHCR_TOKEN }}"
+        | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
       if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
     - name: Push image
       run: docker push -t "${{ env.FULL_IMAGE_TAG }}"
