@@ -1,1 +1,0 @@
-Fixed ``undefined symbol: ssh_disconnect`` and related issues when building on certain distros -- by :user:`Qalthos`

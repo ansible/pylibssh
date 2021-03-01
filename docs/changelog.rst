@@ -12,6 +12,54 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+v0.2.0 (2021-03-01)
+===================
+
+Bugfixes
+^^^^^^^^
+
+- Fixed ``undefined symbol: ssh_disconnect`` and related issues when building on certain distros -- by :user:`Qalthos`
+  (:issue:`63`,
+  :issue:`153`,
+  :issue:`158`)
+- Fixed ``"Negative size passed to PyBytes_FromStringAndSize"`` when ``ssh_channel_read_nonblocking`` fails -- by :user:`Qalthos`
+  (:issue:`168`)
+
+
+Features
+^^^^^^^^
+
+- Added SCP support -- by :user:`Qalthos`
+  (:issue:`151`,
+  :issue:`157`)
+
+
+Documentation
+^^^^^^^^^^^^^
+
+- Added the initial user guide to docs
+  -- by :user:`ganeshrn` and :user:`webknjaz`
+  (:issue:`141`)
+- Added the initial testing guide to docs
+  -- by :user:`ganeshrn` and :user:`webknjaz`
+  (:issue:`142`)
+- Added the initial installation guide to docs
+  -- by :user:`ganeshrn` and :user:`webknjaz`
+  (:issue:`145`)
+
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+- Migrated the "draft changelog" plugin to the external
+  `sphinxcontrib-towncrier implementation
+  <https://github.com/sphinx-contrib/sphinxcontrib-towncrier>`__
+  -- by :user:`webknjaz`
+  (:issue:`123`)
+- Declared official support of CPython 3.9 -- by :user:`webknjaz`
+  (:issue:`152`)
+
+
 v0.1.0 (2020-08-12)
 ===================
 
