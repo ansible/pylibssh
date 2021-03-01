@@ -1,4 +1,0 @@
-Migrated the "draft changelog" plugin to the external
-`sphinxcontrib-towncrier implementation
-<https://github.com/sphinx-contrib/sphinxcontrib-towncrier>`__
--- by :user:`webknjaz`

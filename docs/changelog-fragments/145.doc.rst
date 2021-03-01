@@ -1,2 +1,0 @@
-Added the initial installation guide to docs
--- by :user:`ganeshrn` and :user:`webknjaz`
