@@ -28,6 +28,7 @@ jobs:
         toxenv:
         - lint
         - build-docs
+        - make-changelog
 
     env:
       PY_COLORS: 1
