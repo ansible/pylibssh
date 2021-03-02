@@ -30,10 +30,30 @@ jobs:
         - ARCH: x86_64
           YEAR: 2014  # CentOS 7
 
-        # Build the manylinux2014_aarch64 container
+        # Build containers for aarch64 (ARM 64)
         - ARCH: aarch64
           QEMU_ARCH: arm64
-          YEAR: 2014  # It's the first year ARM was included in PEP
+          YEAR: 2014  # It's the first year aarch64 (ARM64) was included in PEP
+
+        # # Build containers for armv7l (ARM v7)
+        # - ARCH: armv7l
+        #   QEMU_ARCH: arm/v7
+        #   YEAR: 2014  # It's the first year armv7l (ARM v7) was included in PEP
+
+        # # Build containers for ppc64
+        # - ARCH: ppc64
+        #   QEMU_ARCH: ppc64
+        #   YEAR: 2014  # It's the first year ppc64 was included in PEP
+
+        # Build containers for ppc64le
+        - ARCH: ppc64le
+          QEMU_ARCH: ppc64le
+          YEAR: 2014  # It's the first year ppc64le was included in PEP
+
+        # Build containers for s390x
+        - ARCH: s390x
+          QEMU_ARCH: s390x
+          YEAR: 2014  # It's the first year s390x was included in PEP
 
     env:
       PYPA_MANYLINUX_TAG: >-
@@ -55,7 +75,7 @@ jobs:
     - name: >-
         Set up QEMU ${{ matrix.IMAGE.QEMU_ARCH }} arch emulation
         with Podman
-      if: matrix.IMAGE.QEMU_ARCH == 'arm64'
+      if: matrix.IMAGE.QEMU_ARCH && true || false
       run: >-
         sudo podman run
         --rm --privileged
