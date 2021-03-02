@@ -3,7 +3,21 @@ FROM quay.io/pypa/${RELEASE}
 ARG RELEASE
 MAINTAINER Python Cryptographic Authority
 WORKDIR /root
-RUN if [ $(uname -m) = "x86_64" ]; then yum -y install prelink && yum -y clean all; fi
+RUN \
+  if [ $(uname -m) = "x86_64" ]; \
+  then \
+    if stat /etc/redhat-release 1>&2 2>/dev/null; then \
+      yum -y install prelink && \
+      yum -y clean all && \
+      rm -rf /var/cache/yum; \
+    else \
+      export DEBIAN_FRONTEND=noninteractive && \
+      apt-get update -qq && \
+      apt-get install -qq -y --no-install-recommends prelink && \
+      apt-get clean -qq && \
+      rm -rf /var/lib/apt/lists/*; \
+    fi; \
+  fi
 ADD install_perl.sh /root/install_perl.sh
 RUN sh install_perl.sh
 ADD install_libffi.sh /root/install_libffi.sh
