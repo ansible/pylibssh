@@ -35,15 +35,15 @@ jobs:
           QEMU_ARCH: arm64
           YEAR: 2014  # It's the first year aarch64 (ARM64) was included in PEP
 
-        # Build containers for armv7l (ARM v7)
-        - ARCH: armv7l
-          QEMU_ARCH: arm/v7
-          YEAR: 2014  # It's the first year armv7l (ARM v7) was included in PEP
+        # # Build containers for armv7l (ARM v7)
+        # - ARCH: armv7l
+        #   QEMU_ARCH: arm/v7
+        #   YEAR: 2014  # It's the first year armv7l (ARM v7) was included in PEP
 
-        # Build containers for ppc64
-        - ARCH: ppc64
-          QEMU_ARCH: ppc64
-          YEAR: 2014  # It's the first year ppc64 was included in PEP
+        # # Build containers for ppc64
+        # - ARCH: ppc64
+        #   QEMU_ARCH: ppc64
+        #   YEAR: 2014  # It's the first year ppc64 was included in PEP
 
         # Build containers for ppc64le
         - ARCH: ppc64le
