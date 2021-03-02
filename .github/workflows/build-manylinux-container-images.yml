@@ -39,7 +39,7 @@ jobs:
       PYPA_MANYLINUX_TAG: >-
         manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
-        ghcr.io/ansible/pylibssh-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+        ${{ github.repository }}-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
       QEMU_ARCH: ${{ matrix.QEMU_ARCH || 'amd64' }}
 
     defaults:
