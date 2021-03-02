@@ -32,11 +32,15 @@ jobs:
 
         # Build the manylinux2014_aarch64 container
         - ARCH: aarch64
+          QEMU_ARCH: arm64
           YEAR: 2014  # It's the first year ARM was included in PEP
 
     env:
-      PYPA_MANYLINUX_TAG: manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
-      FULL_IMAGE_TAG: ghcr.io/ansible/pylibssh-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}:latest
+      PYPA_MANYLINUX_TAG: >-
+        manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      FULL_IMAGE_NAME: >-
+        ghcr.io/ansible/pylibssh-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      QEMU_ARCH: ${{ matrix.QEMU_ARCH || 'amd64' }}
 
     defaults:
       run:
@@ -46,44 +50,49 @@ jobs:
       🐳
       manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup QEMU
-      if: matrix.IMAGE.ARCH == 'aarch64'
-      uses: docker/setup-qemu-action@v1
-      with:
-        platforms: all
-    - name: Setup Docker Buildx
-      if: matrix.IMAGE.ARCH == 'aarch64'
-      id: buildx
-      uses: docker/setup-buildx-action@v1
-    # Pull the previous image, but if it fails return true anyway.
-    # Sometimes we add new docker images and if they've never been pushed
-    # they can't be pulled.
-    - name: Pull existing image
-      run: docker pull "${{ env.FULL_IMAGE_TAG }}" || true
-      if: github.event_name != 'schedule'
-    - name: Build image
-      if: matrix.IMAGE.ARCH != 'aarch64'
-      run: >
-        docker build --pull --cache-from "${{ env.FULL_IMAGE_TAG }}"
-        -t "${{ env.FULL_IMAGE_TAG }}" . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
-    - name: Build image
-      if: matrix.IMAGE.ARCH == 'aarch64'
-      run: >
-        docker buildx build --platform linux/arm64 --pull --cache-from "${{ env.FULL_IMAGE_TAG }}"
-        --cache-to "type=local,dest=/tmp/.buildx-cache" --output "type=image,push=false"
-        -t "${{ env.FULL_IMAGE_TAG }}" . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
-    - name: Login to GitHub Container Registry
+    - name: Fetch the repo src
+      uses: actions/checkout@v2
+    - name: >-
+        Set up QEMU ${{ matrix.IMAGE.QEMU_ARCH }} arch emulation
+        with Podman
+      if: matrix.IMAGE.QEMU_ARCH == 'arm64'
       run: >-
-        echo "${{ secrets.GHCR_TOKEN }}"
-        | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
-      if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
-    - name: Push image
-      run: docker push "${{ env.FULL_IMAGE_TAG }}"
-      if: matrix.IMAGE.ARCH == 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
-    - name: Push image
-      run: >
-        docker buildx build --cache-from "type=local,src=/tmp/.buildx-cache"
-        --platform linux/arm64 --output "type=image,push=true" -t "${{ env.FULL_IMAGE_TAG }}"
-        . --build-arg "RELEASE=${{ env.PYPA_MANYLINUX_TAG }}"
-      if: matrix.IMAGE.ARCH != 'aarch64' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
+        sudo podman run
+        --rm --privileged
+        multiarch/qemu-user-static
+        --reset -p yes
+    - name: Build the image with Buildah
+      id: build-image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        archs: linux/${{ env.QEMU_ARCH }}
+        image: ${{ env.FULL_IMAGE_NAME }}
+        tags: latest
+        dockerfiles: build-scripts/manylinux-container-image/Dockerfile
+        context: build-scripts/manylinux-container-image/
+        oci: true  # Should be alright because we don't publish to Docker Hub
+        build-args: RELEASE=${{ env.PYPA_MANYLINUX_TAG }}
+    - name: Push to GitHub Container Registry
+      if: >-
+        (github.event_name == 'push' || github.event_name == 'schedule')
+        && github.ref == format(
+            'refs/heads/{0}', github.event.repository.default_branch
+        )
+      id: push-to-ghcr
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags: ${{ steps.build-image.outputs.tags }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_TOKEN }}
+    - name: Log the upload result
+      if: >-
+        (github.event_name == 'push' || github.event_name == 'schedule')
+        && github.ref == format(
+            'refs/heads/{0}', github.event.repository.default_branch
+        )
+      run: >-
+        echo
+        'New image has been pushed to
+        ${{ steps.push-to-ghcr.outputs.registry-paths }}'
