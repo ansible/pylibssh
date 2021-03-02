@@ -18,7 +18,7 @@ curl -#O "https://mirrors.ocf.berkeley.edu/debian/pool/main/libf/libffi/libffi_$
 check_sha256sum "libffi_${LIBFFI_VERSION}.orig.tar.gz" ${LIBFFI_SHA256}
 tar zxf libffi*.orig.tar.gz
 PATH=/opt/perl/bin:$PATH
-pushd libffi*
+pushd libffi*/
 if [[ "$1" =~ '^manylinux1_.*$' ]]; then
   STACK_PROTECTOR_FLAGS="-fstack-protector --param=ssp-buffer-size=4"
 else
