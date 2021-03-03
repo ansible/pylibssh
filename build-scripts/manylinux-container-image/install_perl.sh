@@ -8,4 +8,4 @@ curl -O https://www.cpan.org/src/5.0/perl-5.24.1.tar.gz
 tar zxf perl-5.24.1.tar.gz && \
     cd perl-5.24.1 && \
     ./Configure -des -Dprefix=/opt/perl && \
-    make -j4 && make install
+    make -j && make install

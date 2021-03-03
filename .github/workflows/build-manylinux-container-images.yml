@@ -29,11 +29,16 @@ jobs:
           YEAR: 2010  # CentOS 6
         - ARCH: x86_64
           YEAR: 2014  # CentOS 7
+        - ARCH: x86_64
+          YEAR: _2_24  # CentOS 7, PEP 600
 
         # Build containers for aarch64 (ARM 64)
         - ARCH: aarch64
           QEMU_ARCH: arm64
           YEAR: 2014  # It's the first year aarch64 (ARM64) was included in PEP
+        - ARCH: aarch64
+          QEMU_ARCH: arm64
+          YEAR: _2_24  # PEP 600
 
         # # Build containers for armv7l (ARM v7)
         # - ARCH: armv7l
@@ -49,11 +54,17 @@ jobs:
         - ARCH: ppc64le
           QEMU_ARCH: ppc64le
           YEAR: 2014  # It's the first year ppc64le was included in PEP
+        - ARCH: ppc64le
+          QEMU_ARCH: ppc64le
+          YEAR: _2_24  # PEP 600
 
         # Build containers for s390x
         - ARCH: s390x
           QEMU_ARCH: s390x
           YEAR: 2014  # It's the first year s390x was included in PEP
+        - ARCH: s390x
+          QEMU_ARCH: s390x
+          YEAR: _2_24  # PEP 600
 
     env:
       PYPA_MANYLINUX_TAG: >-
