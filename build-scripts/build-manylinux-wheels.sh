@@ -13,6 +13,7 @@ PYTHON_TARGET="$2"
 set -Eeuo pipefail
 
 source get-static-deps-dir.sh
+source activate-userspace-tools.sh
 
 SRC_DIR=/io
 PERM_REF_HOST_FILE="${SRC_DIR}/setup.cfg"
@@ -53,7 +54,7 @@ echo "${PYTHONS}" | >&2 tr ' ' '\n'
 # Avoid creation of __pycache__/*.py[c|o]
 export PYTHONDONTWRITEBYTECODE=1
 
-export PATH="${HOME}/.tools-venv/bin:${HOME}/.local/bin/:$PATH"
+import_userspace_tools
 
 PIP_GLOBAL_ARGS=
 if [ -n "$DEBUG" ]
@@ -87,16 +88,6 @@ export PKG_CONFIG_PATH="${STATIC_DEPS_PREFIX}/lib64/pkgconfig:${STATIC_DEPS_PREF
 
 ARCH=`uname -m`
 
-
->&2 echo
->&2 echo
->&2 echo ==============================================
->&2 echo Installing build deps into a dedicated venv...
->&2 echo ==============================================
->&2 echo
-/opt/python/cp38-cp38/bin/python -m venv ~/.tools-venv
-~/.tools-venv/bin/pip install -U pip setuptools
-~/.tools-venv/bin/pip install --use-feature=2020-resolver auditwheel cmake
 
 >&2 echo
 >&2 echo

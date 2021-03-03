@@ -37,6 +37,9 @@ RUN if ! [[ ${RELEASE} =~ '^manylinux1_.*$' ]]; then curl https://sh.rustup.rs -
 ENV PATH="/root/.cargo/bin:$PATH"
 
 # \pylibssh
+ADD install-userspace-tools.sh /root/install-userspace-tools.sh
+ADD activate-userspace-tools.sh /root/activate-userspace-tools.sh
+RUN ./install-userspace-tools.sh
 ADD make-static-deps-dir.sh /root/make-static-deps-dir.sh
 ADD get-static-deps-dir.sh /root/get-static-deps-dir.sh
 RUN ./make-static-deps-dir.sh
