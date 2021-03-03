@@ -4,15 +4,7 @@ then
     set -x
 fi
 
-LIBSSH_VERSION="$1"
-
 set -Eeuo pipefail
-
-if [ -z "$LIBSSH_VERSION" ]
-then
-    >&2 echo "Please pass libssh version as a first argument of this script ($0)"
-    exit 1
-fi
 
 manylinux1_image_prefix="quay.io/pypa/manylinux1_"
 manylinux1_image_prefix="pyca/cryptography-manylinux1:"
@@ -40,7 +32,7 @@ do
 
     echo Building wheel for $arch arch
     #docker run --rm -v `pwd`:/io "${manylinux1_image_prefix}${arch}" $dock_ext_args /io/build-scripts/build-manylinux-wheels.sh "$LIBSSH_VERSION" &
-    podman run --rm -v `pwd`:/io "${manylinux1_image_prefix}${arch}" $dock_ext_args /io/build-scripts/build-manylinux-wheels.sh "$LIBSSH_VERSION" &
+    podman run --rm -v `pwd`:/io "${manylinux1_image_prefix}${arch}" $dock_ext_args /io/build-scripts/build-manylinux-wheels.sh &
 
     dock_ext_args=""  # Reset docker args, just in case
 done

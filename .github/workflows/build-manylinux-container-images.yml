@@ -67,6 +67,7 @@ jobs:
           YEAR: _2_24  # PEP 600
 
     env:
+      LIBSSH_VERSION: 0.9.4
       PYPA_MANYLINUX_TAG: >-
         manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
@@ -98,11 +99,17 @@ jobs:
       with:
         archs: linux/${{ env.QEMU_ARCH }}
         image: ${{ env.FULL_IMAGE_NAME }}
-        tags: latest
+        tags: >-
+          latest
+          libssh-v${{ env.LIBSSH_VERSION }}_gh-${{ github.sha }}
+          libssh-v${{ env.LIBSSH_VERSION }}
+          ${{ github.sha }}
         dockerfiles: build-scripts/manylinux-container-image/Dockerfile
         context: build-scripts/manylinux-container-image/
         oci: true  # Should be alright because we don't publish to Docker Hub
-        build-args: RELEASE=${{ env.PYPA_MANYLINUX_TAG }}
+        build-args: |
+          LIBSSH_VERSION=${{ env.LIBSSH_VERSION }}
+          RELEASE=${{ env.PYPA_MANYLINUX_TAG }}
     - name: Push to GitHub Container Registry
       if: >-
         (github.event_name == 'push' || github.event_name == 'schedule')

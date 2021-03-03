@@ -7,8 +7,7 @@ then
     set -x
 fi
 
-LIBSSH_VERSION="$1"
-PYTHON_TARGET="$2"
+PYTHON_TARGET="${1}"
 
 set -Eeuo pipefail
 
@@ -23,12 +22,6 @@ IMPORTABLE_PKG="$(ls "${SRC_DIR}/src/")"  # must contain only one dir
 
 >&2 echo Verifying that $IMPORTABLE_PKG can be the target package...
 >/dev/null stat ${SRC_DIR}/src/${IMPORTABLE_PKG}/*.p{y,yx,xd}
-
-if [ -z "$LIBSSH_VERSION" ]
-then
-    >&2 echo "Please pass libssh version as a first argument of this script ($0)"
-    exit 1
-fi
 
 PYTHONS="$(ls -1 --ignore=cp34-cp34m /opt/python/ | sort -r)"
 if [ -n "${PYTHON_TARGET}" ]
@@ -67,9 +60,6 @@ BUILD_DIR=`mktemp -d "/tmp/${DIST_NAME}-manylinux1-build.XXXXXXXXXX"`
 TESTS_DIR="${BUILD_DIR}/tests"
 STATIC_DEPS_PREFIX="$(get_static_deps_dir)"
 
-LIBSSH_CLONE_DIR="${BUILD_DIR}/libssh"
-LIBSSH_BUILD_DIR="${LIBSSH_CLONE_DIR}/build"
-
 ORIG_WHEEL_DIR="${BUILD_DIR}/original-wheelhouse"
 WHEEL_DEP_DIR="${BUILD_DIR}/deps-wheelhouse"
 MANYLINUX_DIR="${BUILD_DIR}/manylinux-wheelhouse"
@@ -78,54 +68,25 @@ UNPACKED_WHEELS_DIR="${BUILD_DIR}/unpacked-wheels"
 VENVS_DIR="${BUILD_DIR}/venvs"
 ISOLATED_SRC_DIRS="${BUILD_DIR}/src"
 
-export PYCA_OPENSSL_PATH=/opt/pyca/cryptography/openssl
-export OPENSSL_PATH=/opt/openssl
+# NOTE: `LDFLAGS` is necessary for the C-extension build's linker to
+# NOTE: locate the symbols in the libssh shared object files.
+# NOTE: Otherwise, the error is:
+#
+#   gcc -pthread -shared -lssh -I/opt/manylinux-static-deps.PPkLKziXI7/include -DCYTHON_TRACE=1 -DCYTHON_TRACE_NOGIL=1 /tmp/pip-req-build-4h841og7/src/tmpy3l03tmj/tmp/pip-req-build-4h841og7/src/pylibsshext/session.o -lssh -o build/lib.linux-x86_64-3.9/pylibsshext/session.cpython-39-x86_64-linux-gnu.so
+#   /opt/rh/devtoolset-2/root/usr/libexec/gcc/x86_64-CentOS-linux/4.8.2/ld: cannot find -lssh
+#   /opt/rh/devtoolset-2/root/usr/libexec/gcc/x86_64-CentOS-linux/4.8.2/ld: cannot find -lssh
+#   collect2: error: ld returned 1 exit status
+#   error: command '/opt/rh/devtoolset-2/root/usr/bin/gcc' failed with exit code 1
+#   ----------------------------------------
+#   ERROR: Failed building wheel for ansible-pylibssh
+# Failed to build ansible-pylibssh
+# ERROR: Failed to build one or more wheels
+export LDFLAGS="'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
 
-export LDFLAGS="-pthread -ldl '-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
-#export CPPFLAGS="-lpthread"
+# NOTE: `LD_LIBRARY_PATH` is necessary so that `auditwheel repair` could locate `libssh.so.4`
 export LD_LIBRARY_PATH="${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="${STATIC_DEPS_PREFIX}/lib64/pkgconfig:${STATIC_DEPS_PREFIX}/lib/pkgconfig:${OPENSSL_PATH}/lib/pkgconfig:${PYCA_OPENSSL_PATH}/lib/pkgconfig"
 
 ARCH=`uname -m`
-
-
->&2 echo
->&2 echo
->&2 echo ================================================
->&2 echo downloading source of libssh v${LIBSSH_VERSION}:
->&2 echo ================================================
->&2 echo
-git clone \
-    --depth=1 \
-    -b "libssh-${LIBSSH_VERSION}" \
-    https://git.libssh.org/projects/libssh.git \
-    "${LIBSSH_CLONE_DIR}"
-
-mkdir -p "${LIBSSH_BUILD_DIR}"
-pushd "${LIBSSH_BUILD_DIR}"
-# For some reason, libssh has to be compiled as a shared object.
-# If not, imports fail at runtime, with undefined symbols:
-# ```python-traceback
-# test/units/test_sftp.py:7: in <module>
-#     from pylibsshext.sftp import SFTP
-# E   ImportError: /opt/python/cp27-cp27m/lib/python2.7/site-packages/pylibsshext/sftp.so: undefined symbol: sftp_get_error
-# ```
-# Also, when compiled statically, manylinux2010 container turns dist
-# into manylinux1 but because of the reason above, it doesn't make sense.
-cmake "${LIBSSH_CLONE_DIR}" \
-    -DCMAKE_INSTALL_PREFIX="${STATIC_DEPS_PREFIX}" \
-    -DCMAKE_BUILD_TYPE=MinSizeRel \
-    -DBUILD_SHARED_LIBS=ON \
-    -DCLIENT_TESTING=OFF \
-    -DSERVER_TESTING=OFF \
-    -DUNIT_TESTING=OFF \
-    -DWITH_GSSAPI=OFF \
-    -DWITH_SERVER=OFF \
-    -DWITH_PCAP=OFF \
-    -DWITH_ZLIB=ON
-make
-make install/strip
-popd
 
 >&2 echo
 >&2 echo
@@ -146,7 +107,7 @@ done
 >&2 echo Building wheels:
 >&2 echo ================
 >&2 echo
-export CFLAGS="'-I${LIBSSH_CLONE_DIR}/include' '-I${STATIC_DEPS_PREFIX}/include' '-I${BUILD_DIR}/libssh/include'"
+export CFLAGS="'-I${STATIC_DEPS_PREFIX}/include'"
 for PY in $PYTHONS; do
     PIP_BIN="/opt/python/${PY}/bin/pip"
     >&2 echo Using "${PIP_BIN}"...
