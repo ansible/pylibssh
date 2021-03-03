@@ -59,9 +59,9 @@ jobs:
           YEAR: _2_24  # PEP 600
 
         # Build containers for s390x
-        - ARCH: s390x
-          QEMU_ARCH: s390x
-          YEAR: 2014  # It's the first year s390x was included in PEP
+        # - ARCH: s390x
+        #   QEMU_ARCH: s390x
+        #   YEAR: 2014  # It's the first year s390x was included in PEP
         - ARCH: s390x
           QEMU_ARCH: s390x
           YEAR: _2_24  # PEP 600
