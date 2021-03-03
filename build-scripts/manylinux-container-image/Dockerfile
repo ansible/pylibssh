@@ -35,3 +35,11 @@ RUN if [ $(uname -m) = "x86_64" ]; then curl https://downloads.python.org/pypy/p
 
 RUN if ! [[ ${RELEASE} =~ '^manylinux1_.*$' ]]; then curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal; fi
 ENV PATH="/root/.cargo/bin:$PATH"
+
+# \pylibssh
+ADD make-static-deps-dir.sh /root/make-static-deps-dir.sh
+ADD get-static-deps-dir.sh /root/get-static-deps-dir.sh
+RUN ./make-static-deps-dir.sh
+ADD install_zlib.sh /root/install_zlib.sh
+RUN ./install_zlib.sh
+# /pylibssh

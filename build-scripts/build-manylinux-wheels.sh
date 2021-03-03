@@ -12,6 +12,8 @@ PYTHON_TARGET="$2"
 
 set -Eeuo pipefail
 
+source get-static-deps-dir.sh
+
 SRC_DIR=/io
 PERM_REF_HOST_FILE="${SRC_DIR}/setup.cfg"
 PEP517_CONFIG_FILE="${SRC_DIR}/pyproject.toml"
@@ -62,10 +64,7 @@ GIT_GLOBAL_ARGS="--git-dir=${SRC_DIR}/.git --work-tree=${SRC_DIR}"
 TESTS_SRC_DIR="${SRC_DIR}/tests"
 BUILD_DIR=`mktemp -d "/tmp/${DIST_NAME}-manylinux1-build.XXXXXXXXXX"`
 TESTS_DIR="${BUILD_DIR}/tests"
-STATIC_DEPS_PREFIX="${BUILD_DIR}/static-deps"
-
-ZLIB_VERSION=1.2.11
-ZLIB_DOWNLOAD_DIR="${BUILD_DIR}/zlib-${ZLIB_VERSION}"
+STATIC_DEPS_PREFIX="$(get_static_deps_dir)"
 
 LIBSSH_CLONE_DIR="${BUILD_DIR}/libssh"
 LIBSSH_BUILD_DIR="${LIBSSH_CLONE_DIR}/build"
@@ -82,7 +81,6 @@ export PYCA_OPENSSL_PATH=/opt/pyca/cryptography/openssl
 export OPENSSL_PATH=/opt/openssl
 
 export LDFLAGS="-pthread -ldl '-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
-export CFLAGS="-fPIC"
 #export CPPFLAGS="-lpthread"
 export LD_LIBRARY_PATH="${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:$LD_LIBRARY_PATH"
 export PKG_CONFIG_PATH="${STATIC_DEPS_PREFIX}/lib64/pkgconfig:${STATIC_DEPS_PREFIX}/lib/pkgconfig:${OPENSSL_PATH}/lib/pkgconfig:${PYCA_OPENSSL_PATH}/lib/pkgconfig"
@@ -99,23 +97,6 @@ ARCH=`uname -m`
 /opt/python/cp38-cp38/bin/python -m venv ~/.tools-venv
 ~/.tools-venv/bin/pip install -U pip setuptools
 ~/.tools-venv/bin/pip install --use-feature=2020-resolver auditwheel cmake
-
->&2 echo
->&2 echo
->&2 echo ============================================
->&2 echo downloading source of zlib v${ZLIB_VERSION}:
->&2 echo ============================================
->&2 echo
-curl https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz | \
-    tar xzvC "${BUILD_DIR}" -f -
-
-pushd "${ZLIB_DOWNLOAD_DIR}"
-./configure \
-    --static \
-    --prefix="${STATIC_DEPS_PREFIX}" && \
-    make -j9 libz.a && \
-    make install
-popd
 
 >&2 echo
 >&2 echo
@@ -174,7 +155,7 @@ done
 >&2 echo Building wheels:
 >&2 echo ================
 >&2 echo
-export CFLAGS="'-I${LIBSSH_CLONE_DIR}/include' '-I${STATIC_DEPS_PREFIX}/include' '-I${BUILD_DIR}/libssh/include' ${CFLAGS}"
+export CFLAGS="'-I${LIBSSH_CLONE_DIR}/include' '-I${STATIC_DEPS_PREFIX}/include' '-I${BUILD_DIR}/libssh/include'"
 for PY in $PYTHONS; do
     PIP_BIN="/opt/python/${PY}/bin/pip"
     >&2 echo Using "${PIP_BIN}"...
