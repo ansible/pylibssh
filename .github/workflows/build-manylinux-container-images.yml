@@ -100,10 +100,10 @@ jobs:
         archs: linux/${{ env.QEMU_ARCH }}
         image: ${{ env.FULL_IMAGE_NAME }}
         tags: >-
-          latest
+          ${{ github.sha }}
           libssh-v${{ env.LIBSSH_VERSION }}_gh-${{ github.sha }}
           libssh-v${{ env.LIBSSH_VERSION }}
-          ${{ github.sha }}
+          latest
         dockerfiles: build-scripts/manylinux-container-image/Dockerfile
         context: build-scripts/manylinux-container-image/
         oci: true  # Should be alright because we don't publish to Docker Hub
