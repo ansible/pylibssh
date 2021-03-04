@@ -1,6 +1,7 @@
 ARG RELEASE
 FROM quay.io/pypa/${RELEASE}
 ARG RELEASE
+ARG LIBSSH_VERSION=0.9.4
 MAINTAINER Python Cryptographic Authority
 WORKDIR /root
 RUN \
@@ -35,3 +36,16 @@ RUN if [ $(uname -m) = "x86_64" ]; then curl https://downloads.python.org/pypy/p
 
 RUN if ! [[ ${RELEASE} =~ '^manylinux1_.*$' ]]; then curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal; fi
 ENV PATH="/root/.cargo/bin:$PATH"
+
+# \pylibssh
+ADD install-userspace-tools.sh /root/install-userspace-tools.sh
+ADD activate-userspace-tools.sh /root/activate-userspace-tools.sh
+RUN ./install-userspace-tools.sh
+ADD make-static-deps-dir.sh /root/make-static-deps-dir.sh
+ADD get-static-deps-dir.sh /root/get-static-deps-dir.sh
+RUN ./make-static-deps-dir.sh
+ADD install_zlib.sh /root/install_zlib.sh
+RUN ./install_zlib.sh
+ADD install_libssh.sh /root/install_libssh.sh
+RUN ./install_libssh.sh "${LIBSSH_VERSION}"
+# /pylibssh
