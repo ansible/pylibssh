@@ -44,9 +44,9 @@ export LDFLAGS="-pthread -ldl"
 # NOTE: `PKG_CONFIG_PATH` is necessary for `cmake` to be able to locate
 # NOTE: C-headers files `*.h`. Otherwise, the error is:
 #
-# -- Found ZLIB: /opt/manylinux-static-deps.PPkLKziXI7/lib/libz.a (found version "1.2.11") 
-# -- Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR) 
-# -- Could NOT find GCrypt, try to set the path to GCrypt root folder in the system variable GCRYPT_ROOT_DIR (missing: GCRYPT_INCLUDE_DIR GCRYPT_LIBRARIES) 
+# -- Found ZLIB: /opt/manylinux-static-deps.PPkLKziXI7/lib/libz.a (found version "1.2.11")
+# -- Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR)
+# -- Could NOT find GCrypt, try to set the path to GCrypt root folder in the system variable GCRYPT_ROOT_DIR (missing: GCRYPT_INCLUDE_DIR GCRYPT_LIBRARIES)
 # CMake Warning (dev) at /root/.tools-venv/lib/python3.9/site-packages/cmake/data/share/cmake-3.18/Modules/FindPackageHandleStandardArgs.cmake:273 (message):
 #   The package name passed to `find_package_handle_standard_args` (MBedTLS)
 #   does not match the name of the calling package (MbedTLS).  This can lead to
@@ -58,7 +58,7 @@ export LDFLAGS="-pthread -ldl"
 # This warning is for project developers.  Use -Wno-dev to suppress it.
 #
 # -- Could NOT find mbedTLS, try to set the path to mbedLS root folder in
-#         the system variable MBEDTLS_ROOT_DIR (missing: MBEDTLS_INCLUDE_DIR MBEDTLS_LIBRARIES) 
+#         the system variable MBEDTLS_ROOT_DIR (missing: MBEDTLS_INCLUDE_DIR MBEDTLS_LIBRARIES)
 # CMake Error at CMakeLists.txt:67 (message):
 #   Could not find OpenSSL, GCrypt or mbedTLS
 #
