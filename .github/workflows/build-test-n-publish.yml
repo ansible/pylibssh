@@ -342,7 +342,7 @@ jobs:
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
-      uses: ciiiii/toml-editor@be93ba67ac8637efa031d6c6ae2ff7cf72254d92 # 1.0.0
+      uses: ciiiii/toml-editor@c384cdc53a41cd1f38f12bad74ccf94f688c326d
       with:
         file: pyproject.toml
         key: tool.setuptools_scm.local_scheme
@@ -468,7 +468,7 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
-      uses: ciiiii/toml-editor@be93ba67ac8637efa031d6c6ae2ff7cf72254d92 # 1.0.0
+      uses: ciiiii/toml-editor@c384cdc53a41cd1f38f12bad74ccf94f688c326d
       with:
         file: pyproject.toml
         key: tool.setuptools_scm.local_scheme
@@ -563,7 +563,7 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
-      uses: ciiiii/toml-editor@be93ba67ac8637efa031d6c6ae2ff7cf72254d92 # 1.0.0
+      uses: ciiiii/toml-editor@c384cdc53a41cd1f38f12bad74ccf94f688c326d
       with:
         file: pyproject.toml
         key: tool.setuptools_scm.local_scheme
