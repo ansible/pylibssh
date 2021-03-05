@@ -7,7 +7,8 @@ then
     set -x
 fi
 
-PYTHON_TARGET="${1}"
+MANYLINUX_TARGET="${1}"
+PYTHON_TARGET="${2}"
 
 set -Eeuo pipefail
 
@@ -56,7 +57,7 @@ then
 fi
 GIT_GLOBAL_ARGS="--git-dir=${SRC_DIR}/.git --work-tree=${SRC_DIR}"
 TESTS_SRC_DIR="${SRC_DIR}/tests"
-BUILD_DIR=`mktemp -d "/tmp/${DIST_NAME}-manylinux1-build.XXXXXXXXXX"`
+BUILD_DIR=$(mktemp -d "/tmp/${DIST_NAME}-${MANYLINUX_TARGET}-build.XXXXXXXXXX")
 TESTS_DIR="${BUILD_DIR}/tests"
 STATIC_DEPS_PREFIX="$(get_static_deps_dir)"
 
@@ -124,22 +125,9 @@ done
 # Bundle external shared libraries into the wheels
 for PY in $PYTHONS; do
     for whl in ${ORIG_WHEEL_DIR}/${DIST_NAME}-*-${PY}-linux_${ARCH}.whl; do
-        for MANYLINUX_VER in 1 2010 2014; do
-            >&2 echo Reparing "${whl}" for manylinux${MANYLINUX_VER}_${ARCH}...
-            auditwheel repair --plat manylinux${MANYLINUX_VER}_${ARCH} "${whl}" -w ${MANYLINUX_DIR}
-        done
+        >&2 echo Reparing "${whl}" for "${MANYLINUX_TARGET}"...
+        auditwheel repair --plat "${MANYLINUX_TARGET}" "${whl}" -w ${MANYLINUX_DIR}
     done
-done
-
->&2 echo
->&2 echo
->&2 echo =========================================================
->&2 echo Split manylinux1, manylinux2010 and manylinux2014 wheels:
->&2 echo =========================================================
->&2 echo
-mkdir -pv "${MANYLINUX_DIR}"/{1,2010,2014}
-for MANYLINUX_VER in 1 2010 2014; do
-    mv -v "${MANYLINUX_DIR}"/${DIST_NAME}-*-cp*-cp*-manylinux${MANYLINUX_VER}_${ARCH}.whl "${MANYLINUX_DIR}/${MANYLINUX_VER}/"
 done
 
 # Download deps
@@ -150,8 +138,7 @@ done
 >&2 echo =========================
 >&2 echo
 for PY in $PYTHONS; do
-    #for WHEEL_FILE in `ls ${MANYLINUX_DIR}/{1,2010,2014}/${DIST_NAME}-*-${PY}-manylinux{1,2010,2014}_${ARCH}.whl`; do
-    for WHEEL_FILE in `ls ${MANYLINUX_DIR}/1/${DIST_NAME}-*-${PY}-manylinux{1,2010,2014}_${ARCH}.whl`; do
+    for WHEEL_FILE in `ls ${MANYLINUX_DIR}/${DIST_NAME}-*-${PY}-${MANYLINUX_TARGET}.whl`; do
         PIP_BIN="/opt/python/${PY}/bin/pip"
         >&2 echo Downloading ${WHEEL_FILE} deps using ${PIP_BIN}...
         ${PIP_BIN} download -d "${WHEEL_DEP_DIR}" "${WHEEL_FILE}" ${PIP_GLOBAL_ARGS}
@@ -164,16 +151,13 @@ done
 >&2 echo ===================
 >&2 echo
 for PY in $PYTHONS; do
-    #for MANYLINUX_VER in 1 2010 2014; do
-    for MANYLINUX_VER in 1; do
-        VENV_NAME="${PY}-${MANYLINUX_VER}"
-        VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
-        VENV_BIN="/opt/python/${PY}/bin/virtualenv"
+    VENV_NAME="${PY}-${MANYLINUX_TARGET}"
+    VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
+    VENV_BIN="/opt/python/${PY}/bin/virtualenv"
 
-        >&2 echo
-        >&2 echo Creating a venv at ${VENV_PATH}...
-        ${VENV_BIN} "${VENV_PATH}"
-    done
+    >&2 echo
+    >&2 echo Creating a venv at ${VENV_PATH}...
+    ${VENV_BIN} "${VENV_PATH}"
 done
 
 # Install packages
@@ -184,14 +168,11 @@ done
 >&2 echo ============================
 >&2 echo
 for PY in $PYTHONS; do
-    #for MANYLINUX_VER in 1 2010 2014; do
-    for MANYLINUX_VER in 1; do
-        VENV_NAME="${PY}-${MANYLINUX_VER}"
-        VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
-        PIP_BIN="${VENV_PATH}/bin/pip"
-        >&2 echo Using ${PIP_BIN}...
-        ${PIP_BIN} install --no-compile "${DIST_NAME}" --no-index -f "${MANYLINUX_DIR}/${MANYLINUX_VER}/" ${PIP_GLOBAL_ARGS}
-    done
+    VENV_NAME="${PY}-${MANYLINUX_TARGET}"
+    VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
+    PIP_BIN="${VENV_PATH}/bin/pip"
+    >&2 echo Using ${PIP_BIN}...
+    ${PIP_BIN} install --no-compile "${DIST_NAME}" --no-index -f "${MANYLINUX_DIR}/" ${PIP_GLOBAL_ARGS}
 done
 
 >&2 echo
@@ -200,20 +181,18 @@ done
 >&2 echo ==============
 >&2 echo
 for PY in $PYTHONS; do
-    for MANYLINUX_VER in 1 2010 2014; do
-        WHEEL_BIN="/opt/python/${PY}/bin/wheel"
-        PLAT_TAG=${PY}-manylinux${MANYLINUX_VER}_${ARCH}
-        UNPACKED_DIR=${UNPACKED_WHEELS_DIR}/${PLAT_TAG}
-        WHEEL_FILE=`ls ${MANYLINUX_DIR}/${MANYLINUX_VER}/${DIST_NAME}-*-${PLAT_TAG}.whl`
-        >&2 echo
-        >&2 echo Analysing ${WHEEL_FILE}...
-        auditwheel show "${WHEEL_FILE}"
-        ${WHEEL_BIN} unpack -d "${UNPACKED_DIR}" "${WHEEL_FILE}"
-        # chmod avoids ldd warning about files being non-executable:
-        chmod +x "${UNPACKED_DIR}"/${DIST_NAME}-*/{${DIST_NAME}.libs/*.so.*,${IMPORTABLE_PKG}/*.so}
-        >&2 echo Verifying that all links in '`*.so`' files of ${WHEEL_FILE} exist...
-        ! ldd "${UNPACKED_DIR}"/${DIST_NAME}-*/{${DIST_NAME}.libs/*.so.*,${IMPORTABLE_PKG}/*.so} | grep '=> not found'
-    done
+    WHEEL_BIN="/opt/python/${PY}/bin/wheel"
+    PLAT_TAG="${PY}-${MANYLINUX_TARGET}"
+    UNPACKED_DIR=${UNPACKED_WHEELS_DIR}/${PLAT_TAG}
+    WHEEL_FILE=`ls ${MANYLINUX_DIR}/${DIST_NAME}-*-${PLAT_TAG}.whl`
+    >&2 echo
+    >&2 echo Analysing ${WHEEL_FILE}...
+    auditwheel show "${WHEEL_FILE}"
+    ${WHEEL_BIN} unpack -d "${UNPACKED_DIR}" "${WHEEL_FILE}"
+    # chmod avoids ldd warning about files being non-executable:
+    chmod +x "${UNPACKED_DIR}"/${DIST_NAME}-*/{${DIST_NAME}.libs/*.so.*,${IMPORTABLE_PKG}/*.so}
+    >&2 echo Verifying that all links in '`*.so`' files of ${WHEEL_FILE} exist...
+    ! ldd "${UNPACKED_DIR}"/${DIST_NAME}-*/{${DIST_NAME}.libs/*.so.*,${IMPORTABLE_PKG}/*.so} | grep '=> not found'
 done
 
 >&2 echo
@@ -223,11 +202,13 @@ done
 >&2 echo ===================================
 >&2 echo
 cp -vr "${TESTS_SRC_DIR}" "${TESTS_DIR}"
-cp -v "${SRC_DIR}/pytest.ini" "${TESTS_DIR}/"
+sed \
+  's#\s\+--cov.*##;s#\s\+--no-cov-on-fail.*##;s#\s\+-p\spytest_cov.*##' \
+  "${SRC_DIR}/pytest.ini" > "${TESTS_DIR}/pytest.ini"
 pushd "${TESTS_DIR}"
 for PY_BIN in `ls ${VENVS_DIR}/*/bin/python`; do
-    $PY_BIN -B -m pip install --no-compile pytest pytest-cov pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
-    $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}" --no-cov
+    $PY_BIN -B -m pip install --no-compile pytest pytest-forked pytest-xdist ${PIP_GLOBAL_ARGS}
+    $PY_BIN -B -m pytest -m smoke "${TESTS_DIR}"
 done
 popd
 
@@ -242,8 +223,6 @@ popd
 chown -R --reference="${PERM_REF_HOST_FILE}" "${MANYLINUX_DIR}"/*
 mkdir -pv "${WHEELHOUSE_DIR}"
 chown --reference="${PERM_REF_HOST_FILE}" "${WHEELHOUSE_DIR}"
-for MANYLINUX_VER in 1 2010 2014; do
-    cp -av "${MANYLINUX_DIR}/${MANYLINUX_VER}"/*.whl "${WHEELHOUSE_DIR}/"
-done
+cp -av "${MANYLINUX_DIR}"/"${DIST_NAME}"-*-${MANYLINUX_TARGET}.whl "${WHEELHOUSE_DIR}/"
 >&2 echo Final OS-specific wheels for ${DIST_NAME}:
 ls -l ${WHEELHOUSE_DIR}

@@ -398,7 +398,10 @@ jobs:
         retention-days: 4
 
   build-bin-manylinux:
-    name: 🏗 manylinux 📦 for 🐍 ${{ matrix.manylinux-python-target }}
+    name: >-
+      🏗 manylinux${{ matrix.manylinux-image-target.year
+      }}-${{ matrix.manylinux-image-target.arch
+      }} 📦 for 🐍 ${{ matrix.manylinux-python-target }}
     needs:
     - pre-setup
     runs-on: ubuntu-latest
@@ -414,15 +417,55 @@ jobs:
         - cp37-cp37m
         - cp36-cp36m
         - cp35-cp35m
-        - cp27-cp27mu
-        - cp27-cp27m
+        manylinux-image-target:
+        # NOTE: Keep in sync with `build-manylinux-container-images.yml`.
+        # NOTE: Ordered from "heavy" to "fast".
+        - arch: aarch64
+          qemu_arch: arm64
+          year: 2014
+        - arch: aarch64
+          qemu_arch: arm64
+          year: _2_24
+
+        - arch: s390x
+          qemu_arch: s390x
+          year: _2_24
+
+        - arch: ppc64le
+          qemu_arch: ppc64le
+          year: 2014
+        - arch: ppc64le
+          qemu_arch: ppc64le
+          year: _2_24
+
+        - arch: x86_64
+          year: 1
+        - arch: x86_64
+          year: 2010
+        - arch: x86_64
+          year: 2014
+        - arch: x86_64
+          year: _2_24
+        include:
+        # NOTE: Python 2 is still present only in manylinux1 container images
+        - manylinux-python-target: cp27-cp27mu
+          manylinux-image-target:
+            arch: x86_64
+            year: 1
+        - manylinux-python-target: cp27-cp27m
+          manylinux-image-target:
+            arch: x86_64
+            year: 1
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       DOCKER_EXECUTABLE: podman
       PY_COLORS: 1
-      TOXENV: build-dists-manylinux1-x86_64,metadata-validation
+      QEMU_ARCH: ${{ matrix.manylinux-image-target.qemu_arch || 'amd64' }}
+      TOXENV: >-
+        build-dists-manylinux${{ matrix.manylinux-image-target.year
+        }}-${{ matrix.manylinux-image-target.arch }},metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
@@ -503,6 +546,15 @@ jobs:
       run: |
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
+    - name: >-
+        Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
+        with Podman
+      if: env.QEMU_ARCH != 'amd64'
+      run: >-
+        sudo podman run
+        --rm --privileged
+        multiarch/qemu-user-static
+        --reset -p yes
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
         and verify wheel metadata
