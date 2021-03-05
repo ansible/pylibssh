@@ -341,12 +341,24 @@ jobs:
       shell: bash
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
+    - name: Install toml Python distribution package
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      run: >-
+        python -m
+        pip install
+        --user
+        toml
     - name: Instruct setuptools-scm not to add a local version part
-      uses: ciiiii/toml-editor@c384cdc53a41cd1f38f12bad74ccf94f688c326d
-      with:
-        file: pyproject.toml
-        key: tool.setuptools_scm.local_scheme
-        value: no-local-version
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      run: |
+        import toml
+        with open('pyproject.toml') as pyproject_toml:
+            pyproj = toml.load(pyproject_toml)
+
+        pyproj['tool']['setuptools_scm']['local_scheme'] = 'no-local-version'
+        with open('pyproject.toml', 'w') as pyproject_toml:
+            toml.dump(pyproj, pyproject_toml)
+      shell: python
     - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
@@ -467,12 +479,24 @@ jobs:
       shell: bash
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
+    - name: Install toml Python distribution package
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      run: >-
+        python -m
+        pip install
+        --user
+        toml
     - name: Instruct setuptools-scm not to add a local version part
-      uses: ciiiii/toml-editor@c384cdc53a41cd1f38f12bad74ccf94f688c326d
-      with:
-        file: pyproject.toml
-        key: tool.setuptools_scm.local_scheme
-        value: no-local-version
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      run: |
+        import toml
+        with open('pyproject.toml') as pyproject_toml:
+            pyproj = toml.load(pyproject_toml)
+
+        pyproj['tool']['setuptools_scm']['local_scheme'] = 'no-local-version'
+        with open('pyproject.toml', 'w') as pyproject_toml:
+            toml.dump(pyproj, pyproject_toml)
+      shell: python
     - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
@@ -562,12 +586,24 @@ jobs:
       shell: bash
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
+    - name: Install toml Python distribution package
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      run: >-
+        python -m
+        pip install
+        --user
+        toml
     - name: Instruct setuptools-scm not to add a local version part
-      uses: ciiiii/toml-editor@c384cdc53a41cd1f38f12bad74ccf94f688c326d
-      with:
-        file: pyproject.toml
-        key: tool.setuptools_scm.local_scheme
-        value: no-local-version
+      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      run: |
+        import toml
+        with open('pyproject.toml') as pyproject_toml:
+            pyproj = toml.load(pyproject_toml)
+
+        pyproj['tool']['setuptools_scm']['local_scheme'] = 'no-local-version'
+        with open('pyproject.toml', 'w') as pyproject_toml:
+            toml.dump(pyproj, pyproject_toml)
+      shell: python
     - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
