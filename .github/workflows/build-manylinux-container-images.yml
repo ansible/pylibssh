@@ -93,9 +93,18 @@ jobs:
         --rm --privileged
         multiarch/qemu-user-static
         --reset -p yes
+    # Pull the previous image, but if it fails return true anyway.
+    # Sometimes we add new docker images and if they've never been pushed
+    # they can't be pulled.
+    - name: Pull existing image from "ghcr.io/${{ env.FULL_IMAGE_NAME }}"
+      run: podman pull "ghcr.io/${{ env.FULL_IMAGE_NAME }}" || true
+      if: github.event_name != 'schedule'
     - name: Build the image with Buildah
       id: build-image
       uses: redhat-actions/buildah-build@v2
+      env:
+        # Ref: https://fossies.org/linux/buildah/docs/buildah-bud.md
+        BUILDAH_LAYERS: 'true'
       with:
         archs: linux/${{ env.QEMU_ARCH }}
         image: ${{ env.FULL_IMAGE_NAME }}
