@@ -350,6 +350,7 @@ jobs:
     - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
+        git diff --color=always
         git update-index --assume-unchanged pyproject.toml
     - name: Build dist
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
@@ -475,6 +476,7 @@ jobs:
     - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
+        git diff --color=always
         git update-index --assume-unchanged pyproject.toml
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
@@ -569,6 +571,7 @@ jobs:
     - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
+        git diff --color=always
         git update-index --assume-unchanged pyproject.toml
     - name: Build sdist and verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
