@@ -72,7 +72,7 @@ jobs:
         manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
         ${{ github.repository }}-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
-      QEMU_ARCH: ${{ matrix.QEMU_ARCH || 'amd64' }}
+      QEMU_ARCH: ${{ matrix.IMAGE.QEMU_ARCH || 'amd64' }}
 
     defaults:
       run:
@@ -85,9 +85,9 @@ jobs:
     - name: Fetch the repo src
       uses: actions/checkout@v2
     - name: >-
-        Set up QEMU ${{ matrix.IMAGE.QEMU_ARCH }} arch emulation
+        Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
         with Podman
-      if: matrix.IMAGE.QEMU_ARCH && true || false
+      if: env.QEMU_ARCH != 'amd64'
       run: >-
         sudo podman run
         --rm --privileged
