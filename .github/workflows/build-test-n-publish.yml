@@ -342,9 +342,14 @@ jobs:
     - name: Pre-populate tox env
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
+      uses: ciiiii/toml-editor@be93ba67ac8637efa031d6c6ae2ff7cf72254d92 # 1.0.0
+      with:
+        file: pyproject.toml
+        key: tool.setuptools_scm.local_scheme
+        value: no-local-version
+    - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
-        echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
     - name: Build dist
       run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
@@ -462,9 +467,14 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
+      uses: ciiiii/toml-editor@be93ba67ac8637efa031d6c6ae2ff7cf72254d92 # 1.0.0
+      with:
+        file: pyproject.toml
+        key: tool.setuptools_scm.local_scheme
+        value: no-local-version
+    - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
-        echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
@@ -551,9 +561,14 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Instruct setuptools-scm not to add a local version part
+      uses: ciiiii/toml-editor@be93ba67ac8637efa031d6c6ae2ff7cf72254d92 # 1.0.0
+      with:
+        file: pyproject.toml
+        key: tool.setuptools_scm.local_scheme
+        value: no-local-version
+    - name: Pretend that pyproject.toml is unchanged
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
-        echo 'local_scheme = "no-local-version"' >> pyproject.toml
         git update-index --assume-unchanged pyproject.toml
     - name: Build sdist and verify metadata
       run: python -m tox -p auto --parallel-live -vvvv

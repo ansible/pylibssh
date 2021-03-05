@@ -113,9 +113,5 @@ profile = "True"
         name = "Miscellaneous"
         showcontent = true
 
-# ATTENTION: the following section must be kept last in
-# `pyproject.toml` because the CI appends one line in
-# the end when publishing non-tagged versions.
 [tool.setuptools_scm]
 write_to = "src/pylibsshext/_scm_version.py"
-# ATTENTION: DO NOT ADD ANYTHING AFTER THIS SECTION ^
