@@ -88,13 +88,13 @@ are set properly:
     $ git clone https://github.com/ansible/pylibssh.git
     $ cd pylibssh
     $ pip install tox
-    $ tox -e build-dists-manylinux  # with Docker
+    $ tox -e build-dists-manylinux1-x86_64  # with Docker
 
     # or with Podman
-    $ DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux
+    $ DOCKER_EXECUTABLE=podman tox -e build-dists-manylinux1-x86_64
 
     # to enable shell script debug mode use
-    $ tox -e build-dists-manylinux -- -e DEBUG=1
+    $ tox -e build-dists-manylinux1-x86_64 -- -e DEBUG=1
 
 License
 -------

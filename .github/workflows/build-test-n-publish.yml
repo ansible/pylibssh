@@ -422,7 +422,7 @@ jobs:
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       DOCKER_EXECUTABLE: podman
       PY_COLORS: 1
-      TOXENV: build-dists-manylinux,metadata-validation
+      TOXENV: build-dists-manylinux1-x86_64,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
