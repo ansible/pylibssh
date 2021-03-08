@@ -256,7 +256,8 @@ jobs:
         from python.org, if necessary, by installing certifi
       if: matrix.python-version == 3.5
       run: >-
-        curl https://bootstrap.pypa.io/${{ matrix.python-version }}/get-pip.py
+        curl
+        https://bootstrap.pypa.io/pip/${{ matrix.python-version }}/get-pip.py
         |
         ${{ steps.install-python.outputs.binary }} - 'certifi'
     - name: Log official Python dist version from python.org
