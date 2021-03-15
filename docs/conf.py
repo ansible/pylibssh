@@ -3,6 +3,7 @@
 # Ref: https://www.sphinx-doc.org/en/master/usage/configuration.html
 """Configuration for the Sphinx documentation generator."""
 
+from functools import partial
 from pathlib import Path
 
 from setuptools_scm import get_version
@@ -11,6 +12,7 @@ from setuptools_scm import get_version
 # -- Path setup --------------------------------------------------------------
 
 PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
+get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -32,14 +34,13 @@ copyright = f'2020, {author}'  # noqa: WPS125
 
 # The short X.Y version
 version = '.'.join(
-    get_version(
+    get_scm_version(
         local_scheme='no-local-version',
-        root=PROJECT_ROOT_DIR,
     ).split('.')[:3],
 )
 
 # The full version, including alpha/beta/rc tags
-release = get_version(root=(Path(__file__).parents[1]).resolve())
+release = get_scm_version()
 
 rst_epilog = f"""
 .. |project| replace:: {project}
