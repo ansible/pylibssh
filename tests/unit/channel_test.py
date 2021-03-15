@@ -32,7 +32,7 @@ def ssh_channel(ssh_client_session):
     'Ref: https://github.com/ansible/pylibssh/issues/57',  # noqa: WPS326
     strict=False,
 )
-@pytest.mark.forked
+@pytest.mark.forked()
 def test_exec_command(ssh_channel):
     """Test getting the output of a remotely executed command."""
     u_cmd_out = ssh_channel.exec_command('echo -n Hello World').stdout.decode()
