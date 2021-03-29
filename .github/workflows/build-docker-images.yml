@@ -57,8 +57,8 @@ jobs:
       - name: Login to docker
         run: 'docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" ghcr.io'
         env:
-          DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
-          DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
       - name: Push image
         run: docker push ghcr.io/pyca/${{ matrix.IMAGE.TAG_NAME }}
@@ -96,8 +96,8 @@ jobs:
       - name: Login to docker
         run: 'docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" ghcr.io'
         env:
-          DOCKER_USERNAME: ${{ secrets.GHCR_TOKEN_USER }}
-          DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
       - name: Push image
         run: >
