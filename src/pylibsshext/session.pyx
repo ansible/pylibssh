@@ -32,6 +32,9 @@ OPTS_MAP = {
     "timeout": libssh.SSH_OPTIONS_TIMEOUT,
     "knownhosts": libssh.SSH_OPTIONS_KNOWNHOSTS,
     "proxycommand": libssh.SSH_OPTIONS_PROXYCOMMAND,
+    "gssapi_server_identity": libssh.SSH_OPTIONS_GSSAPI_SERVER_IDENTITY,
+    "gssapi_client_identity": libssh.SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY,
+    "gssapi_delegate_credentials": libssh.SSH_OPTIONS_GSSAPI_DELEGATE_CREDENTIALS,
 }
 OPTS_DIR_MAP = {
     "ssh_dir": libssh.SSH_OPTIONS_SSH_DIR,
@@ -273,6 +276,15 @@ cdef class Session(object):
             else:
                 return
 
+        if supported_auth & libssh.SSH_AUTH_METHOD_GSSAPI_MIC:
+            # try authenticating with GSSAPI with mic
+            try:
+                self.authenticate_gssapi_with_mic()
+            except LibsshSessionException as ex:
+                saved_exception = ex
+            else:
+                return
+
         if saved_exception is not None:
             libssh.ssh_disconnect(self._libssh_session)
             raise saved_exception
@@ -440,6 +452,20 @@ cdef class Session(object):
             # We need to keep calling ssh_userauth_kbdint until it stops returning SSH_AUTH_INFO
             # (ie, asking for more information and has made a decison as to whether we are allowed in)
             rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
+
+        if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
+            raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
+
+    def authenticate_gssapi_with_mic(self):
+        """Authenticate this session using gssapi-with-mic authentication.
+
+        :raises LibsshSessionException: If authentication failed.
+
+        :return: Nothing.
+        :rtype: NoneType
+        """
+        cdef int rc
+        rc = libssh.ssh_gssapi_auth_mic(self._libssh_session)
 
         if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
             raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
