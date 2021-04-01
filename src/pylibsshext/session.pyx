@@ -472,7 +472,7 @@ cdef class Session(object):
         rc = libssh.ssh_userauth_gssapi(self._libssh_session)
 
         if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
-            raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
+            raise LibsshSessionException("Failed to authenticate with gssapi-with-mic: {err}".format(err=self._get_session_error_str()))
 
     def new_channel(self):
         return Channel(self)
