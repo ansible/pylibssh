@@ -172,7 +172,7 @@ jobs:
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
-      PEP517_ARGS: --binary
+      PEP517_BUILD_ARGS: --wheel
       PY_COLORS: 1
       TOXENV: build-wheels-pip,delocate-macos-wheels,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
@@ -580,7 +580,7 @@ jobs:
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
-      PEP517_ARGS: --source
+      PEP517_BUILD_ARGS: --sdist
       PY_COLORS: 1
       TOXENV: build-dists,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
