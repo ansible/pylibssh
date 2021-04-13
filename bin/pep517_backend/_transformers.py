@@ -7,8 +7,9 @@ from __future__ import (  # noqa: WPS422
 )
 
 from functools import partial, wraps
-from inspect import signature
 from itertools import chain
+
+from ._compat import signature  # noqa: WPS436
 
 
 __metadata__ = type  # pylint: disable=invalid-name  # make classes new-style
