@@ -1,0 +1,2 @@
+Switched using `pep517 <https://pep517.rtfd.io>`__ lib to
+`build <https://pypa-build.rtfd.io>`__ CLI -- :user:`webknjaz`
