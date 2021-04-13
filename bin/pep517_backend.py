@@ -7,9 +7,10 @@ from __future__ import (  # noqa: WPS422
 )
 
 import contextlib
-import functools
 import os
 import sys
+from functools import partial, wraps
+from inspect import signature
 from itertools import chain
 
 import toml
@@ -165,6 +166,31 @@ def _emit_opt_pairs(opt_pair):
         yield '='.join(map(str, (flag_opt, ) + pair))
 
 
+def _map_args_to_kwargs(func_sig, args, kwargs):
+    """Return all positional args converted into keyword-args."""
+    return dict(kwargs, **func_sig.bind(*args, **kwargs).arguments)
+
+
+def convert_to_kwargs_only(orig_func):
+    """Ensure a given function is called with kwargs only."""
+    orig_func_signature = signature(orig_func)
+    map_args_to_kwargs = partial(_map_args_to_kwargs, orig_func_signature)
+
+    @wraps(orig_func)  # noqa: WPS210, WPS430
+    def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
+        # NOTE: `pep517` lib calls PEP 517 hooks with positional arguments
+        # NOTE: making it harder to extract certain args by their names.
+        # NOTE: This is why we map all args to kwargs and pass them like
+        # NOTE: that further.
+        # Ref: https://github.com/pypa/pep517/issues/115
+        kwargs = map_args_to_kwargs(args, kwargs)
+        del args  # Prevent accidental `args` var usage  # noqa: WPS420
+
+        return orig_func(**kwargs)
+
+    return func_wrapper
+
+
 def pre_build_cython(orig_func):  # noqa: WPS210
     """Pre-build cython exts before invoking ``orig_func``.
 
@@ -174,8 +200,13 @@ def pre_build_cython(orig_func):  # noqa: WPS210
     :returns: function wrapper
     :rtype: callable
     """
-    @functools.wraps(orig_func)  # noqa: WPS210, WPS430
+    @wraps(orig_func)  # noqa: WPS210, WPS430
     def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
+        assert not args, (  # noqa: S101  # contract check, not user input
+            'This function only accepts keyword arguments'
+        )
+        del args  # Prevent accidental `args` var usage  # noqa: WPS420
+
         config = get_config()
 
         py_ver_arg = '-{maj_ver!s}'.format(maj_ver=sys.version_info.major)
@@ -196,8 +227,10 @@ def pre_build_cython(orig_func):  # noqa: WPS210
             cythonize_cli_cmd(cythonize_args)
         with patched_distutils_cmd_install():
             with patched_dist_has_ext_modules():
-                return orig_func(*args, **kwargs)
+                return orig_func(**kwargs)
     return func_wrapper
 
 
-build_wheel = pre_build_cython(build_wheel)  # pylint: disable=invalid-name
+build_wheel = convert_to_kwargs_only(  # pylint: disable=invalid-name
+    pre_build_cython(build_wheel),
+)
