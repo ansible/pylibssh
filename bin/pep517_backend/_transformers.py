@@ -6,10 +6,10 @@ from __future__ import (  # noqa: WPS422
     absolute_import, division, print_function,
 )
 
-from functools import partial, wraps
+from functools import partial
 from itertools import chain
 
-from ._compat import signature  # noqa: WPS436
+from ._compat import signature, wraps  # noqa: WPS436
 
 
 __metadata__ = type  # pylint: disable=invalid-name  # make classes new-style

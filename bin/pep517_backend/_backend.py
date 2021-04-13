@@ -9,7 +9,6 @@ from __future__ import (  # noqa: WPS422
 import contextlib
 import os
 import sys
-from functools import wraps
 
 import toml
 from expandvars import expandvars
@@ -25,6 +24,7 @@ from distutils.core import Distribution as DistutilsDistribution
 
 from Cython.Build.Cythonize import main as cythonize_cli_cmd
 
+from ._compat import wraps  # noqa: WPS436
 from ._transformers import (  # noqa: WPS436
     convert_to_kwargs_only, get_cli_kwargs_from_config,
     get_enabled_cli_flags_from_config,
