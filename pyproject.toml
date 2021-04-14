@@ -7,13 +7,14 @@ requires = [
   "toml",  # needed by in-tree build backend `bin/pep517_backend.py`
   "wheel",
   "expandvars",  # needed by in-tree build backend for env vars interpolation
+  "funcsigs;  python_version < '3.3'",  # py2 compat for in-tree build backend
 
   # Plugins
   "setuptools_scm[toml]>=3.5",
   "setuptools_scm_git_archive>=1.1",
 ]
 backend-path = ["bin"]  # requires 'Pip>=20' or 'pep517>=0.6.0'
-build-backend = "pep517_backend"
+build-backend = "pep517_backend.hooks"
 
 [tool.local.cythonize]
 # This attr can contain multiple globs

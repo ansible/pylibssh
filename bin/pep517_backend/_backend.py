@@ -7,14 +7,12 @@ from __future__ import (  # noqa: WPS422
 )
 
 import contextlib
-import functools
 import os
 import sys
-from itertools import chain
 
 import toml
 from expandvars import expandvars
-from setuptools.build_meta import (
+from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
     build_sdist, build_wheel, get_requires_for_build_sdist,
     get_requires_for_build_wheel, prepare_metadata_for_build_wheel,
 )
@@ -22,15 +20,16 @@ from setuptools.build_meta import (
 
 # isort: split
 from distutils.command.install import install as distutils_install_cmd
-from distutils.core import Distribution as distutils_distribution  # noqa: N813
+from distutils.core import Distribution as DistutilsDistribution
 
 from Cython.Build.Cythonize import main as cythonize_cli_cmd
 
-
-__all__ = (  # noqa: WPS317, WPS410
-    'build_sdist', 'build_wheel', 'get_requires_for_build_sdist',
-    'get_requires_for_build_wheel', 'prepare_metadata_for_build_wheel',
+from ._compat import wraps  # noqa: WPS436
+from ._transformers import (  # noqa: WPS436
+    convert_to_kwargs_only, get_cli_kwargs_from_config,
+    get_enabled_cli_flags_from_config,
 )
+
 
 __metadata__ = type  # pylint: disable=invalid-name  # make classes new-style
 
@@ -119,13 +118,13 @@ def patched_dist_has_ext_modules():
     :yields: None
     """
     # Without this, build_lib puts stuff under `*.data/platlib/` folder
-    orig_func = distutils_distribution.has_ext_modules
+    orig_func = DistutilsDistribution.has_ext_modules
 
-    distutils_distribution.has_ext_modules = lambda *args, **kwargs: True
+    DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True
     try:  # noqa: WPS501
         yield
     finally:
-        distutils_distribution.has_ext_modules = orig_func
+        DistutilsDistribution.has_ext_modules = orig_func
 
 
 @contextlib.contextmanager
@@ -153,18 +152,6 @@ def patched_env(env):
         os.environ.update(orig_env)
 
 
-def _emit_opt_pairs(opt_pair):
-    flag, flag_value = opt_pair
-    flag_opt = '--{name!s}'.format(name=flag)
-    if isinstance(flag_value, dict):
-        sub_pairs = flag_value.items()
-    else:
-        sub_pairs = ((flag_value, ), )
-
-    for pair in sub_pairs:  # noqa: WPS526
-        yield '='.join(map(str, (flag_opt, ) + pair))
-
-
 def pre_build_cython(orig_func):  # noqa: WPS210
     """Pre-build cython exts before invoking ``orig_func``.
 
@@ -174,20 +161,20 @@ def pre_build_cython(orig_func):  # noqa: WPS210
     :returns: function wrapper
     :rtype: callable
     """
-    @functools.wraps(orig_func)  # noqa: WPS210, WPS430
+    @wraps(orig_func)
     def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
+        assert not args, (  # noqa: S101  # contract check, not user input
+            'This function only accepts keyword arguments'
+        )
+        del args  # Prevent accidental `args` var usage  # noqa: WPS420
+
         config = get_config()
 
         py_ver_arg = '-{maj_ver!s}'.format(maj_ver=sys.version_info.major)
-        cli_flags = [
-            '--{flag}'.format(flag=flag)
-            for flag, is_enabled in config['flags'].items()
-            if is_enabled
-        ]
 
-        cli_kwargs = list(chain.from_iterable(
-            map(_emit_opt_pairs, config['kwargs'].items()),
-        ))
+        cli_flags = get_enabled_cli_flags_from_config(config['flags'])
+        cli_kwargs = get_cli_kwargs_from_config(config['kwargs'])
+
         cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
         if sys.version_info[0] == 2:  # cythonize wants str() internally
             # turn Unicode into native Python 2 `str`:
@@ -196,8 +183,10 @@ def pre_build_cython(orig_func):  # noqa: WPS210
             cythonize_cli_cmd(cythonize_args)
         with patched_distutils_cmd_install():
             with patched_dist_has_ext_modules():
-                return orig_func(*args, **kwargs)
+                return orig_func(**kwargs)
     return func_wrapper
 
 
-build_wheel = pre_build_cython(build_wheel)  # pylint: disable=invalid-name
+build_wheel = convert_to_kwargs_only(  # pylint: disable=invalid-name
+    pre_build_cython(build_wheel),
+)
