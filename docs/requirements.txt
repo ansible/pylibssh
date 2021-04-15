@@ -212,9 +212,9 @@ sphinxcontrib-serializinghtml==1.1.4 \
     --hash=sha256:eaa0eccc86e982a9b939b2b82d12cc5d013385ba5eadcc7e4fed23f4405f77bc \
     --hash=sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a
     # via sphinx
-sphinxcontrib-towncrier==0.1.0a1 \
-    --hash=sha256:3be22318c7928ccb1e4874f56d2376eddab8b9e65d68db9b2e5309c357c99eaa \
-    --hash=sha256:ecf0906802bc52e9af090b801716e65861e9691a82a56dbbfdda0c1d9c9b26ba
+sphinxcontrib-towncrier==0.2.0a0 \
+    --hash=sha256:31eed078e0a8b4c38dc30978dac8c53e2dfa7342ad8597d11816d1ea9ab0eabb \
+    --hash=sha256:3cd4295c0198e753d964e2c06ee4ecd91a73a8d103385d08af9b05487ae68dd0
     # via -r docs/requirements.in
 toml==0.10.1 \
     --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
