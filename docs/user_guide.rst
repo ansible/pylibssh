@@ -48,6 +48,22 @@ Connecting with remote SSH server
    :emphasize-lines: 7-13
 
 
+Connecting over GSSAPI
+----------------------
+
+.. attention::
+
+   This requires that your libssh is compiled with GSSAPI support
+   enabled.
+
+Using GSSAPI, password or private key is not necessary, but client and
+service principals may be specified.
+
+.. literalinclude:: _samples/gssapi.py
+   :language: python
+   :lines: 11-21
+
+
 Passing a command and reading response
 ======================================
 
