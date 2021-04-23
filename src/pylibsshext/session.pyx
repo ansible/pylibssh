@@ -189,8 +189,7 @@ cdef class Session(object):
         The default is set to True.
         :type look_for_keys: boolean
 
-        :param private_key: A private key to authenticate \
-                            the SSH session.
+        :param private_key: A private key to authenticate the SSH session.
         :type private_key: bytes
 
         :param private_key_password: A password for the private key.
@@ -198,6 +197,22 @@ cdef class Session(object):
 
         :param password: The password to authenticate the ssh session
         :type password: str
+
+        :param gssapi_server_identity: The service principal hostname to use.
+        For example for principal ``host/file.example.com@EXAMPLE.COM``, the hostname
+        would be ``file.example.com``. Not required for GSSAPI authentication.
+        :type gssapi_server_identity: str
+
+        :param gssapi_client_identity: The client principal name to use.
+        For example for principal ``user@EXAMPLE.COM``, the name would be ``user``.
+        Not required for GSSAPI authentication.
+        :type gssapi_server_identity: str
+
+        :param gssapi_delegate_credentials: Whether to forward your GSSAPI
+        identity to the remote server for use to connect from there to other
+        remote hosts. This is the equivalent of SSH Agent forwarding for GSSAPI.
+        The default is set to False.
+        :type gssapi_delegate_credentials: boolean
 
         :param host_key_checking: The flag to control is the server key in knownhosts
         file should be validated. It defaults to True
