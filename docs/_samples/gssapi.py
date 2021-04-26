@@ -23,10 +23,14 @@ except LibsshSessionException as ssh_exc:
     print(f'Failed to connect over SSH: {ssh_exc!s}')
 
 print(f'{ssh.is_connected=}')
+
 if ssh.is_connected:
     chan_shell = ssh.invoke_shell()
-    data_b = chan_shell.read_bulk_response(timeout=2, retry=10)
-    chan_shell.close()
-    print(data_b.decode())
+    try:
+        chan_shell.sendall(b'ls\n')
+        data_b = chan_shell.read_bulk_response(timeout=2, retry=10)
+        print(data_b.decode())
+    finally:
+        chan_shell.close()
 
     ssh.close()

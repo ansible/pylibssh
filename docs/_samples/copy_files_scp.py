@@ -22,14 +22,13 @@ except LibsshSessionException as ssh_exc:
 
 print(f'{ssh.is_connected=}')
 
-remote_file = '/etc/hosts'
-local_file = '/tmp/hosts'
-scp = ssh.scp()
-scp.get(remote_file, local_file)
+if ssh.is_connected:
+    remote_file = '/etc/hosts'
+    local_file = '/tmp/hosts'
+    scp = ssh.scp()
+    scp.get(remote_file, local_file)
 
-remote_file = '/etc/hosts'
-local_file = '/tmp/hosts'
-scp = ssh.scp()
-scp.put(remote_file, local_file)
+    scp = ssh.scp()
+    scp.put(remote_file, local_file)
 
 ssh.close()

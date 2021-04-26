@@ -35,7 +35,7 @@ Creating a SSH session
 
 .. literalinclude:: _samples/shell.py
    :language: python
-   :lines: -5
+   :end-at: ssh = Session()
    :emphasize-lines: 5
 
 
@@ -44,7 +44,8 @@ Connecting with remote SSH server
 
 .. literalinclude:: _samples/shell.py
    :language: python
-   :lines: 7-23
+   :start-at: HOST = 'CHANGEME'
+   :end-at: print(f'{ssh.is_connected=}')
    :emphasize-lines: 7-13
 
 
@@ -61,7 +62,9 @@ service principals may be specified.
 
 .. literalinclude:: _samples/gssapi.py
    :language: python
-   :lines: 11-21
+   :start-at: ssh.connect(
+   :end-before: except LibsshSessionException as ssh_exc:
+   :dedent: 4
 
 
 Passing a command and reading response
@@ -69,8 +72,10 @@ Passing a command and reading response
 
 .. literalinclude:: _samples/shell.py
    :language: python
-   :lines: 25-30
-   :emphasize-lines: 2
+   :start-at: ssh_channel = ssh.new_channel()
+   :end-at: ssh_channel.close()
+   :dedent: 4
+   :emphasize-lines: 3
 
 
 Opening a remote shell passing command and receiving response
@@ -78,8 +83,10 @@ Opening a remote shell passing command and receiving response
 
 .. literalinclude:: _samples/shell.py
    :language: python
-   :lines: 32-36
-   :emphasize-lines: 2-3
+   :start-at: chan_shell = ssh.invoke_shell()
+   :end-at: chan_shell.close()
+   :dedent: 4
+   :emphasize-lines: 3-4
 
 
 Fetch file from remote host
@@ -89,15 +96,17 @@ Using SCP:
 
 .. literalinclude:: _samples/copy_files_scp.py
    :language: python
-   :lines: 25-28
+   :lines: 26-29
+   :dedent: 4
    :emphasize-lines: 3-4
 
 Using SFTP:
 
 .. literalinclude:: _samples/copy_files_sftp.py
    :language: python
-   :lines: 25-29
-   :emphasize-lines: 3-4
+   :lines: 26-32
+   :dedent: 4
+   :emphasize-lines: 3,5
 
 
 Copy file to remote host
@@ -107,15 +116,17 @@ Using SCP:
 
 .. literalinclude:: _samples/copy_files_scp.py
    :language: python
-   :lines: 30-33
+   :lines: 26-27,31-32
+   :dedent: 4
    :emphasize-lines: 3-4
 
 Using SFTP:
 
 .. literalinclude:: _samples/copy_files_sftp.py
    :language: python
-   :lines: 31-35
-   :emphasize-lines: 3-4
+   :lines: 26-27,34-38
+   :dedent: 4
+   :emphasize-lines: 3,5
 
 
 Closing SSH session
@@ -123,4 +134,5 @@ Closing SSH session
 
 .. literalinclude:: _samples/shell.py
    :language: python
-   :lines: 38
+   :start-at: ssh.close()
+   :dedent: 4
