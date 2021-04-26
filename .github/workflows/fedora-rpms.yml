@@ -11,12 +11,7 @@ jobs:
     steps:
     - run: dnf install -y dnf-plugins-core rpm-build rpmdevtools rpmlint
     - run: rpmdev-setuptree
-    - run: >-
-        spectool
-        --all
-        --get-files
-        --sourcedir
-        rpm.spec
+    - run: spectool --all --get-files --sourcedir rpm.spec
     - uses: actions/checkout@v2
     - run: rpmlint ./rpm.spec
     - run: rpmbuild -bs ./rpm.spec
