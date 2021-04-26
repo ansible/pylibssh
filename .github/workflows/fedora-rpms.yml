@@ -15,7 +15,7 @@ jobs:
         spectool
         --all
         --get-files
-        --directory "$HOME/rpmbuild/SOURCES/"
+        --sourcedir
         rpm.spec
     - uses: actions/checkout@v2
     - run: rpmlint ./rpm.spec
