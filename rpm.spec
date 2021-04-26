@@ -24,8 +24,8 @@ Summary: Python bindings for libssh client specific to Ansible use case
 License: LGPL-2+
 URL:     https://github.com/ansible/pylibssh
 #Source0: .
-Source0: https://files.pythonhosted.org/packages/20/15/5d0abfbb294034d049f7777dbcc1638e634b13dcff7687063ac8350d95a1/ansible-pylibssh-0.2.0.tar.gz
-Source1: https://files.pythonhosted.org/packages/a4/8f/67123c5c9e63a658dffdd073c0b95a4d96e2152d1d9ffee754022360d4e1/expandvars-0.7.0.tar.gz
+Source0: %{pypi_source}
+Source1: https://files.pythonhosted.org/packages/source/a/expandvars/expandvars-0.7.0.tar.gz
 
 BuildRequires: gcc
 

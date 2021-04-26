@@ -11,8 +11,8 @@ jobs:
     steps:
     - run: dnf install -y dnf-plugins-core rpm-build rpmdevtools rpmlint
     - run: rpmdev-setuptree
-    - run: spectool --all --get-files --sourcedir rpm.spec
     - uses: actions/checkout@v2
+    - run: spectool --all --get-files --sourcedir rpm.spec
     - run: rpmlint ./rpm.spec
     - run: rpmbuild -bs ./rpm.spec
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.fc34.src.rpm
