@@ -100,9 +100,9 @@ mdit-py-plugins==0.2.5 \
     # via
     #   markdown-it-py
     #   myst-parser
-myst-parser==0.13.6 \
-    --hash=sha256:a448b3dcb39bc62a6954f5e18544b83d69ed69d8947cf01f8ebe8b654921b4bf \
-    --hash=sha256:bec01ecebe9b9c04322f8aebd6fd8e61d2cb9ab711d531065a374cc3dcb1d7be
+myst-parser==0.13.7 \
+    --hash=sha256:260355b4da8e8865fe080b0638d7f1ab1791dc4bed02a7a48630b6bad4249219 \
+    --hash=sha256:e4bc99e43e19f70d22e528de8e7cce59f7e8e7c4c34dcba203de92de7a7c7c85
     # via -r docs/requirements.in
 packaging==20.4 \
     --hash=sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8 \
