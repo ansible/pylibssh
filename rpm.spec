@@ -25,7 +25,7 @@ License: LGPL-2+
 URL:     https://github.com/ansible/pylibssh
 #Source0: .
 Source0: %{pypi_source}
-Source1: https://files.pythonhosted.org/packages/source/a/expandvars/expandvars-0.7.0.tar.gz
+Source1: %{pypi_source expandvars 0.7.0}
 
 BuildRequires: gcc
 
