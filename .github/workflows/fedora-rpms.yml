@@ -22,3 +22,6 @@ jobs:
     - run: rpmbuild -br ./rpm.spec
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.fc34.buildreqs.nosrc.rpm
     - run: rpmbuild -bb ./rpm.spec
+    - run: dnf install $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.fc34.x86_64.rpm
+    - run: >-
+        python3 -c 'from pylibsshext.session import Session; print(Session())'
