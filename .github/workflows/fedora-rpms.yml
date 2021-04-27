@@ -16,7 +16,8 @@ jobs:
     - run: rpmlint ./rpm.spec
     - run: rpmbuild -bs ./rpm.spec
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.fc34.src.rpm
-    - run: rpmbuild -br --nodeps ./rpm.spec
+    - run: >-
+        rpmbuild -br --nodeps ./rpm.spec || [ "$?" -eq 11 ]
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.fc34.buildreqs.nosrc.rpm
     - run: rpmbuild -br ./rpm.spec
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.fc34.buildreqs.nosrc.rpm
