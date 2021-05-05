@@ -32,6 +32,9 @@ OPTS_MAP = {
     "timeout": libssh.SSH_OPTIONS_TIMEOUT,
     "knownhosts": libssh.SSH_OPTIONS_KNOWNHOSTS,
     "proxycommand": libssh.SSH_OPTIONS_PROXYCOMMAND,
+    "gssapi_server_identity": libssh.SSH_OPTIONS_GSSAPI_SERVER_IDENTITY,
+    "gssapi_client_identity": libssh.SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY,
+    "gssapi_delegate_credentials": libssh.SSH_OPTIONS_GSSAPI_DELEGATE_CREDENTIALS,
 }
 OPTS_DIR_MAP = {
     "ssh_dir": libssh.SSH_OPTIONS_SSH_DIR,
@@ -144,8 +147,9 @@ cdef class Session(object):
             return ret
 
     def set_ssh_options(self, key, value):
-        cdef unsigned int port_i
-        cdef long timeout_i
+        cdef int value_int
+        cdef unsigned int value_uint
+        cdef long value_long
 
         key_m = None
         if key in OPTS_DIR_MAP:
@@ -154,12 +158,15 @@ cdef class Session(object):
             key_m = OPTS_MAP[key]
         else:
             raise LibsshSessionException("Unknown attribute name [%s]" % key)
-        if key == "port":
-            port_i = value
-            libssh.ssh_options_set(self._libssh_session, OPTS_MAP["port"], &port_i)
+        if key == "gssapi_delegate_credentials":
+            value_int = value
+            libssh.ssh_options_set(self._libssh_session, key_m, &value_int)
+        elif key == "port":
+            value_uint = value
+            libssh.ssh_options_set(self._libssh_session, key_m, &value_uint)
         elif key == "timeout":
-            timeout_i = value
-            libssh.ssh_options_set(self._libssh_session, OPTS_MAP["timeout"], &timeout_i)
+            value_long = value
+            libssh.ssh_options_set(self._libssh_session, key_m, &value_long)
         else:
             if isinstance(value, basestring):
                 value = value.encode("utf-8")
@@ -182,8 +189,7 @@ cdef class Session(object):
         The default is set to True.
         :type look_for_keys: boolean
 
-        :param private_key: A private key to authenticate \
-                            the SSH session.
+        :param private_key: A private key to authenticate the SSH session.
         :type private_key: bytes
 
         :param private_key_password: A password for the private key.
@@ -191,6 +197,22 @@ cdef class Session(object):
 
         :param password: The password to authenticate the ssh session
         :type password: str
+
+        :param gssapi_server_identity: The service principal hostname to use.
+        For example for principal ``host/file.example.com@EXAMPLE.COM``, the hostname
+        would be ``file.example.com``. Not required for GSSAPI authentication.
+        :type gssapi_server_identity: str
+
+        :param gssapi_client_identity: The client principal name to use.
+        For example for principal ``user@EXAMPLE.COM``, the name would be ``user``.
+        Not required for GSSAPI authentication.
+        :type gssapi_server_identity: str
+
+        :param gssapi_delegate_credentials: Whether to forward your GSSAPI
+        identity to the remote server for use to connect from there to other
+        remote hosts. This is the equivalent of SSH Agent forwarding for GSSAPI.
+        The default is set to False.
+        :type gssapi_delegate_credentials: boolean
 
         :param host_key_checking: The flag to control is the server key in knownhosts
         file should be validated. It defaults to True
@@ -268,6 +290,15 @@ cdef class Session(object):
             # try authenticating with public keys
             try:
                 self.authenticate_pubkey()
+            except LibsshSessionException as ex:
+                saved_exception = ex
+            else:
+                return
+
+        if supported_auth & libssh.SSH_AUTH_METHOD_GSSAPI_MIC:
+            # try authenticating with GSSAPI with mic
+            try:
+                self.authenticate_gssapi_with_mic()
             except LibsshSessionException as ex:
                 saved_exception = ex
             else:
@@ -443,6 +474,20 @@ cdef class Session(object):
 
         if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
             raise LibsshSessionException("Failed to authenticate with keyboard-interactive: {err}".format(err=self._get_session_error_str()))
+
+    def authenticate_gssapi_with_mic(self):
+        """Authenticate this session using gssapi-with-mic authentication.
+
+        :raises LibsshSessionException: If authentication failed.
+
+        :return: Nothing.
+        :rtype: NoneType
+        """
+        cdef int rc
+        rc = libssh.ssh_userauth_gssapi(self._libssh_session)
+
+        if rc in (libssh.SSH_AUTH_ERROR, libssh.SSH_AUTH_DENIED):
+            raise LibsshSessionException("Failed to authenticate with gssapi-with-mic: {err}".format(err=self._get_session_error_str()))
 
     def new_channel(self):
         return Channel(self)

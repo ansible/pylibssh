@@ -22,16 +22,19 @@ except LibsshSessionException as ssh_exc:
 
 print(f'{ssh.is_connected=}')
 
-remote_file = '/etc/hosts'
-local_file = '/tmp/hosts'
-sftp = ssh.sftp()
-sftp.get(remote_file, local_file)
-sftp.close()
+if ssh.is_connected:
+    remote_file = '/etc/hosts'
+    local_file = '/tmp/hosts'
+    sftp = ssh.sftp()
+    try:
+        sftp.get(remote_file, local_file)
+    finally:
+        sftp.close()
 
-remote_file = '/etc/hosts'
-local_file = '/tmp/hosts'
-sftp = ssh.sftp()
-sftp.put(remote_file, local_file)
-sftp.close()
+    sftp = ssh.sftp()
+    try:
+        sftp.put(remote_file, local_file)
+    finally:
+        sftp.close()
 
 ssh.close()

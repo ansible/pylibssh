@@ -188,6 +188,7 @@ cdef extern from "libssh/libssh.h" nogil:
     int ssh_userauth_publickey_auto(ssh_session session, const char *username, const char *passphrase)
     int ssh_userauth_password(ssh_session session, const char *username, const char *password)
     int ssh_userauth_kbdint(ssh_session session, const char *username, const char *submethods)
+    int ssh_userauth_gssapi(ssh_session session)
     const char *ssh_userauth_kbdint_getinstruction(ssh_session session)
     const char *ssh_userauth_kbdint_getname(ssh_session session)
     int ssh_userauth_kbdint_getnprompts(ssh_session session)
