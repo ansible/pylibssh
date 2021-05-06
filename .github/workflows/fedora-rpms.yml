@@ -48,3 +48,25 @@ jobs:
     - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.el8.x86_64.rpm
     - run: >-
         python3 -c 'from pylibsshext.session import Session; print(Session())'
+
+  rhel-rpms:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.access.redhat.com/ubi8/ubi
+    steps:
+    - run: dnf install -y dnf-plugins-core rpm-build
+    - run: >-
+        rpm -i
+        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/cmake-filesystem-3.18.2-9.el8.x86_64.rpm
+        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/libssh-devel-0.9.4-2.el8.x86_64.rpm
+      #- run: rpmdev-setuptree  # ??
+    - run: mkdir -pv ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+    - uses: actions/checkout@v2
+    #- run: spectool --all --get-files --sourcedir rhel-rpm.spec
+    #- run: rpmlint ./rhel-rpm.spec
+    - run: rpmbuild --undefine=_disable_source_fetch -bs ./rhel-rpm.spec
+    - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.el8.src.rpm
+    - run: rpmbuild -bb ./rhel-rpm.spec
+    - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.el8.x86_64.rpm
+    - run: >-
+        python3 -c 'from pylibsshext.session import Session; print(Session())'
