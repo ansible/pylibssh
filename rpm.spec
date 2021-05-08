@@ -1,13 +1,3 @@
-# Running this should be enough to build an SRPM and a binary RPM:
-# dnf install -y dnf-plugins-core rpm-build rpmdevtools rpmlint && \
-#   rpmdev-setuptree && \
-#   cd /io && \
-#   spectool -R -a -g centos-rpm.spec && \
-#   rpmlint rpm.spec && \
-#   rpmbuild -bs rpm.spec && \
-#   dnf builddep -y /root/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.fc34.src.rpm && \
-#   rpmbuild -bb rpm.spec
-
 %global pypi_name ansible-pylibssh
 %global python_importable_name pylibsshext
 # RHEL or CentOS:
@@ -21,7 +11,7 @@ Version: 0.2.0
 Release: 1%{?dist}
 Summary: Python bindings for libssh client specific to Ansible use case
 
-#BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+#BuildRoot: %%{_tmppath}/%%{name}-%%{version}-%%{release}-buildroot
 License: LGPL-2+
 URL:     https://github.com/ansible/pylibssh
 Source0: %{pypi_source}

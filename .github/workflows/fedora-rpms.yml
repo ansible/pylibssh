@@ -40,11 +40,11 @@ jobs:
     - run: dnf install -y dnf-plugins-core rpm-build rpmdevtools rpmlint
     - run: rpmdev-setuptree
     - uses: actions/checkout@v2
-    - run: spectool --all --get-files --sourcedir centos-rpm.spec
-    - run: rpmlint ./centos-rpm.spec
-    - run: rpmbuild -bs ./centos-rpm.spec
+    - run: spectool --all --get-files --sourcedir rpm.spec
+    - run: rpmlint ./rpm.spec
+    - run: rpmbuild -bs ./rpm.spec
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.el8.src.rpm
-    - run: rpmbuild -bb ./centos-rpm.spec
+    - run: rpmbuild -bb ./rpm.spec
     - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.el8.x86_64.rpm
     - run: >-
         python3 -c 'from pylibsshext.session import Session; print(Session())'
@@ -62,11 +62,9 @@ jobs:
       #- run: rpmdev-setuptree  # ??
     - run: mkdir -pv ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
     - uses: actions/checkout@v2
-    #- run: spectool --all --get-files --sourcedir rhel-rpm.spec
-    #- run: rpmlint ./rhel-rpm.spec
-    - run: rpmbuild --undefine=_disable_source_fetch -bs ./rhel-rpm.spec
+    - run: rpmbuild --undefine=_disable_source_fetch -bs ./rpm.spec
     - run: dnf builddep -y $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-0.2.0-1.el8.src.rpm
-    - run: rpmbuild -bb ./rhel-rpm.spec
+    - run: rpmbuild -bb ./rpm.spec
     - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.el8.x86_64.rpm
     - run: >-
         python3 -c 'from pylibsshext.session import Session; print(Session())'
