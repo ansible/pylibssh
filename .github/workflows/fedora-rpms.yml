@@ -25,6 +25,11 @@ jobs:
     - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.fc34.x86_64.rpm
     - run: >-
         python3 -c 'from pylibsshext.session import Session; print(Session())'
+    - name: Store RPM and SRPM as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: fedora--srpm-n-rpm
+        path: ~/rpmbuild/{,S}RPMS/
 
   centos-rpms:
     strategy:
@@ -48,6 +53,11 @@ jobs:
     - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.el8.x86_64.rpm
     - run: >-
         python3 -c 'from pylibsshext.session import Session; print(Session())'
+    - name: Store RPM and SRPM as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.target-container }}--srpm-n-rpm
+        path: ~/rpmbuild/{,S}RPMS/
 
   rhel-rpms:
     runs-on: ubuntu-latest
@@ -68,3 +78,8 @@ jobs:
     - run: dnf install -y $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-0.2.0-1.el8.x86_64.rpm
     - run: >-
         python3 -c 'from pylibsshext.session import Session; print(Session())'
+    - name: Store RPM and SRPM as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ubi8--srpm-n-rpm
+        path: ~/rpmbuild/{,S}RPMS/
