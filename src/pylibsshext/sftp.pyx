@@ -70,7 +70,7 @@ cdef class SFTP:
                 written = sftp.sftp_write(rf, PyBytes_AS_STRING(buffer), length)
                 if written != length:
                     sftp.sftp_close(rf)
-                    raise LibsshSFTPException("Writing to remote file [%s] failed" % remote_file)
+                    raise LibsshSFTPException("Writing to remote file [%s] failed with error [%s]" % (remote_file, MSG_MAP.get(self._get_sftp_error_str())))
                 buffer = f.read(1024)
             sftp.sftp_close(rf)
 
