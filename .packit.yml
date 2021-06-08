@@ -1,0 +1,45 @@
+---
+# actions:
+#   create-archive:
+#   create-patches:
+#   fix-spec-file:
+#   get-current-version:
+#   post-upstream-clone:
+# allowed_gpg_keys:
+# - 5DE3E0509C47EA3CF04A42D34AEE18F83AFDEB23  # GH web UI commit signing key
+archive_root_dir_template: >-
+  {upstream_pkg_name}-{version}
+copy_upstream_release_description: false
+create_pr: true  # in dist-git
+dist_git_base_url: https://src.fedoraproject.org/
+dist_git_namespace: rpms
+downstream_package_name: python3-ansible-pylibssh
+jobs:
+- job: copr_build
+  trigger: pull_request
+  metadata:
+    targets:
+    # - fedora-all
+    - fedora-stable
+- job: tests
+  trigger: pull_request
+  metadata:
+    targets: fedora-stable
+- job: propose_downstream
+  trigger: release
+  metadata:
+    dist_git_branches: fedora-all
+notifications:
+  pull_request:
+    successful_build: true
+patch_generation_ignore_paths: []
+patch_generation_patch_id_digits: 4
+sources: []
+specfile_path: packaging/rpm/ansible-pylibssh.spec  # defaults to $downstream_package_name.spec if downstream_package_name is set.
+# spec_source_id: 0
+sync_changelog: false
+# synced_files: []
+upstream_package_name: ansible-pylibssh
+upstream_project_url: https://github.com/ansible/pylibssh
+upstream_tag_template: v{version}
+...
