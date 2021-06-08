@@ -1,0 +1,86 @@
+---
+
+actions:
+  changelog-entry: >-
+    echo Dummy log https://github.com/packit/packit-service/issues/1659
+  # post-upstream-clone: []
+  create-archive:
+  - >-
+    bash -c '
+    echo %upstream_version "${PACKIT_PROJECT_VERSION}"
+    |
+    tee ~/.rpmmacros
+    '
+  - >-  # NOTE: defining `%{rhel}` lets the spectool download all the sources
+    bash -c '
+    spectool
+    --define "upstream_version ${PACKIT_PROJECT_VERSION}"
+    --define "rhel 666"
+    --all --get-files
+    --sourcedir packaging/rpm/ansible-pylibssh.spec
+    '
+  - tox -e build-dists -qq -- --sdist
+  - sh -c 'echo dist/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
+  get-current-version:
+  - >-
+    bash -c "
+      python3 -m setuptools_scm  | sed 's/.*Guessed Version\s\+//g'
+    "
+
+# allowed_gpg_keys:
+# - 5DE3E0509C47EA3CF04A42D34AEE18F83AFDEB23  # GH web UI commit signing key
+
+archive_root_dir_template: >-
+  {upstream_pkg_name}-{version}
+
+copy_upstream_release_description: false
+
+create_pr: true  # in dist-git
+
+dist_git_base_url: https://src.fedoraproject.org/
+dist_git_namespace: rpms
+
+downstream_package_name: python3-ansible-pylibssh
+
+jobs:
+- job: copr_build
+  targets:
+  # - epel-9
+  # - fedora-all
+  - fedora-development
+  - fedora-stable
+  trigger: pull_request
+- job: tests
+  targets:
+  # - epel-9
+  - fedora-development
+  - fedora-stable
+  trigger: pull_request
+- job: propose_downstream
+  dist_git_branches: fedora-all
+  trigger: release
+
+notifications:
+  pull_request:
+    successful_build: true
+
+patch_generation_ignore_paths: []
+patch_generation_patch_id_digits: 4
+
+# sources: []
+
+specfile_path: packaging/rpm/ansible-pylibssh.spec
+# spec_source_id: 0
+
+srpm_build_deps:  # The presense of `srpm_build_deps` enforces Copr env
+- python3-setuptools_scm+toml
+- tox
+
+sync_changelog: false
+# synced_files: []
+
+upstream_package_name: ansible-pylibssh
+upstream_project_url: https://github.com/ansible/pylibssh
+upstream_tag_template: v{version}
+
+...

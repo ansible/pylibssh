@@ -2,7 +2,7 @@
 
 # NOTE: The target version may be set dynamically via
 # NOTE: rpmbuild --define "upstream_version 0.2.1.dev125+g0b5bde0"
-%global upstream_version_fallback %(ls -t dist/%{pypi_name}-*.tar.gz | head -n 1 | sed 's#^dist\\/%{pypi_name}-\\(.*\\)\\.tar\\.gz$#\\1#')
+%global upstream_version_fallback %(ls -t dist/%{pypi_name}-*.tar.gz 2>/dev/null | head -n 1 | sed 's#^dist\\/%{pypi_name}-\\(.*\\)\\.tar\\.gz$#\\1#')
 # If "upstream_version" macro is unset, use the fallback defined above:
 %if "%{!?upstream_version:UNSET}" == "UNSET"
 %global upstream_version %{upstream_version_fallback}
