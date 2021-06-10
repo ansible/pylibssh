@@ -1,0 +1,2 @@
+Made ``auditwheel`` only keep one platform tag in the produced wheel
+names -- :user:`webknjaz`
