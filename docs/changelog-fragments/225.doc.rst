@@ -1,0 +1,2 @@
+Correct a link to the pip upgrade doc in our installation guide
+-- :user:`webknjaz`
