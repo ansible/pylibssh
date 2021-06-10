@@ -126,7 +126,7 @@ done
 for PY in $PYTHONS; do
     for whl in ${ORIG_WHEEL_DIR}/${DIST_NAME}-*-${PY}-linux_${ARCH}.whl; do
         >&2 echo Reparing "${whl}" for "${MANYLINUX_TARGET}"...
-        auditwheel repair --plat "${MANYLINUX_TARGET}" "${whl}" -w ${MANYLINUX_DIR}
+        auditwheel repair --only-plat --plat "${MANYLINUX_TARGET}" "${whl}" -w ${MANYLINUX_DIR}
     done
 done
 
