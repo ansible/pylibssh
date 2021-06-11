@@ -15,13 +15,13 @@ ML_LEGACY_TO_MODERN_MAP = {
 
 
 def to_modern_manylinux_tag(legacy_manylinux_tag):
-    return '_'.join((
-        ML_LEGACY_TO_MODERN_MAP.get(
-            legacy_manylinux_tag,
-            legacy_manylinux_tag,
-        ),
-        ARCH,
-    ))
+    try:
+        return '_'.join((
+            ML_LEGACY_TO_MODERN_MAP[legacy_manylinux_tag],
+            ARCH,
+        ))
+    except KeyError:
+        return legacy_manylinux_tag
 
 
 def make_aliased_manylinux_tag(manylinux_tag):
