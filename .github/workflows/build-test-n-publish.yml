@@ -676,6 +676,176 @@ jobs:
         path: dist
         retention-days: 4
 
+  build-rpms:
+    name: ${{ matrix.target-container.tag }}
+    needs:
+    - build-src
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        target-container:
+        - tag: fedora:34
+        - tag: centos:8
+        - tag: centos/centos:stream8
+          registry: quay.io
+        - tag: ubi8/ubi
+          registry: registry.access.redhat.com
+    runs-on: ubuntu-latest
+    container:
+      # NOTE: GHA has poor support for concat which is why I resorted to
+      # NOTE: using this ugly ternary syntax
+      image: >-
+        ${{
+          matrix.target-container.registry
+          && matrix.target-container.registry
+          || ''
+        }}${{
+          matrix.target-container.registry
+          && '/'
+          || ''
+        }}${{
+          matrix.target-container.tag
+        }}
+
+    steps:
+    - name: Enable EPEL repository
+      if: contains(matrix.target-container.tag, 'centos')
+      run: dnf install --assumeyes epel-release
+
+    - name: Install build tooling
+      run: >-
+        dnf install
+        --assumeyes
+        dnf-plugins-core
+        rpm-build
+        ${{
+            !contains(matrix.target-container.tag, 'ubi')
+            && 'rpmdevtools rpmlint'
+            || ''
+        }}
+
+    - name: Create rpmbuild directory structure on a community distro
+      if: >-
+        !contains(matrix.target-container.tag, 'ubi')
+      run: rpmdev-setuptree
+    - name: Create rpmbuild directory structure on RHEL
+      if: contains(matrix.target-container.tag, 'ubi')
+      run: mkdir -pv ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+    - name: Grab the source from Git
+      uses: actions/checkout@v2
+
+    - name: Set an SCM version in the spec
+      run: >-
+        sed -i
+        "s#^\(Version:\s\+\).*#\1${{ needs.pre-setup.outputs.dist_version }}#"
+        packaging/rpm/ansible-pylibssh.spec
+
+    - name: Lint the RPM spec file
+      if: >-
+        !contains(matrix.target-container.tag, 'ubi')
+      run: rpmlint packaging/rpm/ansible-pylibssh.spec
+
+    - name: Download all the dists
+      uses: actions/download-artifact@v2
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Copy sdist to the sources dir
+      run: >-
+        cp -v
+        dist/ansible-pylibssh-${{ needs.pre-setup.outputs.dist_version }}.tar.gz
+        ~/rpmbuild/SOURCES/
+
+    - name: Install static build dependencies missing from UBI
+      if: contains(matrix.target-container.tag, 'ubi')
+      run: >-
+        dnf install
+        --assumeyes
+        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/cmake-filesystem-3.18.2-9.el8.x86_64.rpm
+        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/libssh-devel-0.9.4-2.el8.x86_64.rpm
+
+    - name: Install static build requirements
+      run: dnf builddep --assumeyes --spec packaging/rpm/ansible-pylibssh.spec
+
+    - name: Fetch sources and patches on a community distro
+      if: >-
+        !contains(matrix.target-container.tag, 'ubi')
+      run: spectool --all --get-files --sourcedir packaging/rpm/ansible-pylibssh.spec
+
+    - name: Resolve and install dynamic build deps and build an SRPM on Fedora
+      # Ref: https://github.com/rpm-software-management/rpm/commit/58dcfdd
+      if: contains(matrix.target-container.tag, 'fedora')
+      run: |
+        while :
+        do
+          set +e
+          rpmbuild -br packaging/rpm/ansible-pylibssh.spec
+          [ "$?" -ne 11 ] && break
+          set -e
+          dnf builddep --assumeyes \
+            $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
+                needs.pre-setup.outputs.dist_version
+            }}-1.fc34.buildreqs.nosrc.rpm
+        done
+
+    - name: Build an SRPM on RHELish
+      if: >-
+        !contains(matrix.target-container.tag, 'fedora')
+      run: >-
+        rpmbuild
+        ${{
+            contains(matrix.target-container.tag, 'ubi')
+            && '--undefine=_disable_source_fetch'
+            || ''
+        }}
+        -bs
+        packaging/rpm/ansible-pylibssh.spec
+
+    - name: Build binary RPMs
+      run: >-
+        rpmbuild
+        --rebuild
+        $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
+            needs.pre-setup.outputs.dist_version
+        }}-1.${{
+            contains(matrix.target-container.tag, 'fedora')
+            && 'fc34'
+            || 'el8'
+        }}.src.rpm
+    - name: Install the packaged binary RPM on the system
+      run: >-
+        dnf
+        install
+        --assumeyes
+        $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-${{
+            needs.pre-setup.outputs.dist_version
+        }}-1.${{
+            contains(matrix.target-container.tag, 'fedora')
+            && 'fc34'
+            || 'el8'
+        }}.x86_64.rpm
+
+    - name: Smoke-test the installed library
+      run: >-
+        python3 -c
+        'from pylibsshext.session import Session; print(Session())'
+    - name: Produce artifact name
+      id: artifact-name
+      run: >-
+        normalized_container_id=$(
+            echo '${{ matrix.target-container.tag }}' | sed 's#[.\/:]#--#g'
+        );
+        echo "::set-output name=artifact-id::${normalized_container_id}"
+    - name: Store RPM and SRPM as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.artifact-name.outputs.artifact-id }}--srpm-n-rpm
+        path: |
+          ~/rpmbuild/SRPMS/
+          ~/rpmbuild/RPMS/
+
   test-matrix:
     name: >-
       Test 🐍
