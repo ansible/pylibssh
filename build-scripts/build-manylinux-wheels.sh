@@ -50,7 +50,7 @@ echo "${PYTHONS}" | >&2 tr ' ' '\n'
 
 MANYLINUX_TAG="$(
     /opt/python/cp39-cp39/bin/python \
-    "${IMAGE_SCRIPTS_DIR_PATH}/manylinux-mapping.py" \
+    "${IMAGE_SCRIPTS_DIR_PATH}/manylinux_mapping.py" \
     "${MANYLINUX_TARGET}"
 )"
 

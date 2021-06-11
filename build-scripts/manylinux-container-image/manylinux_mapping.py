@@ -8,10 +8,13 @@ import sys
 ARCH = platform.machine()
 
 
-ML_LEGACY_TO_MODERN_MAP = {
-    '_'.join(('manylinux1', ARCH)): 'manylinux_2_5',
-    '_'.join(('manylinux2010', ARCH)): 'manylinux_2_12',
-    '_'.join(('manylinux2014', ARCH)): 'manylinux_2_17',
+TAG_ARCH_SEP = '_'
+
+
+ML_LEGACY_TO_MODERN_MAP = {  # noqa: WPS407
+    TAG_ARCH_SEP.join(('manylinux1', ARCH)): 'manylinux_2_5',
+    TAG_ARCH_SEP.join(('manylinux2010', ARCH)): 'manylinux_2_12',
+    TAG_ARCH_SEP.join(('manylinux2014', ARCH)): 'manylinux_2_17',
 }
 
 
@@ -37,4 +40,4 @@ def make_aliased_manylinux_tag(manylinux_tag):
 
 
 if __name__ == '__main__':
-    print(make_aliased_manylinux_tag(sys.argv[1]))
+    print(make_aliased_manylinux_tag(sys.argv[1]))  # noqa: WPS421
