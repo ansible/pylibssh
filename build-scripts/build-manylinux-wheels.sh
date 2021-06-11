@@ -12,8 +12,11 @@ PYTHON_TARGET="${2}"
 
 set -Eeuo pipefail
 
-source get-static-deps-dir.sh
-source activate-userspace-tools.sh
+THIS_SCRIPT_DIR_PATH=$(dirname "$(readlink -m $(type -p "${0}"))")
+IMAGE_SCRIPTS_DIR_PATH="${THIS_SCRIPT_DIR_PATH}/manylinux-container-image"
+
+source "${IMAGE_SCRIPTS_DIR_PATH}/get-static-deps-dir.sh"
+source "${IMAGE_SCRIPTS_DIR_PATH}/activate-userspace-tools.sh"
 
 SRC_DIR=/io
 PERM_REF_HOST_FILE="${SRC_DIR}/setup.cfg"
@@ -45,6 +48,13 @@ fi
 echo "${PYTHONS}" | >&2 tr ' ' '\n'
 
 
+MANYLINUX_TAG="$(
+    /opt/python/cp39-cp39/bin/python \
+    "${IMAGE_SCRIPTS_DIR_PATH}/manylinux-mapping.py" \
+    "${MANYLINUX_TARGET}"
+)"
+
+
 # Avoid creation of __pycache__/*.py[c|o]
 export PYTHONDONTWRITEBYTECODE=1
 
@@ -57,7 +67,7 @@ then
 fi
 GIT_GLOBAL_ARGS="--git-dir=${SRC_DIR}/.git --work-tree=${SRC_DIR}"
 TESTS_SRC_DIR="${SRC_DIR}/tests"
-BUILD_DIR=$(mktemp -d "/tmp/${DIST_NAME}-${MANYLINUX_TARGET}-build.XXXXXXXXXX")
+BUILD_DIR=$(mktemp -d "/tmp/${DIST_NAME}-${MANYLINUX_TAG}-build.XXXXXXXXXX")
 TESTS_DIR="${BUILD_DIR}/tests"
 STATIC_DEPS_PREFIX="$(get_static_deps_dir)"
 
@@ -125,8 +135,8 @@ done
 # Bundle external shared libraries into the wheels
 for PY in $PYTHONS; do
     for whl in ${ORIG_WHEEL_DIR}/${DIST_NAME}-*-${PY}-linux_${ARCH}.whl; do
-        >&2 echo Reparing "${whl}" for "${MANYLINUX_TARGET}"...
-        auditwheel repair --plat "${MANYLINUX_TARGET}" "${whl}" -w ${MANYLINUX_DIR}
+        >&2 echo Reparing "${whl}" for "${MANYLINUX_TAG}"...
+        auditwheel repair --only-plat --plat "${MANYLINUX_TARGET}" "${whl}" -w ${MANYLINUX_DIR}
     done
 done
 
@@ -138,7 +148,7 @@ done
 >&2 echo =========================
 >&2 echo
 for PY in $PYTHONS; do
-    for WHEEL_FILE in `ls ${MANYLINUX_DIR}/${DIST_NAME}-*-${PY}-${MANYLINUX_TARGET}.whl`; do
+    for WHEEL_FILE in `ls ${MANYLINUX_DIR}/${DIST_NAME}-*-${PY}-${MANYLINUX_TAG}.whl`; do
         PIP_BIN="/opt/python/${PY}/bin/pip"
         >&2 echo Downloading ${WHEEL_FILE} deps using ${PIP_BIN}...
         ${PIP_BIN} download -d "${WHEEL_DEP_DIR}" "${WHEEL_FILE}" ${PIP_GLOBAL_ARGS}
@@ -151,7 +161,7 @@ done
 >&2 echo ===================
 >&2 echo
 for PY in $PYTHONS; do
-    VENV_NAME="${PY}-${MANYLINUX_TARGET}"
+    VENV_NAME="${PY}-${MANYLINUX_TAG}"
     VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
     VENV_BIN="/opt/python/${PY}/bin/virtualenv"
 
@@ -168,7 +178,7 @@ done
 >&2 echo ============================
 >&2 echo
 for PY in $PYTHONS; do
-    VENV_NAME="${PY}-${MANYLINUX_TARGET}"
+    VENV_NAME="${PY}-${MANYLINUX_TAG}"
     VENV_PATH="${VENVS_DIR}/${VENV_NAME}"
     PIP_BIN="${VENV_PATH}/bin/pip"
     >&2 echo Using ${PIP_BIN}...
@@ -182,7 +192,7 @@ done
 >&2 echo
 for PY in $PYTHONS; do
     WHEEL_BIN="/opt/python/${PY}/bin/wheel"
-    PLAT_TAG="${PY}-${MANYLINUX_TARGET}"
+    PLAT_TAG="${PY}-${MANYLINUX_TAG}"
     UNPACKED_DIR=${UNPACKED_WHEELS_DIR}/${PLAT_TAG}
     WHEEL_FILE=`ls ${MANYLINUX_DIR}/${DIST_NAME}-*-${PLAT_TAG}.whl`
     >&2 echo
@@ -223,6 +233,6 @@ popd
 chown -R --reference="${PERM_REF_HOST_FILE}" "${MANYLINUX_DIR}"/*
 mkdir -pv "${WHEELHOUSE_DIR}"
 chown --reference="${PERM_REF_HOST_FILE}" "${WHEELHOUSE_DIR}"
-cp -av "${MANYLINUX_DIR}"/"${DIST_NAME}"-*-${MANYLINUX_TARGET}.whl "${WHEELHOUSE_DIR}/"
+cp -av "${MANYLINUX_DIR}"/"${DIST_NAME}"-*-${MANYLINUX_TAG}.whl "${WHEELHOUSE_DIR}/"
 >&2 echo Final OS-specific wheels for ${DIST_NAME}:
 ls -l ${WHEELHOUSE_DIR}

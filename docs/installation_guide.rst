@@ -38,8 +38,8 @@ It should be enough for you to just have Python 2.7 or
     Python package distributions from PyPI and will try to
     fall back to building it from source which would require
     more extra dependencies to succeed.
-    You can upgrade by following :std:ref:`pip's upgrade
-    instructions <pip:upgrading pip>`.
+    You can upgrade by following :std:doc:`pip's upgrade
+    instructions <pip:user_guide>`.
 
 To install |project|, just run:
 
