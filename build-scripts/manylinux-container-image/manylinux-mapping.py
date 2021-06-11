@@ -1,4 +1,5 @@
 #! /usr/bin/env python3.9
+"""A helper script for producing dual aliased tags."""
 
 import platform
 import sys
@@ -15,6 +16,7 @@ ML_LEGACY_TO_MODERN_MAP = {
 
 
 def to_modern_manylinux_tag(legacy_manylinux_tag):
+    """Return a modern alias for the tag if it exists."""
     try:
         return '_'.join((
             ML_LEGACY_TO_MODERN_MAP[legacy_manylinux_tag],
@@ -25,6 +27,7 @@ def to_modern_manylinux_tag(legacy_manylinux_tag):
 
 
 def make_aliased_manylinux_tag(manylinux_tag):
+    """Produce a dual tag if it has a modern alias."""
     modern_tag = to_modern_manylinux_tag(manylinux_tag)
 
     if modern_tag != manylinux_tag:
