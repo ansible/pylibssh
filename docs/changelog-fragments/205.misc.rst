@@ -1,0 +1,1 @@
+Added an initial RPM spec continuously tested in the CI -- :user:`webknjaz`
