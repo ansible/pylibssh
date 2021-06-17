@@ -90,7 +90,14 @@ def ssh_clientkey_path(sshd_path):
     # noqa: DAR101
     """
     path = sshd_path / 'ssh_client_rsa_key'
-    keygen_cmd = 'ssh-keygen', '-N', '', '-f', str(path)
+    keygen_cmd = (  # noqa: WPS317
+        'ssh-keygen',
+        '-t', 'rsa',
+        '-b', '8192',
+        '-C', 'ansible-pylibssh integration tests key',
+        '-N', '',
+        '-f', str(path),
+    )
     subprocess.check_call(keygen_cmd)
     path.chmod(_FILE_PRIV_RW_OWNER)
     return path
