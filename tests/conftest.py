@@ -165,7 +165,14 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
         opt, 'LogLevel=DEBUG3',
         opt, 'HostKey={key!s}'.format(key=sshd_hostkey_path),
         opt, 'PidFile={pid!s}'.format(pid=sshd_path / 'sshd.pid'),
-        opt, 'UsePAM=no',
+
+        # NOTE: 'UsePAM no' is not supported on Fedora.
+        # Ref: https://bugzilla.redhat.com/show_bug.cgi?id=770756#c1
+        opt, 'UsePAM=yes',
+        opt, 'PasswordAuthentication=no',
+        opt, 'ChallengeResponseAuthentication=no',
+        opt, 'GSSAPIAuthentication=no',
+
         opt, 'StrictModes=no',
         opt, 'PermitEmptyPasswords=yes',
         opt, 'PermitRootLogin=yes',
