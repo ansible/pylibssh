@@ -15,6 +15,8 @@
 %global whl_glob %{normalized_dist_name}-%{version}-cp3*-cp3*-linux_%{_arch}.whl
 %endif
 
+%global buildroot_site_packages "%{buildroot}%{python3_sitearch}"
+
 Name:    python-%{pypi_name}
 Version: %{upstream_version}
 Release: 1%{?dist}
@@ -45,6 +47,12 @@ Source14: %{pypi_source typing_extensions 3.10.0.0}
 %endif
 %endif
 
+%if 0%{?fedora}
+# Test dependencies:
+BuildRequires: openssh-server
+%endif
+
+# Build dependencies:
 BuildRequires: gcc
 
 BuildRequires: libssh-devel
@@ -115,7 +123,7 @@ PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE13}
 # Fedora:
 %if 0%{?fedora}
 %generate_buildrequires
-%pyproject_buildrequires
+%pyproject_buildrequires -t
 %endif
 
 
@@ -152,11 +160,20 @@ PYTHONPATH=bin/ \
 # Set the installer to rpm so that pip knows not to manage this dist:
 sed \
   -i 's/pip/rpm/' \
-  %{buildroot}%{python3_sitearch}/%{normalized_dist_name}-%{version}.dist-info/INSTALLER
+  %{buildroot_site_packages}/%{normalized_dist_name}-%{version}.dist-info/INSTALLER
 %endif
 
 
 %check
+%if 0%{?fedora}
+export PYTHONPATH="%{buildroot_site_packages}:${PYTHONPATH}"
+%tox -e just-pytest -- \
+  -vv \
+  --installpkg '%{_builddir}/%{pypi_name}-%{upstream_version}/pyproject-wheeldir/%{whl_glob}' \
+  -- \
+  --deselect tests/unit/scp_test.py::test_get \
+  --deselect tests/unit/scp_test.py::test_put
+%endif
 
 
 %files -n python3-%{pypi_name} %{?fedora:-f %{pyproject_files}}
