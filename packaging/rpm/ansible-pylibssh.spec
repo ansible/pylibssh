@@ -45,11 +45,30 @@ Source12: %{pypi_source importlib_metadata 4.0.1}
 Source13: %{pypi_source zipp 3.4.1}
 Source14: %{pypi_source typing_extensions 3.10.0.0}
 %endif
+Source15: %{pypi_source pytest 6.2.4}
+Source16: %{pypi_source pytest-cov 2.12.1}
+Source17: %{pypi_source pytest-forked 1.3.0}
+Source18: %{pypi_source pytest-xdist 2.3.0}
+Source19: %{pypi_source iniconfig 1.1.1}
+Source20: %{pypi_source attrs 20.3.0}
+Source21: %{pypi_source pluggy 0.13.1}
+Source22: %{pypi_source py 1.10.0}
+Source23: %{pypi_source pyparsing 2.4.7}
+Source24: %{pypi_source coverage 5.5}
 %endif
 
-%if 0%{?fedora}
+# Not RHEL — specifically CentOS or Fedora:
+%if "%{?centos:SET}" == "SET" || "%{?fedora:SET}" == "SET"
 # Test dependencies:
 BuildRequires: openssh-server
+# Specifically CentOS, not RHEL:
+%if "%{?centos:SET}" == "SET"
+BuildRequires: python3dist(pytest)
+BuildRequires: python3dist(pytest-cov)
+BuildRequires: python3dist(pytest-forked)
+BuildRequires: python3dist(pytest-xdist)
+BuildRequires: python3dist(tox)
+%endif
 %endif
 
 # Build dependencies:
@@ -118,6 +137,16 @@ PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE12}
 PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE13}
 %{__python3} -m pip install --no-deps -t bin %{SOURCE14}
 %endif
+%{__python3} -m pip install --no-deps -t bin %{SOURCE15}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE16}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE17}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE18}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE19}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE20}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE21}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE22}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE23}
+%{__python3} -m pip install --no-deps -t bin %{SOURCE24}
 %endif
 
 # Fedora:
@@ -165,12 +194,23 @@ sed \
 
 
 %check
-%if 0%{?fedora}
+
 export PYTHONPATH="%{buildroot_site_packages}:${PYTHONPATH}"
+# Fedora:
+%if "%{?fedora:SET}" == "SET"
 %tox -e just-pytest -- \
   -vv \
   --installpkg '%{_builddir}/%{pypi_name}-%{upstream_version}/pyproject-wheeldir/%{whl_glob}' \
   -- \
+  --deselect tests/unit/scp_test.py::test_get \
+  --deselect tests/unit/scp_test.py::test_put
+%endif
+
+# CentOS, not RHEL:
+%if "%{?centos:SET}" == "SET"
+export PYTHONPATH="bin/:${PYTHONPATH}"
+%{__python3} -m pytest \
+  --no-cov \
   --deselect tests/unit/scp_test.py::test_get \
   --deselect tests/unit/scp_test.py::test_put
 %endif
