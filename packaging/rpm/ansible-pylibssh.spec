@@ -57,18 +57,18 @@ Source23: %{pypi_source pyparsing 2.4.7}
 Source24: %{pypi_source coverage 5.5}
 %endif
 
-# Not RHEL — specifically CentOS or Fedora:
-%if "%{?centos:SET}" == "SET" || "%{?fedora:SET}" == "SET"
 # Test dependencies:
+# keygen?
+BuildRequires: openssh
+# sshd?
 BuildRequires: openssh-server
-# Specifically CentOS, not RHEL:
-%if "%{?centos:SET}" == "SET"
+# RHEL or CentOS:
+%if 0%{?rhel}
 BuildRequires: python3dist(pytest)
 BuildRequires: python3dist(pytest-cov)
 BuildRequires: python3dist(pytest-forked)
 BuildRequires: python3dist(pytest-xdist)
 BuildRequires: python3dist(tox)
-%endif
 %endif
 
 # Build dependencies:
@@ -204,10 +204,8 @@ export PYTHONPATH="%{buildroot_site_packages}:${PYTHONPATH}"
   -- \
   --deselect tests/unit/scp_test.py::test_get \
   --deselect tests/unit/scp_test.py::test_put
-%endif
-
-# CentOS, not RHEL:
-%if "%{?centos:SET}" == "SET"
+# CentOS or RHEL:
+%else
 export PYTHONPATH="bin/:${PYTHONPATH}"
 %{__python3} -m pytest \
   --no-cov \

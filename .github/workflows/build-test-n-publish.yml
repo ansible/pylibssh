@@ -766,6 +766,22 @@ jobs:
         https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/cmake-filesystem-3.18.2-9.el8.x86_64.rpm
         https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/libssh-devel-0.9.4-2.el8.x86_64.rpm
 
+    - name: Install static test dependencies missing from UBI
+      if: contains(matrix.target-container.tag, 'ubi')
+      run: >-
+        rpm
+        -ivh
+        --nodeps
+        https://rpmfind.net/linux/centos/8.4.2105/BaseOS/x86_64/os/Packages/openssh-server-8.0p1-6.el8_4.2.x86_64.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-cov-2.6.0-1.el8.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-forked-1.0.2-1.el8.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-xdist-1.24.1-1.el8.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-tox-3.4.0-2.el8.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-execnet-1.7.1-1.el8.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-toml-0.10.0-3.el8.noarch.rpm
+        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/python3-coverage-4.5.1-7.el8.x86_64.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-apipkg-1.5-6.el8.noarch.rpm
+
     - name: Install static build requirements
       run: dnf builddep --assumeyes --spec packaging/rpm/ansible-pylibssh.spec
 
