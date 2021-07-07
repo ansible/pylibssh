@@ -167,6 +167,16 @@ snowballstemmer==2.0.0 \
     --hash=sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0 \
     --hash=sha256:df3bac3df4c2c01363f3dd2cfa78cce2840a79b9f1c2d2de9ce8d31683992f52
     # via sphinx
+sphinx==4.0.3 \
+    --hash=sha256:5747f3c855028076fcff1e4df5e75e07c836f0ac11f7df886747231092cfe4ad \
+    --hash=sha256:dff357e6a208eb7edb2002714733ac21a9fe597e73609ff417ab8cf0c6b4fbb8
+    # via
+    #   -r docs/requirements.in
+    #   myst-parser
+    #   sphinx-ansible-theme
+    #   sphinx-rtd-theme
+    #   sphinxcontrib-apidoc
+    #   sphinxcontrib-towncrier
 sphinx-ansible-theme==0.7.0 \
     --hash=sha256:653a5ae034d6eafa14ed3eb5206a501c16408f3fda7d2140e1bc9136a88cc903 \
     --hash=sha256:e74548c334e308bb7300845a7a4bd98f78be1229990c522f051bd65a4b279525
@@ -175,16 +185,6 @@ sphinx-rtd-theme==0.5.0 \
     --hash=sha256:22c795ba2832a169ca301cd0a083f7a434e09c538c70beb42782c073651b707d \
     --hash=sha256:373413d0f82425aaa28fb288009bf0d0964711d347763af2f1b65cafcb028c82
     # via sphinx-ansible-theme
-sphinx==4.0.2 \
-    --hash=sha256:b5c2ae4120bf00c799ba9b3699bc895816d272d120080fbc967292f29b52b48c \
-    --hash=sha256:d1cb10bee9c4231f1700ec2e24a91be3f3a3aba066ea4ca9f3bbe47e59d5a1d4
-    # via
-    #   -r docs/requirements.in
-    #   myst-parser
-    #   sphinx-ansible-theme
-    #   sphinx-rtd-theme
-    #   sphinxcontrib-apidoc
-    #   sphinxcontrib-towncrier
 sphinxcontrib-apidoc==0.3.0 \
     --hash=sha256:6671a46b2c6c5b0dca3d8a147849d159065e50443df79614f921b42fbd15cb09 \
     --hash=sha256:729bf592cf7b7dd57c4c05794f732dc026127275d785c2a5494521fdde773fb9
