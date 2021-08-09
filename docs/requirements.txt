@@ -177,9 +177,9 @@ sphinx==4.1.1 \
     #   sphinx-rtd-theme
     #   sphinxcontrib-apidoc
     #   sphinxcontrib-towncrier
-sphinx-ansible-theme==0.7.0 \
-    --hash=sha256:653a5ae034d6eafa14ed3eb5206a501c16408f3fda7d2140e1bc9136a88cc903 \
-    --hash=sha256:e74548c334e308bb7300845a7a4bd98f78be1229990c522f051bd65a4b279525
+sphinx-ansible-theme==0.8.0 \
+    --hash=sha256:998adeec8cef058308c545b16ff87e63098b89412ebefb7b36c1e400398c5a4a \
+    --hash=sha256:eb4088c241851fe9e73b048ccd341461a01ef10138d1d137c75d788ad1909b35
     # via -r docs/requirements.in
 sphinx-rtd-theme==0.5.0 \
     --hash=sha256:22c795ba2832a169ca301cd0a083f7a434e09c538c70beb42782c073651b707d \
