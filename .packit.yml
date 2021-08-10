@@ -1,6 +1,13 @@
 ---
-# actions:
-#   create-archive:
+actions:
+  create-archive:
+  - dnf install -y python3-tox
+  - >-
+    python3 -m
+    tox -e build-dists
+    -- 
+    --sdist
+  - ls dist/*.tar.gz
 #   create-patches:
 #   fix-spec-file:
 #   get-current-version:
