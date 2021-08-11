@@ -14,6 +14,8 @@ actions:
   - sh -c 'cd packaging/rpm/dist/; ln -sv ../"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   - sh -c 'echo packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   create-patches:
+  - pwd
+  - ls -alh
   - spectool --all --get-files --sourcedir packaging/rpm/ansible-pylibssh.spec
 #   fix-spec-file:
   get-current-version:
