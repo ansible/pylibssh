@@ -17,7 +17,17 @@ actions:
     --user
   - sh -c "python3 -m setuptools_scm | awk '{print $3}'"
   post-upstream-clone:
-  - spectool --all --get-files --sourcedir packaging/rpm/ansible-pylibssh.spec
+  - >-
+    python3 -m
+    pip install setuptools_scm
+    --user
+  - >-
+    bash -c "
+    spectool
+    --define "'"'"upstream_version $(python3 -m setuptools_scm | awk '{print $3}')"'"'"
+    --all --get-files
+    --sourcedir packaging/rpm/ansible-pylibssh.spec
+    "
 # allowed_gpg_keys:
 # - 5DE3E0509C47EA3CF04A42D34AEE18F83AFDEB23  # GH web UI commit signing key
 archive_root_dir_template: >-
