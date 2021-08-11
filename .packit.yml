@@ -1,12 +1,19 @@
 ---
 actions:
   create-archive:
-  - dnf install -y python3-tox
+  - >-
+    python3 -m
+    pip install tox
+    --user
   - >-
     python3 -m
     tox -e build-dists
     -- 
     --sdist
+  - echo "${PACKIT_PROJECT_NAME_VERSION}"
+  - echo "${PACKIT_PROJECT_VERSION}"
+  - ls
+  - ls dist/
   - ls dist/*.tar.gz
 #   create-patches:
 #   fix-spec-file:
