@@ -17,7 +17,15 @@ actions:
   - ls dist/*.tar.gz
 #   create-patches:
 #   fix-spec-file:
-#   get-current-version:
+  get-current-version:
+  - >-
+    python3 -m
+    pip install setuptools_scm
+    --user
+  - >-
+    python3 -m setuptools_scm
+    |
+    awk '{print $3}'
 #   post-upstream-clone:
 # allowed_gpg_keys:
 # - 5DE3E0509C47EA3CF04A42D34AEE18F83AFDEB23  # GH web UI commit signing key
