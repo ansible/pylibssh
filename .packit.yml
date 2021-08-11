@@ -9,7 +9,7 @@ actions:
   - >-
     bash -c '
     spectool
-    --define "upstream_version ${PACKIT_PROJECT_NAME_VERSION}"
+    --define "upstream_version ${PACKIT_PROJECT_VERSION}"
     --all --get-files
     --sourcedir packaging/rpm/ansible-pylibssh.spec
     '
