@@ -19,6 +19,8 @@ actions:
     -- 
     --sdist
     --outdir packaging/rpm/
+  - mkdir -p dist/
+  - sh -c 'ln -s ../packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz dist/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   - sh -c 'echo packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   # create-patches:
   # fix-spec-file:
