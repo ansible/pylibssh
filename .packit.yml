@@ -12,6 +12,7 @@ actions:
   - sh -c 'ln -sv packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz dist/'
   - mkdir -pv packaging/rpm/dist/
   - sh -c 'cd packaging/rpm/dist/; ln -sv ../"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
+  - ls -alh dist/ packaging/rpm/dist/ packaging/rpm/
   - sh -c 'echo packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   create-patches:
   - pwd
