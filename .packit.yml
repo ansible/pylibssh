@@ -1,10 +1,11 @@
 ---
 actions:
-  create-archive:
+  post-upstream-clone:
   - >-
     python3 -m
     pip install setuptools_scm tox
     --user
+  create-archive:
   - >-
     bash -c '
     spectool
@@ -22,10 +23,6 @@ actions:
   # create-patches:
   # fix-spec-file:
   get-current-version:
-  - >-
-    python3 -m
-    pip install setuptools_scm
-    --user
   - sh -c "python3 -m setuptools_scm | awk '{print $3}'"
   # post-upstream-clone:
 # allowed_gpg_keys:
