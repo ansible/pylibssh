@@ -8,6 +8,8 @@ actions:
     -- 
     --sdist
     --outdir packaging/rpm/
+  - mkdir -pv dist
+  - sh -c 'ln -sv packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz dist/'
   - sh -c 'echo packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   create-patches:
   - spectool --all --get-files --sourcedir packaging/rpm/ansible-pylibssh.spec
