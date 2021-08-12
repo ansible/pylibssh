@@ -19,8 +19,8 @@ actions:
     -- 
     --sdist
     --outdir packaging/rpm/
-  - mkdir -p dist/
-  - sh -c 'ln -s ../packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz dist/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
+  # workaround for https://github.com/packit/packit/issues/1334
+  - sh -c 'mkdir -p dist/ && cp -av packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz dist/'
   - sh -c 'echo packaging/rpm/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
   # create-patches:
   # fix-spec-file:
