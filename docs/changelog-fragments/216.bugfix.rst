@@ -1,1 +1,1 @@
-Added additional error reporting to SFTP write errors -- by :user:`Qalthos`
+Changed ``sftp.sftp_get`` to write files as bytes rather than assuming files are valid UTF8 -- by :user:`Qalthos`
