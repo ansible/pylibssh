@@ -83,7 +83,7 @@ pytest-parametrize-values-row-type = tuple
 
 # flake8-eradicate
 # E800:
-eradicate-whitelist-extend = distutils:\s+libraries\s+=\s+|isort:\s+\w+
+eradicate-whitelist-extend = distutils:\s+libraries\s+=\s+|isort:\s+\w+|NAME = "VALUE"
 
 # wemake-python-styleguide
 show-source = true
