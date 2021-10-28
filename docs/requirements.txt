@@ -16,9 +16,9 @@ attrs==19.3.0 \
     --hash=sha256:08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c \
     --hash=sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72
     # via markdown-it-py
-babel==2.8.0 \
-    --hash=sha256:1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38 \
-    --hash=sha256:d670ea0b10f8b723672d3a6abeb87b565b244da220d76b4dba1b66269ec152d4
+babel==2.9.1 \
+    --hash=sha256:ab49e12b91d937cd11f0b67cb259a57ab4ad2b59ac7a3b41d6c06c0ac5b0def9 \
+    --hash=sha256:bc0c176f9f6a994582230df350aa6e05ba2ebe4b3ac317eab29d9be5d2768da0
     # via sphinx
 certifi==2020.6.20 \
     --hash=sha256:5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3 \
@@ -105,7 +105,7 @@ mdit-py-plugins==0.2.8 \
 myst-parser==0.15.2 \
     --hash=sha256:40124b6f27a4c42ac7f06b385e23a9dcd03d84801e9c7130b59b3729a554b1f9 \
     --hash=sha256:f7f3b2d62db7655cde658eb5d62b2ec2a4631308137bd8d10f296a40d57bbbeb
-    # via -r docs/requirements.in
+    # via -r requirements.in
 packaging==20.4 \
     --hash=sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8 \
     --hash=sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181
@@ -158,7 +158,7 @@ requests==2.24.0 \
 setuptools-scm==6.0.1 \
     --hash=sha256:c3bd5f701c8def44a5c0bfe8d407bef3f80342217ef3492b951f3777bd2d915c \
     --hash=sha256:d1925a69cb07e9b29416a275b9fadb009a23c148ace905b2fb220649a6c18e92
-    # via -r docs/requirements.in
+    # via -r requirements.in
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced
@@ -171,7 +171,7 @@ sphinx==4.2.0 \
     --hash=sha256:94078db9184491e15bce0a56d9186e0aec95f16ac20b12d00e06d4e36f1058a6 \
     --hash=sha256:98a535c62a4fcfcc362528592f69b26f7caec587d32cd55688db580be0287ae0
     # via
-    #   -r docs/requirements.in
+    #   -r requirements.in
     #   myst-parser
     #   sphinx-ansible-theme
     #   sphinx-rtd-theme
@@ -180,7 +180,7 @@ sphinx==4.2.0 \
 sphinx-ansible-theme==0.8.0 \
     --hash=sha256:998adeec8cef058308c545b16ff87e63098b89412ebefb7b36c1e400398c5a4a \
     --hash=sha256:eb4088c241851fe9e73b048ccd341461a01ef10138d1d137c75d788ad1909b35
-    # via -r docs/requirements.in
+    # via -r requirements.in
 sphinx-rtd-theme==0.5.0 \
     --hash=sha256:22c795ba2832a169ca301cd0a083f7a434e09c538c70beb42782c073651b707d \
     --hash=sha256:373413d0f82425aaa28fb288009bf0d0964711d347763af2f1b65cafcb028c82
@@ -188,7 +188,7 @@ sphinx-rtd-theme==0.5.0 \
 sphinxcontrib-apidoc==0.3.0 \
     --hash=sha256:6671a46b2c6c5b0dca3d8a147849d159065e50443df79614f921b42fbd15cb09 \
     --hash=sha256:729bf592cf7b7dd57c4c05794f732dc026127275d785c2a5494521fdde773fb9
-    # via -r docs/requirements.in
+    # via -r requirements.in
 sphinxcontrib-applehelp==1.0.2 \
     --hash=sha256:806111e5e962be97c29ec4c1e7fe277bfd19e9652fb1a4392105b43e01af885a \
     --hash=sha256:a072735ec80e7675e3f432fcae8610ecf509c5f1869d17e2eecff44389cdbc58
@@ -216,7 +216,7 @@ sphinxcontrib-serializinghtml==1.1.5 \
 sphinxcontrib-towncrier==0.2.0a0 \
     --hash=sha256:31eed078e0a8b4c38dc30978dac8c53e2dfa7342ad8597d11816d1ea9ab0eabb \
     --hash=sha256:3cd4295c0198e753d964e2c06ee4ecd91a73a8d103385d08af9b05487ae68dd0
-    # via -r docs/requirements.in
+    # via -r requirements.in
 toml==0.10.1 \
     --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
     --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88
