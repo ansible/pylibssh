@@ -91,6 +91,9 @@ BuildRequires: python3dist(importlib-metadata)
 # `pyproject-rpm-macros` provides %%pyproject_buildrequires
 BuildRequires: pyproject-rpm-macros
 
+# `python3-pip` is used to install vendored build deps
+BuildRequires: python3-pip
+
 # `python3-toml` is not retrieved by %%pyproject_buildrequires for some reason
 BuildRequires: python3-toml
 %endif
