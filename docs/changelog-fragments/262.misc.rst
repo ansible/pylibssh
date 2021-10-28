@@ -1,0 +1,2 @@
+Declare ``python3-pip`` a build dependency under Fedora fixing the RPM
+creation job in GitHub Actions CI/CD under Fedora -- :user:`webknjaz`
