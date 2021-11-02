@@ -1,6 +1,6 @@
 ---
 repos:
-- repo: git://github.com/timothycrosley/isort
+- repo: https://github.com/timothycrosley/isort
   rev: 5.1.1
   hooks:
   - id: isort
@@ -10,17 +10,17 @@ repos:
       ^.*\.p(xd|y|yx)$
     types: [file]
 
-- repo: git://github.com/asottile/add-trailing-comma
+- repo: https://github.com/asottile/add-trailing-comma
   rev: v0.7.1
   hooks:
   - id: add-trailing-comma
 
-- repo: git://github.com/Lucas-C/pre-commit-hooks
+- repo: https://github.com/Lucas-C/pre-commit-hooks
   rev: v1.1.6
   hooks:
   - id: remove-tabs
 
-- repo: git://github.com/pre-commit/pre-commit-hooks
+- repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.3.0
   hooks:
   # Side-effects:
@@ -74,14 +74,14 @@ repos:
       ^docs/_samples/.*\.py$
     types: [file]
 
-- repo: git://github.com/Lucas-C/pre-commit-hooks-markup
+- repo: https://github.com/Lucas-C/pre-commit-hooks-markup
   rev: v1.0.0
   hooks:
   - id: rst-linter
     files: >-
       ^README\.rst$
 
-- repo: git://github.com/pycqa/pydocstyle.git
+- repo: https://github.com/pycqa/pydocstyle.git
   rev: 5.0.2
   hooks:
   - id: pydocstyle
