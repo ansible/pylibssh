@@ -1,0 +1,2 @@
+Replaced git protocols in pre-commit config with https now that GitHub has turned
+off git protocol access -- :user:`Qalthos`
