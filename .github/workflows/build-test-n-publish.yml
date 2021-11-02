@@ -220,7 +220,7 @@ jobs:
           return 1
         }
 
-        LONG_VER_SUGGESTIONS=$(git ls-remote --sort -v:refname --tags git://github.com/python/cpython.git "${{ matrix.python-version }}*" "v${{ matrix.python-version }}*" | grep -v '\^{}$' | awk '{print$2}' | sed 's#^refs/tags/##;s#^v##' | grep -v '[abcepr]')
+        LONG_VER_SUGGESTIONS=$(git ls-remote --sort -v:refname --tags https://github.com/python/cpython.git "${{ matrix.python-version }}*" "v${{ matrix.python-version }}*" | grep -v '\^{}$' | awk '{print$2}' | sed 's#^refs/tags/##;s#^v##' | grep -v '[abcepr]')
         find_last_macos_py ${LONG_VER_SUGGESTIONS}
     - name: Install Python from python.org
       run: |
