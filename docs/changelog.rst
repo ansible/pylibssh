@@ -12,6 +12,90 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+v0.3.0 (2021-11-03)
+===================
+
+Bugfixes
+^^^^^^^^
+
+- Changed ``sftp.sftp_get`` to write files as bytes rather than assuming files are valid UTF8 -- by :user:`Qalthos`
+  (:issue:`216`)
+
+
+Features
+^^^^^^^^
+
+- Started building platform-specific ``manylinux2010``, ``manylinux2014``
+  and ``manylinux_2_24`` wheels for AARCH64, ppc64le and s390x
+  architectures as introduced by :pep:`599` and :pep:`600`
+  -- :user:`webknjaz`
+  (:issue:`187`)
+- Added gssapi-with-mic support for authentication -- by :user:`Qalthos`
+  (:issue:`195`)
+
+
+Documentation
+^^^^^^^^^^^^^
+
+- Correct a link to the pip upgrade doc in our installation guide
+  -- :user:`webknjaz`
+  (:issue:`225`)
+
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+- Started building AARCH64 base images with Buildah+Podman in GitHub
+  Actions CI/CD -- :user:`webknjaz`
+  (:issue:`181`)
+- Switched using `pep517 <https://pep517.rtfd.io>`__ lib to
+  `build <https://pypa-build.rtfd.io>`__ CLI -- :user:`webknjaz`
+  (:issue:`199`)
+- Restructured the in-tree :pep:`517` build backend into multiple
+  submodules moving the entry-point to ``pep517_backend.hooks``
+  that also facilitates extraction of user-defined
+  ``config_settings`` passed by the end-user (packager)
+  via the ``build`` CLI command -- :user:`webknjaz`
+  (:issue:`200`)
+- Updated manylinux build script to build libssh with GSSAPI
+  enabled -- :user:`Qalthos`
+  (:issue:`203`)
+- Added an initial RPM spec continuously tested in the CI -- :user:`webknjaz`
+  (:issue:`205`)
+- Added additional details when SFTP write errors are raised -- by :user:`Qalthos`
+  (:issue:`216`)
+- Made ``auditwheel`` only keep one platform tag in the produced wheel
+  names -- :user:`webknjaz`
+  (:issue:`224`)
+- Improved manylinux build scripts to expect dual-aliased manylinux tags
+  produced for versions 1/2010/2014 along with their :pep:`600`
+  counterparts after ``auditwheel repair`` -- :user:`webknjaz`
+  (:issue:`226`)
+- Enabled self-test checks in the RPM spec for Fedora
+  -- :user:`webknjaz`
+  (:issue:`228`)
+- Enabled self-test checks in the RPM spec for CentOS
+  -- :user:`webknjaz`
+  (:issue:`235`)
+- Enabled self-test checks in the RPM spec for RHEL
+  -- :user:`webknjaz`
+  (:issue:`236`)
+- Added ``NAME = "VALUE"`` to flake8-eradicate whitelist to work around test false positive introduced in flake8-eradicate 1.1.0 -- by :user:`Qalthos`
+  (:issue:`258`)
+- Stopped testing ``pylibssh`` binary wheels under Ubuntu 16.04 in GitHub
+  Actions CI/CD because it is EOL now -- :user:`webknjaz`
+  (:issue:`260`)
+- Fixed failing fast on problems with ``rpmbuild`` in GitHub Actions CI/CD
+  under Fedora -- :user:`webknjaz`
+  (:issue:`261`)
+- Declare ``python3-pip`` a build dependency under Fedora fixing the RPM
+  creation job in GitHub Actions CI/CD under Fedora -- :user:`webknjaz`
+  (:issue:`262`)
+- Replaced git protocols in pre-commit config with https now that GitHub has turned
+  off git protocol access -- :user:`Qalthos`
+  (:issue:`266`)
+
+
 v0.2.0 (2021-03-01)
 ===================
 

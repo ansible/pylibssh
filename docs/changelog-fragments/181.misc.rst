@@ -1,2 +1,0 @@
-Started building AARCH64 base images with Buildah+Podman in GitHub
-Actions CI/CD -- :user:`webknjaz`

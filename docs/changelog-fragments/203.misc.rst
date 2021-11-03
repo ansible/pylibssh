@@ -1,2 +1,0 @@
-Updated manylinux build script to build libssh with GSSAPI
-enabled -- :user:`Qalthos`

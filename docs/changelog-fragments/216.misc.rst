@@ -1,1 +1,0 @@
-Added additional details when SFTP write errors are raised -- by :user:`Qalthos`
