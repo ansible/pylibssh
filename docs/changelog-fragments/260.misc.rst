@@ -1,2 +1,0 @@
-Stopped testing ``pylibssh`` binary wheels under Ubuntu 16.04 in GitHub
-Actions CI/CD because it is EOL now -- :user:`webknjaz`

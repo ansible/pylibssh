@@ -1,2 +1,0 @@
-Enabled self-test checks in the RPM spec for RHEL
--- :user:`webknjaz`

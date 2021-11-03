@@ -1,2 +1,0 @@
-Fixed failing fast on problems with ``rpmbuild`` in GitHub Actions CI/CD
-under Fedora -- :user:`webknjaz`

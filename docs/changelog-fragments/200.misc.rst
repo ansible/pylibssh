@@ -1,5 +1,0 @@
-Restructured the in-tree :pep:`517` build backend into multiple
-submodules moving the entry-point to ``pep517_backend.hooks``
-that also facilitates extraction of user-defined
-``config_settings`` passed by the end-user (packager)
-via the ``build`` CLI command -- :user:`webknjaz`
