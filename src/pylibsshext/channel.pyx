@@ -89,12 +89,10 @@ cdef class Channel:
     def poll(self, timeout=-1, stderr=0):
         if timeout < 0:
             rc = libssh.ssh_channel_poll(self._libssh_channel, stderr)
-            if rc == libssh.SSH_ERROR:
-                raise LibsshChannelException("Failed to poll channel: [%d]" % rc)
         else:
             rc = libssh.ssh_channel_poll_timeout(self._libssh_channel, timeout, stderr)
-            if rc == libssh.SSH_ERROR:
-                raise LibsshChannelException("Failed to poll channel: [%d]" % rc)
+        if rc == libssh.SSH_ERROR:
+            raise LibsshChannelException("Failed to poll channel: [%d]" % rc)
         return rc
 
     def read_nonblocking(self, size=1024, stderr=0):
@@ -113,7 +111,10 @@ cdef class Channel:
         return self.read_nonblocking(size=size, stderr=stderr)
 
     def write(self, data):
-        return libssh.ssh_channel_write(self._libssh_channel, PyBytes_AS_STRING(data), len(data))
+        written = libssh.ssh_channel_write(self._libssh_channel, PyBytes_AS_STRING(data), len(data))
+        if written == libssh.SSH_ERROR:
+            raise LibsshChannelException("Failed to write to ssh channel")
+        return written
 
     def sendall(self, data):
         return self.write(data)
@@ -143,7 +144,7 @@ cdef class Channel:
 
         if rc != libssh.SSH_OK:
             self.close()
-            raise CalledProcessError()
+            raise CalledProcessError(returncode=rc, error=b"")
         result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
 
         cdef callbacks.ssh_channel_callbacks_struct cb
