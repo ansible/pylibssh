@@ -905,6 +905,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.10"
         - 3.9
         - 3.8
         - 2.7
