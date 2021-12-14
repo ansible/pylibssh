@@ -1047,12 +1047,26 @@ jobs:
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
 
+  check:  # This job does nothing and is only used for the branch protection
+    if: always()
+
+    needs:
+    - dist-meta
+    - test-matrix
+
+    runs-on: Ubuntu-latest
+
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
+
   deploy:
     name: Publish 🐍📦 to (Test)PyPI
     needs:
-    - dist-meta
+    - check
     - pre-setup  # transitive, for accessing settings
-    - test-matrix
     if: >-
       fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
       fromJSON(needs.pre-setup.outputs.is_tagged)
@@ -1081,9 +1095,8 @@ jobs:
   dumb-pypi:
     name: Publish nightlies to Dumb PyPI  # https://ansible.github.io/pylibssh/
     needs:
-    - dist-meta
+    - check
     - pre-setup  # transitive, for accessing settings
-    - test-matrix
     if: >-
       fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
       fromJSON(needs.pre-setup.outputs.is_tagged)
