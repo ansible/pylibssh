@@ -692,8 +692,13 @@ jobs:
         - tag: centos:8
         - tag: centos/centos:stream8
           registry: quay.io
-        - tag: ubi8/ubi
+        - tag: ubi8/ubi:8.3
           registry: registry.access.redhat.com
+        - tag: ubi8/ubi:8.4
+          registry: registry.access.redhat.com
+        - tag: ubi8/ubi:8.5
+          registry: registry.access.redhat.com
+        # TODO: add a UBI9 beta container too
     runs-on: ubuntu-latest
     container:
       # NOTE: GHA has poor support for concat which is why I resorted to
