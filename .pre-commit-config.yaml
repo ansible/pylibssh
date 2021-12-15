@@ -56,6 +56,13 @@ repos:
     exclude: >-
       ^docs/_samples/.*\.py$
 
+- repo: https://github.com/PyCQA/pydocstyle.git
+  rev: 6.1.1
+  hooks:
+  - id: pydocstyle
+    exclude: >-
+      ^docs/_samples/.*\.py$
+
 - repo: https://github.com/PyCQA/flake8.git
   rev: 4.0.1
   hooks:
@@ -80,13 +87,6 @@ repos:
   - id: rst-linter
     files: >-
       ^README\.rst$
-
-- repo: https://github.com/PyCQA/pydocstyle.git
-  rev: 6.1.1
-  hooks:
-  - id: pydocstyle
-    exclude: >-
-      ^docs/_samples/.*\.py$
 
 # - repo: local
 #   hooks:
