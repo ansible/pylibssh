@@ -82,7 +82,7 @@ repos:
       ^README\.rst$
 
 - repo: https://github.com/PyCQA/pydocstyle.git
-  rev: 5.0.2
+  rev: 6.1.1
   hooks:
   - id: pydocstyle
     exclude: >-
