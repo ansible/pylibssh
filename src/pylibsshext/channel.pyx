@@ -140,11 +140,21 @@ cdef class Channel:
         return response
 
     def exec_command(self, command):
-        rc = libssh.ssh_channel_request_exec(self._libssh_channel, command.encode("utf-8"))
+        # request_exec requires a fresh channel each run, so do not use the existing channel
+        cdef libssh.ssh_channel channel = libssh.ssh_channel_new(self._libssh_session)
+        if channel is NULL:
+            raise MemoryError
 
+        rc = libssh.ssh_channel_open_session(channel)
         if rc != libssh.SSH_OK:
-            self.close()
-            raise CalledProcessError(returncode=rc, error=b"")
+            libssh.ssh_channel_free(channel)
+            raise LibsshChannelException("Failed to open_session: [%d]" % rc)
+
+        rc = libssh.ssh_channel_request_exec(channel, command.encode("utf-8"))
+        if rc != libssh.SSH_OK:
+            libssh.ssh_channel_close(channel)
+            libssh.ssh_channel_free(channel)
+            raise LibsshChannelException("Failed to execute command [%s]: [%d]" % (command, rc))
         result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
 
         cdef callbacks.ssh_channel_callbacks_struct cb
@@ -152,11 +162,13 @@ cdef class Channel:
         cb.channel_data_function = <callbacks.ssh_channel_data_callback>&_process_outputs
         cb.userdata = <void *>result
         callbacks.ssh_callbacks_init(&cb)
-        callbacks.ssh_set_channel_callbacks(self._libssh_channel, &cb)
+        callbacks.ssh_set_channel_callbacks(channel, &cb)
 
-        libssh.ssh_channel_send_eof(self._libssh_channel)
-
-        result.returncode = self.get_channel_exit_status()
+        libssh.ssh_channel_send_eof(channel)
+        result.returncode = libssh.ssh_channel_get_exit_status(channel)
+        if channel is not NULL:
+            libssh.ssh_channel_close(channel)
+            libssh.ssh_channel_free(channel)
 
         return result
 
