@@ -1,6 +1,6 @@
 ---
 repos:
-- repo: https://github.com/timothycrosley/isort
+- repo: https://github.com/timothycrosley/isort.git
   rev: 5.1.1
   hooks:
   - id: isort
@@ -10,17 +10,17 @@ repos:
       ^.*\.p(xd|y|yx)$
     types: [file]
 
-- repo: https://github.com/asottile/add-trailing-comma
+- repo: https://github.com/asottile/add-trailing-comma.git
   rev: v0.7.1
   hooks:
   - id: add-trailing-comma
 
-- repo: https://github.com/Lucas-C/pre-commit-hooks
+- repo: https://github.com/Lucas-C/pre-commit-hooks.git
   rev: v1.1.6
   hooks:
   - id: remove-tabs
 
-- repo: https://github.com/pre-commit/pre-commit-hooks
+- repo: https://github.com/pre-commit/pre-commit-hooks.git
   rev: v2.3.0
   hooks:
   # Side-effects:
@@ -56,7 +56,7 @@ repos:
     exclude: >-
       ^docs/_samples/.*\.py$
 
-- repo: https://gitlab.com/pycqa/flake8.git
+- repo: https://github.com/PyCQA/flake8.git
   rev: 3.8.2
   hooks:
   - id: flake8
@@ -74,14 +74,14 @@ repos:
       ^docs/_samples/.*\.py$
     types: [file]
 
-- repo: https://github.com/Lucas-C/pre-commit-hooks-markup
+- repo: https://github.com/Lucas-C/pre-commit-hooks-markup.git
   rev: v1.0.0
   hooks:
   - id: rst-linter
     files: >-
       ^README\.rst$
 
-- repo: https://github.com/pycqa/pydocstyle.git
+- repo: https://github.com/PyCQA/pydocstyle.git
   rev: 5.0.2
   hooks:
   - id: pydocstyle
