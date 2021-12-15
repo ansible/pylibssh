@@ -1,5 +1,10 @@
 ---
 repos:
+- repo: https://github.com/asottile/add-trailing-comma.git
+  rev: v2.0.1
+  hooks:
+  - id: add-trailing-comma
+
 - repo: https://github.com/timothycrosley/isort.git
   rev: 5.10.1
   hooks:
@@ -9,11 +14,6 @@ repos:
     files: >-
       ^.*\.p(xd|y|yx)$
     types: [file]
-
-- repo: https://github.com/asottile/add-trailing-comma.git
-  rev: v2.0.1
-  hooks:
-  - id: add-trailing-comma
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
   rev: v1.1.7
