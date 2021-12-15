@@ -699,6 +699,14 @@ jobs:
         - tag: ubi8/ubi:8.5
           registry: registry.access.redhat.com
         # TODO: add a UBI9 beta container too
+
+    continue-on-error: >-
+      ${{
+          contains(matrix.target-container.tag, 'ubi')
+          && true
+          || false
+      }}
+
     runs-on: ubuntu-latest
     container:
       # NOTE: GHA has poor support for concat which is why I resorted to
