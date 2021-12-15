@@ -14,8 +14,9 @@ import os.path  # noqa: WPS301
 import sys
 
 import Cython.Coverage  # noqa: WPS301
-from coverage.files import canonical_filename
 from Cython.Coverage import Plugin as OriginalCythonCoveragePlugin
+
+from coverage.files import canonical_filename
 
 
 def _ptchd_fnd_dep_file_pth(  # noqa: WPS231, WPS317
