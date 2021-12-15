@@ -115,7 +115,7 @@ html_context = {
     'github_version': 'devel/docs/',
     'current_version': version,
     'latest_version': 'latest',
-    'available_versions': ('latest', ),
+    'available_versions': ('latest',),
     'css_files': [],  # https://github.com/sphinx-doc/sphinx/issues/8889
 }
 

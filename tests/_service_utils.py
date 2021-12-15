@@ -63,7 +63,7 @@ def wait_for_svc_ready_state(  # noqa: WPS317
 
     # noqa: DAR401
     """
-    connection_errors = (ConnectionError if PY3_PLUS else socket.error, )
+    connection_errors = (ConnectionError if PY3_PLUS else socket.error,)
 
     for attempt_num in range(1, max_conn_attempts + 1):
         with _socket() as sock:
