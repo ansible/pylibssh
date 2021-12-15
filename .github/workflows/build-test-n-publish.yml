@@ -745,16 +745,16 @@ jobs:
         "s#^\(Version:\s\+\).*#\1${{ needs.pre-setup.outputs.dist_version }}#"
         packaging/rpm/ansible-pylibssh.spec
 
-    - name: Lint the RPM spec file
-      if: >-
-        !contains(matrix.target-container.tag, 'ubi')
-      run: rpmlint packaging/rpm/ansible-pylibssh.spec
-
-    - name: Download all the dists
+    - name: Download all the dists  # because `rpmlint` executes the spec file
       uses: actions/download-artifact@v2
       with:
         name: python-package-distributions
         path: dist/
+
+    - name: Lint the RPM spec file
+      if: >-
+        !contains(matrix.target-container.tag, 'ubi')
+      run: rpmlint packaging/rpm/ansible-pylibssh.spec
 
     - name: Copy sdist to the sources dir
       run: >-
