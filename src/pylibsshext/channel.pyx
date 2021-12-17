@@ -92,7 +92,7 @@ cdef class Channel:
         else:
             rc = libssh.ssh_channel_poll_timeout(self._libssh_channel, timeout, stderr)
         if rc == libssh.SSH_ERROR:
-            raise LibsshChannelException("Failed to poll channel: [%d]" % rc)
+            raise LibsshChannelException("Failed to poll channel: [{0}]".format(rc))
         return rc
 
     def read_nonblocking(self, size=1024, stderr=0):
@@ -148,13 +148,13 @@ cdef class Channel:
         rc = libssh.ssh_channel_open_session(channel)
         if rc != libssh.SSH_OK:
             libssh.ssh_channel_free(channel)
-            raise LibsshChannelException("Failed to open_session: [%d]" % rc)
+            raise LibsshChannelException("Failed to open_session: [{0}]".format(rc))
 
         rc = libssh.ssh_channel_request_exec(channel, command.encode("utf-8"))
         if rc != libssh.SSH_OK:
             libssh.ssh_channel_close(channel)
             libssh.ssh_channel_free(channel)
-            raise LibsshChannelException("Failed to execute command [%s]: [%d]" % (command, rc))
+            raise LibsshChannelException("Failed to execute command [{0}]: [{1}]".format(command, rc))
         result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
 
         cdef callbacks.ssh_channel_callbacks_struct cb
