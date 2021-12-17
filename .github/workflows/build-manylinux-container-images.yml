@@ -78,6 +78,10 @@ jobs:
         --rm --privileged
         multiarch/qemu-user-static
         --reset -p yes
+    - name: Pre-fetch the latest image with Podman for reusing the layer cache
+      run: >-
+        podman pull --arch 'linux/${{ env.QEMU_ARCH }}'
+        'ghcr.io/${{ env.FULL_IMAGE_NAME }}:latest'
     - name: Build the image with Buildah
       id: build-image
       uses: redhat-actions/buildah-build@v2.10
