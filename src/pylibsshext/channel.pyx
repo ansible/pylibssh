@@ -89,12 +89,10 @@ cdef class Channel:
     def poll(self, timeout=-1, stderr=0):
         if timeout < 0:
             rc = libssh.ssh_channel_poll(self._libssh_channel, stderr)
-            if rc == libssh.SSH_ERROR:
-                raise LibsshChannelException("Failed to poll channel: [%d]" % rc)
         else:
             rc = libssh.ssh_channel_poll_timeout(self._libssh_channel, timeout, stderr)
-            if rc == libssh.SSH_ERROR:
-                raise LibsshChannelException("Failed to poll channel: [%d]" % rc)
+        if rc == libssh.SSH_ERROR:
+            raise LibsshChannelException("Failed to poll channel: [{0}]".format(rc))
         return rc
 
     def read_nonblocking(self, size=1024, stderr=0):
@@ -113,7 +111,10 @@ cdef class Channel:
         return self.read_nonblocking(size=size, stderr=stderr)
 
     def write(self, data):
-        return libssh.ssh_channel_write(self._libssh_channel, PyBytes_AS_STRING(data), len(data))
+        written = libssh.ssh_channel_write(self._libssh_channel, PyBytes_AS_STRING(data), len(data))
+        if written == libssh.SSH_ERROR:
+            raise LibsshChannelException("Failed to write to ssh channel")
+        return written
 
     def sendall(self, data):
         return self.write(data)
@@ -139,11 +140,21 @@ cdef class Channel:
         return response
 
     def exec_command(self, command):
-        rc = libssh.ssh_channel_request_exec(self._libssh_channel, command.encode("utf-8"))
+        # request_exec requires a fresh channel each run, so do not use the existing channel
+        cdef libssh.ssh_channel channel = libssh.ssh_channel_new(self._libssh_session)
+        if channel is NULL:
+            raise MemoryError
 
+        rc = libssh.ssh_channel_open_session(channel)
         if rc != libssh.SSH_OK:
-            self.close()
-            raise CalledProcessError()
+            libssh.ssh_channel_free(channel)
+            raise LibsshChannelException("Failed to open_session: [{0}]".format(rc))
+
+        rc = libssh.ssh_channel_request_exec(channel, command.encode("utf-8"))
+        if rc != libssh.SSH_OK:
+            libssh.ssh_channel_close(channel)
+            libssh.ssh_channel_free(channel)
+            raise LibsshChannelException("Failed to execute command [{0}]: [{1}]".format(command, rc))
         result = CompletedProcess(args=command, returncode=-1, stdout=b'', stderr=b'')
 
         cdef callbacks.ssh_channel_callbacks_struct cb
@@ -151,11 +162,13 @@ cdef class Channel:
         cb.channel_data_function = <callbacks.ssh_channel_data_callback>&_process_outputs
         cb.userdata = <void *>result
         callbacks.ssh_callbacks_init(&cb)
-        callbacks.ssh_set_channel_callbacks(self._libssh_channel, &cb)
+        callbacks.ssh_set_channel_callbacks(channel, &cb)
 
-        libssh.ssh_channel_send_eof(self._libssh_channel)
-
-        result.returncode = self.get_channel_exit_status()
+        libssh.ssh_channel_send_eof(channel)
+        result.returncode = libssh.ssh_channel_get_exit_status(channel)
+        if channel is not NULL:
+            libssh.ssh_channel_close(channel)
+            libssh.ssh_channel_free(channel)
 
         return result
 

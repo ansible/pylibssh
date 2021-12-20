@@ -32,11 +32,14 @@ def ssh_channel(ssh_client_session):
     'Ref: https://github.com/ansible/pylibssh/issues/57',  # noqa: WPS326
     strict=False,
 )
-@pytest.mark.forked()  # noqa: PT023 -- it's unclear if braces are needed here
+@pytest.mark.forked
 def test_exec_command(ssh_channel):
     """Test getting the output of a remotely executed command."""
     u_cmd_out = ssh_channel.exec_command('echo -n Hello World').stdout.decode()
     assert u_cmd_out == u'Hello World'  # noqa: WPS302
+    # Test that repeated calls to exec_command do not segfault.
+    u_cmd_out = ssh_channel.exec_command('echo -n Hello Again').stdout.decode()
+    assert u_cmd_out == u'Hello Again'  # noqa: WPS302
 
 
 def test_double_close(ssh_channel):
