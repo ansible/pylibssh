@@ -81,7 +81,7 @@ jobs:
       run: >-
         print('::set-output name=profiling_enabled::true')
     - name: Check out src from Git
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
       with:
         fetch-depth: >-
           ${{ steps.tagged_check.outputs.is_tagged == 'true' && 1 || 0 }}
@@ -332,7 +332,7 @@ jobs:
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Check out src from Git
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
@@ -518,7 +518,7 @@ jobs:
         --user
         tox
     - name: Check out src from Git
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
@@ -634,7 +634,7 @@ jobs:
         --user
         tox
     - name: Check out src from Git
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
       with:
         fetch-depth: >-
           ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
@@ -750,7 +750,7 @@ jobs:
       run: mkdir -pv ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
     - name: Grab the source from Git
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set an SCM version in the spec
       run: >-
@@ -980,7 +980,7 @@ jobs:
         --user
         tox
     - name: Check out src from Git
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
     - name: Download all the dists
       uses: actions/download-artifact@v2
       with:
@@ -1058,7 +1058,7 @@ jobs:
         --user
         tox
     - name: Check out src from Git
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Download all the dists
