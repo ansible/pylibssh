@@ -53,7 +53,7 @@ jobs:
         ${{ steps.calc_cache_key_files.outputs.files_hash_key }}
     steps:
     - name: Switch to using Python 3.9 by default
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3.1.0
       with:
         python-version: 3.9
     - name: >-
@@ -479,7 +479,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.9 by default
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3.1.0
       with:
         python-version: 3.9
     - name: >-
@@ -595,7 +595,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.9 by default
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3.1.0
       with:
         python-version: 3.9
     - name: >-
@@ -941,7 +941,7 @@ jobs:
         runner.os == 'Linux'
       run: sudo add-apt-repository ppa:kedazo/libssh-0.7.x && sudo apt update && sudo apt install libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3.1.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: >-
@@ -1019,7 +1019,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.9 by default
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3.1.0
       with:
         python-version: 3.9
     - name: >-
@@ -1141,7 +1141,7 @@ jobs:
         path: dist/
 
     - name: Switch to Python 3.9
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@v3.1.0
       with:
         python-version: 3.9
     - name: >-
