@@ -999,7 +999,7 @@ jobs:
     - name: Run tests
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Send coverage data to Codecov
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v3
       with:
         file: .test-results/pytest/cov.xml
 
