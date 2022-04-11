@@ -1,11 +1,11 @@
 ---
 repos:
 - repo: https://github.com/asottile/add-trailing-comma.git
-  rev: v2.2.1
+  rev: v2.2.2
   hooks:
   - id: add-trailing-comma
 
-- repo: https://github.com/timothycrosley/isort.git
+- repo: https://github.com/PyCQA/isort
   rev: 5.10.1
   hooks:
   - id: isort
@@ -16,12 +16,12 @@ repos:
     types: [file]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
-  rev: v1.1.7
+  rev: v1.1.13
   hooks:
   - id: remove-tabs
 
 - repo: https://github.com/pre-commit/pre-commit-hooks.git
-  rev: v2.3.0
+  rev: v4.2.0
   hooks:
   # Side-effects:
   - id: trailing-whitespace
@@ -82,7 +82,7 @@ repos:
     types: [file]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks-markup.git
-  rev: v1.0.0
+  rev: v1.0.1
   hooks:
   - id: rst-linter
     files: >-
