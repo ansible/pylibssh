@@ -305,7 +305,7 @@ jobs:
     - name: Run tests using pytest
       run: python -m pytest -m smoke --no-cov
     - name: Store the binary wheel
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
         path: dist
@@ -498,7 +498,7 @@ jobs:
         --
         ${{ matrix.manylinux-python-target }}
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
         path: dist
@@ -599,7 +599,7 @@ jobs:
     - name: Build sdist and verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
     - name: Store the source distribution
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
         path: dist
@@ -806,7 +806,7 @@ jobs:
         );
         echo "::set-output name=artifact-id::${normalized_container_id}"
     - name: Store RPM and SRPM as artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.artifact-name.outputs.artifact-id }}--srpm-n-rpm
         path: |
