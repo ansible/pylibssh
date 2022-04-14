@@ -689,7 +689,6 @@ jobs:
       matrix:
         target-container:
         - tag: fedora:34
-        - tag: centos:8
         - tag: centos/centos:stream8
           registry: quay.io
         - tag: ubi8/ubi:8.3
