@@ -166,12 +166,11 @@ jobs:
         # NOTE: Research on the wheel names / platform tags and how they
         # NOTE: are matched under various macOS versions:
         # NOTE: https://github.com/MacPython/wiki/wiki/Spinning-wheels
+        - "3.10"
         - 3.9
         - 3.8
-        - 2.7
         - 3.7
         - 3.6
-        - 3.5
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
@@ -192,80 +191,11 @@ jobs:
                 format(home_dir=os.environ['HOME'])
             )
       shell: python
-    - name: >-
-        Find the download URL for official
-        CPython distribution from python.org
-      id: probe-python
-      run: |
-        function probe_url() {
-          local py_ver="$1"
-          local macos_ver="$2"
-          [ $(curl -I --write-out '%{http_code}' --silent --output /dev/null "https://www.python.org/ftp/python/${py_ver}/python-${py_ver}-macosx10.${macos_ver}.pkg") == '200' ] && return 0
-          return 1
-        }
-
-        function find_last_macos_py() {
-          for macos_ver in 6 9
-          do
-            for py_ver in $*
-            do
-              >&2 echo Probing py${py_ver} and macosx10.${macos_ver}
-              # FIXME: Can we set outputs right here?
-              if probe_url $py_ver $macos_ver
-              then
-                >&2 echo "Found pkg: py${py_ver} w/ macosx10.${macos_ver}"
-                echo "::set-output name=py_ver_long::${py_ver}"
-                echo "::set-output name=download_url::https://www.python.org/ftp/python/${py_ver}/python-${py_ver}-macosx10.${macos_ver}.pkg"
-                return 0
-              fi
-            done
-          done
-          >&2 echo Failed looking up macOS pkg for $*
-          return 1
-        }
-
-        LONG_VER_SUGGESTIONS=$(git ls-remote --sort -v:refname --tags https://github.com/python/cpython.git "${{ matrix.python-version }}*" "v${{ matrix.python-version }}*" | grep -v '\^{}$' | awk '{print$2}' | sed 's#^refs/tags/##;s#^v##' | grep -v '[abcepr]')
-        find_last_macos_py ${LONG_VER_SUGGESTIONS}
-    - name: Install Python from python.org
-      run: |
-        INSTALLERS_CACHE="${{env.HOME}}/.github/workflows/.tmp/python-installers"
-        INSTALLER_PATH="${INSTALLERS_CACHE}/python-${LONG_VER}.pkg"
-
-        SHORT_VER=$(echo ${LONG_VER} | awk -F. '{print$1"."$2}')
-
-        INSTALL_PATH="/Library/Frameworks/Python.framework/Versions/${SHORT_VER}/bin"
-        PYTHON_BIN="${INSTALL_PATH}/python${SHORT_VER}"
-
-        mkdir -pv "${INSTALLERS_CACHE}"
-        >&2 echo Downloading "${DOWNLOAD_URL}" into "${INSTALLER_PATH}"...
-        wget -O "${INSTALLER_PATH}" "${DOWNLOAD_URL}"
-        sudo installer -verboseR -dumplog -pkg "${INSTALLER_PATH}" -target /
-
-        >&2 echo Setting up '$PATH' and a binary output var for Python ${LONG_VER}
-        echo "${INSTALL_PATH}" >> "${GITHUB_PATH}"
-        echo "::set-output name=binary::${PYTHON_BIN}"
-      env:
-        DOWNLOAD_URL: ${{ steps.probe-python.outputs.download_url }}
-        LONG_VER: ${{ steps.probe-python.outputs.py_ver_long }}
-      id: install-python
-    - name: >-
-        Install certificates for Python ${{ matrix.python-version }}
-        from python.org, if necessary, by running
-        'Install Certificates.command'
-      if: matrix.python-version != 3.5
-      run: >-
-        /Applications/Python\ ${{ matrix.python-version }}/Install\ Certificates.command
-    - name: >-
-        Install certificates for Python ${{ matrix.python-version }}
-        from python.org, if necessary, by installing certifi
-      if: matrix.python-version == 3.5
-      run: >-
-        curl
-        https://bootstrap.pypa.io/pip/${{ matrix.python-version }}/get-pip.py
-        |
-        ${{ steps.install-python.outputs.binary }} - 'certifi'
-    - name: Log official Python dist version from python.org
-      run: ${{ steps.install-python.outputs.binary }} --version
+    - uses: actions/checkout@v3
+    - name: Install python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
     - name: Install libssh from brew
       run: brew install libssh  # @0.9.4  # pinning the version does not work
     # FIXME: can we pre-build libssh once in a pre-requisite job?
@@ -297,11 +227,7 @@ jobs:
     #    make install/strip
     #  working_directory: libssh/build
     - name: Install tox
-      run: >-
-        ${{ steps.install-python.outputs.binary }} -m
-        pip install
-        --user
-        tox
+      run: python -m pip install --user tox
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -345,14 +271,11 @@ jobs:
         xargs git tag --delete
       shell: bash
     - name: Pre-populate tox env
-      run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv --notest
+      run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Install toml Python distribution package
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: >-
-        python -m
-        pip install
-        --user
-        toml
+        python -m pip install --user toml
     - name: Instruct setuptools-scm not to add a local version part
       if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
       run: |
@@ -370,31 +293,17 @@ jobs:
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
     - name: Build dist
-      run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
+      run: python -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
     - name: Bundle external shared libs
-      run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e delocate-macos-wheels -- dist/*.whl
+      run: python -m tox -p auto --parallel-live -vvvv -e delocate-macos-wheels -- dist/*.whl
     - name: Verify wheel metadata
-      run: ${{ steps.install-python.outputs.binary }} -m tox -p auto --parallel-live -vvvv -e metadata-validation
+      run: python -m tox -p auto --parallel-live -vvvv -e metadata-validation
     - name: Install pytest and its plugins
-      run: >-
-        ${{ steps.install-python.outputs.binary }} -m
-        pip install
-        --user
-        pytest pytest-cov pytest-xdist
+      run: python -m pip install --user pytest pytest-cov pytest-xdist
     - name: Install the generated Python wheel distribution
-      run: >-
-        ${{ steps.install-python.outputs.binary }} -m
-        pip install
-        --user
-        --no-index -f dist
-        --only-binary ansible-pylibssh
-        ansible-pylibssh
+      run: python -m pip install --user --no-index -f dist --only-binary ansible-pylibssh ansible-pylibssh
     - name: Run tests using pytest
-      run: >-
-        ${{ steps.install-python.outputs.binary }}
-        -m pytest
-        -m smoke
-        --no-cov
+      run: python -m pytest -m smoke --no-cov
     - name: Store the binary wheel
       uses: actions/upload-artifact@v2
       with:
@@ -417,6 +326,7 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux1_x86_64 \
         # NOTE:   ls -1 /opt/python
+        - cp310-cp310
         - cp39-cp39
         - cp38-cp38
         - cp37-cp37m
@@ -443,8 +353,6 @@ jobs:
           year: _2_24
 
         - arch: x86_64
-          year: 1
-        - arch: x86_64
           year: 2010
         - arch: x86_64
           year: 2014
@@ -452,7 +360,8 @@ jobs:
           year: _2_24
         include:
         # NOTE: Python 2 and Python 3.5 are still only present
-        # NOTE: in manylinux1 container images.
+        # NOTE: in manylinux1 container images, which caps out
+        # NOTE: at Python 3.9
         - manylinux-python-target: cp27-cp27mu
           manylinux-image-target:
             arch: x86_64
@@ -462,6 +371,22 @@ jobs:
             arch: x86_64
             year: 1
         - manylinux-python-target: cp35-cp35m
+          manylinux-image-target:
+            arch: x86_64
+            year: 1
+        - manylinux-python-target: cp36-cp36m
+          manylinux-image-target:
+            arch: x86_64
+            year: 1
+        - manylinux-python-target: cp37-cp37m
+          manylinux-image-target:
+            arch: x86_64
+            year: 1
+        - manylinux-python-target: cp38-cp38
+          manylinux-image-target:
+            arch: x86_64
+            year: 1
+        - manylinux-python-target: cp39-cp39
           manylinux-image-target:
             arch: x86_64
             year: 1
@@ -689,7 +614,6 @@ jobs:
       matrix:
         target-container:
         - tag: fedora:34
-        - tag: centos:8
         - tag: centos/centos:stream8
           registry: quay.io
         - tag: ubi8/ubi:8.3
@@ -780,7 +704,6 @@ jobs:
       run: >-
         dnf install
         --assumeyes
-        # libssh-devel-0.9.4-3.el8.x86_64.rpm
         https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/cmake-filesystem-${{
           endsWith(matrix.target-container.tag, ':8.5')
           && '3.20.2-4'
@@ -905,12 +828,11 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.10"
         - 3.9
         - 3.8
-        - 2.7
         - 3.7
         - 3.6
-        - 3.5
         runner-vm-os:
         - ubuntu-20.04
         - macos-latest
@@ -918,6 +840,34 @@ jobs:
         dist-type:
         - binary
         - source
+        include:
+        # NOTE: 2.7 & 3.5 are presently not building on macos
+        # NOTE: which means no wheels to install, so account
+        # NOTE: for them here
+        - python-version: 3.5
+          runner-vm-os: ubuntu-20.04
+          dist-type: binary
+        - python-version: 3.5
+          runner-vm-os: ubuntu-20.04
+          dist-type: source
+        - python-version: 3.5
+          runner-vm-os: ubuntu-18.04
+          dist-type: binary
+        - python-version: 3.5
+          runner-vm-os: ubuntu-18.04
+          dist-type: source
+        - python-version: 2.7
+          runner-vm-os: ubuntu-20.04
+          dist-type: binary
+        - python-version: 2.7
+          runner-vm-os: ubuntu-20.04
+          dist-type: source
+        - python-version: 2.7
+          runner-vm-os: ubuntu-18.04
+          dist-type: binary
+        - python-version: 2.7
+          runner-vm-os: ubuntu-18.04
+          dist-type: source
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
