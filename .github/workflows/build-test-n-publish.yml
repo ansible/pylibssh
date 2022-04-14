@@ -417,6 +417,7 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux1_x86_64 \
         # NOTE:   ls -1 /opt/python
+        - cp310-cp310
         - cp39-cp39
         - cp38-cp38
         - cp37-cp37m
@@ -441,9 +442,6 @@ jobs:
         - arch: ppc64le
           qemu_arch: ppc64le
           year: _2_24
-
-        - arch: x86_64
-          year: 1
         - arch: x86_64
           year: 2010
         - arch: x86_64
