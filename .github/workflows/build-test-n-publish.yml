@@ -324,7 +324,7 @@ jobs:
         manylinux-python-target:
         # NOTE: Must be from this list:
         # NOTE: $ podman run -it --rm \
-        # NOTE:   quay.io/pypa/manylinux1_x86_64 \
+        # NOTE:   quay.io/pypa/manylinux2010_x86_64 \
         # NOTE:   ls -1 /opt/python
         - cp310-cp310
         - cp39-cp39
@@ -359,21 +359,7 @@ jobs:
         - arch: x86_64
           year: _2_24
         include:
-        # NOTE: Python 2 and Python 3.5 are still only present
-        # NOTE: in manylinux1 container images, which caps out
-        # NOTE: at Python 3.9
-        - manylinux-python-target: cp27-cp27mu
-          manylinux-image-target:
-            arch: x86_64
-            year: 1
-        - manylinux-python-target: cp27-cp27m
-          manylinux-image-target:
-            arch: x86_64
-            year: 1
-        - manylinux-python-target: cp35-cp35m
-          manylinux-image-target:
-            arch: x86_64
-            year: 1
+        # NOTE: manylinux1 caps out at Python 3.9
         - manylinux-python-target: cp36-cp36m
           manylinux-image-target:
             arch: x86_64
@@ -840,34 +826,6 @@ jobs:
         dist-type:
         - binary
         - source
-        include:
-        # NOTE: 2.7 & 3.5 are presently not building on macos
-        # NOTE: which means no wheels to install, so account
-        # NOTE: for them here
-        - python-version: 3.5
-          runner-vm-os: ubuntu-20.04
-          dist-type: binary
-        - python-version: 3.5
-          runner-vm-os: ubuntu-20.04
-          dist-type: source
-        - python-version: 3.5
-          runner-vm-os: ubuntu-18.04
-          dist-type: binary
-        - python-version: 3.5
-          runner-vm-os: ubuntu-18.04
-          dist-type: source
-        - python-version: 2.7
-          runner-vm-os: ubuntu-20.04
-          dist-type: binary
-        - python-version: 2.7
-          runner-vm-os: ubuntu-20.04
-          dist-type: source
-        - python-version: 2.7
-          runner-vm-os: ubuntu-18.04
-          dist-type: binary
-        - python-version: 2.7
-          runner-vm-os: ubuntu-18.04
-          dist-type: source
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
