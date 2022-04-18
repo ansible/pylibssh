@@ -27,7 +27,7 @@ from pylibsshext.errors cimport LibsshChannelException
 from pylibsshext.errors import LibsshChannelReadFailure
 from pylibsshext.session cimport get_libssh_session
 
-from ._compat import CompletedProcess
+from subprocess import CompletedProcess
 
 
 cdef int _process_outputs(libssh.ssh_session session,
