@@ -669,7 +669,7 @@ jobs:
         packaging/rpm/ansible-pylibssh.spec
 
     - name: Download all the dists  # because `rpmlint` executes the spec file
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
@@ -890,7 +890,7 @@ jobs:
     - name: Check out src from Git
       uses: actions/checkout@v2.3.4
     - name: Download all the dists
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
@@ -970,7 +970,7 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Download all the dists
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
@@ -1004,7 +1004,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
@@ -1043,7 +1043,7 @@ jobs:
         --pre
         ansible-pylibssh
     - name: Download all the dists
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
