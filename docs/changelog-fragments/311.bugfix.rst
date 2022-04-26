@@ -1,3 +1,0 @@
-Fixed password prompt match in ``pylibsshext.session.Session.authenticate_interactive()``
-to strip whitespace, check that the prompt only ends with ``password:``, and added
-a little extra logging -- by :user:`dalrrard`

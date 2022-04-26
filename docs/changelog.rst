@@ -12,6 +12,28 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+v0.4.0 (2022-04-26)
+===================
+
+Bugfixes
+^^^^^^^^
+
+- Improved ``channel.exec_command`` to always use a newly created ``ssh_channel`` to avoid
+  segfaults on repeated calls -- by :user:`Qalthos`
+  (:issue:`280`)
+- Fixed password prompt match in ``pylibsshext.session.Session.authenticate_interactive()``
+  to strip whitespace, check that the prompt only ends with ``password:``, and added
+  a little extra logging -- by :user:`dalrrard`
+  (:issue:`311`)
+
+
+Backward incompatible changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Dropped support for Python 2.7 and 3.5, and marked support for 3.10 -- by :user:`Qalthos`
+  (:issue:`314`)
+
+
 v0.3.0 (2021-11-03)
 ===================
 
