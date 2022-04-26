@@ -1,2 +1,0 @@
-Improved ``channel.exec_command`` to always use a newly created ``ssh_channel`` to avoid
-segfaults on repeated calls -- by :user:`Qalthos`
