@@ -4,28 +4,18 @@ ARG RELEASE
 ARG LIBSSH_VERSION=0.9.4
 MAINTAINER Python Cryptographic Authority
 WORKDIR /root
-RUN \
-  if [ $(uname -m) = "x86_64" ]; \
-  then \
-    if stat /etc/redhat-release 1>&2 2>/dev/null; then \
-      yum -y install prelink && \
-      yum -y clean all && \
-      rm -rf /var/cache/yum; \
-    else \
-      export DEBIAN_FRONTEND=noninteractive && \
-      apt-get update -qq && \
-      apt-get install -qq -y --no-install-recommends prelink && \
-      apt-get clean -qq && \
-      rm -rf /var/lib/apt/lists/*; \
-    fi; \
-  fi
+
+ADD update-packages.sh /root/update-packages.sh
+RUN ./update-packages.sh
+
+ADD build_utils.sh /root/build_utils.sh
 ADD install_perl.sh /root/install_perl.sh
-RUN ./install_perl.sh
+RUN ./install_perl.sh "${RELEASE}"
 ADD install_libffi.sh /root/install_libffi.sh
 RUN ./install_libffi.sh "${RELEASE}"
 ADD install_openssl.sh /root/install_openssl.sh
 ADD openssl-version.sh /root/openssl-version.sh
-RUN ./install_openssl.sh
+RUN ./install_openssl.sh "${RELEASE}"
 
 ADD install_virtualenv.sh /root/install_virtualenv.sh
 RUN ./install_virtualenv.sh
