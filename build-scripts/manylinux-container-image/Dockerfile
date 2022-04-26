@@ -30,13 +30,6 @@ RUN ./install_openssl.sh
 ADD install_virtualenv.sh /root/install_virtualenv.sh
 RUN ./install_virtualenv.sh
 
-# Install PyPy
-RUN if [ $(uname -m) = "x86_64" ]; then curl https://downloads.python.org/pypy/pypy3.6-v7.3.3-linux64.tar.bz2 | tar jxf - -C /opt/ && mv /opt/pypy3.6* /opt/pypy3.6; fi
-RUN if [ $(uname -m) = "x86_64" ]; then curl https://downloads.python.org/pypy/pypy3.7-v7.3.3-linux64.tar.bz2 | tar jxf - -C /opt/ && mv /opt/pypy3.7* /opt/pypy3.7; fi
-
-RUN if ! [[ ${RELEASE} =~ '^manylinux1_.*$' ]]; then curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --profile minimal; fi
-ENV PATH="/root/.cargo/bin:$PATH"
-
 # \pylibssh
 ADD install-userspace-tools.sh /root/install-userspace-tools.sh
 ADD activate-userspace-tools.sh /root/activate-userspace-tools.sh
