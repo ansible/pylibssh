@@ -3,22 +3,21 @@ set -xe
 
 unset RELEASE
 
-OPENSSL_URL="https://www.openssl.org/source/"
+# Get script directory
+MY_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+# Get build utilities
+source $MY_DIR/build_utils.sh
 source /root/openssl-version.sh
 
-function check_sha256sum {
-    local fname=$1
-    local sha256=$2
-    echo "${sha256}  ${fname}" > "${fname}.sha256"
-    sha256sum -c "${fname}.sha256"
-    rm "${fname}.sha256"
-}
+fetch_source "openssl-${OPENSSL_VERSION}.tar.gz" "https://www.openssl.org/source/"
+check_sha256sum "openssl-${OPENSSL_VERSION}.tar.gz" ${OPENSSL_SHA256}
+tar zxf openssl-${OPENSSL_VERSION}.tar.gz
 
-curl -#O "${OPENSSL_URL}/${OPENSSL_VERSION}.tar.gz"
-check_sha256sum ${OPENSSL_VERSION}.tar.gz ${OPENSSL_SHA256}
-tar zxf ${OPENSSL_VERSION}.tar.gz
-PATH=/opt/perl/bin:$PATH
-pushd ${OPENSSL_VERSION}
+pushd openssl-${OPENSSL_VERSION}
+if [[ "$1" =~ '^manylinux1_.*$' ]]; then
+  PATH=/opt/perl/bin:$PATH
+fi
 ./config $OPENSSL_BUILD_FLAGS --prefix=/opt/pyca/cryptography/openssl --openssldir=/opt/pyca/cryptography/openssl
 make depend
 make -j4
@@ -26,4 +25,4 @@ make -j4
 # https://github.com/openssl/openssl/issues/6685#issuecomment-403838728
 make install_sw install_ssldirs
 popd
-rm -rf openssl*
+rm -rf openssl-${OPENSSL_VERSION}

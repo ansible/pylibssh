@@ -313,7 +313,7 @@ jobs:
 
   build-bin-manylinux:
     name: >-
-      🏗 manylinux${{ matrix.manylinux-image-target.year
+      🏗 manylinux${{ matrix.manylinux-year-target
       }}-${{ matrix.manylinux-image-target.arch
       }} 📦 for 🐍 ${{ matrix.manylinux-python-target }}
     needs:
@@ -326,65 +326,81 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux2010_x86_64 \
         # NOTE:   ls -1 /opt/python
-        - cp310-cp310
-        - cp39-cp39
-        - cp38-cp38
-        - cp37-cp37m
         - cp36-cp36m
+        - cp37-cp37m
+        - cp38-cp38
+        - cp39-cp39
+        - cp310-cp310
+        manylinux-year-target:
+        - 2014
+        - _2_24
         manylinux-image-target:
         # NOTE: Keep in sync with `build-manylinux-container-images.yml`.
         # NOTE: Ordered from "heavy" to "fast".
         - arch: aarch64
           qemu_arch: arm64
-          year: 2014
-        - arch: aarch64
-          qemu_arch: arm64
-          year: _2_24
-
-        - arch: s390x
-          qemu_arch: s390x
-          year: _2_24
-
+        # Something is wrong with the generated images?
+        # - arch: s390x
         - arch: ppc64le
-          qemu_arch: ppc64le
-          year: 2014
-        - arch: ppc64le
-          qemu_arch: ppc64le
-          year: _2_24
-
         - arch: x86_64
-          year: 2010
-        - arch: x86_64
-          year: 2014
-        - arch: x86_64
-          year: _2_24
+          qemu_arch: amd64
         include:
+        # NOTE: manylinux2010 only on x86_64
+        - manylinux-python-target: cp36-cp36m
+          manylinux-image-target:
+            arch: x86_64
+            qemu_arch: amd64
+          manylinux-year-target: 2010
+        - manylinux-python-target: cp37-cp37m
+          manylinux-image-target:
+            arch: x86_64
+            qemu_arch: amd64
+          manylinux-year-target: 2010
+        - manylinux-python-target: cp38-cp38
+          manylinux-image-target:
+            arch: x86_64
+            qemu_arch: amd64
+          manylinux-year-target: 2010
+        - manylinux-python-target: cp39-cp39
+          manylinux-image-target:
+            arch: x86_64
+            qemu_arch: amd64
+          manylinux-year-target: 2010
+        - manylinux-python-target: cp310-cp310
+          manylinux-image-target:
+            arch: x86_64
+            qemu_arch: amd64
+          manylinux-year-target: 2010
         # NOTE: manylinux1 caps out at Python 3.9
         - manylinux-python-target: cp36-cp36m
           manylinux-image-target:
             arch: x86_64
-            year: 1
+            qemu_arch: amd64
+          manylinux-year-target: 1
         - manylinux-python-target: cp37-cp37m
           manylinux-image-target:
             arch: x86_64
-            year: 1
+            qemu_arch: amd64
+          manylinux-year-target: 1
         - manylinux-python-target: cp38-cp38
           manylinux-image-target:
             arch: x86_64
-            year: 1
+            qemu_arch: amd64
+          manylinux-year-target: 1
         - manylinux-python-target: cp39-cp39
           manylinux-image-target:
             arch: x86_64
-            year: 1
+            qemu_arch: amd64
+          manylinux-year-target: 1
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       DOCKER_EXECUTABLE: podman
       PY_COLORS: 1
-      QEMU_ARCH: ${{ matrix.manylinux-image-target.qemu_arch || 'amd64' }}
+      QEMU_ARCH: ${{ matrix.manylinux-image-target.qemu_arch || matrix.manylinux-image-target.arch }}
       TOXENV: >-
-        build-dists-manylinux${{ matrix.manylinux-image-target.year
+        build-dists-manylinux${{ matrix.manylinux-year-target
         }}-${{ matrix.manylinux-image-target.arch }},metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
 

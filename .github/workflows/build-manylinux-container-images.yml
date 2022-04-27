@@ -24,55 +24,40 @@ jobs:
         IMAGE:
         # Build containers for x86_64
         - ARCH: x86_64
-          YEAR: 1  # CentOS 5
-        - ARCH: x86_64
-          YEAR: 2010  # CentOS 6
-        - ARCH: x86_64
-          YEAR: 2014  # CentOS 7
-        - ARCH: x86_64
-          YEAR: _2_24  # CentOS 7, PEP 600
-
+          QEMU_ARCH: amd64
         # Build containers for aarch64 (ARM 64)
         - ARCH: aarch64
           QEMU_ARCH: arm64
-          YEAR: 2014  # It's the first year aarch64 (ARM64) was included in PEP
-        - ARCH: aarch64
-          QEMU_ARCH: arm64
-          YEAR: _2_24  # PEP 600
-
-        # # Build containers for armv7l (ARM v7)
-        # - ARCH: armv7l
-        #   QEMU_ARCH: arm/v7
-        #   YEAR: 2014  # It's the first year armv7l (ARM v7) was included in PEP
-
-        # # Build containers for ppc64
-        # - ARCH: ppc64
-        #   QEMU_ARCH: ppc64
-        #   YEAR: 2014  # It's the first year ppc64 was included in PEP
-
         # Build containers for ppc64le
         - ARCH: ppc64le
-          QEMU_ARCH: ppc64le
-          YEAR: 2014  # It's the first year ppc64le was included in PEP
-        - ARCH: ppc64le
-          QEMU_ARCH: ppc64le
-          YEAR: _2_24  # PEP 600
-
         # Build containers for s390x
-        # - ARCH: s390x
-        #   QEMU_ARCH: s390x
-        #   YEAR: 2014  # It's the first year s390x was included in PEP
         - ARCH: s390x
-          QEMU_ARCH: s390x
-          YEAR: _2_24  # PEP 600
+        # There are no base containers for these archs at https://quay.io/organization/pypa
+        # Build containers for armv7l (ARM v7)
+        # - ARCH: armv7l
+        #   QEMU_ARCH: arm/v7
+        # Build containers for ppc64
+        # - ARCH: ppc64
+        YEAR:
+        - 2014
+        - _2_24 # PEP 600
+        include:
+        - IMAGE:
+            ARCH: x86_64
+            QEMU_ARCH: amd64
+          YEAR: 1
+        - IMAGE:
+            ARCH: x86_64
+            QEMU_ARCH: amd64
+          YEAR: 2010
 
     env:
       LIBSSH_VERSION: 0.9.4
       PYPA_MANYLINUX_TAG: >-
-        manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+        manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
-        ${{ github.repository }}-manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
-      QEMU_ARCH: ${{ matrix.IMAGE.QEMU_ARCH || 'amd64' }}
+        ${{ github.repository }}-manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      QEMU_ARCH: ${{ matrix.IMAGE.QEMU_ARCH || matrix.IMAGE.ARCH }}
 
     defaults:
       run:
@@ -80,7 +65,7 @@ jobs:
 
     name: >-  # can't use `env` in this context:
       🐳
-      manylinux${{ matrix.IMAGE.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
     steps:
     - name: Fetch the repo src
       uses: actions/checkout@v2.3.4

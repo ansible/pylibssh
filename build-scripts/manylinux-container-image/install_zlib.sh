@@ -3,33 +3,25 @@ set -xe
 
 unset RELEASE
 
+# Get script directory
+MY_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+# Get build utilities
+source $MY_DIR/build_utils.sh
 source get-static-deps-dir.sh
 
-LIB_NAME=zlib
-BUILD_DIR=$(mktemp -d "/tmp/${LIB_NAME}-manylinux-build.XXXXXXXXXX")
+ZLIB_SHA256="91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9"
+ZLIB_VERSION="1.2.12"
 
-LIB_VERSION=1.2.11
-LIB_DOWNLOAD_DIR="${BUILD_DIR}/${LIB_NAME}-${LIB_VERSION}"
+fetch_source "zlib-${ZLIB_VERSION}.tar.gz" "https://www.zlib.net"
+check_sha256sum "zlib-${ZLIB_VERSION}.tar.gz" ${ZLIB_SHA256}
+tar zxf "zlib-${ZLIB_VERSION}.tar.gz"
 
-STATIC_DEPS_PREFIX="$(get_static_deps_dir)"
-
+pushd "zlib-${ZLIB_VERSION}"
 export CFLAGS="-fPIC"
-
->&2 echo
->&2 echo
->&2 echo ============================================
->&2 echo downloading source of ${LIB_NAME} v${LIB_VERSION}:
->&2 echo ============================================
->&2 echo
-curl https://www.zlib.net/${LIB_NAME}-${LIB_VERSION}.tar.gz | \
-    tar xzvC "${BUILD_DIR}" -f -
-
-pushd "${LIB_DOWNLOAD_DIR}"
-./configure \
-    --static \
-    --prefix="${STATIC_DEPS_PREFIX}" && \
-    make -j libz.a && \
-    make install
+STATIC_DEPS_PREFIX="$(get_static_deps_dir)"
+./configure --static --prefix="${STATIC_DEPS_PREFIX}"
+make -j libz.a
+make install
 popd
-
-rm -rf "${BUILD_DIR}"
+rm -rf "zlib-${ZLIB_VERSION}"
