@@ -339,8 +339,7 @@ jobs:
         # NOTE: Ordered from "heavy" to "fast".
         - arch: aarch64
           qemu_arch: arm64
-        # Something is wrong with the generated images?
-        # - arch: s390x
+        - arch: s390x
         - arch: ppc64le
         - arch: x86_64
           qemu_arch: amd64
