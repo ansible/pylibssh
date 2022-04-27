@@ -28,15 +28,16 @@ jobs:
         # Build containers for aarch64 (ARM 64)
         - ARCH: aarch64
           QEMU_ARCH: arm64
-        # # Build containers for armv7l (ARM v7)
+        # Build containers for ppc64le
+        - ARCH: ppc64le
+        # Build containers for s390x
+        - ARCH: s390x
+        # There are no base containers for these archs at https://quay.io/organization/pypa
+        # Build containers for armv7l (ARM v7)
         # - ARCH: armv7l
         #   QEMU_ARCH: arm/v7
-        # # Build containers for ppc64
+        # Build containers for ppc64
         # - ARCH: ppc64
-        # Build containers for ppc64le
-        # - ARCH: ppc64le
-        # Build containers for s390x
-        # - ARCH: s390x
         YEAR:
         - 2014
         - _2_24 # PEP 600
