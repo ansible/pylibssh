@@ -17,6 +17,11 @@ function fetch_source {
     check_var ${file}
     local url=$2
     check_var ${url}
+    if [ $(uname -m) = "s390x" ] || [ $(uname -m) = "ppc64le" ]; then
+        # Expired certificate issue on these platforms
+        # https://github.com/pypa/manylinux/issues/1203
+        unset SSL_CERT_FILE
+    fi
     if [ -f ${file} ]; then
         echo "${file} exists, skipping fetch"
     else
