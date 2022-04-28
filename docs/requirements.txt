@@ -31,6 +31,11 @@ charset-normalizer==2.0.12 \
 click==7.1.2 \
     --hash=sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a \
     --hash=sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc
+    # via
+    #   click-default-group
+    #   towncrier
+click-default-group==1.2.2 \
+    --hash=sha256:d9560e8e8dfa44b3562fbc9425042a0fd6d21956fcc2db0077f63f34253ab904
     # via towncrier
 docutils==0.16 \
     --hash=sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af \
@@ -46,7 +51,7 @@ imagesize==1.2.0 \
     --hash=sha256:6965f19a6a2039c7d48bca7dba2473069ff854c36ae6f19d2cde309d998228a1 \
     --hash=sha256:b1f6b5a4eab1f73479a50fb79fcf729514a900c341d8503d62a62dbc4127a2b1
     # via sphinx
-importlib-metadata==4.11.3; python_version < '3.10' \
+importlib-metadata==4.11.3 \
     --hash=sha256:1208431ca90a8cca1a6b8af391bb53c1a2db74e5d1cef6ddced95d4b2062edc6 \
     --hash=sha256:ea4c597ebf37142f827b8f39299579e31685c31d3a438b59f469406afd0f2539
     # via sphinx
@@ -218,21 +223,19 @@ sphinxcontrib-serializinghtml==1.1.5 \
     --hash=sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd \
     --hash=sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952
     # via sphinx
-sphinxcontrib-towncrier==0.2.0a0 \
-    --hash=sha256:31eed078e0a8b4c38dc30978dac8c53e2dfa7342ad8597d11816d1ea9ab0eabb \
-    --hash=sha256:3cd4295c0198e753d964e2c06ee4ecd91a73a8d103385d08af9b05487ae68dd0
+sphinxcontrib-towncrier==0.2.1a0 \
+    --hash=sha256:a6fac6091a8ee12664d9b1f50a1504cb662380bf8d3bd0f267ebbf4483aa9c18 \
+    --hash=sha256:b15ee84aa6288173487988514b589155ef38ac6c55ab014a774102f9dc884f41
     # via -r docs/requirements.in
-toml==0.10.1 \
-    --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
-    --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88
-    # via towncrier
 tomli==1.2.2 \
     --hash=sha256:c6ce0015eb38820eaf32b5db832dbc26deb3dd427bd5f6556cf0acac2c214fee \
     --hash=sha256:f04066f68f5554911363063a30b108d2b5a5b1a010aa8b6132af78489fe3aade
-    # via setuptools-scm
-towncrier==19.2.0 \
-    --hash=sha256:48251a1ae66d2cf7e6fa5552016386831b3e12bb3b2d08eb70374508c17a8196 \
-    --hash=sha256:de19da8b8cb44f18ea7ed3a3823087d2af8fcf497151bb9fd1e1b092ff56ed8d
+    # via
+    #   setuptools-scm
+    #   towncrier
+towncrier==21.9.0 \
+    --hash=sha256:9cb6f45c16e1a1eec9d0e7651165e7be60cd0ab81d13a5c96ca97a498ae87f48 \
+    --hash=sha256:fc5a88a2a54988e3a8ed2b60d553599da8330f65722cc607c839614ed87e0f92
     # via sphinxcontrib-towncrier
 typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
@@ -241,7 +244,7 @@ typing-extensions==4.1.1 \
 urllib3==1.26.5 \
     --hash=sha256:753a0374df26658f99d826cfe40394a686d05985786d946fbe4165b5148f5a7c
     # via requests
-zipp==3.8.0; python_version < '3.10' \
+zipp==3.8.0 \
     --hash=sha256:56bf8aadb83c24db6c4b577e13de374ccfb67da2078beba1d037c17980bf43ad \
     --hash=sha256:c4f6e5bbf48e74f7a38e7cc5b0480ff42b0ae5178957d564d18932525d5cf099
     # via importlib-metadata
@@ -250,4 +253,6 @@ zipp==3.8.0; python_version < '3.10' \
 setuptools==49.1.2 \
     --hash=sha256:3c9be9a5bfee67804a33a9d3e3ac3005be66f3621430a35c641f22dbd1688a6b \
     --hash=sha256:aa5e40796e346e1b23ab2b74d074dd825a18f6209a13a0858a5be6fd48a5f127
-    # via setuptools-scm
+    # via
+    #   setuptools-scm
+    #   towncrier
