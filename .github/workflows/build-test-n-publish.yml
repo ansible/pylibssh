@@ -345,28 +345,7 @@ jobs:
           qemu_arch: amd64
         include:
         # NOTE: manylinux2010 only on x86_64
-        - manylinux-python-target: cp36-cp36m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
-        - manylinux-python-target: cp37-cp37m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
-        - manylinux-python-target: cp38-cp38
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
-        - manylinux-python-target: cp39-cp39
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
-        - manylinux-python-target: cp310-cp310
-          manylinux-image-target:
+        - manylinux-image-target:
             arch: x86_64
             qemu_arch: amd64
           manylinux-year-target: 2010
