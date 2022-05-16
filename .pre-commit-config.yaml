@@ -16,7 +16,7 @@ repos:
     types: [file]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
-  rev: v1.1.13
+  rev: v1.1.14
   hooks:
   - id: remove-tabs
 
