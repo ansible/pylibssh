@@ -26,6 +26,7 @@ from pylibsshext.sftp import SFTP
 
 
 OPTS_MAP = {
+    "fd": libssh.SSH_OPTIONS_FD,
     "host": libssh.SSH_OPTIONS_HOST,
     "user": libssh.SSH_OPTIONS_USER,
     "port": libssh.SSH_OPTIONS_PORT,
@@ -147,6 +148,7 @@ cdef class Session(object):
             return ret
 
     def set_ssh_options(self, key, value):
+        cdef int value_fd
         cdef int value_int
         cdef unsigned int value_uint
         cdef long value_long
@@ -158,7 +160,10 @@ cdef class Session(object):
             key_m = OPTS_MAP[key]
         else:
             raise LibsshSessionException("Unknown attribute name [%s]" % key)
-        if key == "gssapi_delegate_credentials":
+        if key == "fd":
+            value_fd = value
+            libssh.ssh_options_set(self._libssh_session, key_m, &value_fd)
+        elif key == "gssapi_delegate_credentials":
             value_int = value
             libssh.ssh_options_set(self._libssh_session, key_m, &value_int)
         elif key == "port":
@@ -178,6 +183,9 @@ cdef class Session(object):
         """Conenct to ssh server and negotiate libssh session by
         optionally verifying the server's host key and authenticate
         either by password or private key.
+
+        :param fd: The file descriptor of the socket to use for the connection.
+        :type host: int
 
         :param host: The address of the remote host
         :type host: str
