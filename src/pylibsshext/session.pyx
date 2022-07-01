@@ -185,7 +185,7 @@ cdef class Session(object):
         either by password or private key.
 
         :param fd: The file descriptor of the socket to use for the connection.
-        :type host: int
+        :type fd: int
 
         :param host: The address of the remote host
         :type host: str
