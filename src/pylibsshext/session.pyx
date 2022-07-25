@@ -463,6 +463,7 @@ cdef class Session(object):
         cdef char should_echo
         if expected_prompt is None:
             expected_prompt = "password:"
+        expected_prompt = expected_prompt.lower().strip()
         rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
 
         while rc == libssh.SSH_AUTH_INFO:
@@ -473,7 +474,7 @@ cdef class Session(object):
                     prompt_text = libssh.ssh_userauth_kbdint_getprompt(self._libssh_session, prompt, &should_echo)
                     prompt_text = prompt_text.decode().lower().strip()
                     prompt_text_list.append(prompt_text)
-                    if prompt_text.endswith(expected_prompt):
+                    if prompt_text.lower().strip().endswith(expected_prompt):
                         break
                 else:
                     raise LibsshSessionException("None of the prompts looked like password prompts: {err}".format(err=prompt_text_list))
