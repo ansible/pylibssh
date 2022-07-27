@@ -195,8 +195,11 @@ cdef class Session(object):
         :param private_key_password: A password for the private key.
         :type private_key_password: bytes
 
-        :param password: The password to authenticate the ssh session
+        :param password: The password to authenticate the ssh session.
         :type password: str
+
+        :param password_prompt: The prompt to look for when using password authentication.
+        :type password_prompt: str
 
         :param gssapi_server_identity: The service principal hostname to use.
         For example for principal ``host/file.example.com@EXAMPLE.COM``, the hostname
@@ -280,7 +283,7 @@ cdef class Session(object):
             # This will be neither user-interactive nor involve a keyboard,
             # but rather emulate the exchange using the provided password
             try:
-                self.authenticate_interactive(kwargs["password"])
+                self.authenticate_interactive(kwargs["password"], expected_prompt=kwargs.get("password_prompt"))
             except LibsshSessionException as ex:
                 saved_exception = ex
             else:
@@ -442,11 +445,14 @@ cdef class Session(object):
         if rc == libssh.SSH_AUTH_ERROR or rc == libssh.SSH_AUTH_DENIED:
             raise LibsshSessionException("Failed to authenticate with password: %s" % self._get_session_error_str())
 
-    def authenticate_interactive(self, password):
+    def authenticate_interactive(self, password, expected_prompt=None):
         """Authenticate this session using keyboard-interactive authentication.
 
         :param password: The password to authenticate with.
         :type password: str
+
+        :param expected_prompt: The expected password prompt.
+        :type expected_prompt: str
 
         :raises LibsshSessionException: If authentication failed.
 
@@ -455,6 +461,9 @@ cdef class Session(object):
         """
         cdef int rc
         cdef char should_echo
+        if expected_prompt is None:
+            expected_prompt = "password:"
+        expected_prompt = expected_prompt.lower().strip()
         rc = libssh.ssh_userauth_kbdint(self._libssh_session, NULL, NULL)
 
         while rc == libssh.SSH_AUTH_INFO:
@@ -463,8 +472,9 @@ cdef class Session(object):
             if prompt_count > 0:
                 for prompt in range(prompt_count):
                     prompt_text = libssh.ssh_userauth_kbdint_getprompt(self._libssh_session, prompt, &should_echo)
+                    prompt_text = prompt_text.decode().lower().strip()
                     prompt_text_list.append(prompt_text)
-                    if prompt_text.lower().strip().endswith(b"password:"):
+                    if prompt_text.lower().strip().endswith(expected_prompt):
                         break
                 else:
                     raise LibsshSessionException("None of the prompts looked like password prompts: {err}".format(err=prompt_text_list))
