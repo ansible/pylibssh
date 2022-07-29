@@ -703,17 +703,6 @@ jobs:
         dist/ansible-pylibssh-${{ needs.pre-setup.outputs.dist_version }}.tar.gz
         ~/rpmbuild/SOURCES/
 
-    - name: Install static build dependencies missing from UBI
-      if: contains(matrix.target-container.tag, 'ubi')
-      run: >-
-        dnf install
-        --assumeyes
-        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/cmake-filesystem-${{
-          endsWith(matrix.target-container.tag, ':8.5')
-          && '3.20.2-4'
-          || '3.18.2-9'
-        }}${{ steps.distribution-meta.outputs.dist-tag }}.x86_64.rpm
-
     - name: Install static test dependencies missing from UBI
       if: contains(matrix.target-container.tag, 'ubi')
       run: >-
