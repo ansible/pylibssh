@@ -18,7 +18,7 @@ setuptools-scm-git-archive==1.4
     # via -r -
 toml==0.10.2
     # via -r -
-tomli==2.0.1
+tomli==1.2.3
     # via setuptools-scm
 typing-extensions==4.3.0
     # via setuptools-scm
