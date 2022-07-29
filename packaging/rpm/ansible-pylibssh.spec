@@ -34,7 +34,7 @@ Source3: %{pypi_source Cython 0.29.23}
 Source4: %{pypi_source packaging 20.9}
 Source5: %{pypi_source setuptools 56.0.0}
 Source6: %{pypi_source setuptools_scm 6.0.1}
-Source7: %{pypi_source setuptools_scm_git_archive 1.1}
+Source7: %{pypi_source setuptools_scm_git_archive 1.4}
 Source8: %{pypi_source toml 0.10.2}
 Source9: %{pypi_source pep517 0.10.0}
 Source10: %{pypi_source pip 21.1.1}
