@@ -34,7 +34,7 @@ Source3: %{pypi_source Cython 0.29.23}
 Source4: %{pypi_source packaging 20.9}
 Source5: %{pypi_source setuptools 56.0.0}
 Source6: %{pypi_source setuptools_scm 6.0.1}
-Source7: %{pypi_source setuptools_scm_git_archive 1.1}
+Source7: %{pypi_source setuptools_scm_git_archive 1.4}
 Source8: %{pypi_source toml 0.10.2}
 Source9: %{pypi_source pep517 0.10.0}
 Source10: %{pypi_source pip 21.1.1}
@@ -53,8 +53,7 @@ Source19: %{pypi_source iniconfig 1.1.1}
 Source20: %{pypi_source attrs 20.3.0}
 Source21: %{pypi_source pluggy 0.13.1}
 Source22: %{pypi_source py 1.10.0}
-Source23: %{pypi_source pyparsing 2.4.7}
-Source24: %{pypi_source coverage 5.5}
+Source23: %{pypi_source coverage 5.5}
 %endif
 
 # Test dependencies:
@@ -120,36 +119,58 @@ $summary
 sed -i '/"expandvars",/d' pyproject.toml
 %endif
 
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE1}
 
 # RHEL or CentOS:
 %if 0%{?rhel}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE9}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE2}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE10}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin  %{SOURCE3} --install-option="--no-cython-compile"
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE4}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE5}
-PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE6}
+PYTHONPATH="$(pwd)/bin" \
+%{__python3} -m pip install --no-deps -t bin %{SOURCE6}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE7}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE8}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE11}
 # RHEL specifically, not CentOS:
 %if 0%{?centos} == 0
-PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE12}
-PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE13}
+PYTHONPATH="$(pwd)/bin" \
+%{__python3} -m pip install --no-deps -t bin %{SOURCE12}
+PYTHONPATH="$(pwd)/bin" \
+%{__python3} -m pip install --no-deps -t bin %{SOURCE13}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE14}
 %endif
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE15}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE16}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE17}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE18}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE19}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE20}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE21}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE22}
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE23}
-%{__python3} -m pip install --no-deps -t bin %{SOURCE24}
 %endif
 
 # Fedora:
@@ -168,7 +189,7 @@ PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE13}
 
 # RHEL or CentOS:
 %if 0%{?rhel}
-PYTHONPATH=bin/ \
+PYTHONPATH="$(pwd)/bin" \
 %{__python3} \
   -m build \
   --wheel \
@@ -209,7 +230,7 @@ export PYTHONPATH="%{buildroot_site_packages}:${PYTHONPATH}"
   --deselect tests/unit/scp_test.py::test_put
 # CentOS or RHEL:
 %else
-export PYTHONPATH="bin/:${PYTHONPATH}"
+export PYTHONPATH="$(pwd)/bin:${PYTHONPATH}"
 %{__python3} -m pytest \
   --no-cov \
   --deselect tests/unit/scp_test.py::test_get \
