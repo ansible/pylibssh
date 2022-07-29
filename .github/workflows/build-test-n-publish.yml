@@ -650,6 +650,12 @@ jobs:
         }}
 
     steps:
+    - name: Produce artifact name
+      id: distribution-meta
+      run: |
+        dist_tag=$(rpm --eval '%{?dist}')
+        echo "::set-output name=dist-tag::${dist_tag}"
+
     - name: Enable EPEL repository
       if: contains(matrix.target-container.tag, 'centos')
       run: dnf install --assumeyes epel-release
@@ -709,12 +715,12 @@ jobs:
           endsWith(matrix.target-container.tag, ':8.5')
           && '3.20.2-4'
           || '3.18.2-9'
-        }}.el8.x86_64.rpm
+        }}${{ steps.distribution-meta.outputs.dist-tag }}.x86_64.rpm
         https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/libssh-devel-0.9.4-${{
           endsWith(matrix.target-container.tag, ':8.5')
           && '3'
           || '2'
-        }}.el8.x86_64.rpm
+        }}${{ steps.distribution-meta.outputs.dist-tag }}.x86_64.rpm
 
     - name: Install static test dependencies missing from UBI
       if: contains(matrix.target-container.tag, 'ubi')
@@ -722,15 +728,15 @@ jobs:
         rpm
         -ivh
         --nodeps
-        https://vault.centos.org/8.4.2105/BaseOS/x86_64/os/Packages/openssh-8.0p1-6.el8_4.2.x86_64.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-cov-2.6.0-1.el8.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-forked-1.0.2-1.el8.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-xdist-1.24.1-1.el8.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-tox-3.4.0-2.el8.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-execnet-1.7.1-1.el8.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-toml-0.10.0-3.el8.noarch.rpm
-        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/python3-coverage-4.5.1-7.el8.x86_64.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-apipkg-1.5-6.el8.noarch.rpm
+        https://vault.centos.org/8.4.2105/BaseOS/x86_64/os/Packages/openssh-8.0p1-6${{ steps.distribution-meta.outputs.dist-tag }}_4.2.x86_64.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-cov-2.6.0-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-forked-1.0.2-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-xdist-1.24.1-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-tox-3.4.0-2${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-execnet-1.7.1-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-toml-0.10.0-3${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/python3-coverage-4.5.1-7${{ steps.distribution-meta.outputs.dist-tag }}.x86_64.rpm
+        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-apipkg-1.5-6${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
 
     - name: Install static build requirements
       run: dnf builddep --assumeyes --spec packaging/rpm/ansible-pylibssh.spec
@@ -755,7 +761,9 @@ jobs:
           dnf builddep --assumeyes \
             $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
                 needs.pre-setup.outputs.dist_version
-            }}-1.fc34.buildreqs.nosrc.rpm
+            }}-1${{
+              steps.distribution-meta.outputs.dist-tag
+            }}.buildreqs.nosrc.rpm
         done
 
     - name: Build an SRPM on RHELish
@@ -777,10 +785,8 @@ jobs:
         --rebuild
         $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
             needs.pre-setup.outputs.dist_version
-        }}-1.${{
-            contains(matrix.target-container.tag, 'fedora')
-            && 'fc34'
-            || 'el8'
+        }}-1${{
+          steps.distribution-meta.outputs.dist-tag
         }}.src.rpm
     - name: Install the packaged binary RPM on the system
       run: >-
@@ -789,10 +795,8 @@ jobs:
         --assumeyes
         $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-${{
             needs.pre-setup.outputs.dist_version
-        }}-1.${{
-            contains(matrix.target-container.tag, 'fedora')
-            && 'fc34'
-            || 'el8'
+        }}-1${{
+          steps.distribution-meta.outputs.dist-tag
         }}.x86_64.rpm
 
     - name: Smoke-test the installed library
