@@ -624,6 +624,8 @@ jobs:
           registry: registry.access.redhat.com
         - tag: ubi8/ubi:8.5
           registry: registry.access.redhat.com
+        - tag: ubi8/ubi:8.6
+          registry: registry.access.redhat.com
         # TODO: add a UBI9 beta container too
 
     runs-on: ubuntu-latest
