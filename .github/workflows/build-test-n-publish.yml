@@ -614,7 +614,8 @@ jobs:
     strategy:
       matrix:
         target-container:
-        - tag: fedora:34
+        - tag: fedora:35
+        - tag: fedora:36
         - tag: centos/centos:stream8
           registry: quay.io
         - tag: ubi8/ubi:8.3
