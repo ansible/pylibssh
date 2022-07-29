@@ -53,8 +53,7 @@ Source19: %{pypi_source iniconfig 1.1.1}
 Source20: %{pypi_source attrs 20.3.0}
 Source21: %{pypi_source pluggy 0.13.1}
 Source22: %{pypi_source py 1.10.0}
-Source23: %{pypi_source pyparsing 2.4.7}
-Source24: %{pypi_source coverage 5.5}
+Source23: %{pypi_source coverage 5.5}
 %endif
 
 # Test dependencies:
@@ -149,7 +148,6 @@ PYTHONPATH=bin/ %{__python3} -m pip install --no-deps -t bin %{SOURCE13}
 %{__python3} -m pip install --no-deps -t bin %{SOURCE21}
 %{__python3} -m pip install --no-deps -t bin %{SOURCE22}
 %{__python3} -m pip install --no-deps -t bin %{SOURCE23}
-%{__python3} -m pip install --no-deps -t bin %{SOURCE24}
 %endif
 
 # Fedora:
