@@ -16,7 +16,7 @@ repos:
     types: [file]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
-  rev: v1.3.0
+  rev: v1.3.1
   hooks:
   - id: remove-tabs
 
@@ -64,7 +64,7 @@ repos:
       ^docs/_samples/.*\.py$
 
 - repo: https://github.com/PyCQA/flake8.git
-  rev: 4.0.1
+  rev: 5.0.4
   hooks:
   - id: flake8
     language_version: python3
