@@ -25,5 +25,6 @@ parallel = true
 plugins = cython_coverage
 relative_files = true
 source =
-  pylibsshext
   tests
+source_pkgs =
+  pylibsshext
