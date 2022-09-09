@@ -148,7 +148,6 @@ cdef class Session(object):
             return ret
 
     def set_ssh_options(self, key, value):
-        cdef int value_fd
         cdef int value_int
         cdef unsigned int value_uint
         cdef long value_long
@@ -160,10 +159,7 @@ cdef class Session(object):
             key_m = OPTS_MAP[key]
         else:
             raise LibsshSessionException("Unknown attribute name [%s]" % key)
-        if key == "fd":
-            value_fd = value
-            libssh.ssh_options_set(self._libssh_session, key_m, &value_fd)
-        elif key == "gssapi_delegate_credentials":
+        if key in ("fd", "gssapi_delegate_credentials"):
             value_int = value
             libssh.ssh_options_set(self._libssh_session, key_m, &value_int)
         elif key == "port":
