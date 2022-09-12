@@ -19,7 +19,7 @@ on:
       **
   pull_request:
     paths-ignore:  # NOTE: cannot be combined with "paths"
-    - docs/**
+    - docs/**.rst
   workflow_run:
     workflows:
     - ♲ manylinux containers
