@@ -1,0 +1,1 @@
+Added support for ``:fd:`` socket option -- by :user:`sabedevops`
