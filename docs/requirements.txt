@@ -31,7 +31,9 @@ charset-normalizer==2.0.12 \
 click==7.1.2 \
     --hash=sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a \
     --hash=sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc
-    # via towncrier
+    # via
+    #   click-default-group
+    #   towncrier
 click-default-group==1.2.2 \
     --hash=sha256:d9560e8e8dfa44b3562fbc9425042a0fd6d21956fcc2db0077f63f34253ab904
     # via towncrier
@@ -231,9 +233,9 @@ tomli==1.2.2 \
     # via
     #   setuptools-scm
     #   towncrier
-towncrier==21.9.0 \
-    --hash=sha256:9cb6f45c16e1a1eec9d0e7651165e7be60cd0ab81d13a5c96ca97a498ae87f48 \
-    --hash=sha256:fc5a88a2a54988e3a8ed2b60d553599da8330f65722cc607c839614ed87e0f92
+towncrier==22.8.0 \
+    --hash=sha256:3b780c3d966e1b26414830aec3d15000654b31e64e024f3e5fd128b4c6eb8f47 \
+    --hash=sha256:7d3839b033859b45fb55df82b74cfd702431933c0cc9f287a5a7ea3e05d042cb
     # via sphinxcontrib-towncrier
 typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
