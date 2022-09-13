@@ -76,22 +76,41 @@ repos:
       ^docs/_samples/.*\.py$
 
 - repo: https://github.com/PyCQA/flake8.git
+  rev: 5.0.4
+  hooks:
+  - id: flake8
+    alias: flake8-no-wps
+    name: flake8 WPS-excluded
+    additional_dependencies:
+    - flake8-2020 ~= 1.7.0
+    - flake8-pytest-style ~= 1.6.0
+    exclude: >-
+      ^docs/_samples/.*\.py$
+    files: >-
+      ^.*\.p(xd|y|yx)$
+    language_version: python3
+    types:
+    - file
+
+- repo: https://github.com/PyCQA/flake8.git
+  # NOTE: This is kept at v4 for until WPS starts supporting flake v5.
   rev: 4.0.1  # enforce-version: 4.0.1
   hooks:
   - id: flake8
-    language_version: python3
+    alias: flake8-only-wps
+    name: flake8 WPS-only
+    args:
+    - --select
+    - WPS
     additional_dependencies:
-    - flake8-2020>=1.6.0
-    - flake8-docstrings
-    - flake8-eradicate>=1.0.0
-    - flake8-pytest-style>=1.0.0
-    - isort<5  # https://github.com/gforcada/flake8-isort/issues/88
-    - wemake-python-styleguide
-    files: >-
-      ^.*\.p(xd|y|yx)$
+    - wemake-python-styleguide ~= 0.16.1
     exclude: >-
       ^docs/_samples/.*\.py$
-    types: [file]
+    files: >-
+      ^.*\.p(xd|y|yx)$
+    language_version: python3
+    types:
+    - file
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks-markup.git
   rev: v1.0.1
