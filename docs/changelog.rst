@@ -189,7 +189,7 @@ Bugfixes
   (:issue:`58`)
 - Fixed double close issue, added logic to free
   the channel allocated memory within
-  `__dealloc__() <finalization_method>` -- by :user:`ganeshrn`
+  :ref:`__dealloc__() <finalization_method>` -- by :user:`ganeshrn`
   (:issue:`113`)
 
 
