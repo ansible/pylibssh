@@ -1,0 +1,1 @@
+Removed the remains of Python 2 compatiblity code from the in-tree :pep:`517` build backend -- by :user:`webknjaz`
