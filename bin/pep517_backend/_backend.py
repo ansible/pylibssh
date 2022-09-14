@@ -2,13 +2,11 @@
 
 """PEP 517 build backend pre-building Cython exts before setuptools."""
 
-from __future__ import (  # noqa: WPS422
-    absolute_import, division, print_function,
-)
-
 import contextlib
 import os
 import sys
+from functools import wraps
+from pathlib import Path
 
 import toml
 from expandvars import expandvars
@@ -24,14 +22,10 @@ from distutils.core import Distribution as DistutilsDistribution
 
 from Cython.Build.Cythonize import main as cythonize_cli_cmd
 
-from ._compat import wraps  # noqa: WPS436
 from ._transformers import (  # noqa: WPS436
     convert_to_kwargs_only, get_cli_kwargs_from_config,
     get_enabled_cli_flags_from_config,
 )
-
-
-__metadata__ = type  # pylint: disable=invalid-name  # make classes new-style
 
 
 def get_config():
@@ -86,9 +80,9 @@ def get_config():
         # This section can contain cythonize options
         # NAME = "VALUE"
     """
-    cwd_path = os.path.realpath(os.getcwd())
-    with open(os.path.join(cwd_path, 'pyproject.toml')) as config_file:
-        return toml.load(config_file)['tool']['local']['cythonize']
+    config_file = (Path.cwd().resolve() / 'pyproject.toml').read_text()
+    config_toml = toml.loads(config_file)
+    return config_toml['tool']['local']['cythonize']
 
 
 @contextlib.contextmanager
@@ -163,11 +157,6 @@ def pre_build_cython(orig_func):  # noqa: WPS210
     """
     @wraps(orig_func)
     def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
-        assert not args, (  # noqa: S101  # contract check, not user input
-            'This function only accepts keyword arguments'
-        )
-        del args  # Prevent accidental `args` var usage  # noqa: WPS420
-
         config = get_config()
 
         py_ver_arg = '-{maj_ver!s}'.format(maj_ver=sys.version_info.major)
@@ -176,9 +165,6 @@ def pre_build_cython(orig_func):  # noqa: WPS210
         cli_kwargs = get_cli_kwargs_from_config(config['kwargs'])
 
         cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
-        if sys.version_info[0] == 2:  # cythonize wants str() internally
-            # turn Unicode into native Python 2 `str`:
-            cythonize_args = [arg.encode() for arg in cythonize_args]
         with patched_env(config['env']):
             cythonize_cli_cmd(cythonize_args)
         with patched_distutils_cmd_install():

@@ -2,17 +2,9 @@
 
 """Data conversion helpers for the in-tree PEP 517 build backend."""
 
-from __future__ import (  # noqa: WPS422
-    absolute_import, division, print_function,
-)
-
-from functools import partial
+from functools import partial, wraps
+from inspect import signature
 from itertools import chain
-
-from ._compat import signature, wraps  # noqa: WPS436
-
-
-__metadata__ = type  # pylint: disable=invalid-name  # make classes new-style
 
 
 def _emit_opt_pairs(opt_pair):
@@ -23,8 +15,10 @@ def _emit_opt_pairs(opt_pair):
     else:
         sub_pairs = ((flag_value,),)
 
-    for pair in sub_pairs:  # noqa: WPS526
-        yield '='.join(map(str, (flag_opt,) + pair))
+    yield from (
+        '='.join(map(str, (flag_opt,) + pair))
+        for pair in sub_pairs
+    )
 
 
 def get_cli_kwargs_from_config(kwargs_map):
