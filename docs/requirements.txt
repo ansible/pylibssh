@@ -242,6 +242,10 @@ typing-extensions==4.1.1 \
 urllib3==1.26.5 \
     --hash=sha256:753a0374df26658f99d826cfe40394a686d05985786d946fbe4165b5148f5a7c
     # via requests
+zipp==3.8.1 \
+    --hash=sha256:05b45f1ee8f807d0cc928485ca40a07cb491cf092ff587c0df9cb1fd154848d2 \
+    --hash=sha256:47c40d7fe183a6f21403a199b3e4192cca5774656965b0a4988ad2f8feb5f009
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==49.1.2 \
