@@ -1,2 +1,0 @@
-Added ``password_prompt`` argument to ``connect()`` to override the default
-prompt of "password:" when using keyboard-interactive authentication -- by :user:`Qalthos`
