@@ -12,6 +12,28 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+v1.0.0 (2022-09-14)
+===================
+
+Features
+^^^^^^^^
+
+- Added ``password_prompt`` argument to ``connect()`` to override the default
+  prompt of "password:" when using keyboard-interactive authentication -- by :user:`Qalthos`
+  (:issue:`331`)
+- Added support for ``:fd:`` socket option -- by :user:`sabedevops`
+  (:issue:`343`)
+
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+- Reworked build scripts to fix manylinux container generation -- by :user:`Qalthos`
+  (:issue:`321`)
+- Reenable CI building on s390x -- by :user:`Qalthos`
+  (:issue:`322`)
+
+
 v0.4.0 (2022-04-26)
 ===================
 

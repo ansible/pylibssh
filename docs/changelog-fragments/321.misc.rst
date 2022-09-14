@@ -1,1 +1,0 @@
-Reworked build scripts to fix manylinux container generation -- by :user:`Qalthos`
