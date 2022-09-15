@@ -1118,13 +1118,13 @@ jobs:
       if: >-
         fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
         fromJSON(needs.pre-setup.outputs.is_tagged)
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.testpypi_password }}
         repository_url: https://test.pypi.org/legacy/
     - name: Publish 🐍📦 to PyPI
       if: fromJSON(needs.pre-setup.outputs.is_tagged)
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.pypi_password }}
 
