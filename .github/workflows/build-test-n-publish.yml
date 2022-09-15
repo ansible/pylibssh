@@ -855,10 +855,15 @@ jobs:
       if: >-
         runner.os == 'macOS'
       run: brew install libssh
-    - name: Install libssh headers on Linux for cythonize+coverage
+    - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
       if: >-
         runner.os == 'Linux'
-      run: sudo apt update && sudo apt install libssh-dev
+      run: >-
+        sudo apt update && sudo apt install ${{
+          matrix.runner-vm-os != 'ubuntu-20.04'
+          && 'glibc-tools'
+          || ''
+        }} libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
       uses: actions/setup-python@v4.2.0
       with:
