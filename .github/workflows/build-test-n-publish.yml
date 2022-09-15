@@ -828,9 +828,9 @@ jobs:
         - 3.7
         - 3.6
         runner-vm-os:
-        - ubuntu-20.04
+        - ubuntu-22.04
         - macos-latest
-        - ubuntu-18.04
+        - ubuntu-20.04
         dist-type:
         - binary
         - source
@@ -843,11 +843,11 @@ jobs:
       TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
-    - name: Install libssh and openssl headers on Linux
+    - name: Install build toolchain and openssl headers on Linux
       if: >-
         matrix.dist-type == 'source' &&
         runner.os == 'Linux'
-      run: sudo apt update && sudo apt install libssh-dev libssl-dev build-essential
+      run: sudo apt update && sudo apt install build-essential libssl-dev
     - name: Install libssh and openssl headers on macOS
       if: >-
         runner.os == 'macOS'
@@ -855,7 +855,7 @@ jobs:
     - name: Install libssh headers on Linux for cythonize+coverage
       if: >-
         runner.os == 'Linux'
-      run: sudo add-apt-repository ppa:kedazo/libssh-0.7.x && sudo apt update && sudo apt install libssh-dev
+      run: sudo apt update && sudo apt install libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
       uses: actions/setup-python@v4.2.0
       with:
