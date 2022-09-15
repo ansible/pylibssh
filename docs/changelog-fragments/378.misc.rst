@@ -1,0 +1,6 @@
+Fixed removing ``expandvars`` from ``pyproject.toml``
+in an RPM spec -- by :user:`webknjaz`
+
+Before this patch, the ``sed`` invocation removed entire
+``build-system.requires`` entry from there, in rare cases
+but this won't be happening anymore.

@@ -116,7 +116,7 @@ $summary
 
 # Fedora:
 %if 0%{?fedora}
-sed -i '/"expandvars",/d' pyproject.toml
+sed -i 's/\(.*\)"expandvars",\(.*\)/\1\2/g' pyproject.toml
 %endif
 
 PYTHONPATH="$(pwd)/bin" \
