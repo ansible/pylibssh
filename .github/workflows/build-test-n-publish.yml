@@ -997,6 +997,7 @@ jobs:
     if: always()
 
     needs:
+    - build-rpms
     - dist-meta
     - test-matrix
 
