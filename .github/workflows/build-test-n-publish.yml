@@ -704,21 +704,28 @@ jobs:
         dist/ansible-pylibssh-${{ needs.pre-setup.outputs.dist_version }}.tar.gz
         ~/rpmbuild/SOURCES/
 
-    - name: Install static test dependencies missing from UBI
-      if: contains(matrix.target-container.tag, 'ubi')
+    - name: Install static test dependencies missing from UBI8
+      if: contains(matrix.target-container.tag, 'ubi8')
       run: >-
         rpm
         -ivh
         --nodeps
         https://vault.centos.org/8.4.2105/BaseOS/x86_64/os/Packages/openssh-8.0p1-6${{ steps.distribution-meta.outputs.dist-tag }}_4.2.x86_64.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-cov-2.6.0-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-forked-1.0.2-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-pytest-xdist-1.24.1-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-tox-3.4.0-2${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-execnet-1.7.1-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
         https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-toml-0.10.0-3${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
-        https://rpmfind.net/linux/centos/8-stream/AppStream/x86_64/os/Packages/python3-coverage-4.5.1-7${{ steps.distribution-meta.outputs.dist-tag }}.x86_64.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-apipkg-1.5-6${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+
+    - name: Install static test dependencies missing from all UBIs
+      if: contains(matrix.target-container.tag, 'ubi')
+      run: >-
+        rpm
+        -ivh
+        --nodeps
+        https://rpmfind.net/linux/epel/"$(rpm --eval '%{rhel}')"/Everything/x86_64/Packages/p/python3-pytest-cov-$(rpm --eval '%{expr:%rhel==9?"3.0.0-8":"2.6.0-1"}')${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(rpm --eval '%{rhel}')"/Everything/x86_64/Packages/p/python3-pytest-forked-$(rpm --eval '%{expr:%rhel==9?"1.4.0":"1.0.2"}')-1${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(rpm --eval '%{rhel}')"/Everything/x86_64/Packages/p/python3-pytest-xdist-$(rpm --eval '%{expr:%rhel==9?"2.5.0-2":"1.24.1-1"}')${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(rpm --eval '%{rhel}')"/Everything/x86_64/Packages/$(rpm --eval '%{expr:%rhel==9?"t":"p"}')/$(rpm --eval '%{expr:%rhel!=9?"python3-":""}')tox-$(rpm --eval '%{expr:%rhel==9?"3.25.0-1":"3.4.0-2"}')${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(rpm --eval '%{rhel}')"/Everything/x86_64/Packages/p/python3-execnet-$(rpm --eval '%{expr:%rhel==9?"1.9.0-3":"1.7.1-1"}')${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://rpmfind.net/linux/$(rpm --eval '%{expr:%rhel==9?"epel":"centos"}')/"$(rpm --eval '%{rhel}')"$(rpm --eval '%{expr:%rhel!=9?"-stream"}')/$(rpm --eval '%{expr:%rhel==9?"Everything":"AppStream"}')/x86_64/$(rpm --eval '%{expr:%rhel!=9?"os/"}')Packages/python3-coverage-$(rpm --eval '%{expr:%rhel==9?"6.2-1":"4.5.1-9"}')${{ steps.distribution-meta.outputs.dist-tag }}.x86_64.rpm
+        https://rpmfind.net/linux/epel/"$(rpm --eval '%{rhel}')"/Everything/x86_64/Packages/p/python3-apipkg-$(rpm --eval '%{expr:%rhel==9?"2.1.1-1":"1.5-6"}')${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
 
     - name: Install static build requirements
       run: dnf builddep --assumeyes --spec packaging/rpm/ansible-pylibssh.spec
