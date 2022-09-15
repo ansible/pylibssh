@@ -834,6 +834,9 @@ jobs:
         dist-type:
         - binary
         - source
+        exclude:
+        - runner-vm-os: ubuntu-22.04
+          python-version: 3.6  # EOL, only provided for older OSs
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
