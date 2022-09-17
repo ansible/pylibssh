@@ -1,6 +1,8 @@
+---
+
 name: 🚨
 
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     branches-ignore:
     # NOTE: bot-managed branches don't need to be linted on
@@ -85,7 +87,11 @@ jobs:
       run: |
         python -m tox --parallel auto --parallel-live --notest
     - name: Initialize pre-commit envs if needed
-      run: |
-        test -d .tox/lint && .tox/lint/bin/python -m pre_commit install-hooks || :
+      run: >-
+        test -d .tox/lint
+        && .tox/lint/bin/python -m pre_commit install-hooks
+        || :
     - name: Test with tox
       run: python -m tox --parallel auto --parallel-live
+
+...

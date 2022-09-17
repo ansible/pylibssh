@@ -1,3 +1,7 @@
+---
+
 chronographer:
   enforce_name:
     suffix: .rst
+
+...

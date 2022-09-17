@@ -1,6 +1,8 @@
+---
+
 name: 🏗 📦 & test & publish
 
-on:
+on:  # yamllint disable-line rule:truthy
   create:  # is used for publishing to PyPI and TestPyPI
     tags:  # any tag regardless of its name, no branches
     - >-
@@ -29,7 +31,10 @@ on:
     - completed
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event.pull_request.number || github.sha
+    }}
   cancel-in-progress: true
 
 jobs:
@@ -124,7 +129,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           steps.calc_cache_key_files.outputs.files_hash_key }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
@@ -147,7 +154,11 @@ jobs:
       run: |
         import setuptools_scm
         ver = setuptools_scm.get_version(
-          ${{ steps.not_tagged_check.outputs.is_untagged_devel == 'true' && 'local_scheme="no-local-version"' || '' }}
+          ${{
+            steps.not_tagged_check.outputs.is_untagged_devel == 'true'
+            && 'local_scheme="no-local-version"'
+            || ''
+          }}
         )
         print('::set-output name=dist_version::{ver}'.format(ver=ver))
 
@@ -207,25 +218,25 @@ jobs:
     # NOTE: side APIs. Controlling the supply chain is also safer from
     # NOTE: the security perspective. Also, it breaks when brew replaces
     # NOTE: the versions.
-    #- name: Fetch libssh src
-    #  env:
-    #    LIBSSH_VERSION: 0.9.3
-    #  run: >-
-    #    git clone --depth=1
-    #    -b "libssh-${{ env.LIBSSH_VERSION }}"
-    #    https://git.libssh.org/projects/libssh.git
-    #- name: Make libssh build dir
-    #  run: mkdir -pv build
-    #  working_directory: libssh
-    #- name: Build libssh
-    #  env:
-    #    CFLAGS: -I/usr/local/opt/openssl/include
-    #    LDFLAGS: -L/usr/local/opt/openssl/lib
-    #  run: |
-    #    cmake ..
-    #    make
-    #    make install/strip
-    #  working_directory: libssh/build
+    # - name: Fetch libssh src
+    #   env:
+    #     LIBSSH_VERSION: 0.9.3
+    #   run: >-
+    #     git clone --depth=1
+    #     -b "libssh-${{ env.LIBSSH_VERSION }}"
+    #     https://git.libssh.org/projects/libssh.git
+    # - name: Make libssh build dir
+    #   run: mkdir -pv build
+    #   working_directory: libssh
+    # - name: Build libssh
+    #   env:
+    #     CFLAGS: -I/usr/local/opt/openssl/include
+    #     LDFLAGS: -L/usr/local/opt/openssl/lib
+    #   run: |
+    #     cmake ..
+    #     make
+    #     make install/strip
+    #   working_directory: libssh/build
     - name: Install tox
       run: python -m pip install --user tox
     - name: >-
@@ -254,7 +265,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Check out src from Git
@@ -295,13 +308,26 @@ jobs:
     - name: Build dist
       run: python -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
     - name: Bundle external shared libs
-      run: python -m tox -p auto --parallel-live -vvvv -e delocate-macos-wheels -- dist/*.whl
+      run: >-
+        python -m
+        tox
+        -p auto
+        --parallel-live -vvvv
+        -e delocate-macos-wheels
+        --
+        dist/*.whl
     - name: Verify wheel metadata
       run: python -m tox -p auto --parallel-live -vvvv -e metadata-validation
     - name: Install pytest and its plugins
       run: python -m pip install --user pytest pytest-cov pytest-xdist
     - name: Install the generated Python wheel distribution
-      run: python -m pip install --user --no-index -f dist --only-binary ansible-pylibssh ansible-pylibssh
+      run: >-
+        python -m
+        pip install
+        --user --no-index
+        -f dist
+        --only-binary ansible-pylibssh
+        ansible-pylibssh
     - name: Run tests using pytest
       run: python -m pytest -m smoke --no-cov
     - name: Store the binary wheel
@@ -397,7 +423,11 @@ jobs:
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       DOCKER_EXECUTABLE: podman
       PY_COLORS: 1
-      QEMU_ARCH: ${{ matrix.manylinux-image-target.qemu_arch || matrix.manylinux-image-target.arch }}
+      QEMU_ARCH: >-
+        ${{
+          matrix.manylinux-image-target.qemu_arch
+          || matrix.manylinux-image-target.arch
+        }}
       TOXENV: >-
         build-dists-manylinux${{ matrix.manylinux-year-target
         }}-${{ matrix.manylinux-image-target.arch }},metadata-validation
@@ -434,7 +464,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install tox
@@ -550,7 +582,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install tox
@@ -727,8 +761,16 @@ jobs:
         rpm
         -ivh
         --nodeps
-        https://vault.centos.org/8.4.2105/BaseOS/x86_64/os/Packages/openssh-8.0p1-6${{ steps.distribution-meta.outputs.dist-tag }}_4.2.x86_64.rpm
-        https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/p/python3-toml-0.10.0-3${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
+        https://vault.centos.org/"$(
+          rpm --eval '%{rhel}'
+        )".4.2105/BaseOS/x86_64/os/Packages/openssh-8.0p1-6${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_4.2.x86_64.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-toml-0.10.0-3${{
+          steps.distribution-meta.outputs.dist-tag
+        }}.noarch.rpm
 
     - name: Install static test dependencies missing from all UBIs
       if: contains(matrix.target-container.tag, 'ubi')
@@ -822,7 +864,9 @@ jobs:
     - name: Fetch sources and patches on a community distro
       if: >-
         !contains(matrix.target-container.tag, 'ubi')
-      run: spectool --all --get-files --sourcedir packaging/rpm/ansible-pylibssh.spec
+      run: >-
+        spectool --all --get-files --sourcedir
+        packaging/rpm/ansible-pylibssh.spec
 
     - name: Resolve and install dynamic build deps and build an SRPM on Fedora
       # Ref: https://github.com/rpm-software-management/rpm/commit/58dcfdd
@@ -983,7 +1027,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install tox
@@ -1061,7 +1107,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install tox
@@ -1184,7 +1232,9 @@ jobs:
           steps.calc_cache_key_py.outputs.py_hash_key }}-${{
           needs.pre-setup.outputs.cache_key_files }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ steps.calc_cache_key_py.outputs.py_hash_key }}-
+          ${{ runner.os }}-pip-${{
+            steps.calc_cache_key_py.outputs.py_hash_key
+          }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install dumb-pypi dist from PyPI
@@ -1193,7 +1243,9 @@ jobs:
       run: |
         python -m dumb_pypi.main \
           --package-list <(ls dist/) \
-          --packages-url https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/dist \
+          --packages-url https://raw.githubusercontent.com/${{
+            github.repository
+          }}/gh-pages/dist \
           --output-dir gh-pages-dumb-pypi
       shell: bash
 
@@ -1209,6 +1261,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: gh-pages-dumb-pypi
 
+...
 
 # TODO: Test install from sdist
 #

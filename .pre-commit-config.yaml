@@ -1,4 +1,5 @@
 ---
+
 ci:
   autoupdate_schedule: quarterly
 
@@ -52,12 +53,10 @@ repos:
   - id: check-byte-order-marker
   - id: check-case-conflict
   # disabled due to pre-commit/pre-commit-hooks#159
-  #- id: check-docstring-first
+  # - id: check-docstring-first
   - id: check-json
   - id: check-symlinks
   - id: check-yaml
-    # args:
-    # - --unsafe
   - id: detect-private-key
 
   # Heavy checks:
@@ -74,6 +73,15 @@ repos:
   - id: pydocstyle
     exclude: >-
       ^docs/_samples/.*\.py$
+
+- repo: https://github.com/adrienverge/yamllint.git
+  rev: v1.28.0
+  hooks:
+  - id: yamllint
+    files: \.(yaml|yml)$
+    types: [file, yaml]
+    args:
+    - --strict
 
 - repo: https://github.com/PyCQA/flake8.git
   rev: 5.0.4
@@ -159,3 +167,5 @@ repos:
       ^\.pre-commit-config\.ya?ml$
     types:
     - yaml
+
+...

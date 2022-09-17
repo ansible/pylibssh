@@ -1,3 +1,6 @@
+---
+# yamllint disable rule:truthy
+
 comment:
   layout: header, reach, diff, files
   behavior: new
@@ -17,3 +20,5 @@ coverage:
 
 notify:
   after_n_builds: 25  # Wait for the most of the GHA matrix before posting
+
+...

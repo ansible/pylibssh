@@ -1,3 +1,5 @@
+---
+
 version: 2
 updates:
 - package-ecosystem: github-actions
@@ -12,3 +14,5 @@ updates:
   versioning-strategy: lockfile-only
   labels:
   - dependabot-deps-update
+
+...
