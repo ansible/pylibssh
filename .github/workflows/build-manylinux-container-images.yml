@@ -1,6 +1,8 @@
+---
+
 name: ♲ manylinux containers
 
-on:
+on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
   schedule:
   # Run once a week on Mondays
@@ -32,7 +34,8 @@ jobs:
         - ARCH: ppc64le
         # Build containers for s390x
         - ARCH: s390x
-        # There are no base containers for these archs at https://quay.io/organization/pypa
+        # There are no base containers for these archs
+        # at https://quay.io/organization/pypa.
         # Build containers for armv7l (ARM v7)
         # - ARCH: armv7l
         #   QEMU_ARCH: arm/v7
@@ -40,7 +43,7 @@ jobs:
         # - ARCH: ppc64
         YEAR:
         - 2014
-        - _2_24 # PEP 600
+        - _2_24  # PEP 600
         include:
         - IMAGE:
             ARCH: x86_64
@@ -56,7 +59,13 @@ jobs:
       PYPA_MANYLINUX_TAG: >-
         manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
-        ${{ github.repository }}-manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
+        ${{
+          github.repository
+        }}-manylinux${{
+          matrix.YEAR
+        }}_${{
+          matrix.IMAGE.ARCH
+        }}
       QEMU_ARCH: ${{ matrix.IMAGE.QEMU_ARCH || matrix.IMAGE.ARCH }}
 
     defaults:
@@ -119,3 +128,5 @@ jobs:
         echo
         'New image has been pushed to
         ${{ steps.push-to-ghcr.outputs.registry-paths }}'
+
+...

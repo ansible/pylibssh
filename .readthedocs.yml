@@ -13,13 +13,6 @@ sphinx:
   configuration: docs/conf.py
   fail_on_warning: true
 
-# Build documentation with MkDocs
-#mkdocs:
-#  configuration: mkdocs.yml
-#  fail_on_warning: true
-
-# Optionally build your docs in additional formats
-# such as PDF and ePub
 formats: []
 
 submodules:
@@ -37,3 +30,5 @@ python:
   install:
   - requirements: docs/requirements.txt
   system_packages: false
+
+...
