@@ -701,6 +701,13 @@ jobs:
           matrix.target-container.tag
         }}
 
+    continue-on-error: >-
+      ${{
+        contains(matrix.target-container.tag, 'ubi9')
+        && true
+        || false
+      }}
+
     steps:
     - name: Produce artifact name
       id: distribution-meta
