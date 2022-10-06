@@ -1004,6 +1004,7 @@ jobs:
           || ''
         }} libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
+      id: python-install
       uses: actions/setup-python@v4.2.0
       with:
         python-version: ${{ matrix.python-version }}
@@ -1066,7 +1067,18 @@ jobs:
     - name: Send coverage data to Codecov
       uses: codecov/codecov-action@v3.1.1
       with:
-        file: .test-results/pytest/cov.xml
+        files: .test-results/pytest/cov.xml
+        flags: >-
+          CI-GHA,
+          OS-${{
+            runner.os
+          }},
+          VM-${{
+            matrix.os
+          }},
+          Py-${{
+            steps.python-install.outputs.python-version
+          }}
 
   dist-meta:
     name: Verify 🐍📦 metadata
