@@ -43,6 +43,23 @@ concurrency:
     }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
+  MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
+  PIP_NO_PYTHON_VERSION_WARNING: 1
+  PIP_NO_WARN_SCRIPT_LOCATION: 1
+  PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
+  TOX_PARALLEL_NO_SPINNER: 1
+  TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
+    FORCE_COLOR
+    MYPY_FORCE_COLOR
+    NO_COLOR
+    PY_COLORS
+    PYTEST_THEME
+    PYTEST_THEME_MODE
+
+
 jobs:
   pre-setup:
     name: Pre-set global build settings
@@ -193,7 +210,6 @@ jobs:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --wheel
-      PY_COLORS: 1
       TOXENV: build-wheels-pip,delocate-macos-wheels,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
 
@@ -428,7 +444,6 @@ jobs:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       DOCKER_EXECUTABLE: podman
-      PY_COLORS: 1
       QEMU_ARCH: >-
         ${{
           matrix.manylinux-image-target.qemu_arch
@@ -553,7 +568,6 @@ jobs:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --sdist
-      PY_COLORS: 1
       TOXENV: build-dists,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
 
@@ -980,7 +994,6 @@ jobs:
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
-      PY_COLORS: 1
       TOXENV: test-${{ matrix.dist-type }}-dists
       TOX_PARALLEL_NO_SPINNER: 1
 
@@ -1090,7 +1103,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PY_COLORS: 1
       TOXENV: metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
 
