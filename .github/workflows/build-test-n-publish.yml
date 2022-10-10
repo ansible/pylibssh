@@ -200,6 +200,7 @@ jobs:
         # NOTE: Research on the wheel names / platform tags and how they
         # NOTE: are matched under various macOS versions:
         # NOTE: https://github.com/MacPython/wiki/wiki/Spinning-wheels
+        - "3.11"
         - "3.10"
         - 3.9
         - 3.8
@@ -986,6 +987,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.11"
         - "3.10"
         - 3.9
         - 3.8
