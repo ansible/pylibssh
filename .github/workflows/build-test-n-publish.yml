@@ -139,7 +139,7 @@ jobs:
         )).encode()).hexdigest()
         print(f'::set-output name=files_hash_key::{hashes_combo}')
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
@@ -274,7 +274,7 @@ jobs:
         print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
@@ -472,7 +472,7 @@ jobs:
         print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
@@ -589,7 +589,7 @@ jobs:
         print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
@@ -1041,7 +1041,7 @@ jobs:
         print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
@@ -1131,7 +1131,7 @@ jobs:
         print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
@@ -1256,7 +1256,7 @@ jobs:
         print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.0.10
+      uses: actions/cache@v3.0.11
       with:
         path: >-
           ${{
