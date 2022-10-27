@@ -1,0 +1,1 @@
+Declared official support of CPython 3.11 -- by :user:`Qalthos`
