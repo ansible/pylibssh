@@ -377,13 +377,14 @@ jobs:
         manylinux-python-target:
         # NOTE: Must be from this list:
         # NOTE: $ podman run -it --rm \
-        # NOTE:   quay.io/pypa/manylinux2010_x86_64 \
+        # NOTE:   quay.io/pypa/manylinux2014_x86_64 \
         # NOTE:   ls -1 /opt/python
         - cp36-cp36m
         - cp37-cp37m
         - cp38-cp38
         - cp39-cp39
         - cp310-cp310
+        - cp311-cp311
         manylinux-year-target:
         - 2014
         - _2_24
