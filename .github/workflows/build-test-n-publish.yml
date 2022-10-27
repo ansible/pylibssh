@@ -341,7 +341,11 @@ jobs:
     - name: Verify wheel metadata
       run: python -m tox -p auto --parallel-live -vvvv -e metadata-validation
     - name: Install pytest and its plugins
-      run: python -m pip install --user pytest pytest-cov pytest-xdist
+      run: >-
+        python -m
+        pip install
+        --user
+        pytest pytest-cov pytest-xdist pytest-forked
     - name: Install the generated Python wheel distribution
       run: >-
         python -m

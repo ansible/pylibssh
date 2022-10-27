@@ -1,1 +1,1 @@
-Updated packages installed for ubi9 testing that were replaced by newer versions -- by :user:`Qalthos`
+Fix issues with ubi9 and macOS jobs -- by :user:`Qalthos`
