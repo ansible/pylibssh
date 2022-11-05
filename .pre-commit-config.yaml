@@ -109,6 +109,9 @@ repos:
     alias: flake8-only-wps
     name: flake8 WPS-only
     args:
+    # https://wemake-python-stylegui.de/en/latest/pages/usage/formatter.html
+    - --format
+    - wemake
     - --select
     - WPS
     additional_dependencies:

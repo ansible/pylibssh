@@ -29,8 +29,7 @@ filename =
   # Cython files:
   *.pyx
 
-# https://wemake-python-stylegui.de/en/latest/pages/usage/formatter.html
-format = wemake
+format = default
 
 # IMPORTANT: avoid using ignore option, always use extend-ignore instead
 # Completely and unconditionally ignore the following errors:
