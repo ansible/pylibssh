@@ -578,10 +578,10 @@ jobs:
       TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
-    - name: Switch to using Python 3.9 by default
+    - name: Switch to using Python 3.11 by default
       uses: actions/setup-python@v4.3.0
       with:
-        python-version: 3.9
+        python-version: 3.11
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
