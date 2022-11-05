@@ -112,7 +112,7 @@ repos:
     - --select
     - WPS
     additional_dependencies:
-    - wemake-python-styleguide ~= 0.16.1
+    - wemake-python-styleguide ~= 0.17.0
     exclude: >-
       ^docs/_samples/.*\.py$
     files: >-
