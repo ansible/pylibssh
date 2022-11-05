@@ -4,7 +4,7 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements-build.txt --strip-extras -
 #
-cython==0.29.30
+cython==0.29.32
     # via -r -
 expandvars==0.9.0
     # via -r -
