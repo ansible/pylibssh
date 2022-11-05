@@ -46,12 +46,12 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from hashlib import sha512
         from sys import version
         hash = sha512(version.encode()).hexdigest()
-        print(f'::set-output name=py_hash_key::{hash}')
+        print(f'::set-output name=py-hash-key::{hash}')
       shell: python
     - name: Pre-commit cache
       uses: actions/cache@v3.0.11
@@ -59,7 +59,7 @@ jobs:
         path: ~/.cache/pre-commit
         key: >-
           ${{ runner.os }}-pre-commit-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
           hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{
           hashFiles('pyproject.toml') }}-${{
           hashFiles('.pre-commit-config.yaml') }}-${{
@@ -70,7 +70,7 @@ jobs:
         path: ~/.cache/pip
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
           hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{
           hashFiles('pyproject.toml') }}-${{
           hashFiles('.pre-commit-config.yaml') }}-${{
