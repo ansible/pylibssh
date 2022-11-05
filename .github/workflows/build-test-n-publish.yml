@@ -71,14 +71,14 @@ jobs:
       run:
         shell: python
     outputs:
-      dist_version: ${{ steps.scm_version.outputs.dist_version }}
-      is_untagged_devel: >-
-        ${{ steps.not_tagged_check.outputs.is_untagged_devel || false }}
-      is_tagged: ${{ steps.tagged_check.outputs.is_tagged || false }}
-      profiling_enabled: >-
-        ${{ steps.profiling_check.outputs.profiling_enabled || false }}
-      cache_key_files: >-
-        ${{ steps.calc_cache_key_files.outputs.files_hash_key }}
+      dist-version: ${{ steps.scm-version.outputs.dist-version }}
+      is-untagged-devel: >-
+        ${{ steps.not-tagged-check.outputs.is-untagged-devel || false }}
+      is-tagged: ${{ steps.tagged-check.outputs.is-tagged || false }}
+      profiling-enabled: >-
+        ${{ steps.profiling-check.outputs.profiling-enabled || false }}
+      cache-key-files: >-
+        ${{ steps.calc-cache-key-files.outputs.files-hash-key }}
     steps:
     - name: Switch to using Python 3.9 by default
       uses: actions/setup-python@v4.3.0
@@ -87,45 +87,45 @@ jobs:
     - name: >-
         Mark the build as non-tagged
         ${{ github.event.repository.default_branch }} build
-      id: not_tagged_check
+      id: not-tagged-check
       if: >-
         github.event_name == 'push' &&
         github.ref == format(
           'refs/heads/{0}', github.event.repository.default_branch
         )
       run: >-
-        print('::set-output name=is_untagged_devel::true')
+        print('::set-output name=is-untagged-devel::true')
     - name: Mark the build as tagged
-      id: tagged_check
+      id: tagged-check
       if: >-  # "create" workflows run separately from "push" & "pull_request"
         github.event_name == 'create' &&
         github.event.ref_type == 'tag'
       run: >-
-        print('::set-output name=is_tagged::true')
+        print('::set-output name=is-tagged::true')
     - name: Enable profiling of the build
-      id: profiling_check
+      id: profiling-check
       if: >-
-        steps.tagged_check.outputs.is_tagged != 'true'
+        steps.tagged-check.outputs.is-tagged != 'true'
       run: >-
-        print('::set-output name=profiling_enabled::true')
+        print('::set-output name=profiling-enabled::true')
     - name: Check out src from Git
       uses: actions/checkout@v3.1.0
       with:
         fetch-depth: >-
-          ${{ steps.tagged_check.outputs.is_tagged == 'true' && 1 || 0 }}
+          ${{ steps.tagged-check.outputs.is-tagged == 'true' && 1 || 0 }}
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from hashlib import sha512
         from sys import version
         hash = sha512(version.encode()).hexdigest()
-        print(f'::set-output name=py_hash_key::{hash}')
+        print(f'::set-output name=py-hash-key::{hash}')
     - name: >-
         Calculate dependency files' combined hash value
         for use in the cache key
-      id: calc_cache_key_files
+      id: calc-cache-key-files
       run: |
         from hashlib import sha512
         hashes_combo = sha512('-'.join((
@@ -137,7 +137,7 @@ jobs:
           "${{ hashFiles('requirements-build.*') }}",
           "${{ hashFiles('docs/requirements.*') }}",
         )).encode()).hexdigest()
-        print(f'::set-output name=files_hash_key::{hashes_combo}')
+        print(f'::set-output name=files-hash-key::{hashes_combo}')
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
       with:
@@ -149,17 +149,17 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          steps.calc_cache_key_files.outputs.files_hash_key }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          steps.calc-cache-key-files.outputs.files-hash-key }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        steps.tagged_check.outputs.is_tagged != 'true'
+        steps.tagged-check.outputs.is-tagged != 'true'
       run: >-
         git tag --points-at HEAD
         |
@@ -173,17 +173,17 @@ jobs:
         setuptools-scm
       shell: bash
     - name: Set the current dist version
-      id: scm_version
+      id: scm-version
       run: |
         import setuptools_scm
         ver = setuptools_scm.get_version(
           ${{
-            steps.not_tagged_check.outputs.is_untagged_devel == 'true'
+            steps.not-tagged-check.outputs.is-untagged-devel == 'true'
             && 'local_scheme="no-local-version"'
             || ''
           }}
         )
-        print('::set-output name=dist_version::{ver}'.format(ver=ver))
+        print('::set-output name=dist-version::{ver}'.format(ver=ver))
 
   build-bin-macos:
     name: 🏗 macOS 📦 for 🐍 ${{ matrix.python-version }}
@@ -209,7 +209,7 @@ jobs:
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
+        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --wheel
       TOXENV: build-wheels-pip,delocate-macos-wheels,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
@@ -265,14 +265,14 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from __future__ import print_function
         from hashlib import sha512
         from sys import version, version_info
         b_version = version if version_info[0] == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
+        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -285,11 +285,11 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          needs.pre-setup.outputs.cache_key_files }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
@@ -297,10 +297,10 @@ jobs:
       uses: actions/checkout@v3.1.0
       with:
         fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+          ${{ fromJSON(needs.pre-setup.outputs.is-tagged) && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        !fromJSON(needs.pre-setup.outputs.is_tagged)
+        !fromJSON(needs.pre-setup.outputs.is-tagged)
       run: >-
         git tag --points-at HEAD
         |
@@ -309,11 +309,11 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Install toml Python distribution package
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         python -m pip install --user toml
     - name: Instruct setuptools-scm not to add a local version part
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: |
         import toml
         with open('pyproject.toml') as pyproject_toml:
@@ -324,7 +324,7 @@ jobs:
             toml.dump(pyproj, pyproject_toml)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: |
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
@@ -448,7 +448,7 @@ jobs:
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
+        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       DOCKER_EXECUTABLE: podman
       QEMU_ARCH: >-
         ${{
@@ -468,14 +468,14 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from __future__ import print_function
         from hashlib import sha512
         from sys import version, version_info
         b_version = version if version_info[0] == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
+        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -488,11 +488,11 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          needs.pre-setup.outputs.cache_key_files }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
@@ -506,10 +506,10 @@ jobs:
       uses: actions/checkout@v3.1.0
       with:
         fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+          ${{ fromJSON(needs.pre-setup.outputs.is-tagged) && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        !fromJSON(needs.pre-setup.outputs.is_tagged)
+        !fromJSON(needs.pre-setup.outputs.is-tagged)
       run: >-
         git tag --points-at HEAD
         |
@@ -518,14 +518,14 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Install toml Python distribution package
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         python -m
         pip install
         --user
         toml
     - name: Instruct setuptools-scm not to add a local version part
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: |
         import toml
         with open('pyproject.toml') as pyproject_toml:
@@ -536,7 +536,7 @@ jobs:
             toml.dump(pyproj, pyproject_toml)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: |
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
@@ -572,7 +572,7 @@ jobs:
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
+        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --sdist
       TOXENV: build-dists,metadata-validation
       TOX_PARALLEL_NO_SPINNER: 1
@@ -585,14 +585,14 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from __future__ import print_function
         from hashlib import sha512
         from sys import version, version_info
         b_version = version if version_info[0] == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
+        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -605,11 +605,11 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          needs.pre-setup.outputs.cache_key_files }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
@@ -623,10 +623,10 @@ jobs:
       uses: actions/checkout@v3.1.0
       with:
         fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is_tagged) && 1 || 0 }}
+          ${{ fromJSON(needs.pre-setup.outputs.is-tagged) && 1 || 0 }}
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        !fromJSON(needs.pre-setup.outputs.is_tagged)
+        !fromJSON(needs.pre-setup.outputs.is-tagged)
       run: >-
         git tag --points-at HEAD
         |
@@ -635,14 +635,14 @@ jobs:
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Install toml Python distribution package
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         python -m
         pip install
         --user
         toml
     - name: Instruct setuptools-scm not to add a local version part
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: |
         import toml
         with open('pyproject.toml') as pyproject_toml:
@@ -653,7 +653,7 @@ jobs:
             toml.dump(pyproj, pyproject_toml)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
-      if: fromJSON(needs.pre-setup.outputs.is_untagged_devel)
+      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: |
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
@@ -751,7 +751,7 @@ jobs:
     - name: Set an SCM version in the spec
       run: >-
         sed -i
-        "s#^\(Version:\s\+\).*#\1${{ needs.pre-setup.outputs.dist_version }}#"
+        "s#^\(Version:\s\+\).*#\1${{ needs.pre-setup.outputs.dist-version }}#"
         packaging/rpm/ansible-pylibssh.spec
 
     - name: Download all the dists  # because `rpmlint` executes the spec file
@@ -768,7 +768,7 @@ jobs:
     - name: Copy sdist to the sources dir
       run: >-
         cp -v
-        dist/ansible-pylibssh-${{ needs.pre-setup.outputs.dist_version }}.tar.gz
+        dist/ansible-pylibssh-${{ needs.pre-setup.outputs.dist-version }}.tar.gz
         ~/rpmbuild/SOURCES/
 
     - name: Install static test dependencies missing from UBI9
@@ -915,7 +915,7 @@ jobs:
           set -e
           dnf builddep --assumeyes \
             $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
-                needs.pre-setup.outputs.dist_version
+                needs.pre-setup.outputs.dist-version
             }}-1${{
               steps.distribution-meta.outputs.dist-tag
             }}.buildreqs.nosrc.rpm
@@ -939,7 +939,7 @@ jobs:
         rpmbuild
         --rebuild
         $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
-            needs.pre-setup.outputs.dist_version
+            needs.pre-setup.outputs.dist-version
         }}-1${{
           steps.distribution-meta.outputs.dist-tag
         }}.src.rpm
@@ -949,7 +949,7 @@ jobs:
         install
         --assumeyes
         $HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-${{
-            needs.pre-setup.outputs.dist_version
+            needs.pre-setup.outputs.dist-version
         }}-1${{
           steps.distribution-meta.outputs.dist-tag
         }}.x86_64.rpm
@@ -1007,7 +1007,7 @@ jobs:
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling_enabled) && 1 || 0 }}
+        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       TOXENV: test-${{ matrix.dist-type }}-dists
       TOX_PARALLEL_NO_SPINNER: 1
 
@@ -1038,14 +1038,14 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from __future__ import print_function
         from hashlib import sha512
         from sys import version, version_info
         b_version = version if version_info[0] == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
+        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -1058,11 +1058,11 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          needs.pre-setup.outputs.cache_key_files }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
@@ -1128,14 +1128,14 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from __future__ import print_function
         from hashlib import sha512
         from sys import version, version_info
         b_version = version if version_info[0] == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
+        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -1148,11 +1148,11 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          needs.pre-setup.outputs.cache_key_files }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
@@ -1196,8 +1196,8 @@ jobs:
     - check
     - pre-setup  # transitive, for accessing settings
     if: >-
-      fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
-      fromJSON(needs.pre-setup.outputs.is_tagged)
+      fromJSON(needs.pre-setup.outputs.is-untagged-devel) ||
+      fromJSON(needs.pre-setup.outputs.is-tagged)
     runs-on: ubuntu-latest
 
     steps:
@@ -1208,14 +1208,14 @@ jobs:
         path: dist/
     - name: Publish 🐍📦 to TestPyPI
       if: >-
-        fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
-        fromJSON(needs.pre-setup.outputs.is_tagged)
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel) ||
+        fromJSON(needs.pre-setup.outputs.is-tagged)
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.testpypi_password }}
         repository_url: https://test.pypi.org/legacy/
     - name: Publish 🐍📦 to PyPI
-      if: fromJSON(needs.pre-setup.outputs.is_tagged)
+      if: fromJSON(needs.pre-setup.outputs.is-tagged)
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.pypi_password }}
@@ -1226,8 +1226,8 @@ jobs:
     - check
     - pre-setup  # transitive, for accessing settings
     if: >-
-      fromJSON(needs.pre-setup.outputs.is_untagged_devel) ||
-      fromJSON(needs.pre-setup.outputs.is_tagged)
+      fromJSON(needs.pre-setup.outputs.is-untagged-devel) ||
+      fromJSON(needs.pre-setup.outputs.is-tagged)
     runs-on: ubuntu-latest
 
     steps:
@@ -1253,14 +1253,14 @@ jobs:
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
-      id: calc_cache_key_py
+      id: calc-cache-key-py
       run: |
         from __future__ import print_function
         from hashlib import sha512
         from sys import version, version_info
         b_version = version if version_info[0] == 2 else version.encode()
         hash = sha512(b_version).hexdigest()
-        print('::set-output name=py_hash_key::{hash}'.format(hash=hash))
+        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -1273,11 +1273,11 @@ jobs:
           }}
         key: >-
           ${{ runner.os }}-pip-${{
-          steps.calc_cache_key_py.outputs.py_hash_key }}-${{
-          needs.pre-setup.outputs.cache_key_files }}
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
         restore-keys: |
           ${{ runner.os }}-pip-${{
-            steps.calc_cache_key_py.outputs.py_hash_key
+            steps.calc-cache-key-py.outputs.py-hash-key
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
