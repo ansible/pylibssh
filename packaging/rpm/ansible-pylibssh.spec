@@ -30,7 +30,7 @@ Source1: %{pypi_source expandvars 0.7.0}
 # RHEL or CentOS:
 %if 0%{?rhel}
 Source2: %{pypi_source build 0.3.1.post1}
-Source3: %{pypi_source Cython 0.29.23}
+Source3: %{pypi_source Cython 0.29.32}
 Source4: %{pypi_source packaging 20.9}
 Source5: %{pypi_source setuptools 56.0.0}
 Source6: %{pypi_source setuptools_scm 6.0.1}
