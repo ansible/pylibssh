@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+    <head>
+        <title>My Private PyPI</title>
+        <style>
+            /* http://meyerweb.com/eric/tools/css/reset/
+               v2.0 | 20110126
+               License: none (public domain)
+            */
+
+            html, body, div, span, applet, object, iframe,
+            h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+            a, abbr, acronym, address, big, cite, code,
+            del, dfn, em, img, ins, kbd, q, s, samp,
+            small, strike, strong, sub, sup, tt, var,
+            b, u, i, center,
+            dl, dt, dd, ol, ul, li,
+            fieldset, form, label, legend,
+            table, caption, tbody, tfoot, thead, tr, th, td,
+            article, aside, canvas, details, embed,
+            figure, figcaption, footer, header, hgroup,
+            menu, nav, output, ruby, section, summary,
+            time, mark, audio, video {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
+            }
+            /* HTML5 display-role reset for older browsers */
+            article, aside, details, figcaption, figure,
+            footer, header, hgroup, menu, nav, section {
+                display: block;
+            }
+            body {
+                line-height: 1;
+            }
+            ol, ul {
+                list-style: none;
+            }
+            blockquote, q {
+                quotes: none;
+            }
+            blockquote:before, blockquote:after,
+            q:before, q:after {
+                content: '';
+                content: none;
+            }
+            table {
+                border-collapse: collapse;
+                border-spacing: 0;
+            }
+        </style>
+        <style>
+            body, html {
+                padding: 0;
+                margin: 0;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+
+            .width {
+                max-width: 960px;
+                margin: 0 auto;
+            }
+
+            .container {
+                margin-top: 75px;
+            }
+
+            .header-container {
+                background-color: #e6f8ff;
+                padding: 20px;
+                border-bottom: solid 1px #e2e2e2;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+            }
+
+            .header {
+                display: table;
+                width: 100%;
+            }
+
+            .title {
+                display: table-cell;
+                width: 1px;
+                white-space: nowrap;
+                vertical-align: middle;
+            }
+
+            .title h1 {
+                margin: 0 !important;
+            }
+
+            p, h1, h2, h3, h4, table {
+                margin-bottom: 10px;
+            }
+
+            h1 {
+                font-weight: bold;
+                font-size: 24px;
+            }
+
+            h2 {
+                font-weight: bold;
+                font-size: 20px;
+            }
+
+            strong {
+                font-weight: bold;
+            }
+
+            .hide { display: none !important; }
+
+            
+
+            .nowrap {
+                white-space: nowrap;
+            }
+        </style>
+        
+        <style>
+            .searchbox {
+                display: table-cell;
+                padding-left: 15px;
+                vertical-align: middle;
+            }
+
+            .searchbox input {
+                width: 100%;
+                margin: 0;
+                padding: 4px;
+                font-size: 16px;
+                box-sizing: border-box;
+                border: none;
+                line-height: 16px;
+            }
+
+            .package {
+                display: block;
+                font-size: 14px;
+                padding: 10px;
+                color: #111;
+                text-decoration: none;
+            }
+
+            .package:hover {
+                background-color: #ebf1ff !important;
+                color: #333;
+            }
+
+            .package.odd {
+                background-color: #fefefe;
+            }
+
+            .package.even {
+                background-color: #f8f8f8;
+            }
+        </style>
+
+    </head>
+
+    <body>
+        <div class="header-container">
+            <div class="width">
+                <div class="header">
+                    <div style="display: table-row">
+                        <div class="title">
+                            <h1>My Private PyPI</h1>
+                        </div>
+
+                        
+    <div class="searchbox">
+        <input id="search" type="text" autofocus placeholder="Filter" value="" />
+    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container width">
+            
+    <div class="packages width" id="packages">
+        
+            <a class="package odd" href="simple/ansible-pylibssh/index.html" data-name="ansible-pylibssh">
+                <strong>ansible-pylibssh</strong> (latest version: 1.0.1.dev81)
+            </a>
+        
+    </div>
+
+    <script>
+        (function() {
+            function normalize(str) {
+                return str.toLowerCase().replace(/[._-]+/g, '-');
+            }
+            function filter() {
+                var words = normalize(search.value).trim().split();
+                var rows = document.getElementsByClassName('package');
+                var odd = true;
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    var name = row.dataset.name;
+                    var ok = true;
+                    for (var j = 0; j < words.length; j++) {
+                        if (!normalize(name).includes(words[j])) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if (ok) {
+                        row.style.backgroundColor = odd ? '#fefefe' : '#f8f8f8';
+                        odd = !odd;
+                    }
+                    row.style.display = ok ? 'block' : 'none';
+                }
+            }
+
+            var search = document.getElementById('search');
+            search.oninput = filter;
+            search.onpaste = filter;
+            search.onpropertychange = filter;
+        })();
+    </script>
+
+        </div>
+    </body>
+</html>
+
