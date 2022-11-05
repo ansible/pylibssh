@@ -125,6 +125,15 @@ repos:
     types:
     - file
 
+- repo: https://github.com/MarcoGorelli/cython-lint.git
+  rev: v0.3.0
+  hooks:
+  - id: cython-lint
+    # NOTE: This linter does not have a config file so it's set up below.
+    args:
+    - --max-line-length
+    - '160'  # matches a similar value in the .flake8 config
+
 - repo: https://github.com/Lucas-C/pre-commit-hooks-markup.git
   rev: v1.0.1
   hooks:
