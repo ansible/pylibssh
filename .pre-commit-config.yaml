@@ -92,6 +92,7 @@ repos:
     additional_dependencies:
     - flake8-2020 ~= 1.7.0
     - flake8-length ~= 0.3.0
+    - flake8-logging-format ~= 0.7.5
     - flake8-pytest-style ~= 1.6.0
     exclude: >-
       ^docs/_samples/.*\.py$
