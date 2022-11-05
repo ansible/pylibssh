@@ -355,12 +355,7 @@ cdef class Session(object):
         libssh.ssh_string_free_char(<char *>hash_hex)
         libssh.ssh_string_free_char(fingerprint_hex)
 
-    def hostkey_auto_add(self, username, passphrase_py=None):
-        cdef char * passphrase = NULL
-
-        if passphrase_py is not None:
-            passphrase = PyBytes_AS_STRING(passphrase_py)
-
+    def hostkey_auto_add(self, username):
         rc = libssh.ssh_session_update_known_hosts(self._libssh_session)
         if rc != libssh.SSH_OK:
             raise LibsshSessionException("host key auto add failed: %s" % self._get_session_error_str())

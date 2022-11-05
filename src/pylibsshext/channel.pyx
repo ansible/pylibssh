@@ -17,11 +17,9 @@
 #
 import time
 from io import BytesIO
-from subprocess import CalledProcessError
 
 from cpython.bytes cimport PyBytes_AS_STRING
-from cpython.mem cimport PyMem_Free, PyMem_Malloc, PyMem_Realloc
-from libc.string cimport memcpy, memset
+from libc.string cimport memset
 
 from pylibsshext.errors cimport LibsshChannelException
 from pylibsshext.errors import LibsshChannelReadFailure
