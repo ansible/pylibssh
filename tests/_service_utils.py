@@ -3,9 +3,12 @@
 """Test util helpers."""
 
 import contextlib
+import getpass
 import socket
 import sys
 import time
+
+from pylibsshext.errors import LibsshSessionException
 
 
 IS_MACOS = sys.platform == 'darwin'
@@ -77,3 +80,47 @@ def wait_for_svc_ready_state(  # noqa: WPS317
             else:
                 _match_proto_start(sock, protocol_identifier)
                 break
+
+
+def ensure_ssh_session_connected(  # noqa: WPS317
+        ssh_session, sshd_addr, ssh_clientkey_path,  # noqa: WPS318
+        max_conn_attempts=40,
+        reconnect_attempt_delay=_DEFAULT_RECONNECT_ATTEMPT_DELAY,
+):
+    """Attempt connecting to the SSH server until successful.
+
+    :param ssh_session: SSH session object.
+    :type ssh_session: pylibsshext.session.Session
+
+    :param sshd_addr: Hostname and port tuple.
+    :type sshd_addr: tuple[str, int]
+
+    :param ssh_clientkey_path: Hostname and port tuple.
+    :type ssh_clientkey_path: pathlib.Path
+
+    :param max_conn_attempts: Number of tries when connecting.
+    :type max_conn_attempts: int
+
+    :param reconnect_attempt_delay: Time to sleep between retries.
+    :type reconnect_attempt_delay: float
+    """
+    hostname, port = sshd_addr
+    for attempt_num in range(1, max_conn_attempts + 1):
+        try:  # noqa: WPS503
+            ssh_session.connect(
+                host=hostname,
+                port=port,
+                user=getpass.getuser(),
+                private_key=ssh_clientkey_path.read_bytes(),
+                host_key_checking=False,
+                look_for_keys=False,
+            )
+        except LibsshSessionException as ssh_sess_exc:
+            if 'Connection reset by peer' not in str(ssh_sess_exc):
+                raise
+
+            time.sleep(reconnect_attempt_delay)
+        else:
+            return
+
+    raise TimeoutError('Timed out waiting for a successful connection')

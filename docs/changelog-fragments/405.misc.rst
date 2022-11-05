@@ -1,0 +1,1 @@
+Added an SSH connection re-try helper to tests -- by :user:`webknjaz`

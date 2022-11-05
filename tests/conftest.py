@@ -3,13 +3,14 @@
 
 """Pytest plugins and fixtures configuration."""
 
-import getpass
 import shutil
 import socket
 import subprocess
 
 import pytest
-from _service_utils import wait_for_svc_ready_state  # noqa: WPS300, WPS436
+from _service_utils import (  # noqa: WPS436
+    ensure_ssh_session_connected, wait_for_svc_ready_state,
+)
 
 from pylibsshext.session import Session
 
@@ -112,16 +113,8 @@ def ssh_client_session(sshd_addr, ssh_clientkey_path):
 
     # noqa: DAR101
     """
-    hostname, port = sshd_addr
     ssh_session = Session()
-    ssh_session.connect(
-        host=hostname,
-        port=port,
-        user=getpass.getuser(),
-        private_key=ssh_clientkey_path.read_bytes(),
-        host_key_checking=False,
-        look_for_keys=False,
-    )
+    ensure_ssh_session_connected(ssh_session, sshd_addr, ssh_clientkey_path)
     try:  # noqa: WPS501
         yield ssh_session
     finally:
