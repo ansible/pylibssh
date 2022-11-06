@@ -19,6 +19,7 @@ source "${IMAGE_SCRIPTS_DIR_PATH}/get-static-deps-dir.sh"
 source "${IMAGE_SCRIPTS_DIR_PATH}/activate-userspace-tools.sh"
 
 SRC_DIR=/io
+GIT_DIR="${SRC_DIR}/.git"
 PERM_REF_HOST_FILE="${SRC_DIR}/setup.cfg"
 PEP517_CONFIG_FILE="${SRC_DIR}/pyproject.toml"
 DIST_NAME="$(cat "${PERM_REF_HOST_FILE}" | grep '^name = ' | awk '{print$3}' | sed s/-/_/)"
@@ -65,7 +66,7 @@ if [ -n "$DEBUG" ]
 then
     PIP_GLOBAL_ARGS=-vv
 fi
-GIT_GLOBAL_ARGS="--git-dir=${SRC_DIR}/.git --work-tree=${SRC_DIR}"
+GIT_GLOBAL_ARGS="--git-dir=${GIT_DIR} --work-tree=${SRC_DIR}"
 TESTS_SRC_DIR="${SRC_DIR}/tests"
 BUILD_DIR=$(mktemp -d "/tmp/${DIST_NAME}-${MANYLINUX_TAG}-build.XXXXXXXXXX")
 TESTS_DIR="${BUILD_DIR}/tests"
@@ -107,9 +108,16 @@ ARCH=`uname -m`
 >&2 echo
 for PY in $PYTHONS; do
     >&2 echo Creating "${ISOLATED_SRC_DIRS}/${PY}"...
-    git ${GIT_GLOBAL_ARGS} worktree add --detach \
-      "${ISOLATED_SRC_DIRS}/${PY}"
-    cp -v "${PEP517_CONFIG_FILE}" "${ISOLATED_SRC_DIRS}/${PY}"/
+    if [ -d "${GIT_DIR}" ]
+    then
+        # NOTE: Allow `setuptools-scm` grab the version from Git
+        git ${GIT_GLOBAL_ARGS} worktree add --detach \
+          "${ISOLATED_SRC_DIRS}/${PY}"
+        cp -v "${PEP517_CONFIG_FILE}" "${ISOLATED_SRC_DIRS}/${PY}"/
+    else
+        # NOTE: Rely on `.git_archival.txt` for versioning
+        cp -v "${SRC_DIR}" "${ISOLATED_SRC_DIRS}/${PY}"
+    fi
 done
 
 >&2 echo
