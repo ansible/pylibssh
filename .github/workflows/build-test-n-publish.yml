@@ -93,21 +93,45 @@ jobs:
         github.ref == format(
           'refs/heads/{0}', github.event.repository.default_branch
         )
-      run: >-
-        print('::set-output name=is-untagged-devel::true')
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print('is-untagged-devel=true', file=outputs_file)
     - name: Mark the build as tagged
       id: tagged-check
       if: >-  # "create" workflows run separately from "push" & "pull_request"
         github.event_name == 'create' &&
         github.event.ref_type == 'tag'
-      run: >-
-        print('::set-output name=is-tagged::true')
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print('is-tagged=true', file=outputs_file)
     - name: Enable profiling of the build
       id: profiling-check
       if: >-
         steps.tagged-check.outputs.is-tagged != 'true'
-      run: >-
-        print('::set-output name=profiling-enabled::true')
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print('profiling-enabled=true', file=outputs_file)
     - name: Check out src from Git
       uses: actions/checkout@v3.1.0
       with:
@@ -119,15 +143,29 @@ jobs:
       id: calc-cache-key-py
       run: |
         from hashlib import sha512
+        from os import environ
+        from pathlib import Path
         from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
         hash = sha512(version.encode()).hexdigest()
-        print(f'::set-output name=py-hash-key::{hash}')
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
     - name: >-
         Calculate dependency files' combined hash value
         for use in the cache key
       id: calc-cache-key-files
       run: |
         from hashlib import sha512
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
         hashes_combo = sha512('-'.join((
           "${{ hashFiles('setup.cfg') }}",
           "${{ hashFiles('tox.ini')}}",
@@ -137,7 +175,11 @@ jobs:
           "${{ hashFiles('requirements-build.*') }}",
           "${{ hashFiles('docs/requirements.*') }}",
         )).encode()).hexdigest()
-        print(f'::set-output name=files-hash-key::{hashes_combo}')
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f"files-hash-key={hashes_combo}", file=outputs_file)
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
       with:
@@ -175,15 +217,24 @@ jobs:
     - name: Set the current dist version
       id: scm-version
       run: |
+        from os import environ
+        from pathlib import Path
+
         import setuptools_scm
+
+        FILE_APPEND_MODE = 'a'
+
         ver = setuptools_scm.get_version(
           ${{
-            steps.not-tagged-check.outputs.is-untagged-devel == 'true'
-            && 'local_scheme="no-local-version"'
-            || ''
+              steps.untagged-check.outputs.is-untagged-devel == 'true'
+              && 'local_scheme="no-local-version"'
+              || ''
           }}
         )
-        print('::set-output name=dist-version::{ver}'.format(ver=ver))
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'dist-version={ver}', file=outputs_file)
 
   build-bin-macos:
     name: 🏗 macOS 📦 for 🐍 ${{ matrix.python-version }}
@@ -267,12 +318,19 @@ jobs:
         for use in the cache key
       id: calc-cache-key-py
       run: |
-        from __future__ import print_function
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info[0] == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -470,12 +528,19 @@ jobs:
         for use in the cache key
       id: calc-cache-key-py
       run: |
-        from __future__ import print_function
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info[0] == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -587,12 +652,19 @@ jobs:
         for use in the cache key
       id: calc-cache-key-py
       run: |
-        from __future__ import print_function
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info[0] == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -719,7 +791,7 @@ jobs:
       id: distribution-meta
       run: |
         dist_tag=$(rpm --eval '%{?dist}')
-        echo "::set-output name=dist-tag::${dist_tag}"
+        echo "dist-tag=${dist_tag}" >> "${GITHUB_OUTPUT}"
 
     - name: Enable EPEL repository
       if: contains(matrix.target-container.tag, 'centos')
@@ -964,7 +1036,7 @@ jobs:
         normalized_container_id=$(
             echo '${{ matrix.target-container.tag }}' | sed 's#[.\/:]#--#g'
         );
-        echo "::set-output name=artifact-id::${normalized_container_id}"
+        echo "artifact-id=${normalized_container_id}" >> "${GITHUB_OUTPUT}"
     - name: Store RPM and SRPM as artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -1040,12 +1112,19 @@ jobs:
         for use in the cache key
       id: calc-cache-key-py
       run: |
-        from __future__ import print_function
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info[0] == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -1130,12 +1209,19 @@ jobs:
         for use in the cache key
       id: calc-cache-key-py
       run: |
-        from __future__ import print_function
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info[0] == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
@@ -1255,12 +1341,19 @@ jobs:
         for use in the cache key
       id: calc-cache-key-py
       run: |
-        from __future__ import print_function
         from hashlib import sha512
-        from sys import version, version_info
-        b_version = version if version_info[0] == 2 else version.encode()
-        hash = sha512(b_version).hexdigest()
-        print('::set-output name=py-hash-key::{hash}'.format(hash=hash))
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
       uses: actions/cache@v3.0.11
