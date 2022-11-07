@@ -27,6 +27,11 @@ Welcome to |project|'s documentation!
    contributing/security
    contributing/testing_guide
 
+.. toctree::
+   :caption: Maintenance
+
+   contributing/release_guide
+
 
 
 Indices and tables

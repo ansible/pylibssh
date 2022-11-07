@@ -3,13 +3,6 @@
 name: 🏗 📦 & test & publish
 
 on:  # yamllint disable-line rule:truthy
-  create:  # is used for publishing to PyPI and TestPyPI
-    tags:  # any tag regardless of its name, no branches
-    - >-
-      **
-    branches-ignore:
-    - >-
-      **
   push:  # publishes to TestPyPI pushes to the main branch
     branches:  # any branch but not tag
     - >-
@@ -24,6 +17,33 @@ on:  # yamllint disable-line rule:truthy
   pull_request:
     paths-ignore:  # NOTE: cannot be combined with "paths"
     - docs/**.rst
+  workflow_dispatch:
+    inputs:
+      release-version:
+        # github.event_name == 'workflow_dispatch'
+        # && github.event.inputs.release-version
+        description: >-
+          Target PEP440-compliant version to release.
+          Please, don't prepend `v`.
+        required: true
+        type: string
+      release-commitish:
+        # github.event_name == 'workflow_dispatch'
+        # && github.event.inputs.release-commitish
+        default: ''
+        description: >-
+          The commit to be released to PyPI and tagged
+          in Git as `release-version`. Normally, you
+          should keep this empty.
+        type: string
+      YOLO:
+        default: false
+        description: >-
+          Flag whether test results should block the
+          release. Only use this under extraordinary
+          circumstances to ignore the test failures
+          and cut the release regardless.
+        type: boolean
   workflow_run:
     workflows:
     - ♲ manylinux containers
@@ -62,32 +82,41 @@ env:
 
 jobs:
   pre-setup:
-    name: Pre-set global build settings
-    if: >-  # https://twitter.com/webKnjaZ/status/1308803017001652225
-      github.event_name != 'create' ||
-      github.event.ref_type == 'tag'
+    name: ⚙️ Pre-set global build settings
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: python
     outputs:
-      dist-version: ${{ steps.scm-version.outputs.dist-version }}
+      dist-version: >-
+        ${{
+            steps.request-check.outputs.release-requested == 'true'
+            && github.event.inputs.release-version
+            || steps.scm-version.outputs.dist-version
+        }}
       is-untagged-devel: >-
-        ${{ steps.not-tagged-check.outputs.is-untagged-devel || false }}
-      is-tagged: ${{ steps.tagged-check.outputs.is-tagged || false }}
+        ${{ steps.untagged-check.outputs.is-untagged-devel || false }}
+      release-requested: >-
+        ${{
+            steps.request-check.outputs.release-requested || false
+        }}
       profiling-enabled: >-
         ${{ steps.profiling-check.outputs.profiling-enabled || false }}
       cache-key-files: >-
         ${{ steps.calc-cache-key-files.outputs.files-hash-key }}
+      git-tag: ${{ steps.git-tag.outputs.tag }}
+      sdist-artifact-name: ${{ steps.artifact-name.outputs.sdist }}
+      wheel-artifact-name: ${{ steps.artifact-name.outputs.wheel }}
     steps:
     - name: Switch to using Python 3.11 by default
       uses: actions/setup-python@v4.3.0
       with:
         python-version: 3.11
     - name: >-
-        Mark the build as non-tagged
-        ${{ github.event.repository.default_branch }} build
-      id: not-tagged-check
+        Mark the build as untagged '${{
+            github.event.repository.default_branch
+        }}' branch build
+      id: untagged-check
       if: >-
         github.event_name == 'push' &&
         github.ref == format(
@@ -103,11 +132,9 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print('is-untagged-devel=true', file=outputs_file)
-    - name: Mark the build as tagged
-      id: tagged-check
-      if: >-  # "create" workflows run separately from "push" & "pull_request"
-        github.event_name == 'create' &&
-        github.event.ref_type == 'tag'
+    - name: Mark the build as "release request"
+      id: request-check
+      if: github.event_name == 'workflow_dispatch'
       run: |
         from os import environ
         from pathlib import Path
@@ -117,11 +144,10 @@ jobs:
         with Path(environ['GITHUB_OUTPUT']).open(
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
-            print('is-tagged=true', file=outputs_file)
+            print('release-requested=true', file=outputs_file)
     - name: Enable profiling of the build
       id: profiling-check
-      if: >-
-        steps.tagged-check.outputs.is-tagged != 'true'
+      if: github.event_name != 'workflow_dispatch'
       run: |
         from os import environ
         from pathlib import Path
@@ -133,13 +159,21 @@ jobs:
         ) as outputs_file:
             print('profiling-enabled=true', file=outputs_file)
     - name: Check out src from Git
+      if: >-
+        steps.request-check.outputs.release-requested != 'true'
       uses: actions/checkout@v3.1.0
       with:
         fetch-depth: >-
-          ${{ steps.tagged-check.outputs.is-tagged == 'true' && 1 || 0 }}
+          ${{
+            steps.request-check.outputs.release-requested == 'true'
+            && 1 || 0
+          }}
+        ref: ${{ github.event.inputs.release-commitish }}
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
+      if: >-
+        steps.request-check.outputs.release-requested != 'true'
       id: calc-cache-key-py
       run: |
         from hashlib import sha512
@@ -158,6 +192,8 @@ jobs:
     - name: >-
         Calculate dependency files' combined hash value
         for use in the cache key
+      if: >-
+        steps.request-check.outputs.release-requested != 'true'
       id: calc-cache-key-files
       run: |
         from hashlib import sha512
@@ -181,6 +217,8 @@ jobs:
         ) as outputs_file:
             print(f"files-hash-key={hashes_combo}", file=outputs_file)
     - name: Set up pip cache
+      if: >-
+        steps.request-check.outputs.release-requested != 'true'
       uses: actions/cache@v3.0.11
       with:
         path: >-
@@ -199,22 +237,25 @@ jobs:
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
-    - name: Drop Git tags from HEAD for non-tag-create events
+    - name: Drop Git tags from HEAD for non-release requests
       if: >-
-        steps.tagged-check.outputs.is-tagged != 'true'
+        steps.request-check.outputs.release-requested != 'true'
       run: >-
         git tag --points-at HEAD
         |
         xargs git tag --delete
       shell: bash
     - name: Set up versioning prerequisites
+      if: >-
+        steps.request-check.outputs.release-requested != 'true'
       run: >-
         python -m
         pip install
         --user
         setuptools-scm
       shell: bash
-    - name: Set the current dist version
+    - name: Set the current dist version from Git
+      if: steps.request-check.outputs.release-requested != 'true'
       id: scm-version
       run: |
         from os import environ
@@ -226,18 +267,77 @@ jobs:
 
         ver = setuptools_scm.get_version(
           ${{
-              steps.not-tagged-check.outputs.is-untagged-devel == 'true'
-              && 'local_scheme="no-local-version"'
-              || ''
+              steps.untagged-check.outputs.is-untagged-devel == 'true'
+              && 'local_scheme="no-local-version"' || ''
           }}
         )
         with Path(environ['GITHUB_OUTPUT']).open(
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(f'dist-version={ver}', file=outputs_file)
+    - name: Set the target Git tag
+      id: git-tag
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                "tag=v${{
+                    steps.request-check.outputs.release-requested == 'true'
+                    && github.event.inputs.release-version
+                    || steps.scm-version.outputs.dist-version
+                }}",
+                file=outputs_file,
+            )
+    - name: Set the expected dist artifact names
+      id: artifact-name
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                "sdist=ansible-pylibssh-${{
+                    steps.request-check.outputs.release-requested == 'true'
+                    && github.event.inputs.release-version
+                    || steps.scm-version.outputs.dist-version
+                }}.tar.gz",
+                file=outputs_file,
+            )
+            print(
+                "wheel=ansible_pylibssh-${{
+                    steps.request-check.outputs.release-requested == 'true'
+                    && github.event.inputs.release-version
+                    || steps.scm-version.outputs.dist-version
+                }}-cp3*-cp3*-*.whl",
+                file=outputs_file,
+            )
 
   build-bin-macos:
-    name: 🏗 macOS 📦 for 🐍 ${{ matrix.python-version }}
+    name: >-
+      👷 macOS 📦 ${{ needs.pre-setup.outputs.git-tag }}
+      for 🐍 ${{ matrix.python-version }}
+      [mode: ${{
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        && 'nightly' || ''
+      }}${{
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        && 'release' || ''
+      }}${{
+        (
+          !fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+          && !fromJSON(needs.pre-setup.outputs.release-requested)
+        ) && 'test' || ''
+      }}]
     needs:
     - pre-setup
     # NOTE: I tried also making wheels for 32-bit runtime but it's
@@ -276,7 +376,15 @@ jobs:
                 format(home_dir=os.environ['HOME'])
             )
       shell: python
-    - uses: actions/checkout@v3.1.0
+    - name: Grab the source from Git
+      uses: actions/checkout@v3.1.0
+      with:
+        fetch-depth: >-
+          ${{
+              fromJSON(needs.pre-setup.outputs.release-requested)
+              && 1 || 0
+          }}
+        ref: ${{ github.event.inputs.release-commitish }}
     - name: Install python ${{ matrix.python-version }}
       uses: actions/setup-python@v4.3.0
       with:
@@ -351,43 +459,65 @@ jobs:
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
-    - name: Check out src from Git
-      uses: actions/checkout@v3.1.0
-      with:
-        fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is-tagged) && 1 || 0 }}
+
+    - name: Pre-populate the tox env
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        !fromJSON(needs.pre-setup.outputs.is-tagged)
+        !fromJSON(needs.pre-setup.outputs.release-requested)
       run: >-
         git tag --points-at HEAD
         |
         xargs git tag --delete
       shell: bash
-    - name: Pre-populate tox env
-      run: python -m tox -p auto --parallel-live -vvvv --notest
-    - name: Install toml Python distribution package
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: >-
-        python -m pip install --user toml
-    - name: Instruct setuptools-scm not to add a local version part
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        import toml
-        with open('pyproject.toml') as pyproject_toml:
-            pyproj = toml.load(pyproject_toml)
 
-        pyproj['tool']['setuptools_scm']['local_scheme'] = 'no-local-version'
-        with open('pyproject.toml', 'w') as pyproject_toml:
-            toml.dump(pyproj, pyproject_toml)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
+    - name: Write the current version metadata to `.git_archival.txt`
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: >-
+        git show --format='node: %H%nnode-date: %cI%ndescribe-name:
+        %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
+        >
+        .git_archival.txt
+    - name: Delete the Git repository
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: rm -rf .git
+
+    - name: Setup git user as [bot]
+      if: fromJSON(needs.pre-setup.outputs.release-requested)
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+        for setuptools-scm to set the desired version
+      if: fromJSON(needs.pre-setup.outputs.release-requested)
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{ github.event.inputs.release-commitish }}
+
     - name: Build dist
-      run: python -m tox -p auto --parallel-live -vvvv -e build-wheels-pip
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
+    - name: Verify that the artifact with expected name got created
+      run: >-
+        ls -1
+        dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
     - name: Bundle external shared libs
       run: >-
         python -m
@@ -396,9 +526,13 @@ jobs:
         --parallel-live -vvvv
         -e delocate-macos-wheels
         --
-        dist/*.whl
+        dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+    - name: Verify that the artifact with expected name got created
+      run: >-
+        ls -1
+        dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
     - name: Verify wheel metadata
-      run: python -m tox -p auto --parallel-live -vvvv -e metadata-validation
+      run: python -m tox -p auto --parallel-live -e metadata-validation
     - name: Install pytest and its plugins
       run: >-
         python -m
@@ -419,14 +553,37 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
-        path: dist
-        retention-days: 4
+        # NOTE: Exact expected file names are specified here
+        # NOTE: as a safety measure — if anything weird ends
+        # NOTE: up being in this dir or not all dists will be
+        # NOTE: produced, this will fail the workflow.
+        path: |
+          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+        retention-days: >-
+          ${{
+              (
+                fromJSON(needs.pre-setup.outputs.release-requested)
+              ) && 90 || 4
+          }}
 
   build-bin-manylinux:
     name: >-
-      🏗 manylinux${{ matrix.manylinux-year-target
+      👷 manylinux${{ matrix.manylinux-year-target
       }}-${{ matrix.manylinux-image-target.arch
-      }} 📦 for 🐍 ${{ matrix.manylinux-python-target }}
+      }} 📦 ${{ needs.pre-setup.outputs.git-tag }}
+      for 🐍 ${{ matrix.manylinux-python-target }}
+      [mode: ${{
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        && 'nightly' || ''
+      }}${{
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        && 'release' || ''
+      }}${{
+        (
+          !fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+          && !fromJSON(needs.pre-setup.outputs.release-requested)
+        ) && 'test' || ''
+      }}]
     needs:
     - pre-setup
     runs-on: ubuntu-latest
@@ -523,6 +680,17 @@ jobs:
       uses: actions/setup-python@v4.3.0
       with:
         python-version: 3.11
+
+    - name: Grab the source from Git
+      uses: actions/checkout@v3.1.0
+      with:
+        fetch-depth: >-
+          ${{
+              fromJSON(needs.pre-setup.outputs.release-requested)
+              && 1 || 0
+          }}
+        ref: ${{ github.event.inputs.release-commitish }}
+
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -567,44 +735,53 @@ jobs:
         pip install
         --user
         tox
-    - name: Check out src from Git
-      uses: actions/checkout@v3.1.0
-      with:
-        fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is-tagged) && 1 || 0 }}
+
+    - name: Pre-populate the tox env
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        !fromJSON(needs.pre-setup.outputs.is-tagged)
+        !fromJSON(needs.pre-setup.outputs.release-requested)
       run: >-
         git tag --points-at HEAD
         |
         xargs git tag --delete
       shell: bash
-    - name: Pre-populate tox env
-      run: python -m tox -p auto --parallel-live -vvvv --notest
-    - name: Install toml Python distribution package
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: >-
-        python -m
-        pip install
-        --user
-        toml
-    - name: Instruct setuptools-scm not to add a local version part
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        import toml
-        with open('pyproject.toml') as pyproject_toml:
-            pyproj = toml.load(pyproject_toml)
 
-        pyproj['tool']['setuptools_scm']['local_scheme'] = 'no-local-version'
-        with open('pyproject.toml', 'w') as pyproject_toml:
-            toml.dump(pyproj, pyproject_toml)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
+    - name: Write the current version metadata to `.git_archival.txt`
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: >-
+        git show --format='node: %H%nnode-date: %cI%ndescribe-name:
+        %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
+        >
+        .git_archival.txt
+    - name: Delete the Git repository
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: rm -rf .git
+
+    - name: Setup git user as [bot]
+      if: fromJSON(needs.pre-setup.outputs.release-requested)
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+        for setuptools-scm to set the desired version
+      if: fromJSON(needs.pre-setup.outputs.release-requested)
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{ github.event.inputs.release-commitish }}
+
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
         with Podman
@@ -614,23 +791,55 @@ jobs:
         --rm --privileged
         multiarch/qemu-user-static
         --reset -p yes
+
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
         and verify wheel metadata
       run: >-
         python -m
-        tox -p auto --parallel-live -vvvv
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
         --
         ${{ matrix.manylinux-python-target }}
+    - name: Verify that the artifacts with expected names got created
+      run: >-
+        ls -1
+        dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
       uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
-        path: dist
-        retention-days: 4
+        # NOTE: Exact expected file names are specified here
+        # NOTE: as a safety measure — if anything weird ends
+        # NOTE: up being in this dir or not all dists will be
+        # NOTE: produced, this will fail the workflow.
+        path: |
+          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+        retention-days: >-
+          ${{
+              (
+                fromJSON(needs.pre-setup.outputs.release-requested)
+              ) && 90 || 4
+          }}
 
   build-src:
-    name: 🏗 an sdist 📦
+    name: >-
+      👷 an sdist 📦 ${{ needs.pre-setup.outputs.git-tag }}
+      [mode: ${{
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        && 'nightly' || ''
+      }}${{
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        && 'release' || ''
+      }}${{
+        (
+          !fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+          && !fromJSON(needs.pre-setup.outputs.release-requested)
+        ) && 'test' || ''
+      }}]
     needs:
     - pre-setup
     runs-on: ubuntu-latest
@@ -643,10 +852,21 @@ jobs:
       TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
-    - name: Switch to using Python 3.11 by default
+    - name: Switch to using Python 3.11
       uses: actions/setup-python@v4.3.0
       with:
         python-version: 3.11
+
+    - name: Grab the source from Git
+      uses: actions/checkout@v3.1.0
+      with:
+        fetch-depth: >-
+          ${{
+              fromJSON(needs.pre-setup.outputs.release-requested)
+              && 1 || 0
+          }}
+        ref: ${{ github.event.inputs.release-commitish }}
+
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -691,52 +911,81 @@ jobs:
         pip install
         --user
         tox
-    - name: Check out src from Git
-      uses: actions/checkout@v3.1.0
-      with:
-        fetch-depth: >-
-          ${{ fromJSON(needs.pre-setup.outputs.is-tagged) && 1 || 0 }}
+
+    - name: Pre-populate the tox env
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
     - name: Drop Git tags from HEAD for non-tag-create events
       if: >-
-        !fromJSON(needs.pre-setup.outputs.is-tagged)
+        !fromJSON(needs.pre-setup.outputs.release-requested)
       run: >-
         git tag --points-at HEAD
         |
         xargs git tag --delete
       shell: bash
-    - name: Pre-populate tox env
-      run: python -m tox -p auto --parallel-live -vvvv --notest
-    - name: Install toml Python distribution package
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+
+    - name: Write the current version metadata to `.git_archival.txt`
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: >-
+        git show --format='node: %H%nnode-date: %cI%ndescribe-name:
+        %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
+        >
+        .git_archival.txt
+    - name: Delete the Git repository
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: rm -rf .git
+
+    - name: Setup git user as [bot]
+      if: fromJSON(needs.pre-setup.outputs.release-requested)
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+        for setuptools-scm to set the desired version
+      if: fromJSON(needs.pre-setup.outputs.release-requested)
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{ github.event.inputs.release-commitish }}
+
+    - name: Build sdist and verify metadata
       run: >-
         python -m
-        pip install
-        --user
-        toml
-    - name: Instruct setuptools-scm not to add a local version part
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        import toml
-        with open('pyproject.toml') as pyproject_toml:
-            pyproj = toml.load(pyproject_toml)
-
-        pyproj['tool']['setuptools_scm']['local_scheme'] = 'no-local-version'
-        with open('pyproject.toml', 'w') as pyproject_toml:
-            toml.dump(pyproj, pyproject_toml)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
-    - name: Build sdist and verify metadata
-      run: python -m tox -p auto --parallel-live -vvvv
-    - name: Store the source distribution
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
+    - name: Verify that the artifact with expected name got created
+      run: >-
+        ls -1
+        'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
+    - name: Store the source distribution package
       uses: actions/upload-artifact@v3
       with:
         name: python-package-distributions
-        path: dist
-        retention-days: 4
+        # NOTE: Exact expected file names are specified here
+        # NOTE: as a safety measure — if anything weird ends
+        # NOTE: up being in this dir or not all dists will be
+        # NOTE: produced, this will fail the workflow.
+        path: |
+          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        retention-days: >-
+          ${{
+              (
+                fromJSON(needs.pre-setup.outputs.release-requested)
+              ) && 90 || 4
+          }}
 
   build-rpms:
     name: ${{ matrix.target-container.tag }}
@@ -819,6 +1068,13 @@ jobs:
 
     - name: Grab the source from Git
       uses: actions/checkout@v3.1.0
+      with:
+        fetch-depth: >-
+          ${{
+              fromJSON(needs.pre-setup.outputs.release-requested)
+              && 1 || 0
+          }}
+        ref: ${{ github.event.inputs.release-commitish }}
 
     - name: Set an SCM version in the spec
       run: >-
@@ -840,7 +1096,7 @@ jobs:
     - name: Copy sdist to the sources dir
       run: >-
         cp -v
-        dist/ansible-pylibssh-${{ needs.pre-setup.outputs.dist-version }}.tar.gz
+        'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
         ~/rpmbuild/SOURCES/
 
     - name: Install static test dependencies missing from UBI9
@@ -1077,6 +1333,14 @@ jobs:
         - runner-vm-os: ubuntu-22.04
           python-version: 3.6  # EOL, only provided for older OSs
 
+    continue-on-error: >-
+      ${{
+          (
+            fromJSON(needs.pre-setup.outputs.release-requested) &&
+            !github.event.inputs.YOLO
+          ) && true || false
+      }}
+
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
@@ -1107,9 +1371,28 @@ jobs:
       uses: actions/setup-python@v4.3.0
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Grab the source from Git
+      uses: actions/checkout@v3.1.0
+      with:
+        ref: ${{ github.event.inputs.release-commitish }}
+
+    - name: Figure out if the interpreter ABI is stable
+      id: py-abi
+      run: |
+        from sys import version_info
+
+        is_stable_abi = version_info.releaselevel == 'final'
+
+        print(
+            '::set-output name=is-stable-abi::{is_stable_abi}'.
+            format(is_stable_abi=str(is_stable_abi).lower())
+        )
+      shell: python
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
+      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
       id: calc-cache-key-py
       run: |
         from hashlib import sha512
@@ -1127,6 +1410,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
+      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
       uses: actions/cache@v3.0.11
       with:
         path: >-
@@ -1145,21 +1429,41 @@ jobs:
           }}-
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
+
+    - name: Upgrade pip with `requires_python`
+      run: >-
+        python -m
+        pip install
+        --user
+        --upgrade
+        --force-reinstall
+        pip-with-requires-python
     - name: Install tox
       run: >-
         python -m
         pip install
         --user
         tox
-    - name: Check out src from Git
-      uses: actions/checkout@v3.1.0
+
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
         name: python-package-distributions
         path: dist/
-    - name: Pre-populate tox env
-      run: python -m tox -p auto --parallel-live -vvvv --notest
+
+    - name: >-
+        Pre-populate tox env:
+        ${{ env.TOXENV }}
+      # FIXME: Integrate the following once it's possible
+      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
     - name: Configure tox to run pytest under catchsegv
       if: runner.os == 'Linux'
       run: |
@@ -1168,8 +1472,17 @@ jobs:
         with open(os.environ['GITHUB_ENV'], 'a') as env_file:
             env_file.write('CATCHSEGV_BINARY=catchsegv\n')
       shell: python
-    - name: Run tests
-      run: python -m tox -p auto --parallel-live -qq
+
+    - name: Run the testing
+      # FIXME: Integrate the following once it's possible
+      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        -qq
     - name: Produce markdown test summary from JUnit
       if: always()
       uses: test-summary/action@v2.0
@@ -1177,6 +1490,8 @@ jobs:
         paths: .test-results/pytest/results.xml
     - name: Re-run the failing tests with maximum verbosity
       if: failure()
+      # FIXME: Integrate the following once it's possible
+      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
       run: >-  # `exit 1` makes sure that the job remains red with flaky runs
         python -m
         tox
@@ -1222,6 +1537,12 @@ jobs:
       uses: actions/setup-python@v4.3.0
       with:
         python-version: 3.11
+
+    - name: Grab the source from Git
+      uses: actions/checkout@v3.1.0
+      with:
+        ref: ${{ github.event.inputs.release-commitish }}
+
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -1266,8 +1587,6 @@ jobs:
         pip install
         --user
         tox
-    - name: Check out src from Git
-      uses: actions/checkout@v3.1.0
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Download all the dists
@@ -1294,15 +1613,21 @@ jobs:
       with:
         jobs: ${{ toJSON(needs) }}
 
-  deploy:
-    name: Publish 🐍📦 to (Test)PyPI
+  publish-pypi:
+    name: Publish 🐍📦 ${{ needs.pre-setup.outputs.git-tag }} to PyPI
     needs:
     - check
     - pre-setup  # transitive, for accessing settings
     if: >-
-      fromJSON(needs.pre-setup.outputs.is-untagged-devel) ||
-      fromJSON(needs.pre-setup.outputs.is-tagged)
+      fromJSON(needs.pre-setup.outputs.release-requested)
     runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: >-
+        https://pypi.org/project/ansible-pylibssh/${{
+          needs.pre-setup.outputs.dist-version
+        }}
 
     steps:
     - name: Download all the dists
@@ -1310,19 +1635,164 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-    - name: Publish 🐍📦 to TestPyPI
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel) ||
-        fromJSON(needs.pre-setup.outputs.is-tagged)
+    - name: >-
+        Publish 🐍📦 ${{ needs.pre-setup.outputs.git-tag }} to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.testpypi_password }}
+        password: ${{ secrets.PYPI_TOKEN }}
+
+  publish-testpypi:
+    name: Publish 🐍📦 ${{ needs.pre-setup.outputs.git-tag }} to TestPyPI
+    needs:
+    - check
+    - pre-setup  # transitive, for accessing settings
+    if: >-
+      fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      || fromJSON(needs.pre-setup.outputs.release-requested)
+    runs-on: ubuntu-latest
+
+    environment:
+      name: testpypi
+      url: >-
+        https://test.pypi.org/project/ansible-pylibssh/${{
+          needs.pre-setup.outputs.dist-version
+        }}
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: >-
+        Publish 🐍📦  ${{ needs.pre-setup.outputs.git-tag }} to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
-    - name: Publish 🐍📦 to PyPI
-      if: fromJSON(needs.pre-setup.outputs.is-tagged)
-      uses: pypa/gh-action-pypi-publish@release/v1
+
+  post-release-repo-update:
+    name: >-
+      Publish post-release Git tag
+      for ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - publish-pypi
+    - pre-setup  # transitive, for accessing settings
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: >-
+        Check if the requested tag ${{ needs.pre-setup.outputs.git-tag }}
+        is present and is pointing at the required commit ${{
+          github.event.inputs.release-commitish
+        }}
+      id: existing-remote-tag-check
+      run: |
+        REMOTE_TAGGED_COMMIT_SHA="$(
+          git ls-remote --tags --refs $(git remote get-url origin) '${{
+            needs.pre-setup.outputs.git-tag
+          }}' | awk '{print $1}'
+        )"
+
+        if [[ "${REMOTE_TAGGED_COMMIT_SHA}" == '${{
+          github.event.inputs.release-commitish
+        }}' ]]
+        then
+          echo "already-exists=true" >> "${GITHUB_OUTPUT}"
+        fi
+
+    - name: Fetch the src snapshot
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      uses: actions/checkout@v3.1.0
       with:
-        password: ${{ secrets.pypi_password }}
+        fetch-depth: 1
+        ref: ${{ github.event.inputs.release-commitish }}
+    - name: Setup git user as [bot]
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        -m 'Published at https://pypi.org/project/ansible-pylibssh/${{
+          needs.pre-setup.outputs.dist-version
+        }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{ github.event.inputs.release-commitish }}
+    - name: >-
+        Push ${{ needs.pre-setup.outputs.git-tag }} tag corresponding
+        to the just published release back to GitHub
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: >-
+        git push --atomic origin '${{ needs.pre-setup.outputs.git-tag }}'
+
+  publish-github-release:
+    name: >-
+      Publish a GitHub Release for
+      ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - post-release-repo-update
+    - pre-setup  # transitive, for accessing settings
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      discussions: write
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: >-
+        Publish a GitHub Release for
+        ${{ needs.pre-setup.outputs.git-tag }}
+      uses: ncipollo/release-action@v1.11.1
+      with:
+        allowUpdates: false
+        artifactErrorsFailBuild: false
+        artifacts: |
+          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
+          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+        artifactContentType: raw  # Because whl and tgz are of different types
+        body: >
+          # Release ${{ needs.pre-setup.outputs.git-tag }}
+
+
+          This release is published to
+          https://pypi.org/project/ansible-pylibssh/${{
+            needs.pre-setup.outputs.dist-version
+          }}.
+
+
+          This release has been produced by the following workflow run: ${{
+            github.server_url
+          }}/${{
+            github.repository
+          }}/actions/runs/${{
+            github.run_id
+          }}.
+        # bodyFile:  # FIXME: Use once Towncrier is integrated.
+        commit: ${{ github.event.inputs.release-commitish }}
+        discussionCategory: Announcements
+        draft: false
+        name: ${{ needs.pre-setup.outputs.git-tag }}
+        # omitBody: false
+        omitBodyDuringUpdate: true
+        omitName: false
+        omitNameDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+        prerelease: false
+        removeArtifacts: false
+        replacesArtifacts: false
+        tag: ${{ needs.pre-setup.outputs.git-tag }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   dumb-pypi:
     name: Publish nightlies to Dumb PyPI  # https://ansible.github.io/pylibssh/
@@ -1331,7 +1801,7 @@ jobs:
     - pre-setup  # transitive, for accessing settings
     if: >-
       fromJSON(needs.pre-setup.outputs.is-untagged-devel) ||
-      fromJSON(needs.pre-setup.outputs.is-tagged)
+      fromJSON(needs.pre-setup.outputs.release-requested)
     runs-on: ubuntu-latest
 
     environment:
