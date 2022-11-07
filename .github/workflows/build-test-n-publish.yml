@@ -1169,7 +1169,20 @@ jobs:
             env_file.write('CATCHSEGV_BINARY=catchsegv\n')
       shell: python
     - name: Run tests
-      run: python -m tox -p auto --parallel-live -vvvv
+      run: python -m tox -p auto --parallel-live -qq
+    - name: Re-run the failing tests with maximum verbosity
+      if: failure()
+      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        -vvvvv
+        --
+        --no-cov -vvvvv --lf
+        && exit 1
+      shell: bash
     - name: Send coverage data to Codecov
       uses: codecov/codecov-action@v3.1.1
       with:
