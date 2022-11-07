@@ -226,7 +226,7 @@ jobs:
 
         ver = setuptools_scm.get_version(
           ${{
-              steps.untagged-check.outputs.is-untagged-devel == 'true'
+              steps.not-tagged-check.outputs.is-untagged-devel == 'true'
               && 'local_scheme="no-local-version"'
               || ''
           }}
