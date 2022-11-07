@@ -1170,6 +1170,11 @@ jobs:
       shell: python
     - name: Run tests
       run: python -m tox -p auto --parallel-live -qq
+    - name: Produce markdown test summary from JUnit
+      if: always()
+      uses: test-summary/action@v2.0
+      with:
+        paths: .test-results/pytest/results.xml
     - name: Re-run the failing tests with maximum verbosity
       if: failure()
       run: >-  # `exit 1` makes sure that the job remains red with flaky runs
