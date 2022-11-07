@@ -484,8 +484,8 @@ jobs:
       run: >-
         git show --format='node: %H%nnode-date: %cI%ndescribe-name:
         %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
-        >
-        .git_archival.txt
+        |
+        tee -a .git_archival.txt
     - name: Delete the Git repository
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -760,8 +760,8 @@ jobs:
       run: >-
         git show --format='node: %H%nnode-date: %cI%ndescribe-name:
         %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
-        >
-        .git_archival.txt
+        |
+        tee -a .git_archival.txt
     - name: Delete the Git repository
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -936,8 +936,8 @@ jobs:
       run: >-
         git show --format='node: %H%nnode-date: %cI%ndescribe-name:
         %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
-        >
-        .git_archival.txt
+        |
+        tee -a .git_archival.txt
     - name: Delete the Git repository
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
