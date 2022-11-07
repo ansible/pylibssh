@@ -478,15 +478,28 @@ jobs:
         xargs git tag --delete
       shell: bash
 
-    - name: >-
-        Tag the current checkout HEAD in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
+    - name: Setup git user as [bot]
       if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+        for setuptools-scm to set the desired version
+      if: >-
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
         '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{
+          fromJSON(needs.pre-setup.outputs.release-requested)
+          && github.event.inputs.release-commitish || ''
+        }}
+
     - name: Write the current version metadata to `.git_archival.txt`
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -499,21 +512,6 @@ jobs:
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: rm -rf .git
-
-    - name: Setup git user as [bot]
-      if: fromJSON(needs.pre-setup.outputs.release-requested)
-      uses: fregante/setup-git-user@v1.1.0
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{ github.event.inputs.release-commitish }}
 
     - name: Build dist
       run: >-
@@ -763,15 +761,28 @@ jobs:
         xargs git tag --delete
       shell: bash
 
-    - name: >-
-        Tag the current checkout HEAD in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
+    - name: Setup git user as [bot]
       if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+        for setuptools-scm to set the desired version
+      if: >-
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
         '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{
+          fromJSON(needs.pre-setup.outputs.release-requested)
+          && github.event.inputs.release-commitish || ''
+        }}
+
     - name: Write the current version metadata to `.git_archival.txt`
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -784,21 +795,6 @@ jobs:
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: rm -rf .git
-
-    - name: Setup git user as [bot]
-      if: fromJSON(needs.pre-setup.outputs.release-requested)
-      uses: fregante/setup-git-user@v1.1.0
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{ github.event.inputs.release-commitish }}
 
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
@@ -948,15 +944,28 @@ jobs:
         xargs git tag --delete
       shell: bash
 
-    - name: >-
-        Tag the current checkout HEAD in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
+    - name: Setup git user as [bot]
       if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      uses: fregante/setup-git-user@v1.1.0
+    - name: >-
+        Tag the release in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+        for setuptools-scm to set the desired version
+      if: >-
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
         '${{ needs.pre-setup.outputs.git-tag }}'
+        --
+        ${{
+          fromJSON(needs.pre-setup.outputs.release-requested)
+          && github.event.inputs.release-commitish || ''
+        }}
+
     - name: Write the current version metadata to `.git_archival.txt`
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -969,21 +978,6 @@ jobs:
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: rm -rf .git
-
-    - name: Setup git user as [bot]
-      if: fromJSON(needs.pre-setup.outputs.release-requested)
-      uses: fregante/setup-git-user@v1.1.0
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{ github.event.inputs.release-commitish }}
 
     - name: Build sdist and verify metadata
       run: >-
