@@ -82,6 +82,18 @@ def wait_for_svc_ready_state(  # noqa: WPS317
                 break
 
 
+def _is_retriable_connection_error(ssh_sess_exc):
+    connection_error_msg = str(ssh_sess_exc)
+    retriable_connection_error_messages = (
+        'Connection refused',
+        'Connection reset by peer',
+    )
+    return any(
+        msg in connection_error_msg
+        for msg in retriable_connection_error_messages
+    )
+
+
 def ensure_ssh_session_connected(  # noqa: WPS317
         ssh_session, sshd_addr, ssh_clientkey_path,  # noqa: WPS318
         max_conn_attempts=40,
@@ -116,7 +128,7 @@ def ensure_ssh_session_connected(  # noqa: WPS317
                 look_for_keys=False,
             )
         except LibsshSessionException as ssh_sess_exc:
-            if 'Connection reset by peer' not in str(ssh_sess_exc):
+            if not _is_retriable_connection_error(ssh_sess_exc):
                 raise
 
             time.sleep(reconnect_attempt_delay)
