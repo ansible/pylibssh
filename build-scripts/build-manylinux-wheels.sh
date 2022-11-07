@@ -116,7 +116,8 @@ for PY in $PYTHONS; do
         cp -v "${PEP517_CONFIG_FILE}" "${ISOLATED_SRC_DIRS}/${PY}"/
     else
         # NOTE: Rely on `.git_archival.txt` for versioning
-        cp -v "${SRC_DIR}" "${ISOLATED_SRC_DIRS}/${PY}"
+        mkdir -pv "${ISOLATED_SRC_DIRS}/"
+        cp -a "${SRC_DIR}" "${ISOLATED_SRC_DIRS}/${PY}"
     fi
 done
 
