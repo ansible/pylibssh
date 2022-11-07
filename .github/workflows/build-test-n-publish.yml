@@ -1407,14 +1407,22 @@ jobs:
     - name: Figure out if the interpreter ABI is stable
       id: py-abi
       run: |
+        from os import environ
+        from pathlib import Path
         from sys import version_info
+
+        FILE_APPEND_MODE = 'a'
 
         is_stable_abi = version_info.releaselevel == 'final'
 
-        print(
-            '::set-output name=is-stable-abi::{is_stable_abi}'.
-            format(is_stable_abi=str(is_stable_abi).lower())
-        )
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                'is-stable-abi={is_stable_abi}'.
+                format(is_stable_abi=str(is_stable_abi).lower()),
+                file=outputs_file,
+            )
       shell: python
     - name: >-
         Calculate Python interpreter version hash value
