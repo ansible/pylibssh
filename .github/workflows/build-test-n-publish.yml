@@ -478,6 +478,15 @@ jobs:
         xargs git tag --delete
       shell: bash
 
+    - name: >-
+        Tag the current checkout HEAD in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
     - name: Write the current version metadata to `.git_archival.txt`
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -754,6 +763,15 @@ jobs:
         xargs git tag --delete
       shell: bash
 
+    - name: >-
+        Tag the current checkout HEAD in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
     - name: Write the current version metadata to `.git_archival.txt`
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
@@ -930,6 +948,15 @@ jobs:
         xargs git tag --delete
       shell: bash
 
+    - name: >-
+        Tag the current checkout HEAD in the local Git repo
+        as ${{ needs.pre-setup.outputs.git-tag }}
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: >-
+        git tag
+        -m '${{ needs.pre-setup.outputs.git-tag }}'
+        '${{ needs.pre-setup.outputs.git-tag }}'
     - name: Write the current version metadata to `.git_archival.txt`
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
