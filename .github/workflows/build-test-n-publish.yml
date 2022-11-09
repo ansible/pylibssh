@@ -489,7 +489,6 @@ jobs:
         for setuptools-scm to set the desired version
       if: >-
         fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
@@ -787,7 +786,6 @@ jobs:
         for setuptools-scm to set the desired version
       if: >-
         fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
@@ -985,7 +983,6 @@ jobs:
         for setuptools-scm to set the desired version
       if: >-
         fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
