@@ -500,18 +500,32 @@ jobs:
           && github.event.inputs.release-commitish || ''
         }}
 
-    - name: Write the current version metadata to `.git_archival.txt`
+    - name: Install tomlkit Python distribution package
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
-        git show --format='node: %H%nnode-date: %cI%ndescribe-name:
-        %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
-        |
-        tee -a .git_archival.txt
-    - name: Delete the Git repository
+        python -m pip install --user tomlkit
+    - name: Instruct setuptools-scm not to add a local version part
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: rm -rf .git
+      run: |
+        from pathlib import Path
+
+        import tomlkit
+
+        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
+        with pyproject_toml_path.open() as pyproject_toml_fp:
+            pyproject_toml = tomlkit.load(pyproject_toml_fp)
+            setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
+            setuptools_scm_section['local_scheme'] = 'no-local-version'
+            tomlkit.dump(pyproject_toml, pyproject_toml_fp)
+      shell: python
+    - name: Pretend that pyproject.toml is unchanged
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged pyproject.toml
 
     - name: Build dist
       run: >-
@@ -783,18 +797,32 @@ jobs:
           && github.event.inputs.release-commitish || ''
         }}
 
-    - name: Write the current version metadata to `.git_archival.txt`
+    - name: Install tomlkit Python distribution package
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
-        git show --format='node: %H%nnode-date: %cI%ndescribe-name:
-        %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
-        |
-        tee -a .git_archival.txt
-    - name: Delete the Git repository
+        python -m pip install --user tomlkit
+    - name: Instruct setuptools-scm not to add a local version part
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: rm -rf .git
+      run: |
+        from pathlib import Path
+
+        import tomlkit
+
+        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
+        with pyproject_toml_path.open() as pyproject_toml_fp:
+            pyproject_toml = tomlkit.load(pyproject_toml_fp)
+            setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
+            setuptools_scm_section['local_scheme'] = 'no-local-version'
+            tomlkit.dump(pyproject_toml, pyproject_toml_fp)
+      shell: python
+    - name: Pretend that pyproject.toml is unchanged
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged pyproject.toml
 
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
@@ -966,18 +994,32 @@ jobs:
           && github.event.inputs.release-commitish || ''
         }}
 
-    - name: Write the current version metadata to `.git_archival.txt`
+    - name: Install tomlkit Python distribution package
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
       run: >-
-        git show --format='node: %H%nnode-date: %cI%ndescribe-name:
-        %(describe:tags=true,match=*[0-9]*)%nref-names: %D%n' --no-patch
-        |
-        tee -a .git_archival.txt
-    - name: Delete the Git repository
+        python -m pip install --user tomlkit
+    - name: Instruct setuptools-scm not to add a local version part
       if: >-
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: rm -rf .git
+      run: |
+        from pathlib import Path
+
+        import tomlkit
+
+        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
+        with pyproject_toml_path.open() as pyproject_toml_fp:
+            pyproject_toml = tomlkit.load(pyproject_toml_fp)
+            setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
+            setuptools_scm_section['local_scheme'] = 'no-local-version'
+            tomlkit.dump(pyproject_toml, pyproject_toml_fp)
+      shell: python
+    - name: Pretend that pyproject.toml is unchanged
+      if: >-
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged pyproject.toml
 
     - name: Build sdist and verify metadata
       run: >-
