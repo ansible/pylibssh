@@ -514,7 +514,10 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        with pyproject_toml_path.open() as pyproject_toml_fp:
+        FILE_WRITE_MODE = 'w'
+        with pyproject_toml_path.open(
+                mode=FILE_WRITE_MODE,
+        ) as pyproject_toml_fp:
             pyproject_toml = tomlkit.load(pyproject_toml_fp)
             setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
             setuptools_scm_section['local_scheme'] = 'no-local-version'
@@ -811,7 +814,10 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        with pyproject_toml_path.open() as pyproject_toml_fp:
+        FILE_WRITE_MODE = 'w'
+        with pyproject_toml_path.open(
+                mode=FILE_WRITE_MODE,
+        ) as pyproject_toml_fp:
             pyproject_toml = tomlkit.load(pyproject_toml_fp)
             setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
             setuptools_scm_section['local_scheme'] = 'no-local-version'
@@ -1008,7 +1014,10 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        with pyproject_toml_path.open() as pyproject_toml_fp:
+        FILE_WRITE_MODE = 'w'
+        with pyproject_toml_path.open(
+                mode=FILE_WRITE_MODE,
+        ) as pyproject_toml_fp:
             pyproject_toml = tomlkit.load(pyproject_toml_fp)
             setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
             setuptools_scm_section['local_scheme'] = 'no-local-version'
