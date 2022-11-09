@@ -514,14 +514,12 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        FILE_READWRITE_MODE = 'rw'
-        with pyproject_toml_path.open(
-                mode=FILE_READWRITE_MODE,
-        ) as pyproject_toml_fp:
-            pyproject_toml = tomlkit.load(pyproject_toml_fp)
-            setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-            setuptools_scm_section['local_scheme'] = 'no-local-version'
-            tomlkit.dump(pyproject_toml, pyproject_toml_fp)
+        pyproject_toml_txt = pyproject_toml_path.read_text()
+        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
+        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
+        setuptools_scm_section['local_scheme'] = 'no-local-version'
+        patched_pyproject_toml_txt = tomlkit.dumps()
+        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
       if: >-
@@ -814,14 +812,12 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        FILE_READWRITE_MODE = 'rw'
-        with pyproject_toml_path.open(
-                mode=FILE_READWRITE_MODE,
-        ) as pyproject_toml_fp:
-            pyproject_toml = tomlkit.load(pyproject_toml_fp)
-            setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-            setuptools_scm_section['local_scheme'] = 'no-local-version'
-            tomlkit.dump(pyproject_toml, pyproject_toml_fp)
+        pyproject_toml_txt = pyproject_toml_path.read_text()
+        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
+        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
+        setuptools_scm_section['local_scheme'] = 'no-local-version'
+        patched_pyproject_toml_txt = tomlkit.dumps()
+        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
       if: >-
@@ -1014,14 +1010,12 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        FILE_READWRITE_MODE = 'rw'
-        with pyproject_toml_path.open(
-                mode=FILE_READWRITE_MODE,
-        ) as pyproject_toml_fp:
-            pyproject_toml = tomlkit.load(pyproject_toml_fp)
-            setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-            setuptools_scm_section['local_scheme'] = 'no-local-version'
-            tomlkit.dump(pyproject_toml, pyproject_toml_fp)
+        pyproject_toml_txt = pyproject_toml_path.read_text()
+        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
+        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
+        setuptools_scm_section['local_scheme'] = 'no-local-version'
+        patched_pyproject_toml_txt = tomlkit.dumps()
+        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
       if: >-
