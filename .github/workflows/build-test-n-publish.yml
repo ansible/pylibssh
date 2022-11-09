@@ -518,7 +518,7 @@ jobs:
         pyproject_toml = tomlkit.loads(pyproject_toml_txt)
         setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
         setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps()
+        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
         pyproject_toml_path.write_text(patched_pyproject_toml_txt)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
@@ -816,7 +816,7 @@ jobs:
         pyproject_toml = tomlkit.loads(pyproject_toml_txt)
         setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
         setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps()
+        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
         pyproject_toml_path.write_text(patched_pyproject_toml_txt)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
@@ -1014,7 +1014,7 @@ jobs:
         pyproject_toml = tomlkit.loads(pyproject_toml_txt)
         setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
         setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps()
+        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
         pyproject_toml_path.write_text(patched_pyproject_toml_txt)
       shell: python
     - name: Pretend that pyproject.toml is unchanged
