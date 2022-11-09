@@ -514,9 +514,9 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        FILE_WRITE_MODE = 'w'
+        FILE_READWRITE_MODE = 'rw'
         with pyproject_toml_path.open(
-                mode=FILE_WRITE_MODE,
+                mode=FILE_READWRITE_MODE,
         ) as pyproject_toml_fp:
             pyproject_toml = tomlkit.load(pyproject_toml_fp)
             setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
@@ -814,9 +814,9 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        FILE_WRITE_MODE = 'w'
+        FILE_READWRITE_MODE = 'rw'
         with pyproject_toml_path.open(
-                mode=FILE_WRITE_MODE,
+                mode=FILE_READWRITE_MODE,
         ) as pyproject_toml_fp:
             pyproject_toml = tomlkit.load(pyproject_toml_fp)
             setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
@@ -1014,9 +1014,9 @@ jobs:
         import tomlkit
 
         pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        FILE_WRITE_MODE = 'w'
+        FILE_READWRITE_MODE = 'rw'
         with pyproject_toml_path.open(
-                mode=FILE_WRITE_MODE,
+                mode=FILE_READWRITE_MODE,
         ) as pyproject_toml_fp:
             pyproject_toml = tomlkit.load(pyproject_toml_fp)
             setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
