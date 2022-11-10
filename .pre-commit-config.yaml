@@ -126,7 +126,7 @@ repos:
     - file
 
 - repo: https://github.com/MarcoGorelli/cython-lint.git
-  rev: v0.3.0
+  rev: v0.6.4
   hooks:
   - id: cython-lint
     # NOTE: This linter does not have a config file so it's set up below.
