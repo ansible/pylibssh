@@ -1597,7 +1597,6 @@ jobs:
       ${{ matrix.runner-vm-os }}
       ${{ matrix.dist-type }} dists
     needs:
-    - build-bin-macos
     - build-bin-manylinux-tested-arches
     - build-src
     - pre-setup  # transitive, for accessing settings
@@ -1823,7 +1822,6 @@ jobs:
       ${{ matrix.dist-type }} dists
     needs:
     - build-bin-macos
-    - build-bin-manylinux-tested-arches
     - build-src
     - pre-setup  # transitive, for accessing settings
     runs-on: ${{ matrix.runner-vm-os }}
