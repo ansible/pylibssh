@@ -894,7 +894,7 @@ jobs:
         - cp36-cp36m
         - cp37-cp37m
         - cp38-cp38
-        - cp39-cp39
+        - cp39-cp39  # NOTE: This version and newer ship pip supporting PEP 600, meaning that they don't need to be built with manylinux2010/manylinux2014
         - cp310-cp310
         - cp311-cp311
         manylinux-year-target:
