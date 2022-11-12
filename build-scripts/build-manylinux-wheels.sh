@@ -16,7 +16,6 @@ THIS_SCRIPT_DIR_PATH=$(dirname "$(readlink -m $(type -p "${0}"))")
 IMAGE_SCRIPTS_DIR_PATH="${THIS_SCRIPT_DIR_PATH}/manylinux-container-image"
 
 source "${IMAGE_SCRIPTS_DIR_PATH}/get-static-deps-dir.sh"
-source "${IMAGE_SCRIPTS_DIR_PATH}/activate-userspace-tools.sh"
 
 SRC_DIR=/io
 GIT_DIR="${SRC_DIR}/.git"
@@ -58,8 +57,6 @@ MANYLINUX_TAG="$(
 
 # Avoid creation of __pycache__/*.py[c|o]
 export PYTHONDONTWRITEBYTECODE=1
-
-import_userspace_tools
 
 PIP_GLOBAL_ARGS=
 if [ -n "$DEBUG" ]

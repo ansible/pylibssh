@@ -48,10 +48,6 @@ jobs:
         - IMAGE:
             ARCH: x86_64
             QEMU_ARCH: amd64
-          YEAR: 1
-        - IMAGE:
-            ARCH: x86_64
-            QEMU_ARCH: amd64
           YEAR: 2010
 
     env:

@@ -81,9 +81,6 @@ git clone \
     https://git.libssh.org/projects/${LIB_NAME}.git \
     "${LIB_CLONE_DIR}"
 
-source activate-userspace-tools.sh
-import_userspace_tools
-
 mkdir -pv "${LIB_BUILD_DIR}"
 pushd "${LIB_BUILD_DIR}"
 # For some reason, libssh has to be compiled as a shared object.
