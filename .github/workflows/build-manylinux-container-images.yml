@@ -55,7 +55,7 @@ jobs:
           YEAR: 2010
 
     env:
-      LIBSSH_VERSION: 0.9.4
+      LIBSSH_VERSION: 0.9.6
       PYPA_MANYLINUX_TAG: >-
         manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
