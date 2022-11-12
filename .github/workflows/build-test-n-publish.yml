@@ -584,7 +584,7 @@ jobs:
           ${{
               (
                 fromJSON(needs.pre-setup.outputs.release-requested)
-              ) && 90 || 4
+              ) && 7 || 4
           }}
 
   build-bin-manylinux-tested-arches:
@@ -860,7 +860,7 @@ jobs:
           ${{
               (
                 fromJSON(needs.pre-setup.outputs.release-requested)
-              ) && 90 || 4
+              ) && 7 || 4
           }}
 
   build-bin-manylinux-odd-arches:
@@ -1090,7 +1090,7 @@ jobs:
           ${{
               (
                 fromJSON(needs.pre-setup.outputs.release-requested)
-              ) && 90 || 4
+              ) && 7 || 4
           }}
 
   build-src:
@@ -1273,7 +1273,7 @@ jobs:
           ${{
               (
                 fromJSON(needs.pre-setup.outputs.release-requested)
-              ) && 90 || 4
+              ) && 7 || 4
           }}
 
   build-rpms:
