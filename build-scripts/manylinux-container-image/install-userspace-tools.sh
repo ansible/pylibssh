@@ -14,7 +14,7 @@ VIRTUALENV_PIP_BIN="${VIRTUALENV_PYTHON_BIN} -m pip"
 TOOLS_PKGS=auditwheel
 if [ "${ARCH}" == "x86_64" ]
 then
-    TOOLS_PKGS="${TOOLS_PKGS} cmake"
+    TOOLS_PKGS="${TOOLS_PKGS} cmake --only-binary=cmake"
 fi
 
 # Avoid creation of __pycache__/*.py[c|o]
