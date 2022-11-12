@@ -363,7 +363,6 @@ jobs:
         ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --wheel
       TOXENV: build-wheels-pip,delocate-macos-wheels,metadata-validation
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Patch env context to match docs expectations
@@ -690,7 +689,6 @@ jobs:
       TOXENV: >-
         build-dists-manylinux${{ matrix.manylinux-year-target
         }}-${{ matrix.manylinux-image-target.arch }},metadata-validation
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Switch to using Python 3.11 by default
@@ -920,7 +918,6 @@ jobs:
       TOXENV: >-
         build-dists-manylinux${{ matrix.manylinux-year-target
         }}-${{ matrix.manylinux-image-target.arch }},metadata-validation
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Switch to using Python 3.11 by default
@@ -1117,7 +1114,6 @@ jobs:
         ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --sdist
       TOXENV: build-dists,metadata-validation
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Switch to using Python 3.11
@@ -1632,7 +1628,6 @@ jobs:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       TOXENV: test-${{ matrix.dist-type }}-dists
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Install build toolchain and openssl headers on Linux
@@ -1855,7 +1850,6 @@ jobs:
       ANSIBLE_PYLIBSSH_TRACING: >-
         ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       TOXENV: test-${{ matrix.dist-type }}-dists
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Install build toolchain and openssl headers on Linux
@@ -2049,7 +2043,6 @@ jobs:
 
     env:
       TOXENV: metadata-validation
-      TOX_PARALLEL_NO_SPINNER: 1
 
     steps:
     - name: Switch to using Python 3.11 by default
