@@ -141,6 +141,39 @@ repos:
     files: >-
       ^README\.rst$
 
+- repo: local
+  hooks:
+  - id: changelogs-rst
+    name: changelog filenames
+    language: fail
+    entry: >-
+      Changelog files must be named
+      ####.(bugfix|feature|deprecation|breaking|doc|misc)(.#)?(.rst)?
+    exclude: >-
+      (?x)
+      ^
+        docs/changelog-fragments/(
+          \.gitignore
+          |\d+\.(
+            bugfix
+            |feature
+            |deprecation
+            |breaking
+            |doc
+            |misc
+          )(\.\d+)?(\.rst)?
+          |README\.rst
+          |template\.j2
+        )
+      $
+    files: ^docs/changelog-fragments/
+  - id: changelogs-user-role
+    name: Changelog files should use a non-broken :user:`name` role
+    language: pygrep
+    entry: :user:([^`]+`?|`[^`]+[\s,])
+    pass_filenames: true
+    types: [file, rst]
+
 # - repo: local
 #   hooks:
 #   - id: pylint
