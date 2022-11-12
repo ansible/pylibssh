@@ -1,0 +1,2 @@
+Stopped updating ``manylinux1`` container images for building
+wheels in the CI -- by :user:`webknjaz`
