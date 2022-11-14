@@ -2266,7 +2266,7 @@ jobs:
     - name: >-
         Publish a GitHub Release for
         ${{ needs.pre-setup.outputs.git-tag }}
-      uses: ncipollo/release-action@v1.11.1
+      uses: ncipollo/release-action@v1.11.2
       with:
         allowUpdates: false
         artifactErrorsFailBuild: false
