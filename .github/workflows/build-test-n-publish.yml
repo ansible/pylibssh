@@ -107,6 +107,11 @@ jobs:
       git-tag: ${{ steps.git-tag.outputs.tag }}
       sdist-artifact-name: ${{ steps.artifact-name.outputs.sdist }}
       wheel-artifact-name: ${{ steps.artifact-name.outputs.wheel }}
+      changelog-patch-name: ${{ steps.changelog-patch-name.outputs.filename }}
+      changelog-draft-name-md: >-
+        ${{ steps.changelog-draft-name.outputs.filename-base }}.md
+      changelog-draft-name-rst: >-
+        ${{ steps.changelog-draft-name.outputs.filename-base }}.rst
     steps:
     - name: Switch to using Python 3.11 by default
       uses: actions/setup-python@v4.3.0
@@ -275,6 +280,10 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(f'dist-version={ver}', file=outputs_file)
+            print(
+                f'dist-version-for-filenames={ver.replace("+", "-")}',
+                file=outputs_file,
+            )
     - name: Set the target Git tag
       id: git-tag
       run: |
@@ -321,6 +330,226 @@ jobs:
                 }}-cp3*-cp3*-*.whl",
                 file=outputs_file,
             )
+    - name: Set the expected changelog patch filename
+      id: changelog-patch-name
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print('filename=0001-Generate-a-changelog-entry-for-v${{
+                steps.request-check.outputs.release-requested == 'true'
+                && github.event.inputs.release-version
+                || steps.scm-version.outputs.dist-version-for-filenames
+            }}.patch', file=outputs_file)
+    - name: Set the expected changelog draft filename
+      id: changelog-draft-name
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print('filename-base=change-notes-v${{
+                steps.request-check.outputs.release-requested == 'true'
+                && github.event.inputs.release-version
+                || steps.scm-version.outputs.dist-version-for-filenames
+            }}', file=outputs_file)
+
+  build-changelog:
+    name: >-
+      👷📝 ${{ needs.pre-setup.outputs.git-tag }} changelog
+      [mode: ${{
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        && 'nightly' || ''
+      }}${{
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        && 'release' || ''
+      }}${{
+        (
+          !fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+          && !fromJSON(needs.pre-setup.outputs.release-requested)
+        ) && 'test' || ''
+      }}]
+    needs:
+    - pre-setup
+    runs-on: ubuntu-latest
+
+    env:
+      TOXENV: make-changelog
+
+    steps:
+    - name: Switch to using Python 3.11
+      uses: actions/setup-python@v4.3.0
+      with:
+        python-version: 3.11
+
+    - name: Grab the source from Git
+      uses: actions/checkout@v3.1.0
+      with:
+        fetch-depth: 1  # Enough for this job to generate the changelog
+        ref: ${{ github.event.inputs.release-commitish }}
+
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc-cache-key-py
+      run: |
+        from hashlib import sha512
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
+      shell: python
+    - name: Set up pip cache
+      uses: actions/cache@v3.0.11
+      with:
+        path: >-
+          ${{
+              runner.os == 'Linux'
+              && '~/.cache/pip'
+              || '~/Library/Caches/pip'
+          }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{
+            steps.calc-cache-key-py.outputs.py-hash-key
+          }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install tox
+      run: >-
+        python -m
+        pip install
+        --user
+        tox
+
+    - name: Pre-populate the tox env
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
+    - name: Drop Git tags from HEAD for non-tag-create events
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
+
+    - name: Setup git user as [bot]
+      # Refs:
+      # * https://github.community/t/github-actions-bot-email-address/17204/6
+      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
+      uses: fregante/setup-git-user@v1.1.0
+
+    - name: Generate changelog draft to a temporary file
+      run: >-
+        2>/dev/null
+        python -m
+        tox
+        --skip-missing-interpreters false
+        --skip-pkg-install
+        -e draft-changelog
+        -qq
+        |
+        tee
+        '${{ needs.pre-setup.outputs.changelog-draft-name-rst }}'
+      shell: bash
+    - name: Sanitize the markdown changelog version
+      run: >-
+        sed
+        -i
+        -e 's/:commit:`\([0-9a-f]\+\)`/${{
+          ''
+        }}https:\/\/github.com\/ansible\/pylibssh\/commit\/\1/g'
+        -e 's/:gh:`\([-.a-zA-Z0-9]\+\)`/https:\/\/github.com\/\1/g'
+        -e 's/:\(issue\|pr\):`\([0-9]\+\)`/#\2/g'
+        -e 's/:user:`\([-.a-zA-Z0-9]\+\)`/@\1/g'
+        '${{ needs.pre-setup.outputs.changelog-draft-name-rst }}'
+      shell: bash
+    - name: Install pandoc via apt
+      run: sudo apt install -y pandoc
+    - name: >-
+        Convert ${{ needs.pre-setup.outputs.changelog-draft-name-rst }}
+        into ${{ needs.pre-setup.outputs.changelog-draft-name-md }}
+        with a native pandoc run
+      run: >-
+        pandoc
+        --from=rst
+        --to=gfm
+        --output='${{ needs.pre-setup.outputs.changelog-draft-name-md }}'
+        '${{ needs.pre-setup.outputs.changelog-draft-name-rst }}'
+    - name: Render the changelog draft in the GitHub Job Summary
+      run: |
+        echo "# Changelog for ${{
+            needs.pre-setup.outputs.git-tag
+        }}" >> "${GITHUB_STEP_SUMMARY}"
+        echo >> "${GITHUB_STEP_SUMMARY}"
+        echo >> "${GITHUB_STEP_SUMMARY}"
+        cat '${{
+            needs.pre-setup.outputs.changelog-draft-name-md
+        }}' >> "${GITHUB_STEP_SUMMARY}"
+      shell: bash
+    - name: Generate changelog update with tox and stage it in Git
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
+        --
+        '${{ needs.pre-setup.outputs.dist-version }}'
+        --yes
+    - name: >-
+        Commit the changelog updates for release
+        ${{ needs.pre-setup.outputs.git-tag }} in the local Git repo
+      run: >-
+        git commit -m
+        'Generate a changelog entry for ${{
+            needs.pre-setup.outputs.git-tag
+        }}'
+    - name: Log the changelog commit
+      run: git show --color
+    - name: Create a changelog update patch from the last Git commit
+      run: >-
+        git format-patch
+        --output='${{ needs.pre-setup.outputs.changelog-patch-name }}'
+        -1 HEAD
+    - name: Verify that expected patch got created
+      run: ls -1 '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+    - name: Save the package bump patch as a GHA artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: changelog
+        path: |
+          ${{ needs.pre-setup.outputs.changelog-patch-name }}
+          ${{ needs.pre-setup.outputs.changelog-draft-name-md }}
+          ${{ needs.pre-setup.outputs.changelog-draft-name-rst }}
 
   build-bin-macos:
     name: >-
@@ -339,7 +568,8 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - pre-setup
+    - build-changelog
+    - pre-setup  # transitive, for accessing settings
     # NOTE: I tried also making wheels for 32-bit runtime but it's
     # NOTE: proven to be useless and hard to maintain. Also macOS
     # NOTE: Catalina ditched support for 32-bit executables so it
@@ -478,10 +708,38 @@ jobs:
       shell: bash
 
     - name: Setup git user as [bot]
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      # Refs:
+      # * https://github.community/t/github-actions-bot-email-address/17204/6
+      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
       uses: fregante/setup-git-user@v1.1.0
+    - name: Fetch the GHA artifact with the version patch
+      uses: actions/download-artifact@v3
+      with:
+        name: changelog
+
+    - name: Apply the changelog patch
+      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+    - name: Drop the changelog patch file
+      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+
+    - name: Soft-reset the changelog patch
+      # ... to let `setuptools-scm` rely on the event-triggering commit
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git reset HEAD^ --soft
+        git restore --staged .
+      shell: bash
+    - name: Pretend there were no changelog updates in Git
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged -- $(git ls-files --modified)
+      shell: bash
+
     - name: >-
         Tag the release in the local Git repo
         as ${{ needs.pre-setup.outputs.git-tag }}
@@ -605,7 +863,8 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - pre-setup
+    - build-changelog
+    - pre-setup  # transitive, for accessing settings
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -770,10 +1029,38 @@ jobs:
       shell: bash
 
     - name: Setup git user as [bot]
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      # Refs:
+      # * https://github.community/t/github-actions-bot-email-address/17204/6
+      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
       uses: fregante/setup-git-user@v1.1.0
+    - name: Fetch the GHA artifact with the version patch
+      uses: actions/download-artifact@v3
+      with:
+        name: changelog
+
+    - name: Apply the changelog patch
+      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+    - name: Drop the changelog patch file
+      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+
+    - name: Soft-reset the changelog patch
+      # ... to let `setuptools-scm` rely on the event-triggering commit
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git reset HEAD^ --soft
+        git restore --staged .
+      shell: bash
+    - name: Pretend there were no changelog updates in Git
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged -- $(git ls-files --modified)
+      shell: bash
+
     - name: >-
         Tag the release in the local Git repo
         as ${{ needs.pre-setup.outputs.git-tag }}
@@ -880,7 +1167,8 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - pre-setup
+    - build-changelog
+    - pre-setup  # transitive, for accessing settings
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -999,10 +1287,38 @@ jobs:
       shell: bash
 
     - name: Setup git user as [bot]
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      # Refs:
+      # * https://github.community/t/github-actions-bot-email-address/17204/6
+      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
       uses: fregante/setup-git-user@v1.1.0
+    - name: Fetch the GHA artifact with the version patch
+      uses: actions/download-artifact@v3
+      with:
+        name: changelog
+
+    - name: Apply the changelog patch
+      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+    - name: Drop the changelog patch file
+      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+
+    - name: Soft-reset the changelog patch
+      # ... to let `setuptools-scm` rely on the event-triggering commit
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git reset HEAD^ --soft
+        git restore --staged .
+      shell: bash
+    - name: Pretend there were no changelog updates in Git
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged -- $(git ls-files --modified)
+      shell: bash
+
     - name: >-
         Tag the release in the local Git repo
         as ${{ needs.pre-setup.outputs.git-tag }}
@@ -1106,7 +1422,8 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - pre-setup
+    - build-changelog
+    - pre-setup  # transitive, for accessing settings
     runs-on: ubuntu-latest
 
     env:
@@ -1195,10 +1512,38 @@ jobs:
       shell: bash
 
     - name: Setup git user as [bot]
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-        || fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+      # Refs:
+      # * https://github.community/t/github-actions-bot-email-address/17204/6
+      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
       uses: fregante/setup-git-user@v1.1.0
+    - name: Fetch the GHA artifact with the version patch
+      uses: actions/download-artifact@v3
+      with:
+        name: changelog
+
+    - name: Apply the changelog patch
+      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+    - name: Drop the changelog patch file
+      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+
+    - name: Soft-reset the changelog patch
+      # ... to let `setuptools-scm` rely on the event-triggering commit
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git reset HEAD^ --soft
+        git restore --staged .
+      shell: bash
+    - name: Pretend there were no changelog updates in Git
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged -- $(git ls-files --modified)
+      shell: bash
+
     - name: >-
         Tag the release in the local Git repo
         as ${{ needs.pre-setup.outputs.git-tag }}
@@ -2222,7 +2567,49 @@ jobs:
         ref: ${{ github.event.inputs.release-commitish }}
     - name: Setup git user as [bot]
       if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      # Refs:
+      # * https://github.community/t/github-actions-bot-email-address/17204/6
+      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
       uses: fregante/setup-git-user@v1.1.0
+    - name: Fetch the GHA artifact with the version patch
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      uses: actions/download-artifact@v3
+      with:
+        name: changelog
+
+    - name: Apply the changelog patch
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+    - name: Drop the changelog patch file
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
+      shell: bash
+
+    - name: Soft-reset the changelog patch
+      # ... to let `setuptools-scm` rely on the event-triggering commit
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: |
+        git reset HEAD^ --soft
+        git restore --staged .
+      shell: bash
+    - name: Pretend there were no changelog updates in Git
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: |
+        git diff --color=always
+        git update-index --assume-unchanged -- $(git ls-files --modified)
+      shell: bash
+
+    - name: >-
+        Create a local 'release/${{
+          needs.pre-setup.outputs.dist-version
+        }}' branch
+      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      run: >-
+        git checkout -b 'release/${{
+          needs.pre-setup.outputs.dist-version
+        }}'
+
     - name: >-
         Tag the release in the local Git repo
         as ${{ needs.pre-setup.outputs.git-tag }}
@@ -2234,8 +2621,7 @@ jobs:
           needs.pre-setup.outputs.dist-version
         }}'
         '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{ github.event.inputs.release-commitish }}
+
     - name: >-
         Push ${{ needs.pre-setup.outputs.git-tag }} tag corresponding
         to the just published release back to GitHub
@@ -2291,7 +2677,7 @@ jobs:
           }}/actions/runs/${{
             github.run_id
           }}.
-        # bodyFile:  # FIXME: Use once Towncrier is integrated.
+        bodyFile: ${{ needs.pre-setup.outputs.changelog-draft-name-md }}
         commit: ${{ github.event.inputs.release-commitish }}
         discussionCategory: Announcements
         draft: false
