@@ -526,6 +526,14 @@ jobs:
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
 
+    - name: Verify that the Git repository is not dirty
+      run: |
+        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
+        then
+          >&2 echo The Git repository is dirty... Assertion failed
+          >&2 git status
+          exit 1
+        fi
     - name: Build dist
       run: >-
         python -m
@@ -828,6 +836,14 @@ jobs:
         multiarch/qemu-user-static
         --reset -p yes
 
+    - name: Verify that the Git repository is not dirty
+      run: |
+        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
+        then
+          >&2 echo The Git repository is dirty... Assertion failed
+          >&2 git status
+          exit 1
+        fi
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
         and verify wheel metadata
@@ -1057,6 +1073,14 @@ jobs:
         multiarch/qemu-user-static
         --reset -p yes
 
+    - name: Verify that the Git repository is not dirty
+      run: |
+        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
+        then
+          >&2 echo The Git repository is dirty... Assertion failed
+          >&2 git status
+          exit 1
+        fi
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
         and verify wheel metadata
@@ -1243,6 +1267,14 @@ jobs:
         git diff --color=always
         git update-index --assume-unchanged pyproject.toml
 
+    - name: Verify that the Git repository is not dirty
+      run: |
+        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
+        then
+          >&2 echo The Git repository is dirty... Assertion failed
+          >&2 git status
+          exit 1
+        fi
     - name: Build sdist and verify metadata
       run: >-
         python -m
