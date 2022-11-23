@@ -543,7 +543,7 @@ jobs:
     - name: Verify that expected patch got created
       run: ls -1 '${{ needs.pre-setup.outputs.changelog-patch-name }}'
     - name: Save the package bump patch as a GHA artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: changelog
         path: |
