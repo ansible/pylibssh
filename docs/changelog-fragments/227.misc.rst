@@ -1,2 +1,0 @@
-Started testing RPM packaging spec with Packit service
--- by :user:`webknjaz` and :user:`TomasTomecek`
