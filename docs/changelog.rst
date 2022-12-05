@@ -12,6 +12,39 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+v1.1.0 (2022-12-05)
+===================
+
+Deprecations (removal in next major release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The project stopped being tested under Ubuntu 18.04 VM since
+  GitHub is sunetting their CI images -- by :user:`webknjaz`
+  (:issue:`379`)
+
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+- Started testing RPM packaging spec with Packit service
+  -- by :user:`webknjaz` and :user:`TomasTomecek`
+  (:issue:`227`,
+  :issue:`246`)
+- Removed the remains of Python 2 compatiblity code from the in-tree :pep:`517` build backend -- by :user:`webknjaz`
+  (:issue:`377`)
+- Fixed removing ``expandvars`` from ``pyproject.toml``
+  in an RPM spec -- by :user:`webknjaz`
+
+  Before this patch, the ``sed`` invocation removed entire
+  ``build-system.requires`` entry from there, in rare cases
+  but this won't be happening anymore.
+  (:issue:`378`)
+- Declared official support of CPython 3.11 -- by :user:`Qalthos`
+  (:issue:`396`)
+- Fix issues with ubi9 and macOS jobs -- by :user:`Qalthos`
+  (:issue:`397`)
+
+
 v1.0.0 (2022-09-14)
 ===================
 
