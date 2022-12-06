@@ -15,12 +15,28 @@ versions with advance notice in the **Deprecations** section of releases.
 v1.1.0 (2022-12-05)
 ===================
 
+Features
+^^^^^^^^
+
+- Started building ``manylinux`` wheels with ``libssh`` v0.9.6
+  -- by :user:`webknjaz`
+  (:issue:`441`)
+
+
 Deprecations (removal in next major release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - The project stopped being tested under Ubuntu 18.04 VM since
   GitHub is sunetting their CI images -- by :user:`webknjaz`
   (:issue:`379`)
+
+
+Documentation
+^^^^^^^^^^^^^
+
+- Added a :ref:`Release Guide` for making new releases
+  -- by :user:`webknjaz`
+  (:issue:`413`)
 
 
 Miscellaneous
@@ -41,8 +57,12 @@ Miscellaneous
   (:issue:`378`)
 - Declared official support of CPython 3.11 -- by :user:`Qalthos`
   (:issue:`396`)
-- Fix issues with ubi9 and macOS jobs -- by :user:`Qalthos`
-  (:issue:`397`)
+- Started shipping sdists built with Cython v0.29.32 -- by :user:`webknjaz`
+  (:issue:`399`)
+- Started building RPMs with Cython v0.29.32 -- by :user:`webknjaz`
+  (:issue:`402`)
+- Added an SSH connection re-try helper to tests -- by :user:`webknjaz`
+  (:issue:`405`)
 
 
 v1.0.0 (2022-09-14)

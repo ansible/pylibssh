@@ -1,2 +1,0 @@
-Started building ``manylinux`` wheels with ``libssh`` v0.9.6
--- by :user:`webknjaz`

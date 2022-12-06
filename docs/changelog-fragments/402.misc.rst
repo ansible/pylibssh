@@ -1,1 +1,0 @@
-Started building RPMs with Cython v0.29.32 -- by :user:`webknjaz`
