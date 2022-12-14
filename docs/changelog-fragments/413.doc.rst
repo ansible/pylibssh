@@ -1,2 +1,0 @@
-Added a :ref:`Release Guide` for making new releases
--- by :user:`webknjaz`
