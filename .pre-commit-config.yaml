@@ -5,12 +5,12 @@ ci:
 
 repos:
 - repo: https://github.com/asottile/add-trailing-comma.git
-  rev: v2.3.0
+  rev: v2.4.0
   hooks:
   - id: add-trailing-comma
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.10.1
+  rev: 5.11.4
   hooks:
   - id: isort
     args:
@@ -34,7 +34,7 @@ repos:
   - id: rst-backticks
 
 - repo: https://github.com/pre-commit/pre-commit-hooks.git
-  rev: v4.3.0
+  rev: v4.4.0
   hooks:
   # Side-effects:
   - id: trailing-whitespace
@@ -84,7 +84,7 @@ repos:
     - --strict
 
 - repo: https://github.com/PyCQA/flake8.git
-  rev: 5.0.4
+  rev: 6.0.0
   hooks:
   - id: flake8
     alias: flake8-no-wps
@@ -104,7 +104,7 @@ repos:
 
 - repo: https://github.com/PyCQA/flake8.git
   # NOTE: This is kept at v4 for until WPS starts supporting flake v5.
-  rev: 4.0.1  # enforce-version: 4.0.1
+  rev: 6.0.0  # enforce-version: 4.0.1
   hooks:
   - id: flake8
     alias: flake8-only-wps
@@ -126,7 +126,7 @@ repos:
     - file
 
 - repo: https://github.com/MarcoGorelli/cython-lint.git
-  rev: v0.6.4
+  rev: v0.10.1
   hooks:
   - id: cython-lint
     # NOTE: This linter does not have a config file so it's set up below.
