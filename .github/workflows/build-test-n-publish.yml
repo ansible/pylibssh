@@ -114,7 +114,7 @@ jobs:
         ${{ steps.changelog-draft-name.outputs.filename-base }}.rst
     steps:
     - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
     - name: >-
@@ -387,7 +387,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.11
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
 
@@ -615,7 +615,7 @@ jobs:
           }}
         ref: ${{ github.event.inputs.release-commitish }}
     - name: Install python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install libssh from brew
@@ -959,7 +959,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
 
@@ -1225,7 +1225,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
 
@@ -1458,7 +1458,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.11
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
 
@@ -2027,7 +2027,7 @@ jobs:
         }} libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
       id: python-install
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -2249,7 +2249,7 @@ jobs:
         }} libssh-dev
     - name: Switch 🐍 to v${{ matrix.python-version }}
       id: python-install
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -2423,7 +2423,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
 
@@ -2771,7 +2771,7 @@ jobs:
         path: dist/
 
     - name: Switch to Python 3.11
-      uses: actions/setup-python@v4.3.0
+      uses: actions/setup-python@v4.4.0
       with:
         python-version: 3.11
     - name: >-
