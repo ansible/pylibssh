@@ -1,1 +1,1 @@
-- Allowed processing of a specific configuration file for the connection -- by :user:`donnerhacke`
+Allowed processing of a specific configuration file for the connection -- by :user:`donnerhacke`
