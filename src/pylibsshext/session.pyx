@@ -178,7 +178,7 @@ cdef class Session(object):
                 self._opts[key] = value
 
     def connect(self, **kwargs):
-        """Conenct to ssh server and negotiate libssh session by
+        """Connect to ssh server and negotiate libssh session by
         optionally verifying the server's host key and authenticate
         either by password or private key.
 
