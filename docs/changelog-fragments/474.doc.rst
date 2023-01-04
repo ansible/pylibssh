@@ -1,0 +1,2 @@
+Fixed spelling of "Connect" in the ``Session.connect()``
+docstring -- by :user:`donnerhacke`.
