@@ -22,6 +22,7 @@ src = ["src/**/*.pyx"]
 #ANSIBLE_PYLIBSSH_TRACING = "1"
 #CFLAGS = "-DCYTHON_TRACE=1 ${CFLAGS}"
 LDFLAGS = "-lssh ${LDFLAGS}"
+CFLAGS="-I /usr/local/include ${CFLAGS}"
 
 [tool.local.cythonize.flags]
 # This section can contain the following booleans:
