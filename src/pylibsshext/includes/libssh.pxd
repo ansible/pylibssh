@@ -163,6 +163,7 @@ cdef extern from "libssh/libssh.h" nogil:
     int ssh_options_get(ssh_session session, ssh_options_e type, char **value)
     int ssh_options_get_port(ssh_session session, unsigned int * port_target)
     int ssh_options_set(ssh_session session, ssh_options_e type, const void *value)
+    int ssh_options_parse_config(ssh_session session, const char *filename)
 
     int ssh_get_server_publickey(ssh_session session, ssh_key *key)
     void ssh_key_free(ssh_key key)
