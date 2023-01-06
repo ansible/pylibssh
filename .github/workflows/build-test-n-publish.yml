@@ -166,7 +166,7 @@ jobs:
     - name: Check out src from Git
       if: >-
         steps.request-check.outputs.release-requested != 'true'
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: >-
           ${{
@@ -392,7 +392,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 1  # Enough for this job to generate the changelog
         ref: ${{ github.event.inputs.release-commitish }}
@@ -606,7 +606,7 @@ jobs:
             )
       shell: python
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: >-
           ${{
@@ -964,7 +964,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: >-
           ${{
@@ -1230,7 +1230,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: >-
           ${{
@@ -1463,7 +1463,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: >-
           ${{
@@ -1729,7 +1729,7 @@ jobs:
       run: mkdir -pv ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: >-
           ${{
@@ -2032,7 +2032,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         ref: ${{ github.event.inputs.release-commitish }}
 
@@ -2254,7 +2254,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         ref: ${{ github.event.inputs.release-commitish }}
 
@@ -2428,7 +2428,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         ref: ${{ github.event.inputs.release-commitish }}
 
@@ -2593,7 +2593,7 @@ jobs:
 
     - name: Fetch the src snapshot
       if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
-      uses: actions/checkout@v3.2.0
+      uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 1
         ref: ${{ github.event.inputs.release-commitish }}
