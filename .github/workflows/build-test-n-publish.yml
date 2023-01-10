@@ -64,6 +64,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  dists-artifact-name: python-package-distributions
+
   FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
   MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
   PIP_DISABLE_PIP_VERSION_CHECK: 1
@@ -568,7 +570,7 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - build-changelog
+    - build-src
     - pre-setup  # transitive, for accessing settings
     # NOTE: I tried also making wheels for 32-bit runtime but it's
     # NOTE: proven to be useless and hard to maintain. Also macOS
@@ -605,15 +607,11 @@ jobs:
                 format(home_dir=os.environ['HOME'])
             )
       shell: python
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        fetch-depth: >-
-          ${{
-              fromJSON(needs.pre-setup.outputs.release-requested)
-              && 1 || 0
-          }}
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
     - name: Install python ${{ matrix.python-version }}
       uses: actions/setup-python@v4.4.0
       with:
@@ -698,100 +696,6 @@ jobs:
         --skip-missing-interpreters false
         --notest
 
-    - name: Drop Git tags from HEAD for non-tag-create events
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag --points-at HEAD
-        |
-        xargs git tag --delete
-      shell: bash
-
-    - name: Setup git user as [bot]
-      # Refs:
-      # * https://github.community/t/github-actions-bot-email-address/17204/6
-      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
-      uses: fregante/setup-git-user@v1.1.0
-    - name: Fetch the GHA artifact with the version patch
-      uses: actions/download-artifact@v3
-      with:
-        name: changelog
-
-    - name: Apply the changelog patch
-      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-    - name: Drop the changelog patch file
-      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-
-    - name: Soft-reset the changelog patch
-      # ... to let `setuptools-scm` rely on the event-triggering commit
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git reset HEAD^ --soft
-        git restore --staged .
-      shell: bash
-    - name: Pretend there were no changelog updates in Git
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged -- $(git ls-files --modified)
-      shell: bash
-
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{
-          fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-committish || ''
-        }}
-
-    - name: Install tomlkit Python distribution package
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: >-
-        python -m pip install --user tomlkit
-    - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        from pathlib import Path
-
-        import tomlkit
-
-        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        pyproject_toml_txt = pyproject_toml_path.read_text()
-        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
-        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-        setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
-        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
-
-    - name: Verify that the Git repository is not dirty
-      run: |
-        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
-        then
-          >&2 echo The Git repository is dirty... Assertion failed
-          >&2 git status
-          exit 1
-        fi
     - name: Build dist
       run: >-
         python -m
@@ -838,7 +742,7 @@ jobs:
     - name: Store the binary wheel
       uses: actions/upload-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
         # NOTE: as a safety measure — if anything weird ends
         # NOTE: up being in this dir or not all dists will be
@@ -871,7 +775,7 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - build-changelog
+    - build-src
     - pre-setup  # transitive, for accessing settings
     runs-on: ubuntu-latest
     strategy:
@@ -963,15 +867,11 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        fetch-depth: >-
-          ${{
-              fromJSON(needs.pre-setup.outputs.release-requested)
-              && 1 || 0
-          }}
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -1027,92 +927,6 @@ jobs:
         --skip-missing-interpreters false
         --notest
 
-    - name: Drop Git tags from HEAD for non-tag-create events
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag --points-at HEAD
-        |
-        xargs git tag --delete
-      shell: bash
-
-    - name: Setup git user as [bot]
-      # Refs:
-      # * https://github.community/t/github-actions-bot-email-address/17204/6
-      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
-      uses: fregante/setup-git-user@v1.1.0
-    - name: Fetch the GHA artifact with the version patch
-      uses: actions/download-artifact@v3
-      with:
-        name: changelog
-
-    - name: Apply the changelog patch
-      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-    - name: Drop the changelog patch file
-      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-
-    - name: Soft-reset the changelog patch
-      # ... to let `setuptools-scm` rely on the event-triggering commit
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git reset HEAD^ --soft
-        git restore --staged .
-      shell: bash
-    - name: Pretend there were no changelog updates in Git
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged -- $(git ls-files --modified)
-      shell: bash
-
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{
-          fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-committish || ''
-        }}
-
-    - name: Install tomlkit Python distribution package
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: >-
-        python -m pip install --user tomlkit
-    - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        from pathlib import Path
-
-        import tomlkit
-
-        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        pyproject_toml_txt = pyproject_toml_path.read_text()
-        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
-        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-        setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
-        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
-
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
         with Podman
@@ -1123,14 +937,6 @@ jobs:
         multiarch/qemu-user-static
         --reset -p yes
 
-    - name: Verify that the Git repository is not dirty
-      run: |
-        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
-        then
-          >&2 echo The Git repository is dirty... Assertion failed
-          >&2 git status
-          exit 1
-        fi
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
         and verify wheel metadata
@@ -1150,7 +956,7 @@ jobs:
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
       uses: actions/upload-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
         # NOTE: as a safety measure — if anything weird ends
         # NOTE: up being in this dir or not all dists will be
@@ -1183,7 +989,7 @@ jobs:
         ) && 'test' || ''
       }}]
     needs:
-    - build-changelog
+    - build-src
     - pre-setup  # transitive, for accessing settings
     runs-on: ubuntu-latest
     strategy:
@@ -1229,15 +1035,11 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        fetch-depth: >-
-          ${{
-              fromJSON(needs.pre-setup.outputs.release-requested)
-              && 1 || 0
-          }}
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -1293,92 +1095,6 @@ jobs:
         --skip-missing-interpreters false
         --notest
 
-    - name: Drop Git tags from HEAD for non-tag-create events
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag --points-at HEAD
-        |
-        xargs git tag --delete
-      shell: bash
-
-    - name: Setup git user as [bot]
-      # Refs:
-      # * https://github.community/t/github-actions-bot-email-address/17204/6
-      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
-      uses: fregante/setup-git-user@v1.1.0
-    - name: Fetch the GHA artifact with the version patch
-      uses: actions/download-artifact@v3
-      with:
-        name: changelog
-
-    - name: Apply the changelog patch
-      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-    - name: Drop the changelog patch file
-      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-
-    - name: Soft-reset the changelog patch
-      # ... to let `setuptools-scm` rely on the event-triggering commit
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git reset HEAD^ --soft
-        git restore --staged .
-      shell: bash
-    - name: Pretend there were no changelog updates in Git
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged -- $(git ls-files --modified)
-      shell: bash
-
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{
-          fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-committish || ''
-        }}
-
-    - name: Install tomlkit Python distribution package
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: >-
-        python -m pip install --user tomlkit
-    - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        from pathlib import Path
-
-        import tomlkit
-
-        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        pyproject_toml_txt = pyproject_toml_path.read_text()
-        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
-        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-        setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
-        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
-
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
         with Podman
@@ -1389,14 +1105,6 @@ jobs:
         multiarch/qemu-user-static
         --reset -p yes
 
-    - name: Verify that the Git repository is not dirty
-      run: |
-        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
-        then
-          >&2 echo The Git repository is dirty... Assertion failed
-          >&2 git status
-          exit 1
-        fi
     - name: >-
         Build ${{ matrix.manylinux-python-target }} dist
         and verify wheel metadata
@@ -1416,7 +1124,7 @@ jobs:
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
       uses: actions/upload-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
         # NOTE: as a safety measure — if anything weird ends
         # NOTE: up being in this dir or not all dists will be
@@ -1525,101 +1233,6 @@ jobs:
         --parallel-live
         --skip-missing-interpreters false
         --notest
-
-    - name: Drop Git tags from HEAD for non-tag-create events
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag --points-at HEAD
-        |
-        xargs git tag --delete
-      shell: bash
-
-    - name: Setup git user as [bot]
-      # Refs:
-      # * https://github.community/t/github-actions-bot-email-address/17204/6
-      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
-      uses: fregante/setup-git-user@v1.1.0
-    - name: Fetch the GHA artifact with the version patch
-      uses: actions/download-artifact@v3
-      with:
-        name: changelog
-
-    - name: Apply the changelog patch
-      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-    - name: Drop the changelog patch file
-      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-
-    - name: Soft-reset the changelog patch
-      # ... to let `setuptools-scm` rely on the event-triggering commit
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git reset HEAD^ --soft
-        git restore --staged .
-      shell: bash
-    - name: Pretend there were no changelog updates in Git
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged -- $(git ls-files --modified)
-      shell: bash
-
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-        for setuptools-scm to set the desired version
-      if: >-
-        fromJSON(needs.pre-setup.outputs.release-requested)
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-        --
-        ${{
-          fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-committish || ''
-        }}
-
-    - name: Install tomlkit Python distribution package
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: >-
-        python -m pip install --user tomlkit
-    - name: Instruct setuptools-scm not to add a local version part
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        from pathlib import Path
-
-        import tomlkit
-
-        pyproject_toml_path = Path.cwd() / 'pyproject.toml'
-        pyproject_toml_txt = pyproject_toml_path.read_text()
-        pyproject_toml = tomlkit.loads(pyproject_toml_txt)
-        setuptools_scm_section = pyproject_toml['tool']['setuptools_scm']
-        setuptools_scm_section['local_scheme'] = 'no-local-version'
-        patched_pyproject_toml_txt = tomlkit.dumps(pyproject_toml)
-        pyproject_toml_path.write_text(patched_pyproject_toml_txt)
-      shell: python
-    - name: Pretend that pyproject.toml is unchanged
-      if: >-
-        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged pyproject.toml
-
-    - name: Verify that the Git repository is not dirty
-      run: |
-        if [[ "" != "$(git status --porcelain --untracked-files=no)" ]]
-        then
-          >&2 echo The Git repository is dirty... Assertion failed
-          >&2 git status
-          exit 1
-        fi
     - name: Build sdist and verify metadata
       run: >-
         python -m
@@ -1635,7 +1248,7 @@ jobs:
     - name: Store the source distribution package
       uses: actions/upload-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
         # NOTE: as a safety measure — if anything weird ends
         # NOTE: up being in this dir or not all dists will be
@@ -1728,15 +1341,11 @@ jobs:
       if: contains(matrix.target-container.tag, 'ubi')
       run: mkdir -pv ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        fetch-depth: >-
-          ${{
-              fromJSON(needs.pre-setup.outputs.release-requested)
-              && 1 || 0
-          }}
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
 
     - name: Set an SCM version in the spec
       run: >-
@@ -1747,7 +1356,7 @@ jobs:
     - name: Download all the dists  # because `rpmlint` executes the spec file
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
 
     - name: Lint the RPM spec file
@@ -2031,10 +1640,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
 
     - name: Figure out if the interpreter ABI is stable
       id: py-abi
@@ -2115,7 +1725,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
 
     - name: >-
@@ -2253,10 +1863,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
 
     - name: Figure out if the interpreter ABI is stable
       id: py-abi
@@ -2337,7 +1948,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
 
     - name: >-
@@ -2427,10 +2038,11 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Grab the source from Git
-      uses: actions/checkout@v3.3.0
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
       with:
-        ref: ${{ github.event.inputs.release-committish }}
+        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        workflow-artifact-name: ${{ env.dists-artifact-name }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -2481,7 +2093,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
     - name: Verify metadata
       run: python -m tox -p auto --parallel-live -vvvv
@@ -2523,7 +2135,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
     - name: >-
         Publish 🐍📦 ${{ needs.pre-setup.outputs.git-tag }} to PyPI
@@ -2552,7 +2164,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
     - name: >-
         Publish 🐍📦  ${{ needs.pre-setup.outputs.git-tag }} to TestPyPI
@@ -2685,7 +2297,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
 
     - name: >-
@@ -2767,7 +2379,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
-        name: python-package-distributions
+        name: ${{ env.dists-artifact-name }}
         path: dist/
 
     - name: Switch to Python 3.11

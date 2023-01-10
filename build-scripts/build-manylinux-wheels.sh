@@ -23,7 +23,7 @@ GIT_DIR="${SRC_DIR}/.git"
 PERM_REF_HOST_FILE="${SRC_DIR}/setup.cfg"
 PEP517_CONFIG_FILE="${SRC_DIR}/pyproject.toml"
 DIST_NAME="$(cat "${PERM_REF_HOST_FILE}" | grep '^name = ' | awk '{print$3}' | sed s/-/_/)"
-IMPORTABLE_PKG="$(ls "${SRC_DIR}/src/")"  # must contain only one dir
+IMPORTABLE_PKG="$(ls --ignore='*.egg-info' "${SRC_DIR}/src/")"  # must contain only one dir
 
 >&2 echo Verifying that $IMPORTABLE_PKG can be the target package...
 >/dev/null stat ${SRC_DIR}/src/${IMPORTABLE_PKG}/*.p{y,yx,xd}
