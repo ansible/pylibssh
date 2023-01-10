@@ -27,9 +27,9 @@ on:  # yamllint disable-line rule:truthy
           Please, don't prepend `v`.
         required: true
         type: string
-      release-commitish:
+      release-committish:
         # github.event_name == 'workflow_dispatch'
-        # && github.event.inputs.release-commitish
+        # && github.event.inputs.release-committish
         default: ''
         description: >-
           The commit to be released to PyPI and tagged
@@ -173,7 +173,7 @@ jobs:
             steps.request-check.outputs.release-requested == 'true'
             && 1 || 0
           }}
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -395,7 +395,7 @@ jobs:
       uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 1  # Enough for this job to generate the changelog
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -613,7 +613,7 @@ jobs:
               fromJSON(needs.pre-setup.outputs.release-requested)
               && 1 || 0
           }}
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
     - name: Install python ${{ matrix.python-version }}
       uses: actions/setup-python@v4.4.0
       with:
@@ -753,7 +753,7 @@ jobs:
         --
         ${{
           fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-commitish || ''
+          && github.event.inputs.release-committish || ''
         }}
 
     - name: Install tomlkit Python distribution package
@@ -971,7 +971,7 @@ jobs:
               fromJSON(needs.pre-setup.outputs.release-requested)
               && 1 || 0
           }}
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -1082,7 +1082,7 @@ jobs:
         --
         ${{
           fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-commitish || ''
+          && github.event.inputs.release-committish || ''
         }}
 
     - name: Install tomlkit Python distribution package
@@ -1237,7 +1237,7 @@ jobs:
               fromJSON(needs.pre-setup.outputs.release-requested)
               && 1 || 0
           }}
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -1348,7 +1348,7 @@ jobs:
         --
         ${{
           fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-commitish || ''
+          && github.event.inputs.release-committish || ''
         }}
 
     - name: Install tomlkit Python distribution package
@@ -1470,7 +1470,7 @@ jobs:
               fromJSON(needs.pre-setup.outputs.release-requested)
               && 1 || 0
           }}
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -1581,7 +1581,7 @@ jobs:
         --
         ${{
           fromJSON(needs.pre-setup.outputs.release-requested)
-          && github.event.inputs.release-commitish || ''
+          && github.event.inputs.release-committish || ''
         }}
 
     - name: Install tomlkit Python distribution package
@@ -1736,7 +1736,7 @@ jobs:
               fromJSON(needs.pre-setup.outputs.release-requested)
               && 1 || 0
           }}
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: Set an SCM version in the spec
       run: >-
@@ -2034,7 +2034,7 @@ jobs:
     - name: Grab the source from Git
       uses: actions/checkout@v3.3.0
       with:
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: Figure out if the interpreter ABI is stable
       id: py-abi
@@ -2256,7 +2256,7 @@ jobs:
     - name: Grab the source from Git
       uses: actions/checkout@v3.3.0
       with:
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: Figure out if the interpreter ABI is stable
       id: py-abi
@@ -2430,7 +2430,7 @@ jobs:
     - name: Grab the source from Git
       uses: actions/checkout@v3.3.0
       with:
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -2574,7 +2574,7 @@ jobs:
     - name: >-
         Check if the requested tag ${{ needs.pre-setup.outputs.git-tag }}
         is present and is pointing at the required commit ${{
-          github.event.inputs.release-commitish
+          github.event.inputs.release-committish
         }}
       id: existing-remote-tag-check
       run: |
@@ -2585,7 +2585,7 @@ jobs:
         )"
 
         if [[ "${REMOTE_TAGGED_COMMIT_SHA}" == '${{
-          github.event.inputs.release-commitish
+          github.event.inputs.release-committish
         }}' ]]
         then
           echo "already-exists=true" >> "${GITHUB_OUTPUT}"
@@ -2596,7 +2596,7 @@ jobs:
       uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 1
-        ref: ${{ github.event.inputs.release-commitish }}
+        ref: ${{ github.event.inputs.release-committish }}
     - name: Setup git user as [bot]
       if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
       # Refs:
@@ -2717,7 +2717,7 @@ jobs:
             github.run_id
           }}.
         bodyFile: ${{ needs.pre-setup.outputs.changelog-draft-name-md }}
-        commit: ${{ github.event.inputs.release-commitish }}
+        commit: ${{ github.event.inputs.release-committish }}
         discussionCategory: Announcements
         draft: false
         name: ${{ needs.pre-setup.outputs.git-tag }}
