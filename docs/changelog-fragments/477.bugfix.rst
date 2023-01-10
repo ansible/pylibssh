@@ -1,2 +1,2 @@
-Extended CFLAGS to include header locations typical to FreeBSD
+Extended ``CFLAGS`` to include header locations typical to FreeBSD
 (:file:`/usr/local/include`) -- by :user:`donnerhacke`
