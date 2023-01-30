@@ -1810,7 +1810,7 @@ jobs:
         -qq
     - name: Produce markdown test summary from JUnit
       if: always()
-      uses: test-summary/action@v2.0
+      uses: test-summary/action@v2.1
       with:
         paths: .test-results/pytest/results.xml
     - name: Re-run the failing tests with maximum verbosity
@@ -2033,7 +2033,7 @@ jobs:
         -qq
     - name: Produce markdown test summary from JUnit
       if: always()
-      uses: test-summary/action@v2.0
+      uses: test-summary/action@v2.1
       with:
         paths: .test-results/pytest/results.xml
     - name: Re-run the failing tests with maximum verbosity
