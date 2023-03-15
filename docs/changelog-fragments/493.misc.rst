@@ -1,0 +1,1 @@
+Bump pre-commit hooks to unbreak pre-commit.ci -- by :user:`Qalthos`
