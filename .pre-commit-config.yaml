@@ -20,12 +20,12 @@ repos:
     types: [file]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
-  rev: v1.3.1
+  rev: v1.5.1
   hooks:
   - id: remove-tabs
 
 - repo: https://github.com/pre-commit/pygrep-hooks.git
-  rev: v1.9.0
+  rev: v1.10.0
   hooks:
   - id: python-check-blanket-noqa
   - id: python-check-mock-methods
@@ -68,14 +68,14 @@ repos:
       ^docs/_samples/.*\.py$
 
 - repo: https://github.com/PyCQA/pydocstyle.git
-  rev: 6.1.1
+  rev: 6.3.0
   hooks:
   - id: pydocstyle
     exclude: >-
       ^docs/_samples/.*\.py$
 
 - repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.28.0
+  rev: v1.30.0
   hooks:
   - id: yamllint
     files: \.(yaml|yml)$
@@ -84,7 +84,7 @@ repos:
     - --strict
 
 - repo: https://github.com/PyCQA/flake8.git
-  rev: 5.0.0
+  rev: 6.0.0
   hooks:
   - id: flake8
     alias: flake8-no-wps
@@ -126,7 +126,7 @@ repos:
     - file
 
 - repo: https://github.com/MarcoGorelli/cython-lint.git
-  rev: v0.10.1
+  rev: v0.15.0
   hooks:
   - id: cython-lint
     # NOTE: This linter does not have a config file so it's set up below.
