@@ -8,7 +8,6 @@ import sys
 from functools import wraps
 from pathlib import Path
 
-import toml
 from expandvars import expandvars
 from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
     build_sdist, build_wheel, get_requires_for_build_sdist,
@@ -22,10 +21,15 @@ from distutils.core import Distribution as DistutilsDistribution
 
 from Cython.Build.Cythonize import main as cythonize_cli_cmd
 
+from ._compat import load_toml_from_string  # noqa: WPS436
 from ._transformers import (  # noqa: WPS436
     convert_to_kwargs_only, get_cli_kwargs_from_config,
     get_enabled_cli_flags_from_config,
 )
+
+
+PROJECT_ROOT_DIR = Path(__file__).parents[2].resolve()
+PYPROJECT_TOML_PATH = PROJECT_ROOT_DIR / 'pyproject.toml'
 
 
 def get_config():
@@ -80,8 +84,8 @@ def get_config():
         # This section can contain cythonize options
         # NAME = "VALUE"
     """
-    config_file = (Path.cwd().resolve() / 'pyproject.toml').read_text()
-    config_toml = toml.loads(config_file)
+    config_file = PYPROJECT_TOML_PATH.read_text(encoding='utf-8')
+    config_toml = load_toml_from_string(config_file)
     return config_toml['tool']['local']['cythonize']
 
 
