@@ -3,17 +3,7 @@
 name: 🚨
 
 on:  # yamllint disable-line rule:truthy
-  push:
-    branches-ignore:
-    # NOTE: bot-managed branches don't need to be linted on
-    # NOTE: push: they always have PR builds
-    - dependabot/**
-  pull_request:
-  schedule:
-  - cron: 1 0 * * *  # Run daily at 0:01 UTC
-  # Run every Friday at 18:02 UTC
-  # https://crontab.guru/#2_18_*_*_5
-  # - cron: 2 18 * * 5
+  workflow_call:
 
 jobs:
   linters:

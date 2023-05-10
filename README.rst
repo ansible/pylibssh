@@ -11,10 +11,6 @@
    :alt: GitHub Workflow Status (🏗 📦 & test & publish/devel)
    :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%22%F0%9F%8F%97+%F0%9F%93%A6+%26+test+%26+publish%22+branch%3Adevel
 
-.. image:: https://img.shields.io/github/workflow/status/ansible/pylibssh/%F0%9F%9A%A8/devel?label=GitHub%20Actions%20%5Bquality%5D&logo=github
-   :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%F0%9F%9A%A8+branch%3Adevel
-   :alt: GitHub Workflow Status (🚨/devel)
-
 .. image:: https://img.shields.io/codecov/c/gh/ansible/pylibssh/devel?logo=codecov&logoColor=white
    :target: https://codecov.io/gh/ansible/pylibssh
    :alt: devel branch coverage via Codecov

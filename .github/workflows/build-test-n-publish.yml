@@ -83,6 +83,9 @@ env:
 
 
 jobs:
+  lint:
+    uses: ./.github/workflows/reusable-linters.yml
+
   pre-setup:
     name: ⚙️ Pre-set global build settings
     runs-on: ubuntu-latest
@@ -2104,6 +2107,7 @@ jobs:
     needs:
     - build-rpms
     - dist-meta
+    - lint
     - test-linux
     - test-macos
 
