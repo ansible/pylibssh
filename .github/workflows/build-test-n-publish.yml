@@ -2180,6 +2180,10 @@ jobs:
           needs.pre-setup.outputs.dist-version
         }}
 
+    permissions:
+      contents: read  # This job doesn't need to `git push` anything
+      id-token: write  # PyPI Trusted Publishing (OIDC)
+
     steps:
     - name: Download all the dists
       uses: actions/download-artifact@v3
@@ -2206,6 +2210,10 @@ jobs:
         https://test.pypi.org/project/ansible-pylibssh/${{
           needs.pre-setup.outputs.dist-version
         }}
+
+    permissions:
+      contents: read  # This job doesn't need to `git push` anything
+      id-token: write  # PyPI Trusted Publishing (OIDC)
 
     steps:
     - name: Download all the dists
