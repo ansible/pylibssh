@@ -9,7 +9,7 @@ on:  # yamllint disable-line rule:truthy
       **
     - >-  # NOTE: "branches-ignore" cannot be used with "branches"
       !dependabot/**
-    - >-  # NOTE: pre-commit.ci always creats a PR
+    - >-  # NOTE: pre-commit.ci always creates a PR
       !pre-commit-ci-update-config
     tags-ignore:
     - >-
