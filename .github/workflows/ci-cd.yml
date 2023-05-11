@@ -1,6 +1,6 @@
 ---
 
-name: 🏗 📦 & test & publish
+name: 🧪
 
 on:  # yamllint disable-line rule:truthy
   push:  # publishes to TestPyPI pushes to the main branch

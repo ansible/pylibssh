@@ -7,9 +7,9 @@
 .. image:: https://img.shields.io/pypi/pyversions/ansible-pylibssh.svg?logo=Python&logoColor=white
    :target: https://pypi.org/project/ansible-pylibssh
 
-.. image:: https://img.shields.io/github/workflow/status/ansible/pylibssh/%F0%9F%8F%97%20%F0%9F%93%A6%20&%20test%20&%20publish/devel?label=GitHub%20Actions%20%5Btests%5D&logo=github
-   :alt: GitHub Workflow Status (🏗 📦 & test & publish/devel)
-   :target: https://github.com/ansible/pylibssh/actions?query=workflow%3A%22%F0%9F%8F%97+%F0%9F%93%A6+%26+test+%26+publish%22+branch%3Adevel
+.. image:: https://github.com/ansible/pylibssh/actions/workflows/ci-cd.yml/badge.svg?event=push
+   :alt: 🧪 CI/CD @ devel
+   :target: https://github.com/ansible/pylibssh/actions/workflows/ci-cd.yml
 
 .. image:: https://img.shields.io/codecov/c/gh/ansible/pylibssh/devel?logo=codecov&logoColor=white
    :target: https://codecov.io/gh/ansible/pylibssh
