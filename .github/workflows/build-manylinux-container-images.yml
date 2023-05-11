@@ -77,7 +77,7 @@ jobs:
       manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
     steps:
     - name: Fetch the repo src
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v3.5.2
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
         with Podman
