@@ -184,7 +184,7 @@ PYTHONPATH="$(pwd)/bin" \
 
 # Fedora:
 %if 0%{?fedora}
-%pyproject_wheel %{python_importable_name}
+%pyproject_wheel
 %endif
 
 # RHEL or CentOS:
