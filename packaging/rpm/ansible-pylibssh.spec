@@ -223,7 +223,6 @@ export PYTHONPATH="%{buildroot_site_packages}:${PYTHONPATH}"
 # Fedora:
 %if "%{?fedora:SET}" == "SET"
 %tox -e just-pytest -- \
-  -vv \
   --installpkg '%{_builddir}/%{pypi_name}-%{upstream_version}/pyproject-wheeldir/%{whl_glob}' \
   -- \
   --deselect tests/unit/scp_test.py::test_get \
