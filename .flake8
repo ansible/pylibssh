@@ -34,12 +34,18 @@ format = default
 # IMPORTANT: avoid using ignore option, always use extend-ignore instead
 # Completely and unconditionally ignore the following errors:
 extend-ignore =
-  E501,  # "line too long", its function is replaced by `flake8-length`
-  W505,  # "doc line too long", its function is replaced by `flake8-length`
-  I  # flake8-isort is drunk + we have isort integrated into pre-commit
-  WPS300  # "Found local folder import" -- nothing bad about this
-  WPS306  # "Found class without a base class: *" -- we have metaclass shims
-  WPS422  # "Found future import: *" -- we need these for multipython
+  # "line too long", its function is replaced by `flake8-length`
+  E501,
+  # "doc line too long", its function is replaced by `flake8-length`
+  W505,
+  # flake8-isort is drunk + we have isort integrated into pre-commit
+  I,
+  # "Found local folder import" -- nothing bad about this
+  WPS300,
+  # "Found class without a base class: *" -- we have metaclass shims
+  WPS306,
+  # "Found future import: *" -- we need these for multipython
+  WPS422,
 
 # Let's not overcomplicate the code:
 max-complexity = 10
