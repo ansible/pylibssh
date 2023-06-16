@@ -44,6 +44,7 @@ downstream_package_name: python3-ansible-pylibssh
 
 jobs:
 - job: copr_build
+  enable_net: true
   targets:
   # - epel-9
   # - fedora-all
@@ -51,12 +52,14 @@ jobs:
   - fedora-stable
   trigger: pull_request
 - job: tests
+  enable_net: true
   targets:
   # - epel-9
   - fedora-development
   - fedora-stable
   trigger: pull_request
 - job: propose_downstream
+  enable_net: true
   dist_git_branches: fedora-all
   trigger: release
 
