@@ -1,0 +1,1 @@
+Update readthedocs config to replace deprecated parts -- by :user:`Qalthos`
