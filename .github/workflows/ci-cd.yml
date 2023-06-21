@@ -2502,7 +2502,7 @@ jobs:
 
     - name: Publish the dumb PyPI website to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v1
+      uses: actions/deploy-pages@v2
 
 ...
 
