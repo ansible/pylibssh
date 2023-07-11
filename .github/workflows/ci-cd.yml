@@ -2496,7 +2496,7 @@ jobs:
       run: cp -av dist gh-pages-dumb-pypi/
 
     - name: Upload GitHub Pages artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v2
       with:
         path: gh-pages-dumb-pypi
 
