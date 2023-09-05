@@ -171,7 +171,7 @@ jobs:
     - name: Check out src from Git
       if: >-
         steps.request-check.outputs.release-requested != 'true'
-      uses: actions/checkout@v3.5.3
+      uses: actions/checkout@v4.0.0
       with:
         fetch-depth: >-
           ${{
@@ -397,7 +397,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.5.3
+      uses: actions/checkout@v4.0.0
       with:
         fetch-depth: 1  # Enough for this job to generate the changelog
         ref: ${{ github.event.inputs.release-committish }}
@@ -1174,7 +1174,7 @@ jobs:
         python-version: 3.11
 
     - name: Grab the source from Git
-      uses: actions/checkout@v3.5.3
+      uses: actions/checkout@v4.0.0
       with:
         fetch-depth: >-
           ${{
@@ -2259,7 +2259,7 @@ jobs:
 
     - name: Fetch the src snapshot
       if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
-      uses: actions/checkout@v3.5.3
+      uses: actions/checkout@v4.0.0
       with:
         fetch-depth: 1
         ref: ${{ github.event.inputs.release-committish }}
