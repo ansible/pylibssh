@@ -229,7 +229,7 @@ jobs:
     - name: Set up pip cache
       if: >-
         steps.request-check.outputs.release-requested != 'true'
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -422,7 +422,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -672,7 +672,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -905,7 +905,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -1081,7 +1081,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -1220,7 +1220,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -1763,7 +1763,7 @@ jobs:
       shell: python
     - name: Set up pip cache
       if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -1987,7 +1987,7 @@ jobs:
       shell: python
     - name: Set up pip cache
       if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -2140,7 +2140,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
@@ -2488,7 +2488,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v3.3.2
       with:
         path: >-
           ${{
