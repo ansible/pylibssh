@@ -1,0 +1,1 @@
+Expose SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES option -- by :user:`Qalthos`
