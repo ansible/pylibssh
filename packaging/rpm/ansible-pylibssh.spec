@@ -236,7 +236,7 @@ export PYTHONPATH="$(pwd)/bin:${PYTHONPATH}"
 %endif
 
 
-%files -n python3-%{pypi_name} %{?fedora:-f %{pyproject_files}}
+%files -n python3-%{pypi_name} %{?fedora:-f} %{?fedora:%{pyproject_files}}
 %license LICENSE.rst
 %doc README.rst
 
