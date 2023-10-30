@@ -34,6 +34,7 @@ OPTS_MAP = {
     "knownhosts": libssh.SSH_OPTIONS_KNOWNHOSTS,
     "proxycommand": libssh.SSH_OPTIONS_PROXYCOMMAND,
     "publickey_accepted_types": libssh.SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES,
+    "hostkeys": libssh.SSH_OPTIONS_HOSTKEYS,
     "gssapi_server_identity": libssh.SSH_OPTIONS_GSSAPI_SERVER_IDENTITY,
     "gssapi_client_identity": libssh.SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY,
     "gssapi_delegate_credentials": libssh.SSH_OPTIONS_GSSAPI_DELEGATE_CREDENTIALS,
