@@ -5,7 +5,7 @@ ci:
 
 repos:
 - repo: https://github.com/asottile/add-trailing-comma.git
-  rev: v3.0.0
+  rev: v3.1.0
   hooks:
   - id: add-trailing-comma
 
@@ -20,7 +20,7 @@ repos:
     types: [file]
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
-  rev: v1.5.1
+  rev: v1.5.4
   hooks:
   - id: remove-tabs
 
@@ -84,7 +84,7 @@ repos:
     - --strict
 
 - repo: https://github.com/PyCQA/flake8.git
-  rev: 6.0.0
+  rev: 6.1.0
   hooks:
   - id: flake8
     alias: flake8-no-wps

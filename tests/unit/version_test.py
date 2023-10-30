@@ -19,10 +19,10 @@ def test_dunder_version():
 
 def test_dunder_version_info():
     """Check that the version info tuple looks legitimate."""
-    assert type(__version_info__) == tuple  # noqa: WPS516
+    assert isinstance(__version_info__, tuple)
     assert len(__version_info__) >= 3
     assert all(
-        type(digit) == int  # noqa: WPS516
+        isinstance(digit, int)
         for digit in __version_info__[:2]
     )
 
