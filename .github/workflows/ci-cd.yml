@@ -1318,20 +1318,29 @@ jobs:
     strategy:
       matrix:
         target-container:
-        - tag: fedora:35
-        - tag: fedora:36
         - tag: fedora:37
+        - tag: fedora:38
+        - tag: fedora:39
         - tag: centos/centos:stream8
           registry: quay.io
-        - tag: ubi8/ubi:8.3
-          registry: registry.access.redhat.com
-        - tag: ubi8/ubi:8.4
-          registry: registry.access.redhat.com
+        # No matching package to install: 'python3dist(wheel)'
+        # - tag: centos/centos:stream9
+        #   registry: quay.io
         - tag: ubi8/ubi:8.5
           registry: registry.access.redhat.com
         - tag: ubi8/ubi:8.6
           registry: registry.access.redhat.com
+        - tag: ubi8/ubi:8.7
+          registry: registry.access.redhat.com
+        - tag: ubi8/ubi:8.8
+          registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.0.0
+          registry: registry.access.redhat.com
+        - tag: ubi9/ubi:9.1
+          registry: registry.access.redhat.com
+        - tag: ubi9/ubi:9.2
+          registry: registry.access.redhat.com
+        - tag: ubi9/ubi:9.3
           registry: registry.access.redhat.com
 
     runs-on: ubuntu-latest
