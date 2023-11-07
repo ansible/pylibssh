@@ -26,7 +26,9 @@ wheel==0.37.1
     # via -r -
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==59.6.0
+setuptools==59.6.0 ; python_version < "3.7"
+setuptools==68.0.0 ; python_version == "3.7.*"
+setuptools==68.2.2 ; python_version > "3.7"
     # via
     #   -r -
     #   setuptools-scm
