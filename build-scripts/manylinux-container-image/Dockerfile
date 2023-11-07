@@ -5,9 +5,6 @@ ARG LIBSSH_VERSION=0.9.6
 MAINTAINER Python Cryptographic Authority
 WORKDIR /root
 
-ADD update-packages.sh /root/update-packages.sh
-RUN ./update-packages.sh
-
 ADD build_utils.sh /root/build_utils.sh
 ADD install_perl.sh /root/install_perl.sh
 RUN ./install_perl.sh "${RELEASE}"
