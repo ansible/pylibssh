@@ -586,6 +586,7 @@ jobs:
         # NOTE: Research on the wheel names / platform tags and how they
         # NOTE: are matched under various macOS versions:
         # NOTE: https://github.com/MacPython/wiki/wiki/Spinning-wheels
+        - "3.12"
         - "3.11"
         - "3.10"
         - 3.9
@@ -794,9 +795,11 @@ jobs:
         - cp39-cp39
         - cp310-cp310
         - cp311-cp311
+        - cp312-cp312
         manylinux-year-target:
         - 2014
         - _2_24
+        - _2_28
         manylinux-image-target:
         # NOTE: Keep in sync with `build-manylinux-container-images.yml`.
         # NOTE: Ordered from "heavy" to "fast".
@@ -850,6 +853,12 @@ jobs:
             arch: x86_64
             qemu_arch: amd64
           manylinux-year-target: 1
+        exclude:
+        # NOTE: cp312-cp312 unavailable before _2_28
+        - manylinux-python-target: cp312-cp312
+          manylinux-year-target: 2014
+        - manylinux-python-target: cp312-cp312
+          manylinux-year-target: _2_24
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
@@ -1008,9 +1017,11 @@ jobs:
         - cp39-cp39
         - cp310-cp310
         - cp311-cp311
+        - cp312-cp312
         manylinux-year-target:
         - 2014
         - _2_24
+        - _2_28
         manylinux-image-target:
         # NOTE: Keep in sync with `build-manylinux-container-images.yml`.
         # NOTE: Ordered from "heavy" to "fast".
@@ -1018,6 +1029,12 @@ jobs:
           qemu_arch: arm64
         - arch: s390x
         - arch: ppc64le
+        exclude:
+        # NOTE: cp312-cp312 unavailable before _2_28
+        - manylinux-python-target: cp312-cp312
+          manylinux-year-target: 2014
+        - manylinux-python-target: cp312-cp312
+          manylinux-year-target: _2_24
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
@@ -1643,6 +1660,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.12"
         - "3.11"
         - "3.10"
         - 3.9
@@ -1867,6 +1885,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.12"
         - "3.11"
         - "3.10"
         - 3.9
