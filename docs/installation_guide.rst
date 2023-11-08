@@ -25,7 +25,7 @@ CPython and OS versions so in 99% of cases, you may
 seamlessly install |project| not needing any external
 dependencies on your system.
 
-It should be enough for you to just have Python 3.6+ and
+It should be enough for you to just have Python 3.8+ and
 a recent :std:doc:`pip <pip:index>` installed.
 
 .. attention::

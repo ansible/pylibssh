@@ -630,8 +630,6 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux2014_x86_64 \
         # NOTE:   ls -1 /opt/python
-        - cp36-cp36m
-        - cp37-cp37m
         - cp38-cp38
         - cp39-cp39
         - cp310-cp310
@@ -648,16 +646,6 @@ jobs:
           qemu_arch: amd64
         include:
         # NOTE: manylinux2010 only on x86_64
-        - manylinux-python-target: cp36-cp36m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
-        - manylinux-python-target: cp37-cp37m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
         - manylinux-python-target: cp38-cp38
           manylinux-image-target:
             arch: x86_64
@@ -674,16 +662,6 @@ jobs:
             qemu_arch: amd64
           manylinux-year-target: 2010
         # NOTE: manylinux1 caps out at Python 3.9
-        - manylinux-python-target: cp36-cp36m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 1
-        - manylinux-python-target: cp37-cp37m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 1
         - manylinux-python-target: cp38-cp38
           manylinux-image-target:
             arch: x86_64
@@ -744,8 +722,6 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux2014_x86_64 \
         # NOTE:   ls -1 /opt/python
-        - cp36-cp36m
-        - cp37-cp37m
         - cp38-cp38
         - cp39-cp39
         - cp310-cp310
@@ -1308,17 +1284,12 @@ jobs:
         - "3.10"
         - 3.9
         - 3.8
-        - 3.7
-        - 3.6
         runner-vm-os:
         - ubuntu-22.04
         - ubuntu-20.04
         dist-type:
         - binary
         - source
-        exclude:
-        - runner-vm-os: ubuntu-22.04
-          python-version: 3.6  # EOL, only provided for older OSs
 
     uses: ./.github/workflows/reusable-tests.yml
     with:
@@ -1348,16 +1319,11 @@ jobs:
         - "3.10"
         - 3.9
         - 3.8
-        - 3.7
-        - 3.6
         runner-vm-os:
         - macos-latest
         dist-type:
         - binary
         - source
-        exclude:
-        - runner-vm-os: ubuntu-22.04
-          python-version: 3.6  # EOL, only provided for older OSs
 
     uses: ./.github/workflows/reusable-tests.yml
     with:
