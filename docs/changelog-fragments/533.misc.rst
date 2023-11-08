@@ -1,0 +1,1 @@
+Started building ``manylinux_2_28`` base images -- by :user:`Qalthos`
