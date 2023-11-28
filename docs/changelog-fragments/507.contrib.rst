@@ -1,1 +1,2 @@
-Restore online access to packit builds -- by :user:`Qalthos`
+The Packit CI access to the internet has been restored
+-- by :user:`Qalthos`
