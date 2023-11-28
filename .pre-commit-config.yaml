@@ -148,7 +148,16 @@ repos:
     language: fail
     entry: >-
       Changelog files must be named
-      ####.(bugfix|feature|deprecation|breaking|doc|misc)(.#)?(.rst)?
+      ####.(
+      bugfix
+      | feature
+      | deprecation
+      | breaking
+      | doc
+      | packaging
+      | contrib
+      | misc
+      )(.#)?(.rst)?
     exclude: >-
       (?x)
       ^
@@ -160,6 +169,8 @@ repos:
             |deprecation
             |breaking
             |doc
+            |packaging
+            |contrib
             |misc
           )(\.\d+)?(\.rst)?
           |README\.rst
