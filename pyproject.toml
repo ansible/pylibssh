@@ -78,6 +78,12 @@ profile = "True"
   title_format = "v{version} ({project_date})"
   underlines = ["=", "^", "-", "~"]
 
+  # NOTE: The types are declared because:
+  # NOTE: - there is no mechanism to override just the value of
+  # NOTE:   `tool.towncrier.type.misc.showcontent`;
+  # NOTE: - and, we want to declare extra non-default types for
+  # NOTE:   clarity and flexibility.
+
   [[tool.towncrier.section]]
     path = ""
 
@@ -111,6 +117,20 @@ profile = "True"
     # Notable updates to the documentation structure or build process.
     directory = "doc"
     name = "Improved documentation"
+    showcontent = true
+
+  [[tool.towncrier.type]]
+    # Notes for downstreams about unobvious side effects and tooling. Changes
+    # in the test invocation considerations and runtime assumptions.
+    directory = "packaging"
+    name = "Packaging updates and notes for downstreams"
+    showcontent = true
+
+  [[tool.towncrier.type]]
+    # Stuff that affects the contributor experience. e.g. Running tests,
+    # building the docs, setting up the development environment.
+    directory = "contrib"
+    name = "Contributor-facing changes"
     showcontent = true
 
   [[tool.towncrier.type]]

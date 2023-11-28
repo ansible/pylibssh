@@ -8,6 +8,9 @@
 !*.breaking
 !*.breaking.rst
 !*.breaking.*.rst
+!*.contrib
+!*.contrib.rst
+!*.contrib.*.rst
 !*.deprecation
 !*.deprecation.rst
 !*.deprecation.*.rst
@@ -20,3 +23,6 @@
 !*.misc
 !*.misc.rst
 !*.misc.*.rst
+!*.packaging
+!*.packaging.rst
+!*.packaging.*.rst
