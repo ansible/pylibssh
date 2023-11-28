@@ -20,9 +20,7 @@ exclude_lines =
 branch = true
 cover_pylib = false
 parallel = true
-# FIXME: https://github.com/cython/cython/issues/3636
-# plugins = Cython.Coverage
-plugins = cython_coverage
+plugins = Cython.Coverage
 relative_files = true
 source =
   tests
