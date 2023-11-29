@@ -57,11 +57,11 @@ max-line-length = 160
 
 # Allow certain violations in certain files:
 per-file-ignores =
-  # in-tree PEP517 build backend needs a lot of legit `noqa`s:
-  bin/pep517_backend/_backend.py: WPS402
-
   # Sphinx builds aren't supposed to Python 2:
   docs/conf.py: WPS305
+
+  # in-tree PEP517 build backend needs a lot of legit `noqa`s:
+  packaging/pep517_backend/_backend.py: WPS402
 
   # The package has imports exposing private things to the public:
   src/pylibsshext/__init__.py: WPS412
