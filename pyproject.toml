@@ -3,7 +3,7 @@ requires = [
   # Essentials
   "Cython",  # needed by in-tree build backend `packaging/pep517_backend.py`
   "setuptools>=45",  # needed by in-tree build backend `packaging/pep517_backend.py`
-  "toml",  # needed by in-tree build backend `packaging/pep517_backend.py`
+  "tomli; python_version < '3.11'",  # needed by in-tree build backend `packaging/pep517_backend.py`
   "expandvars",  # needed by in-tree build backend for env vars interpolation
 
   # Plugins
