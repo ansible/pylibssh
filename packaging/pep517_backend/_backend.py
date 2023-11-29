@@ -10,9 +10,16 @@ from pathlib import Path
 
 from expandvars import expandvars
 from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
-    build_sdist, build_wheel, get_requires_for_build_sdist,
-    get_requires_for_build_wheel, prepare_metadata_for_build_wheel,
+    build_wheel,
 )
+
+
+try:
+    from setuptools.build_meta import (  # noqa: WPS433
+        build_editable as _setuptools_build_editable,
+    )
+except ImportError:
+    _setuptools_build_editable = None  # noqa: WPS440
 
 
 # isort: split
@@ -180,3 +187,6 @@ def pre_build_cython(orig_func):  # noqa: WPS210
 build_wheel = convert_to_kwargs_only(  # pylint: disable=invalid-name
     pre_build_cython(build_wheel),
 )
+
+if _setuptools_build_editable is not None:
+    build_editable = build_wheel

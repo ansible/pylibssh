@@ -61,7 +61,11 @@ per-file-ignores =
   docs/conf.py: WPS305
 
   # in-tree PEP517 build backend needs a lot of legit `noqa`s:
-  packaging/pep517_backend/_backend.py: WPS402
+  # ..and imports.
+  packaging/pep517_backend/_backend.py: WPS201, WPS402
+
+  # F401   imported but unused
+  packaging/pep517_backend/hooks.py: F401
 
   # The package has imports exposing private things to the public:
   src/pylibsshext/__init__.py: WPS412
