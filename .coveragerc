@@ -1,9 +1,9 @@
 [paths]
 source =
   src/pylibsshext
-  */src/pylibsshext
-  .tox/*/lib/python*/site-packages/pylibsshext
-  /tmp/ansible_pylibssh-manylinux*-build.*/venvs/*/lib/python*/site-packages/pylibsshext
+  */lib/pypy*/site-packages/pylibsshext
+  */lib/python*/site-packages/pylibsshext
+  */Lib/site-packages/pylibsshext
 
 [report]
 skip_covered = true
