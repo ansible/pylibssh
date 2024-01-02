@@ -26,7 +26,7 @@ Summary: Python bindings for libssh client specific to Ansible use case
 License: LGPL-2+
 URL:     https://github.com/ansible/pylibssh
 Source0: %{pypi_source}
-Source1: %{pypi_source expandvars 0.9.0}
+Source1: %{pypi_source expandvars 0.7.0}
 # RHEL or CentOS:
 %if 0%{?rhel}
 Source2: %{pypi_source build 0.3.1.post1}
@@ -113,11 +113,6 @@ $summary
 
 %prep
 %autosetup -n %{pypi_name}-%{version}
-
-# Fedora:
-%if 0%{?fedora}
-sed -i 's/\(.*\)"expandvars",\(.*\)/\1\2/g' pyproject.toml
-%endif
 
 PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE1}
