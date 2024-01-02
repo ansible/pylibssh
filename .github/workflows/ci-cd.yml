@@ -1335,14 +1335,14 @@ jobs:
     strategy:
       matrix:
         target-container:
-        - tag: fedora:37
         - tag: fedora:38
         - tag: fedora:39
+        - tag: fedora:40
         - tag: centos/centos:stream8
           registry: quay.io
         # No matching package to install: 'python3dist(wheel)'
-        # - tag: centos/centos:stream9
-        #   registry: quay.io
+        - tag: centos/centos:stream9
+          registry: quay.io
         - tag: ubi8/ubi:8.5
           registry: registry.access.redhat.com
         - tag: ubi8/ubi:8.6
@@ -1377,12 +1377,13 @@ jobs:
           matrix.target-container.tag
         }}
 
-    continue-on-error: >-
-      ${{
-        contains(matrix.target-container.tag, 'ubi9')
-        && true
-        || false
-      }}
+    continue-on-error: true
+    # >-
+    # ${{
+    #   contains(matrix.target-container.tag, 'ubi9')
+    #   && true
+    #   || false
+    # }}
 
     steps:
     - name: Produce artifact name
