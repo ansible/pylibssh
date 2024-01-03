@@ -178,7 +178,8 @@ PYTHONPATH="$(pwd)/bin" \
 
 # Fedora:
 %if 0%{?fedora}
-%generate_buildrequires
+PYTHONPATH="$(pwd)/bin" \
+sh -c '%generate_buildrequires'
 %pyproject_buildrequires -t
 %endif
 
