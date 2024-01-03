@@ -1343,13 +1343,13 @@ jobs:
         # No matching package to install: 'python3dist(wheel)'
         - tag: centos/centos:stream9
           registry: quay.io
-        - tag: ubi8/ubi:8.5
-          registry: registry.access.redhat.com
         - tag: ubi8/ubi:8.6
           registry: registry.access.redhat.com
         - tag: ubi8/ubi:8.7
           registry: registry.access.redhat.com
         - tag: ubi8/ubi:8.8
+          registry: registry.access.redhat.com
+        - tag: ubi8/ubi:8.9
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.0.0
           registry: registry.access.redhat.com
