@@ -54,6 +54,7 @@ Source20: %{pypi_source attrs 20.3.0}
 Source21: %{pypi_source pluggy 0.13.1}
 Source22: %{pypi_source py 1.10.0}
 Source23: %{pypi_source coverage 5.5}
+Source24: %{pypi_source tomli 1.2.3}
 %endif
 
 # Test dependencies:
@@ -171,6 +172,8 @@ PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE22}
 PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE23}
+PYTHONPATH="$(pwd)/bin" \
+%{__python3} -m pip install --no-deps -t bin %{SOURCE24}
 %endif
 
 # Fedora:
