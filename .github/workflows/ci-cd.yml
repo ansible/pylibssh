@@ -548,7 +548,7 @@ jobs:
     - name: Verify that expected patch got created
       run: ls -1 '${{ needs.pre-setup.outputs.changelog-patch-name }}'
     - name: Save the package bump patch as a GHA artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: changelog
         path: |
@@ -744,7 +744,7 @@ jobs:
     - name: Run tests using pytest
       run: python -m pytest -m smoke --no-cov
     - name: Store the binary wheel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
@@ -966,7 +966,7 @@ jobs:
         ls -1
         dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
@@ -1142,7 +1142,7 @@ jobs:
         ls -1
         dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
     - name: Store ${{ matrix.manylinux-python-target }} binary wheel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
@@ -1311,7 +1311,7 @@ jobs:
         ls -1
         'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
     - name: Store the source distribution package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.dists-artifact-name }}
         # NOTE: Exact expected file names are specified here
@@ -1639,7 +1639,7 @@ jobs:
         );
         echo "artifact-id=${normalized_container_id}" >> "${GITHUB_OUTPUT}"
     - name: Store RPM and SRPM as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.artifact-name.outputs.artifact-id }}--srpm-n-rpm
         path: |
