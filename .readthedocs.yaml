@@ -4,30 +4,26 @@
 
 ---
 
-# Required
+# RTD API version
 version: 2
-
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-  builder: dirhtml
-  configuration: docs/conf.py
-  fail_on_warning: true
-
-formats: []
-
-submodules:
-  include: all  # []
-  exclude: []
-  recursive: true
 
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.10"
+    python: >-
+      3.10
+  commands:
+  - python -Im venv "${READTHEDOCS_VIRTUALENV_PATH}"
+  - >-
+    "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
+    pip install tox
+  - >-
+    "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
+    tox -e build-docs --notest -v
+  - >-
+    "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
+    tox -e build-docs --skip-pkg-install -q
+    --
+    "${READTHEDOCS_OUTPUT}"/html
 
-# Optionally set the version of Python and requirements required
-# to build docs
-python:
-  install:
-  - requirements: docs/requirements.txt
 ...
