@@ -1337,6 +1337,7 @@ jobs:
         target-container:
         - tag: fedora:38
         - tag: fedora:39
+        - tag: fedora:40
         - tag: centos/centos:stream8
           registry: quay.io
         # No matching package to install: 'python3dist(wheel)'
