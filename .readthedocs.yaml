@@ -13,14 +13,19 @@ build:
     python: >-
       3.10
   commands:
-  - python -Im venv "${READTHEDOCS_VIRTUALENV_PATH}"
   - >-
+    PYTHONWARNINGS=error
+    python -Im venv "${READTHEDOCS_VIRTUALENV_PATH}"
+  - >-
+    PYTHONWARNINGS=error
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
     pip install tox
   - >-
+    PYTHONWARNINGS=error
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
     tox -e build-docs --notest -vvvvv
   - >-
+    PYTHONWARNINGS=error
     SPHINX_BUILDER=dirhtml
     SPHINX_BUILD_OUTPUT_DIRECTORY="${READTHEDOCS_OUTPUT}"/html
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
