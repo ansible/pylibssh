@@ -115,11 +115,6 @@ $summary
 %prep
 %autosetup -n %{pypi_name}-%{version}
 
-# Fedora:
-%if 0%{?fedora}
-sed -i 's/\(.*\)"expandvars",\(.*\)/\1\2/g' pyproject.toml
-%endif
-
 PYTHONPATH="$(pwd)/bin" \
 %{__python3} -m pip install --no-deps -t bin %{SOURCE1}
 
@@ -179,7 +174,7 @@ PYTHONPATH="$(pwd)/bin" \
 # Fedora:
 %if 0%{?fedora}
 PYTHONPATH="$(pwd)/bin" \
-sh -c '%generate_buildrequires'
+%generate_buildrequires
 %pyproject_buildrequires -t
 %endif
 
