@@ -19,7 +19,7 @@ build:
     pip install tox
   - >-
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
-    tox -e build-docs --notest -v
+    tox -e build-docs --notest -vvvvv
   - >-
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
     tox -e build-docs --skip-pkg-install -q
