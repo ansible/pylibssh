@@ -21,9 +21,9 @@ build:
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
     tox -e build-docs --notest -vvvvv
   - >-
+    SPHINX_BUILDER=dirhtml
+    SPHINX_BUILD_OUTPUT_DIRECTORY="${READTHEDOCS_OUTPUT}"/html
     "${READTHEDOCS_VIRTUALENV_PATH}"/bin/python -Im
     tox -e build-docs --skip-pkg-install -q
-    --
-    "${READTHEDOCS_OUTPUT}"/html
 
 ...
