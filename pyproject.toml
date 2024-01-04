@@ -73,7 +73,7 @@ profile = "True"
   # ATTENTION: tries to import it and fails if it's not pre-compiled
   directory = "docs/changelog-fragments"
   filename = "docs/changelog.rst"
-  issue_format = ":issue:`{issue}`"
+  issue_format = "{issue}"
   package_dir = "src"
   template = "docs/changelog-fragments/template.j2"
   title_format = "v{version} ({project_date})"
