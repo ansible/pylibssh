@@ -1335,7 +1335,6 @@ jobs:
     strategy:
       matrix:
         target-container:
-        - tag: fedora:37
         - tag: fedora:38
         - tag: fedora:39
         - tag: centos/centos:stream8
