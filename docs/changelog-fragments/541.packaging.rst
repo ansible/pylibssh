@@ -1,4 +1,4 @@
-:pep:`660` is now enabled -- :user:`webknjaz`
+:pep:`660` is now enabled -- :user:`webknjaz`.
 
 Previously, due to restrictive :pep:`517` hook reimports,
 our in-tree build backend was losing :pep:`non-PEP 517 <517>`
