@@ -782,22 +782,13 @@ jobs:
     needs:
     - build-changelog
     - pre-setup  # transitive, for accessing settings
-    runs-on: ${{ matrix.runner-vm-os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version:
-        - 3.8
-        - 3.7
-        runner-vm-os:
-        - ubuntu-22.04
-        store-sdist-to-artifact:
-        - false
         include:
         - python-version: 3.12
-          runner-vm-os: ubuntu-22.04
           store-sdist-to-artifact: true
-        - python-version: 3.6  # EOL, only provided for older OSs
-          runner-vm-os: ubuntu-20.04
+        - python-version: 3.8
           store-sdist-to-artifact: false
 
     env:
