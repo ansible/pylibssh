@@ -12,11 +12,7 @@ packaging==21.3
     # via setuptools-scm
 pyparsing==3.0.9
     # via packaging
-setuptools-scm==6.4.2 ; python_version < "3.7"
-setuptools-scm==7.1.0 ; python_version == "3.7.*"
-setuptools-scm==8.0.4 ; python_version > "3.7"
-    # via -r -
-setuptools-scm-git-archive==1.4 ; python_version < "3.7"
+setuptools-scm==8.0.4
     # via -r -
 toml==0.10.2
     # via -r -
