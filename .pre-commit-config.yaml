@@ -183,7 +183,9 @@ repos:
     language: pygrep
     entry: :user:([^`]+`?|`[^`]+[\s,])
     pass_filenames: true
-    types: [file, rst]
+    types:
+    - file
+    - rst
 
 # - repo: local
 #   hooks:
