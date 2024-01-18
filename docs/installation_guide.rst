@@ -84,6 +84,17 @@ your current env:
         --no-binary |project| \\
         |project|
 
+.. tip::
+
+  When your copy of ``libssh-dev`` is installed into a
+  non-default directory, make sure to prepend the compiler
+  environment variables (e.g
+  ``CFLAGS=-I/usr/local/include``) right before the
+  ``pip install`` command. For the macOS users who install
+  it using Homebrew, it should be enough to set
+  ``CFLAGS="-I $(brew --prefix)/include -I ext
+  -L $(brew --prefix)/lib -lssh"``
+
 Building |project| dists from the ``devel`` branch in Git
 =========================================================
 
