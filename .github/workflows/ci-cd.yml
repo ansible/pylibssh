@@ -1161,6 +1161,7 @@ jobs:
   build-src:
     name: >-
       👷 an sdist 📦 ${{ needs.pre-setup.outputs.git-tag }}
+      under ${{ matrix.python-version }}
       [mode: ${{
         fromJSON(needs.pre-setup.outputs.is-untagged-devel)
         && 'nightly' || ''
@@ -1176,7 +1177,23 @@ jobs:
     needs:
     - build-changelog
     - pre-setup  # transitive, for accessing settings
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner-vm-os }}
+    strategy:
+      matrix:
+        python-version:
+        - 3.8
+        - 3.7
+        runner-vm-os:
+        - ubuntu-22.04
+        store-sdist-to-artifact:
+        - false
+        include:
+        - python-version: 3.12
+          runner-vm-os: ubuntu-22.04
+          store-sdist-to-artifact: true
+        - python-version: 3.6  # EOL, only provided for older OSs
+          runner-vm-os: ubuntu-20.04
+          store-sdist-to-artifact: false
 
     env:
       ANSIBLE_PYLIBSSH_TRACING: >-
@@ -1185,10 +1202,10 @@ jobs:
       TOXENV: build-dists,metadata-validation
 
     steps:
-    - name: Switch to using Python 3.11
+    - name: Switch to using Python ${{ matrix.python-version }} 3.11
       uses: actions/setup-python@v5.0.0
       with:
-        python-version: 3.11
+        python-version: ${{ matrix.python-version }}
 
     - name: Grab the source from Git
       uses: actions/checkout@v4.1.1
@@ -1311,6 +1328,7 @@ jobs:
         ls -1
         'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
     - name: Store the source distribution package
+      if: fromJSON(matrix.store-sdist-to-artifact)
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.dists-artifact-name }}
