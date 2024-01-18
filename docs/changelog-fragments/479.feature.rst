@@ -1,1 +1,1 @@
-Allowed processing of a specific configuration file for the connection -- by :user:`donnerhacke`
+Implemented reading connection details from a config file -- by :user:`donnerhacke`.
