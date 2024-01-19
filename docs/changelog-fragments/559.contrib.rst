@@ -1,0 +1,5 @@
+The duplicated jobs matrices for building manylinux wheels
+now reside in a single GitHub Actions CI/CD reusable
+workflow definition.
+
+-- :user:`webknjaz`
