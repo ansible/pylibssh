@@ -1207,7 +1207,7 @@ jobs:
       TOXENV: build-dists,metadata-validation
 
     steps:
-    - name: Switch to using Python ${{ matrix.python-version }} 3.11
+    - name: Switch to using Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5.0.0
       with:
         python-version: ${{ matrix.python-version }}
