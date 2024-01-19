@@ -80,6 +80,7 @@ env:
     PY_COLORS
     PYTEST_THEME
     PYTEST_THEME_MODE
+  TOX_VERSION: tox < 4.12
 
 
 jobs:
@@ -445,7 +446,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
 
     - name: Pre-populate the tox env
       run: >-
@@ -651,7 +652,11 @@ jobs:
     #     make install/strip
     #   working_directory: libssh/build
     - name: Install tox
-      run: python -m pip install --user tox
+      run: >-
+        python -m
+        pip install
+        --user
+        '${{ env.TOX_VERSION }}'
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -928,7 +933,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
 
     - name: Pre-populate the tox env
       run: >-
@@ -1104,7 +1109,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
 
     - name: Pre-populate the tox env
       run: >-
@@ -1260,7 +1265,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
 
     - name: Pre-populate the tox env
       run: >-
@@ -1813,7 +1818,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
 
     - name: Download all the dists
       uses: actions/download-artifact@v3
@@ -2037,7 +2042,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
 
     - name: Download all the dists
       uses: actions/download-artifact@v3
@@ -2181,7 +2186,7 @@ jobs:
         python -m
         pip install
         --user
-        tox
+        '${{ env.TOX_VERSION }}'
     - name: Pre-populate tox env
       run: python -m tox -p auto --parallel-live -vvvv --notest
     - name: Download all the dists
