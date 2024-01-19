@@ -1,0 +1,199 @@
+---
+
+name: 👷 Build wheel 🛞📦
+
+on:  # yamllint disable-line rule:truthy
+  workflow_call:
+    inputs:
+      dists-artifact-name:
+        description: Workflow artifact name containing dists
+        required: true
+        type: string
+      cython-tracing:
+        description: Whether to build Cython modules with line tracing
+        default: '0'
+        required: false
+        type: string
+      # os:
+      #   description: VM OS to use, without version suffix
+      #   default: ubuntu
+      #   required: false
+      #   type: string
+      # qemu:
+      #   description: Emulated QEMU architecture
+      #   default: ''
+      #   required: false
+      #   type: string
+      source-tarball-name:
+        description: Sdist filename wildcard
+        required: true
+        type: string
+      # wheel-tags-to-skip:
+      #   description: Wheel tags to skip building
+      #   default: ''
+      #   required: false
+      #   type: string
+      manylinux-python-target:
+        description: A Python version present in a manylinux container image
+        required: true
+        type: string
+      manylinux-year-target:
+        description: Manylinux container image name suffix
+        required: true
+        type: string
+      manylinux-image-target-arch:
+        description: Architecture of a wheel to be made
+        required: true
+        type: string
+      manylinux-image-target-qemu-arch:
+        description: QEMU-emulated architecture for the wheel
+        required: true
+        type: string
+      cache-key-files:
+        description: Dependency files cache
+        required: true
+        type: string
+      release-requested:
+        description: Flag whether this is CI run is a release request
+        default: 'false'
+        required: false
+        type: string
+      wheel-artifact-name:
+        description: Wheel filename wildcard
+        default: ''
+        required: false
+        type: string
+
+env:
+  FORCE_COLOR: "1"  # Make tools pretty.
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
+  TOX_VERSION: tox < 4.12
+
+jobs:
+
+  build-wheel:
+    name: >-
+      ${{ inputs.manylinux-year-target }}-${{
+        inputs.manylinux-image-target-arch }}
+      🐍 ${{ inputs.manylinux-python-target }}
+    runs-on: ubuntu-latest
+
+    env:
+      ANSIBLE_PYLIBSSH_TRACING: ${{ inputs.cython-tracing }}
+      DOCKER_EXECUTABLE: podman
+      QEMU_ARCH: >-
+        ${{
+          inputs.manylinux-image-target.qemu-arch
+          || inputs.manylinux-image-target-arch
+        }}
+      TOXENV: >-
+        build-dists-manylinux${{ inputs.manylinux-year-target
+        }}-${{ inputs.manylinux-image-target-arch }},metadata-validation
+
+    steps:
+    - name: Switch to using Python 3.11 by default
+      uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.11
+
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v1
+      with:
+        source-tarball-name: ${{ inputs.source-tarball-name }}
+        workflow-artifact-name: ${{ inputs.dists-artifact-name }}
+
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc-cache-key-py
+      run: |
+        from hashlib import sha512
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
+      shell: python
+    - name: Set up pip cache
+      uses: actions/cache@v4.0.0
+      with:
+        path: >-
+          ${{
+              runner.os == 'Linux'
+              && '~/.cache/pip'
+              || '~/Library/Caches/pip'
+          }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          inputs.cache-key-files }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{
+            steps.calc-cache-key-py.outputs.py-hash-key
+          }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install tox
+      run: >-
+        python -m
+        pip install
+        --user
+        '${{ env.TOX_VERSION }}'
+
+    - name: Pre-populate the tox env
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
+    - name: >-
+        Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
+        with Podman
+      if: env.QEMU_ARCH != 'amd64'
+      run: >-
+        sudo podman run
+        --rm --privileged
+        multiarch/qemu-user-static
+        --reset -p yes
+
+    - name: >-
+        Build ${{ inputs.manylinux-python-target }} dist
+        and verify wheel metadata
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
+        --
+        ${{ inputs.manylinux-python-target }}
+    - name: Verify that the artifacts with expected names got created
+      run: >-
+        ls -1
+        dist/${{ inputs.wheel-artifact-name }}
+    - name: Store ${{ inputs.manylinux-python-target }} binary wheel
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.dists-artifact-name }}
+        # NOTE: Exact expected file names are specified here
+        # NOTE: as a safety measure — if anything weird ends
+        # NOTE: up being in this dir or not all dists will be
+        # NOTE: produced, this will fail the workflow.
+        path: |
+          dist/${{ inputs.wheel-artifact-name }}
+        retention-days: >-
+          ${{ fromJSON(inputs.release-requested) && 7 || 4 }}
+
+...
