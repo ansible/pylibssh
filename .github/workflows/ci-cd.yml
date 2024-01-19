@@ -1457,16 +1457,11 @@ jobs:
           ~/rpmbuild/RPMS/
 
   test-linux:
-    name: >-
-      Test 🐍
-      ${{ matrix.python-version }}
-      ${{ matrix.runner-vm-os }}
-      ${{ matrix.dist-type }} dists
+    name: 🧪 Test${{ '' }}
     needs:
     - build-bin-manylinux-tested-arches
     - build-src
     - pre-setup  # transitive, for accessing settings
-    runs-on: ${{ matrix.runner-vm-os }}
     strategy:
       matrix:
         python-version:
@@ -1487,212 +1482,26 @@ jobs:
         - runner-vm-os: ubuntu-22.04
           python-version: 3.6  # EOL, only provided for older OSs
 
-    continue-on-error: >-
-      ${{
-          (
-            fromJSON(needs.pre-setup.outputs.release-requested) &&
-            !github.event.inputs.YOLO
-          ) && true || false
-      }}
-
-    env:
-      ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
-      TOXENV: test-${{ matrix.dist-type }}-dists
-
-    steps:
-    - name: Install build toolchain and openssl headers on Linux
-      if: >-
-        matrix.dist-type == 'source' &&
-        runner.os == 'Linux'
-      run: sudo apt update && sudo apt install build-essential libssl-dev
-    - name: Install libssh and openssl headers on macOS
-      if: >-
-        runner.os == 'macOS'
-      run: brew install libssh
-    - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
-      if: >-
-        runner.os == 'Linux'
-      run: >-
-        sudo apt update && sudo apt install ${{
-          matrix.runner-vm-os != 'ubuntu-20.04'
-          && 'glibc-tools'
-          || ''
-        }} libssh-dev
-    - name: Switch 🐍 to v${{ matrix.python-version }}
-      id: python-install
-      uses: actions/setup-python@v5.0.0
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Retrieve the project source from an sdist inside the GHA artifact
-      uses: re-actors/checkout-python-sdist@release/v1
-      with:
-        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
-        workflow-artifact-name: >-
-          ${{ needs.pre-setup.outputs.dists-artifact-name }}
-
-    - name: Figure out if the interpreter ABI is stable
-      id: py-abi
-      run: |
-        from os import environ
-        from pathlib import Path
-        from sys import version_info
-
-        FILE_APPEND_MODE = 'a'
-
-        is_stable_abi = version_info.releaselevel == 'final'
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(
-                'is-stable-abi={is_stable_abi}'.
-                format(is_stable_abi=str(is_stable_abi).lower()),
-                file=outputs_file,
-            )
-      shell: python
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
-    - name: Set up pip cache
-      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@v4.0.0
-      with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          needs.pre-setup.outputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-
-    - name: Upgrade pip with `requires_python`
-      run: >-
-        python -m
-        pip install
-        --user
-        --upgrade
-        --force-reinstall
-        pip-with-requires-python
-    - name: Install tox
-      run: >-
-        python -m
-        pip install
-        --user
-        '${{ env.TOX_VERSION }}'
-
-    - name: Download all the dists
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
-        path: dist/
-
-    - name: >-
-        Pre-populate tox env:
-        ${{ env.TOXENV }}
-      # FIXME: Integrate the following once it's possible
-      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        --notest
-
-    - name: Configure tox to run pytest under catchsegv
-      if: runner.os == 'Linux'
-      run: |
-        from __future__ import print_function
-        import os
-        with open(os.environ['GITHUB_ENV'], 'a') as env_file:
-            env_file.write('CATCHSEGV_BINARY=catchsegv\n')
-      shell: python
-
-    - name: Run the testing
-      # FIXME: Integrate the following once it's possible
-      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -qq
-    - name: Produce markdown test summary from JUnit
-      if: always()
-      uses: test-summary/action@v2.2
-      with:
-        paths: .test-results/pytest/results.xml
-    - name: Re-run the failing tests with maximum verbosity
-      if: failure()
-      # FIXME: Integrate the following once it's possible
-      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -vvvvv
-        --
-        --no-cov -vvvvv --lf
-        && exit 1
-      shell: bash
-    - name: Send coverage data to Codecov
-      uses: codecov/codecov-action@v3.1.4
-      with:
-        files: .test-results/pytest/cov.xml
-        flags: >-
-          CI-GHA,
-          OS-${{
-            runner.os
-          }},
-          VM-${{
-            matrix.os
-          }},
-          Py-${{
-            steps.python-install.outputs.python-version
-          }}
+    uses: ./.github/workflows/reusable-tests.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      runner-vm-os: ${{ matrix.runner-vm-os }}
+      dist-type: ${{ matrix.dist-type }}
+      release-requested: >-
+        ${{ needs.pre-setup.outputs.release-requested }}
+      yolo: ${{ github.event.inputs.YOLO }}
+      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
 
   test-macos:
-    name: >-
-      Test 🐍
-      ${{ matrix.python-version }}
-      ${{ matrix.runner-vm-os }}
-      ${{ matrix.dist-type }} dists
+    name: 🧪 Test${{ '' }}
     needs:
     - build-bin-macos
     - build-src
     - pre-setup  # transitive, for accessing settings
-    runs-on: ${{ matrix.runner-vm-os }}
     strategy:
       matrix:
         python-version:
@@ -1712,200 +1521,19 @@ jobs:
         - runner-vm-os: ubuntu-22.04
           python-version: 3.6  # EOL, only provided for older OSs
 
-    continue-on-error: >-
-      ${{
-          (
-            fromJSON(needs.pre-setup.outputs.release-requested) &&
-            !github.event.inputs.YOLO
-          ) && true || false
-      }}
-
-    env:
-      ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
-      TOXENV: test-${{ matrix.dist-type }}-dists
-
-    steps:
-    - name: Install build toolchain and openssl headers on Linux
-      if: >-
-        matrix.dist-type == 'source' &&
-        runner.os == 'Linux'
-      run: sudo apt update && sudo apt install build-essential libssl-dev
-    - name: Install libssh and openssl headers on macOS
-      if: >-
-        runner.os == 'macOS'
-      run: brew install libssh
-    - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
-      if: >-
-        runner.os == 'Linux'
-      run: >-
-        sudo apt update && sudo apt install ${{
-          matrix.runner-vm-os != 'ubuntu-20.04'
-          && 'glibc-tools'
-          || ''
-        }} libssh-dev
-    - name: Switch 🐍 to v${{ matrix.python-version }}
-      id: python-install
-      uses: actions/setup-python@v5.0.0
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Retrieve the project source from an sdist inside the GHA artifact
-      uses: re-actors/checkout-python-sdist@release/v1
-      with:
-        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
-        workflow-artifact-name: >-
-          ${{ needs.pre-setup.outputs.dists-artifact-name }}
-
-    - name: Figure out if the interpreter ABI is stable
-      id: py-abi
-      run: |
-        from os import environ
-        from pathlib import Path
-        from sys import version_info
-
-        FILE_APPEND_MODE = 'a'
-
-        is_stable_abi = version_info.releaselevel == 'final'
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(
-                'is-stable-abi={is_stable_abi}'.
-                format(is_stable_abi=str(is_stable_abi).lower()),
-                file=outputs_file,
-            )
-      shell: python
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
-    - name: Set up pip cache
-      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@v4.0.0
-      with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          needs.pre-setup.outputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-
-    - name: Upgrade pip with `requires_python`
-      run: >-
-        python -m
-        pip install
-        --user
-        --upgrade
-        --force-reinstall
-        pip-with-requires-python
-    - name: Install tox
-      run: >-
-        python -m
-        pip install
-        --user
-        '${{ env.TOX_VERSION }}'
-
-    - name: Download all the dists
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
-        path: dist/
-
-    - name: >-
-        Pre-populate tox env:
-        ${{ env.TOXENV }}
-      # FIXME: Integrate the following once it's possible
-      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        --notest
-
-    - name: Configure tox to run pytest under catchsegv
-      if: runner.os == 'Linux'
-      run: |
-        from __future__ import print_function
-        import os
-        with open(os.environ['GITHUB_ENV'], 'a') as env_file:
-            env_file.write('CATCHSEGV_BINARY=catchsegv\n')
-      shell: python
-
-    - name: Run the testing
-      # FIXME: Integrate the following once it's possible
-      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -qq
-    - name: Produce markdown test summary from JUnit
-      if: always()
-      uses: test-summary/action@v2.2
-      with:
-        paths: .test-results/pytest/results.xml
-    - name: Re-run the failing tests with maximum verbosity
-      if: failure()
-      # FIXME: Integrate the following once it's possible
-      # --installpkg 'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -vvvvv
-        --
-        --no-cov -vvvvv --lf
-        && exit 1
-      shell: bash
-    - name: Send coverage data to Codecov
-      uses: codecov/codecov-action@v3.1.4
-      with:
-        files: .test-results/pytest/cov.xml
-        flags: >-
-          CI-GHA,
-          OS-${{
-            runner.os
-          }},
-          VM-${{
-            matrix.os
-          }},
-          Py-${{
-            steps.python-install.outputs.python-version
-          }}
+    uses: ./.github/workflows/reusable-tests.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      runner-vm-os: ${{ matrix.runner-vm-os }}
+      dist-type: ${{ matrix.dist-type }}
+      release-requested: >-
+        ${{ needs.pre-setup.outputs.release-requested }}
+      yolo: ${{ github.event.inputs.YOLO }}
+      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
 
   dist-meta:
     name: Verify 🐍📦 metadata
