@@ -1,0 +1,4 @@
+The duplicated jobs matrices of the text jobs now reside in
+a single GitHub Actions CI/CD reusable workflow definition.
+
+-- :user:`webknjaz`
