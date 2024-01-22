@@ -14,11 +14,11 @@ from setuptools_scm import get_version
 
 PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
 IS_RELEASE_ON_RTD = (
-    os.getenv("READTHEDOCS", "False") == "True"
-    and os.environ["READTHEDOCS_VERSION_TYPE"] == "tag"
+    os.getenv('READTHEDOCS', 'False') == 'True'
+    and os.environ['READTHEDOCS_VERSION_TYPE'] == 'tag'
 )
 if IS_RELEASE_ON_RTD:
-    tags.add("is_release")
+    tags.add('is_release')
 
 get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 
@@ -200,4 +200,4 @@ autosectionlabel_maxdepth = 2  # mitigate Towncrier nested subtitles collision
 towncrier_draft_autoversion_mode = 'draft'  # or: 'sphinx-version', 'sphinx-release'
 towncrier_draft_include_empty = True
 towncrier_draft_working_directory = PROJECT_ROOT_DIR
-towncrier_draft_config_path = "pyproject.toml"  # relative to cwd
+towncrier_draft_config_path = 'pyproject.toml'  # relative to cwd
