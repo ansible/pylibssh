@@ -3,6 +3,7 @@
 # Ref: https://www.sphinx-doc.org/en/master/usage/configuration.html
 """Configuration for the Sphinx documentation generator."""
 
+import os
 from functools import partial
 from pathlib import Path
 
@@ -12,6 +13,13 @@ from setuptools_scm import get_version
 # -- Path setup --------------------------------------------------------------
 
 PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
+IS_RELEASE_ON_RTD = (
+    os.getenv("READTHEDOCS", "False") == "True"
+    and os.environ["READTHEDOCS_VERSION_TYPE"] == "tag"
+)
+if IS_RELEASE_ON_RTD:
+    tags.add("is_release")
+
 get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 
 # If extensions (or modules to document with autodoc) are in another directory,

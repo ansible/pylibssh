@@ -8,7 +8,12 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. _Semantic Versioning: https://semver.org/
 
-.. towncrier-draft-entries:: |release| [UNRELEASED DRAFT]
+.. only:: not is_release
+
+   .. towncrier-draft-entries:: |release| [UNRELEASED DRAFT]
+
+   Released versions
+   ^^^^^^^^^^^^^^^^^
 
 .. towncrier release notes start
 
