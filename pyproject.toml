@@ -144,5 +144,59 @@ profile = "True"
     name = "Miscellaneous internal changes"
     showcontent = true
 
+[tool.cibuildwheel]
+build-frontend = "build"
+test-requires = "pytest pytest-cov pytest-xdist pytest-forked"
+test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
+skip = "pp*"
+
+[tool.cibuildwheel.environment]
+COLOR = "yes"
+FORCE_COLOR = "1"
+MYPY_FORCE_COLOR = "1"
+# PIP_CONSTRAINT = "{package}/requirements-build.txt"
+# PIP_CONSTRAINT = "{project}/requirements-build.txt"
+PIP_DISABLE_PIP_VERSION_CHECK = "1"
+PIP_NO_PYTHON_VERSION_WARNING = "1"
+PIP_NO_WARN_SCRIPT_LOCATION = "1"
+PRE_COMMIT_COLOR = "always"
+PY_COLORS = "1"
+
+[tool.cibuildwheel.macos]
+before-build = [
+  "brew install libssh",  # @0.9.4  # pinning the version does not work
+  # FIXME: can we pre-build libssh once in a pre-requisite job?
+  # NOTE: Currently we use a brew-installed libssh build that also
+  # NOTE: pulls-in openssl@1.1 as well. In the future we may want to
+  # NOTE: be in control of what and how we build. This is what the
+  # NOTE: commented out code below is for. Doing own builds may help
+  # NOTE: us produce a smaller footprint by not building the server-
+  # NOTE: side APIs. Controlling the supply chain is also safer from
+  # NOTE: the security perspective. Also, it breaks when brew replaces
+  # NOTE: the versions.
+  # - name: Fetch libssh src
+  #   env:
+  #     LIBSSH_VERSION: 0.9.3
+  #   run: >-
+  #     git clone --depth=1
+  #     -b "libssh-${{ env.LIBSSH_VERSION }}"
+  #     https://git.libssh.org/projects/libssh.git
+  # - name: Make libssh build dir
+  #   run: mkdir -pv build
+  #   working_directory: libssh
+  # - name: Build libssh
+  #   env:
+  #     CFLAGS: -I/usr/local/opt/openssl/include
+  #     LDFLAGS: -L/usr/local/opt/openssl/lib
+  #   run: |
+  #     cmake ..
+  #     make
+  #     make install/strip
+  #   working_directory: libssh/build
+]
+
+[tool.cibuildwheel.windows]
+skip = "*"
+
 [tool.setuptools_scm]
 write_to = "src/pylibsshext/_scm_version.py"

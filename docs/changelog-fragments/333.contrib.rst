@@ -1,0 +1,2 @@
+The CI configuration for building the macOS platform-specific
+wheels switched to using ``cibuildwheel`` -- by :user:`webknjaz`.
