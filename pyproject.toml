@@ -169,7 +169,7 @@ manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0
 manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.9.6"
 
 [tool.cibuildwheel.linux.environment]
-STATIC_DEPS_DIR = "$(cat .static-deps-path)"
+STATIC_DEPS_DIR = "$(cat /root/.static-deps-path)"
 LDFLAGS = "'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
 LD_LIBRARY_PATH = "${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:${LD_LIBRARY_PATH}"
 
