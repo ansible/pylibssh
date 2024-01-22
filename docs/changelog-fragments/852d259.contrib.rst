@@ -1,0 +1,3 @@
+The :doc:`changelog` page for the tagged release builds on
+Read The Docs does not attempt showing the draft section
+anymore -- by :user:`webknjaz`.
