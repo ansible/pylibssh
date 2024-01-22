@@ -18,7 +18,7 @@ IS_RELEASE_ON_RTD = (
     and os.environ['READTHEDOCS_VERSION_TYPE'] == 'tag'
 )
 if IS_RELEASE_ON_RTD:
-    tags.add('is_release')
+    tags.add('is_release')  # noqa: F821
 
 get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 
