@@ -78,24 +78,29 @@ changes accompanying the relevant code changes.
 Examples for changelog entries adding to your Pull Requests
 -----------------------------------------------------------
 
-File ``docs/changelog-fragments/112.doc.rst``:
+File ``docs/changelog-fragments/112.doc.rst`` (could be symlinked to
+``docs/changelog-fragments/112.contrib.rst`` so it shows up in several
+changelog sections):
 
 .. code-block:: rst
 
-    Added a ``:user:`` role to Sphinx config -- by :user:`webknjaz`
+    Added a ``:user:`` role to Sphinx config -- by :user:`webknjaz`.
+
+    This change allows the contributors to be credited for their submitted
+    patches in a more prominent manner.
 
 File ``docs/changelog-fragments/105.feature.rst``:
 
 .. code-block:: rst
 
-    Added the support for keyboard-authentication method -- by :user:`Qalthos`
+    Added the support for keyboard-authentication method -- by :user:`Qalthos`.
 
 File ``docs/changelog-fragments/57.bugfix.rst``:
 
 .. code-block:: rst
 
     Fixed flaky SEGFAULTs in ``pylibsshext.channel.Channel.exec_command()``
-    calls -- by :user:`ganeshrn`
+    calls -- by :user:`ganeshrn`.
 
 .. tip::
 
