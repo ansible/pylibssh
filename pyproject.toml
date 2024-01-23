@@ -163,6 +163,10 @@ PRE_COMMIT_COLOR = "always"
 PY_COLORS = "1"
 
 [tool.cibuildwheel.linux]
+before-build = [
+  "env",
+  "export",
+]
 manylinux-aarch64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_aarch64:libssh-v0.9.6"
 manylinux-ppc64le-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_ppc64le:libssh-v0.9.6"
 manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0.9.6"
