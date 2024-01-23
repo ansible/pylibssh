@@ -176,6 +176,7 @@ manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-
 STATIC_DEPS_DIR = "$(cat /root/.static-deps-path)"
 # LDFLAGS = "'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
 # LD_LIBRARY_PATH = "${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:${LD_LIBRARY_PATH}"
+CFLAGS="'-I$(cat /root/.static-deps-path)/include'"
 LDFLAGS = "'-L$(cat /root/.static-deps-path)/lib64' '-L$(cat /root/.static-deps-path)/lib'"
 LD_LIBRARY_PATH = "$(cat /root/.static-deps-path)/lib64:$(cat /root/.static-deps-path)/lib:${LD_LIBRARY_PATH}"
 
