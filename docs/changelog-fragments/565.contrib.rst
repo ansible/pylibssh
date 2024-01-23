@@ -1,0 +1,2 @@
+Fixed the location of release workflow in the
+:ref:`Release Guide` document -- by :user:`Qalthos`.

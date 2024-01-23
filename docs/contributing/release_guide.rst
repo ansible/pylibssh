@@ -86,4 +86,4 @@ The release stage
 
 
 .. _GitHub Actions CI/CD workflow:
-   https://github.com/ansible/pylibssh/actions/workflows/build-test-n-publish.yml
+   https://github.com/ansible/pylibssh/actions/workflows/ci-cd.yml
