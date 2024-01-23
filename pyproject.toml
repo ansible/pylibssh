@@ -173,6 +173,7 @@ manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0
 manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.9.6"
 skip = [
   "*-musllinux_*",  # FIXME: musllinux needs us to provide with containers pre-built libssh
+  "pp*",  # FIXME: we don't ship these currently but could
 
   # The support for 32-bit wheels has been dropped long ago:
   "*-manylinux_i686",
