@@ -1,0 +1,2 @@
+Started building ``manylinux_2_28`` base images for testing and
+packaging in the CI/CD infrastructure -- by :user:`Qalthos`.

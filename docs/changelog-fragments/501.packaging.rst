@@ -1,0 +1,6 @@
+The ``toml`` build time dependency has been replaced with
+``tomli`` -- by :user:`webknjaz`.
+
+The ``tomli`` distribution is only pulled in under Python
+versions below 3.11. On 3.11 and higher, the standard
+library module :py:mod:`tomllib` is now used instead.

@@ -1,0 +1,7 @@
+:pep:`660` is now enabled -- :user:`webknjaz`.
+
+Previously, due to restrictive :pep:`517` hook reimports,
+our in-tree build backend was losing :pep:`non-PEP 517 <517>`
+hooks implemented in newer versions of ``setuptools`` but not
+the earlier ones. This is now addressed by reexporting
+everything that ``setuptools`` exposes with a wildcard.

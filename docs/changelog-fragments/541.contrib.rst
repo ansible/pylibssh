@@ -1,0 +1,4 @@
+:pep:`660` is now enabled -- :user:`webknjaz`.
+
+This effectively means that the ecosystem-native editable
+install mode started working properly.

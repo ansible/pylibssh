@@ -1,0 +1,6 @@
+The ``Cython`` build time dependency now has the minimum
+version of 3.0 under Python 3.12 and higher
+-- by :user:`webknjaz`.
+
+The previous versions of ``Cython`` are still able to build
+the project under older Python versions.

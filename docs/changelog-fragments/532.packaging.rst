@@ -1,0 +1,4 @@
+Added support for Python 3.12 -- by :user:`Qalthos`.
+
+It is now both tested in the CI and is advertised through
+the Trove classifiers.

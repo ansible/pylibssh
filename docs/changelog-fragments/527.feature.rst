@@ -1,0 +1,3 @@
+Started exposing the ``SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES``
+and ``SSH_OPTIONS_HOSTKEYS`` options publicly
+-- by :user:`Qalthos`.
