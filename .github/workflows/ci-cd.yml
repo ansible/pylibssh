@@ -630,8 +630,6 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux2014_x86_64 \
         # NOTE:   ls -1 /opt/python
-        - cp36-cp36m
-        - cp37-cp37m
         - cp38-cp38
         - cp39-cp39
         - cp310-cp310
@@ -648,16 +646,6 @@ jobs:
           qemu_arch: amd64
         include:
         # NOTE: manylinux2010 only on x86_64
-        - manylinux-python-target: cp36-cp36m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
-        - manylinux-python-target: cp37-cp37m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 2010
         - manylinux-python-target: cp38-cp38
           manylinux-image-target:
             arch: x86_64
@@ -674,16 +662,6 @@ jobs:
             qemu_arch: amd64
           manylinux-year-target: 2010
         # NOTE: manylinux1 caps out at Python 3.9
-        - manylinux-python-target: cp36-cp36m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 1
-        - manylinux-python-target: cp37-cp37m
-          manylinux-image-target:
-            arch: x86_64
-            qemu_arch: amd64
-          manylinux-year-target: 1
         - manylinux-python-target: cp38-cp38
           manylinux-image-target:
             arch: x86_64
@@ -744,8 +722,6 @@ jobs:
         # NOTE: $ podman run -it --rm \
         # NOTE:   quay.io/pypa/manylinux2014_x86_64 \
         # NOTE:   ls -1 /opt/python
-        - cp36-cp36m
-        - cp37-cp37m
         - cp38-cp38
         - cp39-cp39
         - cp310-cp310
@@ -806,22 +782,13 @@ jobs:
     needs:
     - build-changelog
     - pre-setup  # transitive, for accessing settings
-    runs-on: ${{ matrix.runner-vm-os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version:
-        - 3.8
-        - 3.7
-        runner-vm-os:
-        - ubuntu-22.04
-        store-sdist-to-artifact:
-        - false
         include:
         - python-version: 3.12
-          runner-vm-os: ubuntu-22.04
           store-sdist-to-artifact: true
-        - python-version: 3.6  # EOL, only provided for older OSs
-          runner-vm-os: ubuntu-20.04
+        - python-version: 3.8
           store-sdist-to-artifact: false
 
     env:
@@ -985,19 +952,9 @@ jobs:
         - tag: fedora:38
         - tag: fedora:39
         - tag: fedora:40
-        - tag: centos/centos:stream8
-          registry: quay.io
         # No matching package to install: 'python3dist(wheel)'
         # - tag: centos/centos:stream9
         #   registry: quay.io
-        - tag: ubi8/ubi:8.5
-          registry: registry.access.redhat.com
-        - tag: ubi8/ubi:8.6
-          registry: registry.access.redhat.com
-        - tag: ubi8/ubi:8.7
-          registry: registry.access.redhat.com
-        - tag: ubi8/ubi:8.8
-          registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.0.0
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.1
@@ -1023,13 +980,6 @@ jobs:
         }}${{
           matrix.target-container.tag
         }}
-
-    continue-on-error: >-
-      ${{
-        contains(matrix.target-container.tag, 'ubi9')
-        && true
-        || false
-      }}
 
     steps:
     - name: Produce artifact name
@@ -1109,23 +1059,6 @@ jobs:
           steps.distribution-meta.outputs.dist-tag
         }}.noarch.rpm
 
-    - name: Install static test dependencies missing from UBI8
-      if: contains(matrix.target-container.tag, 'ubi8')
-      run: >-
-        rpm
-        -ivh
-        --nodeps
-        https://vault.centos.org/"$(
-          rpm --eval '%{rhel}'
-        )".4.2105/BaseOS/x86_64/os/Packages/openssh-8.0p1-6${{
-          steps.distribution-meta.outputs.dist-tag
-        }}_4.2.x86_64.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-toml-0.10.0-3${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-
     - name: Install static test dependencies missing from all UBIs
       if: contains(matrix.target-container.tag, 'ubi')
       run: >-
@@ -1157,15 +1090,7 @@ jobs:
         }}${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
         https://rpmfind.net/linux/epel/"$(
           rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/${{
-          contains(matrix.target-container.tag, 'ubi9')
-          && 't'
-          || 'p'
-        }}/${{
-          !contains(matrix.target-container.tag, 'ubi9')
-          && 'python3-'
-          || ''
-        }}tox-${{
+        )"/Everything/x86_64/Packages/t/tox-${{
           contains(matrix.target-container.tag, 'ubi9')
           && '3.28.0-1'
           || '3.4.0-2'
@@ -1177,29 +1102,9 @@ jobs:
           && '1.9.0-3'
           || '1.7.1-1'
         }}${{ steps.distribution-meta.outputs.dist-tag }}.noarch.rpm
-        https://rpmfind.net/linux/${{
-          contains(matrix.target-container.tag, 'ubi9')
-          && 'epel'
-          || 'centos'
-        }}/"$(
+        https://rpmfind.net/linux/epel/"$(
           rpm --eval '%{rhel}'
-        )"${{
-          !contains(matrix.target-container.tag, 'ubi9')
-          && '-stream'
-          || ''
-        }}/${{
-          contains(matrix.target-container.tag, 'ubi9')
-          && 'Everything'
-          || 'AppStream'
-        }}/x86_64/${{
-          !contains(matrix.target-container.tag, 'ubi9')
-          && 'os/'
-          || ''
-        }}Packages/${{
-          contains(matrix.target-container.tag, 'ubi9')
-          && 'p/'
-          || ''
-        }}python3-coverage-${{
+        )"/Everything/x86_64/Packages/p/python3-coverage-${{
           contains(matrix.target-container.tag, 'ubi9')
           && '6.2-1'
           || '4.5.1-9'
@@ -1308,17 +1213,12 @@ jobs:
         - "3.10"
         - 3.9
         - 3.8
-        - 3.7
-        - 3.6
         runner-vm-os:
         - ubuntu-22.04
         - ubuntu-20.04
         dist-type:
         - binary
         - source
-        exclude:
-        - runner-vm-os: ubuntu-22.04
-          python-version: 3.6  # EOL, only provided for older OSs
 
     uses: ./.github/workflows/reusable-tests.yml
     with:
@@ -1348,16 +1248,11 @@ jobs:
         - "3.10"
         - 3.9
         - 3.8
-        - 3.7
-        - 3.6
         runner-vm-os:
         - macos-latest
         dist-type:
         - binary
         - source
-        exclude:
-        - runner-vm-os: ubuntu-22.04
-          python-version: 3.6  # EOL, only provided for older OSs
 
     uses: ./.github/workflows/reusable-tests.yml
     with:

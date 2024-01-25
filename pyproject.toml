@@ -8,12 +8,7 @@ requires = [
   "expandvars",  # needed by in-tree build backend for env vars interpolation
 
   # Plugins
-  "setuptools-scm >= 7.0.0; python_version >= '3.7'",
-  #  ^    supports git archives through a plugin
-  #  |                                        |
-  # supports git archives natively            V
-  "setuptools-scm[toml] >= 3.5, < 7.0.0; python_version < '3.7'",
-  "setuptools-scm-git-archive >= 1.1; python_version < '3.7'",
+  "setuptools-scm >= 7.0.0",
 ]
 backend-path = ["packaging"]  # requires 'Pip>=20' or 'pep517>=0.6.0'
 build-backend = "pep517_backend.hooks"
