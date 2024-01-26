@@ -1,0 +1,3 @@
+Adjusted the publishing workflow automation to pre-configure
+Git before attempting to create a tag when building a
+source distribution -- by :user:`webknjaz`.
