@@ -7,7 +7,6 @@ import os
 import sys
 from functools import wraps
 
-from expandvars import expandvars
 from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
     build_wheel,
 )
@@ -29,6 +28,9 @@ from Cython.Build.Cythonize import main as cythonize_cli_cmd
 
 from ._cython_configuration import (  # noqa: WPS436
     get_local_cython_config as _get_local_cython_config,
+)
+from ._cython_configuration import (  # noqa: WPS436
+    patched_env as _patched_cython_env,
 )
 from ._transformers import (  # noqa: WPS436
     convert_to_kwargs_only, get_cli_kwargs_from_config,
@@ -72,31 +74,6 @@ def patched_dist_has_ext_modules():
         DistutilsDistribution.has_ext_modules = orig_func
 
 
-@contextlib.contextmanager
-def patched_env(env):
-    """Temporary set given env vars.
-
-    :param env: tmp env vars to set
-    :type env: dict
-
-    :yields: None
-    """
-    orig_env = os.environ.copy()
-    expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
-    os.environ.update(expanded_env)
-    if os.getenv('ANSIBLE_PYLIBSSH_TRACING') == '1':
-        os.environ['CFLAGS'] = ' '.join((
-            os.getenv('CFLAGS', ''),
-            '-DCYTHON_TRACE=1',
-            '-DCYTHON_TRACE_NOGIL=1',
-        )).strip()
-    try:  # noqa: WPS501
-        yield
-    finally:
-        os.environ.clear()
-        os.environ.update(orig_env)
-
-
 def pre_build_cython(orig_func):  # noqa: WPS210
     """Pre-build cython exts before invoking ``orig_func``.
 
@@ -106,6 +83,7 @@ def pre_build_cython(orig_func):  # noqa: WPS210
     :returns: function wrapper
     :rtype: callable
     """
+    cython_line_tracing_requested = os.getenv('ANSIBLE_PYLIBSSH_TRACING') == '1'
     @wraps(orig_func)
     def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
         config = _get_local_cython_config()
@@ -116,7 +94,7 @@ def pre_build_cython(orig_func):  # noqa: WPS210
         cli_kwargs = get_cli_kwargs_from_config(config['kwargs'])
 
         cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
-        with patched_env(config['env']):
+        with _patched_cython_env(config['env'], cython_line_tracing_requested):
             cythonize_cli_cmd(cythonize_args)
         with patched_distutils_cmd_install():
             with patched_dist_has_ext_modules():
