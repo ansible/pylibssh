@@ -504,8 +504,10 @@ jobs:
         tox
         --skip-missing-interpreters false
         --skip-pkg-install
-        -e draft-changelog
         -qq
+        --
+        '${{ needs.pre-setup.outputs.dist-version }}'
+        --draft
         |
         tee
         '${{ needs.pre-setup.outputs.changelog-draft-name-rst }}'
