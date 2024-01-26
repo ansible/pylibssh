@@ -1600,24 +1600,6 @@ jobs:
       if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
       shell: bash
-    - name: Drop the changelog patch file
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-      shell: bash
-
-    - name: Soft-reset the changelog patch
-      # ... to let `setuptools-scm` rely on the event-triggering commit
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      run: |
-        git reset HEAD^ --soft
-        git restore --staged .
-      shell: bash
-    - name: Pretend there were no changelog updates in Git
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      run: |
-        git diff --color=always
-        git update-index --assume-unchanged -- $(git ls-files --modified)
-      shell: bash
 
     - name: >-
         Create a local 'release/${{
