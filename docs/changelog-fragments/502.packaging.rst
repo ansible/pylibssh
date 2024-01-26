@@ -1,2 +1,0 @@
-Started using the built-in ``setuptools-scm`` Git archive
-support under Python 3.7 and higher -- :user:`webknjaz`.

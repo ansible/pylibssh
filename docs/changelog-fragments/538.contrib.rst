@@ -1,2 +1,0 @@
-Switched back to using Cython's native plugin for measuring
-code coverage -- by :user:`webknjaz`.
