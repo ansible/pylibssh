@@ -1677,7 +1677,8 @@ jobs:
         }}.' | tee -a release-notes.md
         echo | tee -a release-notes.md
         echo | tee -a release-notes.md
-        echo '🔗 This release has been produced by the following workflow run: ${{
+        echo '🔗 This release has been produced by ' \
+        'the following workflow run: ${{
           github.server_url
         }}/${{
           github.repository
