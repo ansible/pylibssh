@@ -1579,41 +1579,41 @@ jobs:
         fi
 
     - name: Fetch the src snapshot
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       uses: actions/checkout@v4.1.1
       with:
         fetch-depth: 1
         ref: ${{ github.event.inputs.release-committish }}
     - name: Setup git user as [bot]
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       # Refs:
       # * https://github.community/t/github-actions-bot-email-address/17204/6
       # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
       uses: fregante/setup-git-user@v2.0.1
     - name: Fetch the GHA artifact with the version patch
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       uses: actions/download-artifact@v3
       with:
         name: changelog
 
     - name: Apply the changelog patch
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
       shell: bash
     - name: Drop the changelog patch file
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: rm -fv '${{ needs.pre-setup.outputs.changelog-patch-name }}'
       shell: bash
 
     - name: Soft-reset the changelog patch
       # ... to let `setuptools-scm` rely on the event-triggering commit
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: |
         git reset HEAD^ --soft
         git restore --staged .
       shell: bash
     - name: Pretend there were no changelog updates in Git
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: |
         git diff --color=always
         git update-index --assume-unchanged -- $(git ls-files --modified)
@@ -1623,7 +1623,7 @@ jobs:
         Create a local 'release/${{
           needs.pre-setup.outputs.dist-version
         }}' branch
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: >-
         git checkout -b 'release/${{
           needs.pre-setup.outputs.dist-version
@@ -1632,7 +1632,7 @@ jobs:
     - name: >-
         Tag the release in the local Git repo
         as ${{ needs.pre-setup.outputs.git-tag }}
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
@@ -1651,7 +1651,7 @@ jobs:
     - name: >-
         Push ${{ needs.pre-setup.outputs.git-tag }} tag corresponding
         to the just published release back to GitHub
-      if: steps.existing-remote-tag-check.outputs.already-exists == 'true'
+      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
       run: >-
         git push --atomic origin '${{ needs.pre-setup.outputs.git-tag }}'
 
