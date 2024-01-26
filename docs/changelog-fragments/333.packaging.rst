@@ -1,3 +1,0 @@
-The platform-specific macOS wheels are now built using the
-Python interpreter from https://python.org. They are tagged
-with ``macosx_10_9`` -- by :user:`webknjaz`.

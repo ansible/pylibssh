@@ -17,6 +17,271 @@ versions with advance notice in the **Deprecations** section of releases.
 
 .. towncrier release notes start
 
+v1.2.0rc1 (2024-01-26)
+======================
+
+Features
+^^^^^^^^
+
+- Started exposing the ``SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES``
+  and ``SSH_OPTIONS_HOSTKEYS`` options publicly
+  -- by :user:`Qalthos`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`527`.
+  
+  
+  
+
+Improved documentation
+^^^^^^^^^^^^^^^^^^^^^^
+
+- Fixed spelling of "Connect" in the ``Session.connect()``
+  docstring -- by :user:`donnerhacke`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`474`.
+  
+  
+  
+- Added a tip to the :ref:`installation guide <Installing |project|>`
+  on how to set compiler flags when installing from source
+  -- :user:`webknjaz`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`499`.
+  
+  
+  
+
+Packaging updates and notes for downstreams
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- From now on, the published distribution package artifacts
+  for the new releases are signed via `Sigstore
+  <https://sigstore.dev>`__ -- by :user:`webknjaz.`
+
+  This is happening as a part of the GitHub Actions CI/CD
+  workflow automation and the signatures are uploaded to
+  the corresponding GitHub Release pages.
+
+
+  
+  *Related commits on GitHub:*
+  :commit:`986988a`.
+  
+  
+- The platform-specific macOS wheels are now built using the
+  Python interpreter from https://python.org. They are tagged
+  with ``macosx_10_9`` -- by :user:`webknjaz`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`333`.
+  
+  
+  
+- The ``toml`` build time dependency has been replaced with
+  ``tomli`` -- by :user:`webknjaz`.
+
+  The ``tomli`` distribution is only pulled in under Python
+  versions below 3.11. On 3.11 and higher, the standard
+  library module :py:mod:`tomllib` is now used instead.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`501`.
+  
+  
+  
+- Started using the built-in ``setuptools-scm`` Git archive
+  support under Python 3.7 and higher -- :user:`webknjaz`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`502`.
+  
+  
+  
+- Added support for Python 3.12 -- by :user:`Qalthos`.
+
+  It is now both tested in the CI and is advertised through
+  the Trove classifiers.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`532`.
+  
+  
+  
+- The ``Cython`` build time dependency now has the minimum
+  version of 3.0 under Python 3.12 and higher
+  -- by :user:`webknjaz`.
+
+  The previous versions of ``Cython`` are still able to build
+  the project under older Python versions.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`540`.
+  
+  
+  
+- :pep:`660` is now enabled -- :user:`webknjaz`.
+
+  Previously, due to restrictive :pep:`517` hook reimports,
+  our in-tree build backend was losing :pep:`non-PEP 517 <517>`
+  hooks implemented in newer versions of ``setuptools`` but not
+  the earlier ones. This is now addressed by reexporting
+  everything that ``setuptools`` exposes with a wildcard.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`541`.
+  
+  
+  
+
+Contributor-facing changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The :doc:`changelog` page for the tagged release builds on
+  Read The Docs does not attempt showing the draft section
+  anymore -- by :user:`webknjaz`.
+
+
+  
+  *Related commits on GitHub:*
+  :commit:`852d259`.
+  
+  
+- Adjusted the publishing workflow automation to pre-configure
+  Git before attempting to create a tag when building a
+  source distribution -- by :user:`webknjaz`.
+
+
+  
+  *Related commits on GitHub:*
+  :commit:`f07296f`.
+  
+  
+- The CI configuration for building the macOS platform-specific
+  wheels switched to using ``cibuildwheel`` -- by :user:`webknjaz`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`333`.
+  
+  
+  
+- The OS-level tox package was upgraded to v3.28.0 in the UBI9
+  CI runtime -- by :user:`Qalthos`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`461`, :issue:`473`.
+  
+  
+  
+- Fixed spelling of "Connect" in the ``Session.connect()``
+  docstring -- by :user:`donnerhacke`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`474`.
+  
+  
+  
+- The Packit CI access to the internet has been restored
+  -- by :user:`Qalthos`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`507`.
+  
+  
+  
+- Started building ``manylinux_2_28`` base images for testing and
+  packaging in the CI/CD infrastructure -- by :user:`Qalthos`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`533`.
+  
+  
+  
+- Switched back to using Cython's native plugin for measuring
+  code coverage -- by :user:`webknjaz`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`538`.
+  
+  
+  
+- Added separate changelog fragment types for contributor-
+  and downstream-facing patches -- by :user:`webknjaz`.
+
+  Their corresponding identifiers are ``contrib`` and ``packaging``
+  respectively. They are meant to be used for more accurate
+  classification, where one would resort to using ``misc`` otherwise.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`539`.
+  
+  
+  
+- :pep:`660` is now enabled -- :user:`webknjaz`.
+
+  This effectively means that the ecosystem-native editable
+  install mode started working properly.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`541`.
+  
+  
+  
+- The duplicated jobs matrices for building manylinux wheels
+  now reside in a single GitHub Actions CI/CD reusable
+  workflow definition.
+
+  -- :user:`webknjaz`
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`559`.
+  
+  
+  
+- The duplicated jobs matrices of the text jobs now reside in
+  a single GitHub Actions CI/CD reusable workflow definition.
+
+  -- :user:`webknjaz`
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`560`.
+  
+  
+  
+- Fixed the location of release workflow in the
+  :ref:`Release Guide` document -- by :user:`Qalthos`.
+
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`565`.
+  
+  
+  
+
+----
+
+
 v1.1.0 (2022-12-05)
 ===================
 

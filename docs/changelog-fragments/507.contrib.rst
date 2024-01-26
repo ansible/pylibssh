@@ -1,2 +1,0 @@
-The Packit CI access to the internet has been restored
--- by :user:`Qalthos`.

@@ -1,3 +1,0 @@
-Added a tip to the :ref:`installation guide <Installing |project|>`
-on how to set compiler flags when installing from source
--- :user:`webknjaz`.
