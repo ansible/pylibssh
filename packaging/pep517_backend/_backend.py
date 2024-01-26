@@ -2,8 +2,8 @@
 
 """PEP 517 build backend pre-building Cython exts before setuptools."""
 
-import contextlib
 import os
+from contextlib import contextmanager
 from functools import wraps
 
 from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
@@ -37,7 +37,7 @@ from ._cython_configuration import (  # noqa: WPS436
 from ._transformers import convert_to_kwargs_only  # noqa: WPS436
 
 
-@contextlib.contextmanager
+@contextmanager
 def patched_distutils_cmd_install():
     """Make `install_lib` of `install` cmd always use `platlib`.
 
@@ -57,7 +57,7 @@ def patched_distutils_cmd_install():
         distutils_install_cmd.finalize_options = orig_finalize
 
 
-@contextlib.contextmanager
+@contextmanager
 def patched_dist_has_ext_modules():
     """Make `has_ext_modules` of `Distribution` always return `True`.
 
