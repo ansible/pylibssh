@@ -1,11 +1,13 @@
 [build-system]
 requires = [
+  # NOTE: The following build dependencies are necessary for initial
+  # NOTE: provisioning of the in-tree build backend located under
+  # NOTE: `packaging/pep517_backend/`.
+
   # Essentials
-  "Cython >= 3.0.0b3; python_version >= '3.12'",  # needed by in-tree build backend `packaging/pep517_backend.py`
-  "Cython; python_version < '3.12'",  # needed by in-tree build backend `packaging/pep517_backend.py`
+  "expandvars",  # needed by in-tree build backend for env vars interpolation
   "setuptools>=45",  # needed by in-tree build backend `packaging/pep517_backend.py`
   "tomli; python_version < '3.11'",  # needed by in-tree build backend `packaging/pep517_backend.py`
-  "expandvars",  # needed by in-tree build backend for env vars interpolation
 
   # Plugins
   "setuptools-scm >= 7.0.0; python_version >= '3.7'",
