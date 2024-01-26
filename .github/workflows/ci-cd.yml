@@ -1701,7 +1701,6 @@ jobs:
             github.run_id
           }}.
         bodyFile: ${{ needs.pre-setup.outputs.changelog-draft-name-md }}
-        commit: ${{ github.event.inputs.release-committish }}
         discussionCategory: Announcements
         draft: false
         name: ${{ needs.pre-setup.outputs.git-tag }}
