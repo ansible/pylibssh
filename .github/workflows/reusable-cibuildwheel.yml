@@ -1,6 +1,6 @@
 ---
 
-name: 👷 Build wheel 🛞📦
+name:  👷 Build wheel 🛞📦
 
 on:  # yamllint disable-line rule:truthy
   workflow_call:
