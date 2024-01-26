@@ -4,7 +4,6 @@
 
 import contextlib
 import os
-import sys
 from functools import wraps
 
 from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
@@ -30,12 +29,12 @@ from ._cython_configuration import (  # noqa: WPS436
     get_local_cython_config as _get_local_cython_config,
 )
 from ._cython_configuration import (  # noqa: WPS436
+    make_cythonize_cli_args_from_config as _make_cythonize_cli_args_from_config,
+)
+from ._cython_configuration import (  # noqa: WPS436
     patched_env as _patched_cython_env,
 )
-from ._transformers import (  # noqa: WPS436
-    convert_to_kwargs_only, get_cli_kwargs_from_config,
-    get_enabled_cli_flags_from_config,
-)
+from ._transformers import convert_to_kwargs_only  # noqa: WPS436
 
 
 @contextlib.contextmanager
@@ -88,12 +87,7 @@ def pre_build_cython(orig_func):  # noqa: WPS210
     def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
         config = _get_local_cython_config()
 
-        py_ver_arg = '-{maj_ver!s}'.format(maj_ver=sys.version_info.major)
-
-        cli_flags = get_enabled_cli_flags_from_config(config['flags'])
-        cli_kwargs = get_cli_kwargs_from_config(config['kwargs'])
-
-        cythonize_args = cli_flags + [py_ver_arg] + cli_kwargs + config['src']
+        cythonize_args = _make_cythonize_cli_args_from_config(config)
         with _patched_cython_env(config['env'], cython_line_tracing_requested):
             cythonize_cli_cmd(cythonize_args)
         with patched_distutils_cmd_install():

@@ -5,10 +5,14 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from pathlib import Path
+from sys import version_info as _python_version_tuple
 
 from expandvars import expandvars
 
 from ._compat import load_toml_from_string  # noqa: WPS436
+from ._transformers import (  # noqa: WPS436
+    get_cli_kwargs_from_config, get_enabled_cli_flags_from_config,
+)
 
 
 def get_local_cython_config() -> dict:
@@ -66,6 +70,16 @@ def get_local_cython_config() -> dict:
     config_toml_txt = (Path.cwd().resolve() / 'pyproject.toml').read_text()
     config_mapping = load_toml_from_string(config_toml_txt)
     return config_mapping['tool']['local']['cythonize']
+
+
+def make_cythonize_cli_args_from_config(config: dict) -> list[str]:
+    """Compose ``cythonize`` CLI args from config."""
+    py_ver_arg = f'-{_python_version_tuple.major!s}'  # noqa: WPS305
+
+    cli_flags = get_enabled_cli_flags_from_config(config['flags'])
+    cli_kwargs = get_cli_kwargs_from_config(config['kwargs'])
+
+    return cli_flags + [py_ver_arg] + cli_kwargs + ['--'] + config['src']
 
 
 @contextmanager
