@@ -200,6 +200,32 @@ def build_wheel(
         )
 
 
+def build_editable(
+        wheel_directory: str,  # noqa: WPS318
+        config_settings: dict[str, str] | None = None,
+        metadata_directory: str | None = None,
+) -> str:
+    """Produce a built wheel for editable installs.
+
+    This wraps the corresponding ``setuptools``' build backend hook.
+
+    :param wheel_directory: Directory to put the resulting wheel in.
+    :param config_settings: :pep:`517` config settings mapping.
+    :param metadata_directory: :file:`.dist-info` directory path.
+
+    """
+    with _prebuild_c_extensions(
+            line_trace_cython_when_unset=True,  # noqa: WPS318
+            build_inplace=True,
+            config_settings=config_settings,
+    ):
+        return _setuptools_build_editable(
+            wheel_directory=wheel_directory,
+            config_settings=config_settings,
+            metadata_directory=metadata_directory,
+        )
+
+
 def get_requires_for_build_wheel(
         config_settings: dict[str, str] | None = None,  # noqa: WPS318
 ) -> list[str]:
@@ -219,5 +245,4 @@ def get_requires_for_build_wheel(
 
 
 if _setuptools_build_editable is not None:
-    build_editable = build_wheel
     get_requires_for_build_editable = get_requires_for_build_wheel
