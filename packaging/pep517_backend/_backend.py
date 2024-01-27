@@ -2,11 +2,11 @@
 
 """PEP 517 build backend pre-building Cython exts before setuptools."""
 
-from __future__ import annotations
+# from __future__ import annotations
 
 import os
 import typing as t  # noqa: WPS111
-from contextlib import contextmanager, nullcontext, suppress
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from shutil import copytree
 from sys import version_info as _python_version_tuple
@@ -51,7 +51,7 @@ with suppress(ImportError):
         main as _cythonize_cli_cmd,
     )
 
-from ._compat import chdir_cm  # noqa: WPS436
+from ._compat import chdir_cm, nullcontext_cm  # noqa: WPS436
 from ._cython_configuration import (  # noqa: WPS436
     get_local_cython_config as _get_local_cython_config,
 )
@@ -102,9 +102,9 @@ def _is_truthy_setting_value(setting_value: str) -> bool:
 
 
 def _get_setting_value(
-        config_settings: dict[str, str] | None = None,  # noqa: WPS318
-        config_setting_name: str | None = None,
-        env_var_name: str | None = None,
+        config_settings: 'dict[str, str] | None' = None,  # noqa: WPS318
+        config_setting_name: 'str | None' = None,
+        env_var_name: 'str | None' = None,
         *,
         default: bool = False,
 ) -> bool:
@@ -123,7 +123,7 @@ def _get_setting_value(
 
 
 def _include_cython_line_tracing(
-        config_settings: dict[str, str] | None = None,  # noqa: WPS318
+        config_settings: 'dict[str, str] | None' = None,  # noqa: WPS318
         *,
         default=False,
 ) -> bool:
@@ -206,7 +206,7 @@ def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
 def _prebuild_c_extensions(
         line_trace_cython_when_unset: bool = False,  # noqa: WPS318
         build_inplace: bool = False,
-        config_settings: dict[str, str] | None = None,
+        config_settings: 'dict[str, str] | None' = None,
 ) -> t.Generator[None, t.Any, t.Any]:
     """Pre-build C-extensions in a temporary directory, when needed.
 
@@ -222,7 +222,7 @@ def _prebuild_c_extensions(
     )
 
     build_dir_ctx = (
-        nullcontext() if build_inplace
+        nullcontext_cm() if build_inplace
         else _in_temporary_directory(src_dir=Path.cwd().resolve())
     )
     with build_dir_ctx:
@@ -239,8 +239,8 @@ def _prebuild_c_extensions(
 @patched_dist_get_long_description()
 def build_wheel(
         wheel_directory: str,  # noqa: WPS318
-        config_settings: dict[str, str] | None = None,
-        metadata_directory: str | None = None,
+        config_settings: 'dict[str, str] | None' = None,
+        metadata_directory: 'str | None' = None,
 ) -> str:
     """Produce a built wheel.
 
@@ -266,8 +266,8 @@ def build_wheel(
 @patched_dist_get_long_description()
 def build_editable(
         wheel_directory: str,  # noqa: WPS318
-        config_settings: dict[str, str] | None = None,
-        metadata_directory: str | None = None,
+        config_settings: 'dict[str, str] | None' = None,
+        metadata_directory: 'str | None' = None,
 ) -> str:
     """Produce a built wheel for editable installs.
 
@@ -291,8 +291,8 @@ def build_editable(
 
 
 def get_requires_for_build_wheel(
-        config_settings: dict[str, str] | None = None,  # noqa: WPS318
-) -> list[str]:
+        config_settings: 'dict[str, str] | None' = None,  # noqa: WPS318
+) -> 'list[str]':
     """Determine additional requirements for building wheels.
 
     :param config_settings: :pep:`517` config settings mapping.

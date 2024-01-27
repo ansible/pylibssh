@@ -2,7 +2,7 @@
 
 """A command-line interface wrapper for calling Cython."""
 
-from __future__ import annotations
+# from __future__ import annotations
 
 import sys
 from itertools import chain
@@ -25,7 +25,7 @@ from ._cython_configuration import (  # noqa: WPS436
 _PROJECT_PATH = Path(__file__).parents[2]
 
 
-def run_main_program(argv) -> int | str:
+def run_main_program(argv) -> 'int | str':
     """Invoke ``translate-cython`` or fail."""
     if len(argv) != 2:
         return 'This program only accepts one argument -- "translate-cython"'

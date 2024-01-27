@@ -22,6 +22,21 @@ except ImportError:
 
 
 try:
+    from contextlib import nullcontext as nullcontext_cm  # noqa: F401, WPS433
+except ImportError:
+
+    @contextmanager  # type: ignore[no-redef]
+    def nullcontext_cm(  # noqa: WPS440
+            enter_result: t.Any = None,  # noqa: WPS318
+    ) -> t.Iterator[t.Any]:
+        """Emit the incoming value.
+
+        A no-op context manager.
+        """
+        yield enter_result
+
+
+try:
     # Python 3.11+
     from tomllib import loads as load_toml_from_string  # noqa: WPS433
 except ImportError:
@@ -29,4 +44,8 @@ except ImportError:
     from tomli import loads as load_toml_from_string  # noqa: WPS433, WPS440
 
 
-__all__ = ('chdir_cm', 'load_toml_from_string')  # noqa: WPS410
+__all__ = (  # noqa: WPS410
+    'chdir_cm',
+    'load_toml_from_string',
+    'nullcontext_cm',
+)
