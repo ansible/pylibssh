@@ -44,6 +44,8 @@ extend-ignore =
   WPS300,
   # "Found class without a base class: *" -- we have metaclass shims
   WPS306,
+  # "Found implicit string concatenation" -- nothing bad about this
+  WPS326,
   # "Found future import: *" -- we need these for multipython
   WPS422,
 

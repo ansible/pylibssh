@@ -12,11 +12,17 @@ from shutil import copytree
 from sys import version_info as _python_version_tuple
 from tempfile import TemporaryDirectory
 
-from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
+from setuptools.build_meta import (  # noqa: F401
+    build_sdist as _setuptools_build_sdist,
+)
+from setuptools.build_meta import (  # noqa: F401
     build_wheel as _setuptools_build_wheel,
 )
 from setuptools.build_meta import (
     get_requires_for_build_wheel as _setuptools_get_requires_for_build_wheel,
+)
+from setuptools.build_meta import (
+    prepare_metadata_for_build_wheel as _setuptools_prepare_metadata_for_build_wheel,
 )
 
 
@@ -31,6 +37,9 @@ except ImportError:
 # isort: split
 from distutils.command.install import install as _distutils_install_cmd
 from distutils.core import Distribution as _DistutilsDistribution
+from distutils.dist import (
+    DistributionMetadata as _DistutilsDistributionMetadata,
+)
 
 
 with suppress(ImportError):
@@ -51,6 +60,23 @@ from ._cython_configuration import (  # noqa: WPS436
 )
 from ._cython_configuration import (  # noqa: WPS436
     patched_env as _patched_cython_env,
+)
+from ._transformers import sanitize_rst_roles  # noqa: WPS436
+
+
+__all__ = (  # noqa: WPS410
+    'build_sdist',
+    'build_wheel',
+    'get_requires_for_build_wheel',
+    'prepare_metadata_for_build_wheel',
+    *(
+        () if _setuptools_build_editable is None
+        else (
+            'build_editable',
+            'get_requires_for_build_editable',
+            'prepare_metadata_for_build_editable',
+        )
+    ),
 )
 
 
@@ -146,6 +172,27 @@ def patched_dist_has_ext_modules():
 
 
 @contextmanager
+def patched_dist_get_long_description():
+    """Make `has_ext_modules` of `Distribution` always return `True`.
+
+    :yields: None
+    """
+    # Without this, build_lib puts stuff under `*.data/platlib/` folder
+    orig_func = _DistutilsDistributionMetadata.get_long_description
+
+    def _get_sanitized_long_description(self):  # noqa: WPS430
+        return sanitize_rst_roles(self.long_description)
+
+    _DistutilsDistributionMetadata.get_long_description = (
+        _get_sanitized_long_description
+    )
+    try:
+        yield
+    finally:
+        _DistutilsDistributionMetadata.get_long_description = orig_func
+
+
+@contextmanager
 def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
     with TemporaryDirectory(prefix='.tmp-ansible-pylibssh-pep517-') as tmp_dir:
         with chdir_cm(tmp_dir):
@@ -189,6 +236,7 @@ def _prebuild_c_extensions(
                 yield
 
 
+@patched_dist_get_long_description()
 def build_wheel(
         wheel_directory: str,  # noqa: WPS318
         config_settings: dict[str, str] | None = None,
@@ -215,6 +263,7 @@ def build_wheel(
         )
 
 
+@patched_dist_get_long_description()
 def build_editable(
         wheel_directory: str,  # noqa: WPS318
         config_settings: dict[str, str] | None = None,
@@ -259,4 +308,9 @@ def get_requires_for_build_wheel(
     ) + c_ext_build_deps
 
 
+build_sdist = patched_dist_get_long_description()(_setuptools_build_sdist)
 get_requires_for_build_editable = get_requires_for_build_wheel
+prepare_metadata_for_build_wheel = patched_dist_get_long_description()(
+    _setuptools_prepare_metadata_for_build_wheel,
+)
+prepare_metadata_for_build_editable = prepare_metadata_for_build_wheel
