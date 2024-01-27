@@ -29,8 +29,8 @@ except ImportError:
 
 
 # isort: split
-from distutils.command.install import install as distutils_install_cmd
-from distutils.core import Distribution as DistutilsDistribution
+from distutils.command.install import install as _distutils_install_cmd
+from distutils.core import Distribution as _DistutilsDistribution
 
 
 with suppress(ImportError):
@@ -117,17 +117,17 @@ def patched_distutils_cmd_install():
     :yields: None
     """
     # Without this, build_lib puts stuff under `*.data/purelib/` folder
-    orig_finalize = distutils_install_cmd.finalize_options
+    orig_finalize = _distutils_install_cmd.finalize_options
 
     def new_finalize_options(self):  # noqa: WPS430
         self.install_lib = self.install_platlib
         orig_finalize(self)
 
-    distutils_install_cmd.finalize_options = new_finalize_options
+    _distutils_install_cmd.finalize_options = new_finalize_options
     try:  # noqa: WPS501
         yield
     finally:
-        distutils_install_cmd.finalize_options = orig_finalize
+        _distutils_install_cmd.finalize_options = orig_finalize
 
 
 @contextmanager
@@ -137,13 +137,13 @@ def patched_dist_has_ext_modules():
     :yields: None
     """
     # Without this, build_lib puts stuff under `*.data/platlib/` folder
-    orig_func = DistutilsDistribution.has_ext_modules
+    orig_func = _DistutilsDistribution.has_ext_modules
 
-    DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True
+    _DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True
     try:  # noqa: WPS501
         yield
     finally:
-        DistutilsDistribution.has_ext_modules = orig_func
+        _DistutilsDistribution.has_ext_modules = orig_func
 
 
 @contextmanager
