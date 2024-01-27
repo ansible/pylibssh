@@ -83,12 +83,12 @@ __all__ = (  # noqa: WPS410
 CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'  # noqa: WPS462
 """
 Config setting name toggle to include line tracing to C-exts.
-"""  # noqa: WPS322, WPS326, WPS428
+"""  # noqa: WPS322, WPS428
 
 CYTHON_TRACING_ENV_VAR = 'ANSIBLE_PYLIBSSH_CYTHON_TRACING'  # noqa: WPS462
 """
 Environment variable name toggle used to opt out of making C-exts.
-"""  # noqa: WPS322, WPS326, WPS428
+"""  # noqa: WPS322, WPS428
 
 IS_PY3_12_PLUS = _python_version_tuple[:2] >= (3, 12)  # noqa: WPS462
 """

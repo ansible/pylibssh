@@ -37,7 +37,7 @@ def _match_proto_start(sock, b_proto_id):
         if not buff or not b_proto_id.startswith(buff):
             raise RuntimeError(
                 'The remote service did not send '
-                'expected identifier string',  # noqa: WPS326
+                'expected identifier string',
             )
         b_proto_id = b_proto_id[len(buff):]
 
