@@ -78,7 +78,7 @@ profile = "True"
   # ATTENTION: Do not specify "package" setting because towncrier
   # ATTENTION: tries to import it and fails if it's not pre-compiled
   directory = "docs/changelog-fragments"
-  filename = "docs/changelog.rst"
+  filename = "CHANGELOG.rst"
   issue_format = "{issue}"
   package_dir = "src"
   template = "docs/changelog-fragments/template.j2"
