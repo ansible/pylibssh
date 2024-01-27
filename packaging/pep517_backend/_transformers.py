@@ -2,8 +2,6 @@
 
 """Data conversion helpers for the in-tree PEP 517 build backend."""
 
-from functools import partial, wraps
-from inspect import signature
 from itertools import chain
 
 
@@ -33,28 +31,3 @@ def get_enabled_cli_flags_from_config(flags_map):
         for flag, is_enabled in flags_map.items()
         if is_enabled
     ]
-
-
-def _map_args_to_kwargs(func_sig, args, kwargs):
-    """Return all positional args converted into keyword-args."""
-    return dict(kwargs, **func_sig.bind(*args, **kwargs).arguments)
-
-
-def convert_to_kwargs_only(orig_func):
-    """Ensure a given function is called with kwargs only."""
-    orig_func_signature = signature(orig_func)
-    map_args_to_kwargs = partial(_map_args_to_kwargs, orig_func_signature)
-
-    @wraps(orig_func)  # noqa: WPS210, WPS430
-    def func_wrapper(*args, **kwargs):  # noqa: WPS210, WPS430
-        # NOTE: `pep517` lib calls PEP 517 hooks with positional arguments
-        # NOTE: making it harder to extract certain args by their names.
-        # NOTE: This is why we map all args to kwargs and pass them like
-        # NOTE: that further.
-        # Ref: https://github.com/pypa/pep517/issues/115
-        kwargs = map_args_to_kwargs(args, kwargs)
-        del args  # Prevent accidental `args` var usage  # noqa: WPS420
-
-        return orig_func(**kwargs)
-
-    return func_wrapper

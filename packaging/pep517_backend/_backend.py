@@ -52,7 +52,6 @@ from ._cython_configuration import (  # noqa: WPS436
 from ._cython_configuration import (  # noqa: WPS436
     patched_env as _patched_cython_env,
 )
-from ._transformers import convert_to_kwargs_only  # noqa: WPS436
 
 
 CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'  # noqa: WPS462
@@ -190,7 +189,6 @@ def _prebuild_c_extensions(
                 yield
 
 
-@convert_to_kwargs_only
 def build_wheel(
         wheel_directory: str,  # noqa: WPS318
         config_settings: dict[str, str] | None = None,
