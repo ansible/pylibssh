@@ -7,7 +7,10 @@ from __future__ import annotations
 import os
 import typing as t  # noqa: WPS111
 from contextlib import contextmanager, nullcontext, suppress
+from pathlib import Path
+from shutil import copytree
 from sys import version_info as _python_version_tuple
+from tempfile import TemporaryDirectory
 
 from setuptools.build_meta import (  # noqa: F401  # Re-exporting PEP 517 hooks
     build_wheel as _setuptools_build_wheel,
@@ -39,6 +42,7 @@ with suppress(ImportError):
         main as _cythonize_cli_cmd,
     )
 
+from ._compat import chdir_cm  # noqa: WPS436
 from ._cython_configuration import (  # noqa: WPS436
     get_local_cython_config as _get_local_cython_config,
 )
@@ -143,6 +147,16 @@ def patched_dist_has_ext_modules():
 
 
 @contextmanager
+def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
+    with TemporaryDirectory(prefix='.tmp-ansible-pylibssh-pep517-') as tmp_dir:
+        with chdir_cm(tmp_dir):
+            tmp_src_dir = Path(tmp_dir) / 'src'
+            copytree(src_dir, tmp_src_dir, symlinks=True)
+            os.chdir(tmp_src_dir)
+            yield
+
+
+@contextmanager
 def _prebuild_c_extensions(
         line_trace_cython_when_unset: bool = False,  # noqa: WPS318
         build_inplace: bool = False,
@@ -161,7 +175,10 @@ def _prebuild_c_extensions(
         default=line_trace_cython_when_unset,
     )
 
-    build_dir_ctx = nullcontext()
+    build_dir_ctx = (
+        nullcontext() if build_inplace
+        else _in_temporary_directory(src_dir=Path.cwd().resolve())
+    )
     with build_dir_ctx:
         config = _get_local_cython_config()
 
