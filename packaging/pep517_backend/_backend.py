@@ -259,5 +259,4 @@ def get_requires_for_build_wheel(
     ) + c_ext_build_deps
 
 
-if _setuptools_build_editable is not None:
-    get_requires_for_build_editable = get_requires_for_build_wheel
+get_requires_for_build_editable = get_requires_for_build_wheel
