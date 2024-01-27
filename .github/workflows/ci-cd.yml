@@ -624,6 +624,15 @@ jobs:
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: >-
         ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      # cython-tracing: >-  # Cython line tracing for coverage collection
+      #   ${{
+      #     (
+      #       github.event_name == 'push'
+      #       && contains(github.ref, 'refs/tags/')
+      #     )
+      #     && 'false'
+      #     || 'true'
+      #   }}
       cython-tracing: >-  # Cython line tracing for coverage collection
         ${{
           fromJSON(needs.pre-setup.outputs.profiling-enabled)
@@ -851,8 +860,6 @@ jobs:
           store-sdist-to-artifact: false
 
     env:
-      ANSIBLE_PYLIBSSH_TRACING: >-
-        ${{ fromJSON(needs.pre-setup.outputs.profiling-enabled) && 1 || 0 }}
       PEP517_BUILD_ARGS: --sdist
       TOXENV: build-dists,metadata-validation
 

@@ -75,7 +75,7 @@ jobs:
       }}
 
     env:
-      ANSIBLE_PYLIBSSH_TRACING: ${{ inputs.cython-tracing }}
+      ANSIBLE_PYLIBSSH_CYTHON_TRACING: ${{ inputs.cython-tracing }}
       TOXENV: test-${{ inputs.dist-type }}-dists
 
     steps:

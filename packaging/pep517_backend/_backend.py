@@ -51,10 +51,59 @@ from ._cython_configuration import (  # noqa: WPS436
 from ._transformers import convert_to_kwargs_only  # noqa: WPS436
 
 
+CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'  # noqa: WPS462
+"""
+Config setting name toggle to include line tracing to C-exts.
+"""  # noqa: WPS322, WPS326, WPS428
+
+CYTHON_TRACING_ENV_VAR = 'ANSIBLE_PYLIBSSH_CYTHON_TRACING'  # noqa: WPS462
+"""
+Environment variable name toggle used to opt out of making C-exts.
+"""  # noqa: WPS322, WPS326, WPS428
+
 IS_PY3_12_PLUS = _python_version_tuple[:2] >= (3, 12)  # noqa: WPS462
 """
 A flag meaning that the current runtime is Python 3.12 or higher.
 """  # noqa: WPS322 WPS428
+
+
+def _is_truthy_setting_value(setting_value: str) -> bool:
+    truthy_values = {'', None, 'true', '1', 'on'}
+    return setting_value.lower() in truthy_values
+
+
+def _get_setting_value(
+        config_settings: dict[str, str] | None = None,  # noqa: WPS318
+        config_setting_name: str | None = None,
+        env_var_name: str | None = None,
+        *,
+        default: bool = False,
+) -> bool:
+    user_provided_setting_sources = (  # noqa: WPS317
+        (config_settings, config_setting_name, (KeyError, TypeError)),
+        (os.environ, env_var_name, KeyError),
+    )
+    for src_mapping, src_key, lookup_errors in user_provided_setting_sources:
+        if src_key is None:
+            continue
+
+        with suppress(lookup_errors):  # type: ignore[arg-type]
+            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[index]
+
+    return default
+
+
+def _include_cython_line_tracing(
+        config_settings: dict[str, str] | None = None,  # noqa: WPS318
+        *,
+        default=False,
+) -> bool:
+    return _get_setting_value(
+        config_settings,
+        CYTHON_TRACING_CONFIG_SETTING,
+        CYTHON_TRACING_ENV_VAR,
+        default=default,
+    )
 
 
 @contextmanager
@@ -107,10 +156,10 @@ def _prebuild_c_extensions(
     :param config_settings: :pep:`517` config settings mapping.
 
     """
-    cython_line_tracing_requested = os.getenv(
-        'ANSIBLE_PYLIBSSH_TRACING',
-        line_trace_cython_when_unset,
-    ) == '1'
+    cython_line_tracing_requested = _include_cython_line_tracing(
+        config_settings,
+        default=line_trace_cython_when_unset,
+    )
 
     build_dir_ctx = nullcontext()
     with build_dir_ctx:

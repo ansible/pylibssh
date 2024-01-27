@@ -26,7 +26,7 @@ src = ["src/**/*.pyx"]
 
 [tool.local.cythonize.env]
 # Env vars provisioned during cythonize call
-#ANSIBLE_PYLIBSSH_TRACING = "1"
+#ANSIBLE_PYLIBSSH_CYTHON_TRACING = "1"
 #CFLAGS = "-DCYTHON_TRACE=1 ${CFLAGS}"
 LDFLAGS = "-lssh ${LDFLAGS}"
 

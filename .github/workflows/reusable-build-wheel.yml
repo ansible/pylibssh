@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ANSIBLE_PYLIBSSH_TRACING: ${{ inputs.cython-tracing }}
+      ANSIBLE_PYLIBSSH_CYTHON_TRACING: ${{ inputs.cython-tracing }}
       DOCKER_EXECUTABLE: podman
       QEMU_ARCH: >-
         ${{

@@ -75,13 +75,10 @@ jobs:
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.16.2
       env:
-        ANSIBLE_PYLIBSSH_TRACING: >-
-          ${{ fromJSON(inputs.cython-tracing) && 1 || 0 }}
         # CIBW_ARCHS_MACOS: all x86_64 arm64 universal2
         CIBW_ARCHS_MACOS: native
-        # CIBW_CONFIG_SETTINGS: >-
-        #   pure-python=false
-        #   with-cython-tracing=${{ inputs.cython-tracing }}
+        CIBW_CONFIG_SETTINGS: >-  # Cython line tracing for coverage collection
+          with-cython-tracing=${{ inputs.cython-tracing }}
 
     - name: Upload built artifacts for testing and publishing
       uses: actions/upload-artifact@v3
