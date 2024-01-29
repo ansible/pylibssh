@@ -8,6 +8,7 @@ import pytest
 
 
 COMMAND_TIMEOUT = 30
+POLL_EXIT_CODE_TIMEOUT = 5
 
 
 @pytest.fixture
@@ -68,3 +69,26 @@ def test_read_bulk_response(ssh_client_session):
             break
 
     assert b'Hello World' in response  # noqa: WPS302
+
+
+def test_request_exec(ssh_channel):
+    """Test direct call to request_exec."""
+    ssh_channel.request_exec('exit 1')
+
+    rc = -1
+    while rc == -1:
+        ssh_channel.poll(timeout=POLL_EXIT_CODE_TIMEOUT)
+        rc = ssh_channel.get_channel_exit_status()
+    assert rc == 1
+
+
+def test_send_eof(ssh_channel):
+    """Test send_eof correctly terminates input stream."""
+    ssh_channel.request_exec('cat')
+    ssh_channel.send_eof()
+
+    rc = -1
+    while rc == -1:
+        ssh_channel.poll(timeout=POLL_EXIT_CODE_TIMEOUT)
+        rc = ssh_channel.get_channel_exit_status()
+    assert rc == 0

@@ -70,6 +70,12 @@ cdef class Channel:
         if rc != libssh.SSH_OK:
             raise LibsshChannelException("Failed to request_shell: [%d]" % rc)
 
+    def request_exec(self, command):
+        """Run a shell command without an interactive shell."""
+        rc = libssh.ssh_channel_request_exec(self._libssh_channel, command.encode("utf-8"))
+        if rc != libssh.SSH_OK:
+            raise LibsshChannelException("Failed to request_exec: [%d]" % rc)
+
     def request_pty(self):
         rc = libssh.ssh_channel_request_pty(self._libssh_channel)
         if rc != libssh.SSH_OK:
@@ -169,6 +175,12 @@ cdef class Channel:
             libssh.ssh_channel_free(channel)
 
         return result
+
+    def send_eof(self):
+        """Send EOF to the channel, this will close stdin."""
+        rc = libssh.ssh_channel_send_eof(self._libssh_channel)
+        if rc != libssh.SSH_OK:
+            raise LibsshChannelException("Failed to ssh_channel_send_eof: [%d]" % rc)
 
     def get_channel_exit_status(self):
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
