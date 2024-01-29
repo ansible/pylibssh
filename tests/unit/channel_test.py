@@ -2,6 +2,7 @@
 
 """Tests suite for channel."""
 
+import signal
 import time
 
 import pytest
@@ -9,6 +10,7 @@ import pytest
 
 COMMAND_TIMEOUT = 30
 POLL_EXIT_CODE_TIMEOUT = 5
+POLL_TIMEOUT = 5000
 
 
 @pytest.fixture
@@ -92,3 +94,24 @@ def test_send_eof(ssh_channel):
         ssh_channel.poll(timeout=POLL_EXIT_CODE_TIMEOUT)
         rc = ssh_channel.get_channel_exit_status()
     assert rc == 0
+
+
+def test_send_signal(ssh_channel):
+    """Test send_signal correctly forwards signal to the process."""
+    ssh_channel.request_exec('bash -c \'trap "exit 1" SIGUSR1; echo ready; sleep 5; exit 0\'')
+
+    # Wait until the process is ready to receive signal
+    output = ''
+    while not output.startswith('ready'):
+        ssh_channel.poll(timeout=POLL_TIMEOUT)
+        output += ssh_channel.recv().decode('utf-8')
+
+    # Send SIGINT
+    ssh_channel.send_signal(signal.SIGUSR1)
+
+    rc = -1
+    while rc == -1:
+        ssh_channel.poll(timeout=POLL_EXIT_CODE_TIMEOUT)
+        rc = ssh_channel.get_channel_exit_status()
+
+    assert rc == 1

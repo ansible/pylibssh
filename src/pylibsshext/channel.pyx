@@ -15,6 +15,7 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
+import signal
 import time
 from io import BytesIO
 
@@ -181,6 +182,21 @@ cdef class Channel:
         rc = libssh.ssh_channel_send_eof(self._libssh_channel)
         if rc != libssh.SSH_OK:
             raise LibsshChannelException("Failed to ssh_channel_send_eof: [%d]" % rc)
+
+    def send_signal(self, sig):
+        """
+        Send signal to the remote process.
+
+        :param sig: a signal constant from ``signal``, e.g. ``signal.SIGUSR1``.
+        :type sig: signal.Signals
+        """
+        if not isinstance(sig, signal.Signals):
+            raise TypeError(f"Expecting signal.Signals not {type(sig)}")
+
+        sshsig = sig.name.replace("SIG", "")  # FIXME: replace w/ `str.removeprefix()` once Python 3.8 support is dropped
+        rc = libssh.ssh_channel_request_send_signal(self._libssh_channel, sshsig.encode("utf-8"))
+        if rc != libssh.SSH_OK:
+            raise LibsshChannelException("Failed to ssh_channel_request_send_signal: [%d]" % rc)
 
     def get_channel_exit_status(self):
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
