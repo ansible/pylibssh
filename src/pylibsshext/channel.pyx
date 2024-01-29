@@ -110,6 +110,9 @@ cdef class Channel:
             # This is what Session._get_session_error_str() does, but we don't have the Python object
             error = libssh.ssh_get_error(<void*>self._libssh_session).decode()
             raise LibsshChannelReadFailure(error)
+        elif nbytes == libssh.SSH_EOF:
+            return None
+
         return <bytes>buffer[:nbytes]
 
     def recv(self, size=1024, stderr=0):
