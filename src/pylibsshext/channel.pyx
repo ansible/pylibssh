@@ -204,6 +204,12 @@ cdef class Channel:
     def get_channel_exit_status(self):
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
 
+    @property
+    def is_eof(self):
+        """True if remote has sent an EOF."""
+        rc = libssh.ssh_channel_is_eof(self._libssh_channel)
+        return rc != 0
+
     def close(self):
         if self._libssh_channel is not NULL:
             libssh.ssh_channel_close(self._libssh_channel)

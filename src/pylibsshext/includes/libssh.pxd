@@ -214,6 +214,7 @@ cdef extern from "libssh/libssh.h" nogil:
     int ssh_channel_get_exit_status(ssh_channel channel)
     int ssh_channel_send_eof(ssh_channel channel)
     int ssh_channel_request_send_signal(ssh_channel channel, const char *sig)
+    int ssh_channel_is_eof(ssh_channel channel)
 
     int ssh_set_log_level(int level)
 

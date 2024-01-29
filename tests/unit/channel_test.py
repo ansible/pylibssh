@@ -127,3 +127,10 @@ def test_recv_eof(ssh_channel):
     ssh_channel.poll(timeout=POLL_TIMEOUT)
     assert ssh_channel.is_eof
     ssh_channel.recv()
+
+
+def test_is_eof(ssh_channel):
+    """Test that EOF-state is correctly obtained with is_eof."""
+    ssh_channel.request_exec('exit 0')
+    ssh_channel.poll(timeout=POLL_TIMEOUT)
+    assert ssh_channel.is_eof
