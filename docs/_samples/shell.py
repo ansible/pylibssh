@@ -25,7 +25,7 @@ print(f'{ssh.is_connected=}')
 if ssh.is_connected:
     ssh_channel = ssh.new_channel()
     try:
-        cmd_resp = ssh_channel.write(b'ls')
+        cmd_resp = ssh_channel.exec_command(b'ls')
         print(f'stdout:\n{cmd_resp.stdout}\n')
         print(f'stderr:\n{cmd_resp.stderr}\n')
         print(f'return code: {cmd_resp.returncode}\n')
