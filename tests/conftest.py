@@ -6,6 +6,7 @@
 import shutil
 import socket
 import subprocess
+from functools import partial
 
 import pytest
 from _service_utils import (  # noqa: WPS436
@@ -105,7 +106,7 @@ def ssh_clientkey_path(sshd_path):
 
 
 @pytest.fixture
-def ssh_client_session(sshd_addr, ssh_clientkey_path):
+def ssh_client_session(ssh_session_connect):
     """Authenticate against SSHD with a private SSH key.
 
     :yields: Pre-authenticated SSH session.
@@ -114,12 +115,29 @@ def ssh_client_session(sshd_addr, ssh_clientkey_path):
     # noqa: DAR101
     """
     ssh_session = Session()
-    ensure_ssh_session_connected(ssh_session, sshd_addr, ssh_clientkey_path)
+    ssh_session_connect(ssh_session)
     try:  # noqa: WPS501
         yield ssh_session
     finally:
         ssh_session.close()
         del ssh_session  # noqa: WPS420
+
+
+@pytest.fixture
+def ssh_session_connect(sshd_addr, ssh_clientkey_path):
+    """
+    Authenticate existing session object against SSHD with a private SSH key.
+
+    It returns a function that takes session as parameter.
+
+    :returns: Function that will connect the session.
+    :rtype: Callback
+    """
+    return partial(
+        ensure_ssh_session_connected,
+        sshd_addr=sshd_addr,
+        ssh_clientkey_path=ssh_clientkey_path,
+    )
 
 
 @pytest.fixture

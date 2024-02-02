@@ -2,10 +2,13 @@
 
 """Tests suite for channel."""
 
+import gc
 import signal
 import time
 
 import pytest
+
+from pylibsshext.session import Session
 
 
 COMMAND_TIMEOUT = 30
@@ -134,3 +137,25 @@ def test_is_eof(ssh_channel):
     ssh_channel.request_exec('exit 0')
     ssh_channel.poll(timeout=POLL_TIMEOUT)
     assert ssh_channel.is_eof
+
+
+def test_destructor(ssh_session_connect):
+    """
+    Garbage collector can destroy session before channel.
+
+    Test that this event does not cause a segfault in channels destructor.
+    """
+    def _do_not_crash():  # noqa: WPS430  # required to create a garbage-collection scope
+        ssh_session = Session()
+        ssh_session_connect(ssh_session)
+        ssh_channel = ssh_session.new_channel()  # noqa: F841  # setting a non-accessed var is needed for testing GC
+
+    # Without fix, garbage collector first deletes session and we segfault
+    # in channel destructor when trying to access low-level C session object.
+    gc.disable()
+    try:  # noqa: WPS229, WPS501  # we need to reenable gc if anything happens
+        gc.collect()
+        _do_not_crash()
+        gc.collect(0)  # the test will segfault without the fix
+    finally:
+        gc.enable()

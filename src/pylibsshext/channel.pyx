@@ -47,6 +47,7 @@ cdef int _process_outputs(libssh.ssh_session session,
 
 cdef class Channel:
     def __cinit__(self, session):
+        self._session = session
         self._libssh_session = get_libssh_session(session)
         self._libssh_channel = libssh.ssh_channel_new(self._libssh_session)
 
