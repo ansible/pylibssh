@@ -1,0 +1,4 @@
+Fixed the example of invoking remote commands by using
+``Channel.exec_command()`` in snippets -- by :user:`pbrezina`.
+
+Its previously showcased version wasn't functional.
