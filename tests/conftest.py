@@ -157,7 +157,7 @@ def ssh_authorized_keys_path(sshd_path, ssh_clientkey_path):
 
 
 @pytest.fixture
-def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_path):
+def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_path, ssh_clientkey_path):
     """Spawn an instance of sshd on a free port.
 
     :raises RuntimeError: If spawning SSHD failed.
@@ -198,7 +198,7 @@ def sshd_addr(free_port_num, ssh_authorized_keys_path, sshd_hostkey_path, sshd_p
     )
     proc = subprocess.Popen(cmd)
 
-    wait_for_svc_ready_state(hostname, free_port_num, b'SSH-2.0-OpenSSH_')
+    wait_for_svc_ready_state(hostname, free_port_num, ssh_clientkey_path)
 
     if proc.returncode:
         raise RuntimeError('sshd boom 💣')
