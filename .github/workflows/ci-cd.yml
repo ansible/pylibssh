@@ -1733,7 +1733,7 @@ jobs:
         Publish a GitHub Release for
         ${{ needs.pre-setup.outputs.git-tag }}
         with Sigstore-signed artifacts
-      uses: ncipollo/release-action@v1.13.0
+      uses: ncipollo/release-action@v1.14.0
       with:
         allowUpdates: false
         artifactErrorsFailBuild: false
