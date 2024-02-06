@@ -20,5 +20,6 @@ from pylibsshext.includes cimport callbacks, libssh
 
 
 cdef class Channel:
+    cdef  _session
     cdef libssh.ssh_channel _libssh_channel
     cdef libssh.ssh_session _libssh_session

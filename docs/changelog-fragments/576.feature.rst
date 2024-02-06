@@ -1,0 +1,7 @@
+The ``request_exec()`` method was added to the ``Channel`` class. It exposes an
+interface for calling the respective low-level C-API of the underlying
+``libssh`` library -- by :user:`pbrezina`.
+
+Additionally, the following calls to ``libssh`` are now available in the same
+class: ``request_exec()``, ``send_eof()``, ``request_send_signal()`` and
+``is_eof`` which is exposed as a :py:class:`property`.

@@ -1,0 +1,7 @@
+|project| no longer crashes when received EOF or when channel is not explicitly
+closed -- by :user:`pbrezina`.
+
+Previously, |project| crashed if ``channel.recv`` was called and ``libssh``
+returned ``SSH_EOF`` error. It also crashed on some special occasions where
+channel was not explicitly closed and the session object was garbage-collected
+first.

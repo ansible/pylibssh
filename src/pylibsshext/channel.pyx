@@ -15,6 +15,7 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
+import signal
 import time
 from io import BytesIO
 
@@ -46,6 +47,7 @@ cdef int _process_outputs(libssh.ssh_session session,
 
 cdef class Channel:
     def __cinit__(self, session):
+        self._session = session
         self._libssh_session = get_libssh_session(session)
         self._libssh_channel = libssh.ssh_channel_new(self._libssh_session)
 
@@ -69,6 +71,12 @@ cdef class Channel:
         rc = libssh.ssh_channel_request_shell(self._libssh_channel)
         if rc != libssh.SSH_OK:
             raise LibsshChannelException("Failed to request_shell: [%d]" % rc)
+
+    def request_exec(self, command):
+        """Run a shell command without an interactive shell."""
+        rc = libssh.ssh_channel_request_exec(self._libssh_channel, command.encode("utf-8"))
+        if rc != libssh.SSH_OK:
+            raise LibsshChannelException("Failed to request_exec: [%d]" % rc)
 
     def request_pty(self):
         rc = libssh.ssh_channel_request_pty(self._libssh_channel)
@@ -103,6 +111,9 @@ cdef class Channel:
             # This is what Session._get_session_error_str() does, but we don't have the Python object
             error = libssh.ssh_get_error(<void*>self._libssh_session).decode()
             raise LibsshChannelReadFailure(error)
+        elif nbytes == libssh.SSH_EOF:
+            return None
+
         return <bytes>buffer[:nbytes]
 
     def recv(self, size=1024, stderr=0):
@@ -170,8 +181,35 @@ cdef class Channel:
 
         return result
 
+    def send_eof(self):
+        """Send EOF to the channel, this will close stdin."""
+        rc = libssh.ssh_channel_send_eof(self._libssh_channel)
+        if rc != libssh.SSH_OK:
+            raise LibsshChannelException("Failed to ssh_channel_send_eof: [%d]" % rc)
+
+    def send_signal(self, sig):
+        """
+        Send signal to the remote process.
+
+        :param sig: a signal constant from ``signal``, e.g. ``signal.SIGUSR1``.
+        :type sig: signal.Signals
+        """
+        if not isinstance(sig, signal.Signals):
+            raise TypeError(f"Expecting signal.Signals not {type(sig)}")
+
+        sshsig = sig.name.replace("SIG", "")  # FIXME: replace w/ `str.removeprefix()` once Python 3.8 support is dropped
+        rc = libssh.ssh_channel_request_send_signal(self._libssh_channel, sshsig.encode("utf-8"))
+        if rc != libssh.SSH_OK:
+            raise LibsshChannelException("Failed to ssh_channel_request_send_signal: [%d]" % rc)
+
     def get_channel_exit_status(self):
         return libssh.ssh_channel_get_exit_status(self._libssh_channel)
+
+    @property
+    def is_eof(self):
+        """True if remote has sent an EOF."""
+        rc = libssh.ssh_channel_is_eof(self._libssh_channel)
+        return rc != 0
 
     def close(self):
         if self._libssh_channel is not NULL:
