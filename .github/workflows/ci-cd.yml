@@ -39,10 +39,11 @@ on:  # yamllint disable-line rule:truthy
       YOLO:
         default: false
         description: >-
-          Flag whether test results should block the
-          release. Only use this under extraordinary
-          circumstances to ignore the test failures
-          and cut the release regardless.
+          Set this flag to disregard the outcome of the
+          test stage. The test results will block the
+          release otherwise. Only use this under
+          extraordinary circumstances to ignore the test
+          failures and cut the release regardless.
         type: boolean
   workflow_run:
     workflows:
@@ -130,6 +131,14 @@ jobs:
       release-requested: >-
         ${{
             steps.request-check.outputs.release-requested || false
+        }}
+      is-yolo-mode: >-
+        ${{
+          (
+            steps.request-check.outputs.release-requested == 'true'
+            && github.event.inputs.YOLO
+          )
+          && true || false
         }}
       profiling-enabled: >-
         ${{ steps.profiling-check.outputs.profiling-enabled || false }}
@@ -1374,7 +1383,7 @@ jobs:
       dist-type: ${{ matrix.dist-type }}
       release-requested: >-
         ${{ needs.pre-setup.outputs.release-requested }}
-      yolo: ${{ github.event.inputs.YOLO }}
+      yolo: ${{ fromJSON(needs.pre-setup.outputs.is-yolo-mode) }}
       cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
@@ -1413,7 +1422,7 @@ jobs:
       dist-type: ${{ matrix.dist-type }}
       release-requested: >-
         ${{ needs.pre-setup.outputs.release-requested }}
-      yolo: ${{ github.event.inputs.YOLO }}
+      yolo: ${{ fromJSON(needs.pre-setup.outputs.is-yolo-mode) }}
       cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
@@ -1507,6 +1516,7 @@ jobs:
     - build-rpms
     - dist-meta
     - lint
+    - pre-setup  # transitive, for accessing settings
     - test-linux
     - test-macos
 
@@ -1516,6 +1526,12 @@ jobs:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@release/v1
       with:
+        allowed-failures: >-
+          ${{
+            fromJSON(needs.pre-setup.outputs.is-yolo-mode)
+            && 'build-rpms, lint, test-linux, test-macos'
+            || ''
+          }}
         jobs: ${{ toJSON(needs) }}
 
   publish-pypi:

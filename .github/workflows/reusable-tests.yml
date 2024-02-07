@@ -69,8 +69,8 @@ jobs:
     continue-on-error: >-
       ${{
           (
-            fromJSON(inputs.release-requested) &&
-            !inputs.YOLO
+            fromJSON(inputs.release-requested)
+            && !fromJSON(inputs.yolo)
           ) && true || false
       }}
 
