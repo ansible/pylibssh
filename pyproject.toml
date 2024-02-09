@@ -149,7 +149,7 @@ profile = "True"
 [tool.cibuildwheel]
 build-frontend = "build"
 test-requires = "pytest pytest-cov pytest-xdist pytest-forked"
-test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
+test-command = "python -Im pytest -m smoke --no-cov -n 0 {project}/tests"
 skip = "pp*"
 
 [tool.cibuildwheel.environment]
@@ -163,6 +163,32 @@ PIP_NO_PYTHON_VERSION_WARNING = "1"
 PIP_NO_WARN_SCRIPT_LOCATION = "1"
 PRE_COMMIT_COLOR = "always"
 PY_COLORS = "1"
+
+[tool.cibuildwheel.linux]
+before-build = [
+  "env",
+  "export",
+]
+manylinux-aarch64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_aarch64:libssh-v0.9.6"
+manylinux-ppc64le-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_ppc64le:libssh-v0.9.6"
+manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0.9.6"
+manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.9.6"
+skip = [
+  "*-musllinux_*",  # FIXME: musllinux needs us to provide with containers pre-built libssh
+  "pp*",  # FIXME: we don't ship these currently but could
+
+  # The support for 32-bit wheels has been dropped long ago:
+  "*-manylinux_i686",
+  "*-musllinux_i686",
+]
+
+[tool.cibuildwheel.linux.environment]
+STATIC_DEPS_DIR = "$(cat /root/.static-deps-path)"
+# LDFLAGS = "'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
+# LD_LIBRARY_PATH = "${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:${LD_LIBRARY_PATH}"
+CFLAGS="'-I$(cat /root/.static-deps-path)/include'"
+LDFLAGS = "'-L$(cat /root/.static-deps-path)/lib64' '-L$(cat /root/.static-deps-path)/lib'"
+LD_LIBRARY_PATH = "$(cat /root/.static-deps-path)/lib64:$(cat /root/.static-deps-path)/lib:${LD_LIBRARY_PATH}"
 
 [tool.cibuildwheel.macos]
 before-build = [

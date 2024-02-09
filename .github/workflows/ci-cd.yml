@@ -649,6 +649,54 @@ jobs:
           || 'false'
         }}
 
+  build-bin-manylinux-tested-arches-cibuildwheel:
+    name: >-
+      [cibuildwheel] 📦 ${{ needs.pre-setup.outputs.git-tag }}
+      [mode: ${{
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        && 'nightly' || ''
+      }}${{
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        && 'release' || ''
+      }}${{
+        (
+          !fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+          && !fromJSON(needs.pre-setup.outputs.release-requested)
+        ) && 'test' || ''
+      }}] manylinux
+    needs:
+    - build-src
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        os:
+        - ubuntu
+    uses: ./.github/workflows/reusable-cibuildwheel.yml
+    with:
+      os: ${{ matrix.os }}
+      wheel-tags-to-skip: >-
+        ${{
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+        && '*_i686
+        *-macosx_universal2
+        *-musllinux_*
+        *-win32
+        *_arm64
+        pp*'
+        || ''
+        }}
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      qemu: all
+      cython-tracing: >-  # Cython line tracing for coverage collection
+        ${{
+          fromJSON(needs.pre-setup.outputs.profiling-enabled)
+          && 'true'
+          || 'false'
+        }}
+
   build-bin-manylinux-tested-arches:
     name: >-
       📦 ${{ needs.pre-setup.outputs.git-tag }}
