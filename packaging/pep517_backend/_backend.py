@@ -8,7 +8,7 @@ import os
 import typing as t  # noqa: WPS111
 from contextlib import contextmanager, suppress
 from pathlib import Path
-from shutil import copytree
+from shutil import copytree, ignore_patterns
 from sys import version_info as _python_version_tuple
 from tempfile import TemporaryDirectory
 
@@ -195,9 +195,13 @@ def patched_dist_get_long_description():
 @contextmanager
 def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
     with TemporaryDirectory(prefix='.tmp-ansible-pylibssh-pep517-') as tmp_dir:
+        # Make sure we do not copy src_dir into src_dir, that would create
+        # infinite recursion. This happens during rpmbuild were TMPDIR
+        # environment variable is set to src_dir/.pyproject-build.
+        ignore = ignore_patterns(Path(tmp_dir).name)
         with chdir_cm(tmp_dir):
             tmp_src_dir = Path(tmp_dir) / 'src'
-            copytree(src_dir, tmp_src_dir, symlinks=True)
+            copytree(src_dir, tmp_src_dir, symlinks=True, ignore=ignore)
             os.chdir(tmp_src_dir)
             yield
 
