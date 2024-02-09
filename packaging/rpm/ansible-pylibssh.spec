@@ -62,6 +62,8 @@ Source24: %{pypi_source tomli 1.2.3}
 BuildRequires: openssh
 # sshd?
 BuildRequires: openssh-server
+# ssh?
+BuildRequires: openssh-clients
 # RHEL or CentOS:
 %if 0%{?rhel}
 BuildRequires: python3dist(pytest)
