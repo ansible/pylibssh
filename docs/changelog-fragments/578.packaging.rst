@@ -1,0 +1,1 @@
+Fixed issues that prevented RPM from building -- by :user:`pbrezina`.
