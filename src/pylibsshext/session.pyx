@@ -243,6 +243,16 @@ cdef class Session(object):
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
                 self.set_ssh_options(key, kwargs[key])
 
+        if 'config_file' in kwargs:
+            file_name = kwargs['config_file']
+            rc = libssh.ssh_options_parse_config(self._libssh_session, file_name.encode())
+            if rc != libssh.SSH_OK or self._get_session_error_str() != "":
+                libssh.ssh_disconnect(self._libssh_session)
+                raise LibsshSessionException(
+                    "parsing ssh config failed: %s: %s" %
+                    (file_name, self._get_session_error_str())
+                )
+
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
             raise LibsshSessionException("ssh connect failed: %s" % self._get_session_error_str())
