@@ -198,7 +198,7 @@ def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
         # Make sure we do not copy src_dir into src_dir, that would create
         # infinite recursion. This happens during rpmbuild were TMPDIR
         # environment variable is set to src_dir/.pyproject-build.
-        ignore = ignore_patterns(Path(tmp_dir).name)
+        ignore = ignore_patterns(Path(tmp_dir).name, '.tox')
         with chdir_cm(tmp_dir):
             tmp_src_dir = Path(tmp_dir) / 'src'
             copytree(src_dir, tmp_src_dir, symlinks=True, ignore=ignore)
