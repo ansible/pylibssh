@@ -90,7 +90,7 @@ jobs:
         --reset -p yes
     - name: Build the image with Buildah
       id: build-image
-      uses: redhat-actions/buildah-build@v2.12
+      uses: redhat-actions/buildah-build@v2.13
       with:
         arch: linux/${{ env.QEMU_ARCH }}
         image: ${{ env.FULL_IMAGE_NAME }}
