@@ -151,7 +151,7 @@ jobs:
       shell: python
     - name: Set up pip cache
       if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@v4.0.2
       with:
         path: >-
           ${{
