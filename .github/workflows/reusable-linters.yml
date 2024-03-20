@@ -56,7 +56,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Pre-commit cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@v4.0.2
       with:
         path: ~/.cache/pre-commit
         key: >-
@@ -67,7 +67,7 @@ jobs:
           hashFiles('.pre-commit-config.yaml') }}-${{
           hashFiles('pytest.ini') }}
     - name: Pip cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@v4.0.2
       with:
         path: ~/.cache/pip
         key: >-
