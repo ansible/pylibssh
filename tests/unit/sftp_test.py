@@ -24,7 +24,7 @@ if _t.TYPE_CHECKING:
 import pytest
 
 from pylibsshext.errors import LibsshSFTPException
-from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK
+from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK, SFTP_MAX_CHUNK_LIMIT
 
 
 SMALL_PAYLOAD = 32
@@ -57,6 +57,12 @@ def sftp_session(ssh_client_session: Session) -> _t.Iterator[SFTP]:
             # at least two rounds of reading/writing
             SFTP_MAX_CHUNK + 1,
             id='large-payload',
+        ),
+        pytest.param(
+            # 1B larger than any limits advertised by SFTP servers
+            # passing this directly on wire will not be handled by server
+            SFTP_MAX_CHUNK_LIMIT + 1,
+            id='huge-payload',
         ),
     ),
 )
