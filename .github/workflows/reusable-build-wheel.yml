@@ -93,7 +93,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v5.1.1
+      uses: actions/setup-python@v5.2.0
       with:
         python-version: 3.11
 

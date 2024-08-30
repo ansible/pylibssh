@@ -103,7 +103,7 @@ jobs:
         }} libssh-dev
     - name: Switch 🐍 to v${{ inputs.python-version }}
       id: python-install
-      uses: actions/setup-python@v5.1.1
+      uses: actions/setup-python@v5.2.0
       with:
         python-version: ${{ inputs.python-version }}
 
