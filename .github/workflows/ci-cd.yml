@@ -275,7 +275,7 @@ jobs:
     - name: Set up pip cache
       if: >-
         steps.request-check.outputs.release-requested != 'true'
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.1
       with:
         path: >-
           ${{
@@ -468,7 +468,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.1
       with:
         path: >-
           ${{
@@ -911,7 +911,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.1
       with:
         path: >-
           ${{
@@ -1429,7 +1429,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.1
       with:
         path: >-
           ${{
@@ -1922,7 +1922,7 @@ jobs:
             print(f'py-hash-key={hash}', file=outputs_file)
       shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4.1.1
       with:
         path: >-
           ${{
