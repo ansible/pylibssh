@@ -95,7 +95,7 @@ cdef class Channel:
     def request_subsystem(self, subsystem):
         rc = libssh.ssh_channel_request_subsystem(self._libssh_channel, subsystem.encode("utf-8"))
         if rc != libssh.SSH_OK:
-            raise LibsshChannelException("Failed to request subsystem: [%d]" % rc)
+            raise LibsshChannelException("Failed to request subsystem %s: [%d]" % (subsystem, rc))
 
     def poll(self, timeout=-1, stderr=0):
         if timeout < 0:
