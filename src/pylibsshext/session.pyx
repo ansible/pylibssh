@@ -513,6 +513,11 @@ cdef class Session(object):
     def invoke_shell(self):
         return self.new_shell_channel()
 
+    def invoke_subsystem(self, subsystem):
+        channel = self.new_channel()
+        channel.request_subsystem(subsystem)
+        return channel
+
     def scp(self):
         return SCP(self)
 
