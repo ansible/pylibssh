@@ -202,7 +202,7 @@ cdef extern from "libssh/libssh.h" nogil:
     int ssh_channel_open_session(ssh_channel channel)
     int ssh_channel_request_pty(ssh_channel channel)
     int ssh_channel_request_pty_size(ssh_channel channel, const char *term, int cols, int rows)
-    int ssh_channel_request_subsystem   (ssh_channel channel, const char *subsys )
+    int ssh_channel_request_subsystem(ssh_channel channel, const char *subsys)
     int ssh_channel_request_shell(ssh_channel channel)
     int ssh_channel_is_open(ssh_channel channel)
     int ssh_channel_write(ssh_channel channel, const void *data, uint32_t len)
