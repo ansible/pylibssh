@@ -11,7 +11,6 @@ from functools import partial
 from pathlib import Path
 from shutil import copytree
 from sys import stderr as _standard_error_stream
-from sys import version_info as _python_version_tuple
 from tempfile import TemporaryDirectory
 
 from setuptools.build_meta import (  # noqa: F401
@@ -91,11 +90,6 @@ CYTHON_TRACING_ENV_VAR = 'ANSIBLE_PYLIBSSH_CYTHON_TRACING'  # noqa: WPS462
 """
 Environment variable name toggle used to opt out of making C-exts.
 """  # noqa: WPS322, WPS428
-
-IS_PY3_12_PLUS = _python_version_tuple[:2] >= (3, 12)  # noqa: WPS462
-"""
-A flag meaning that the current runtime is Python 3.12 or higher.
-"""  # noqa: WPS322 WPS428
 
 
 def _is_truthy_setting_value(setting_value: str) -> bool:
@@ -333,8 +327,9 @@ def get_requires_for_build_wheel(
 
     """
     c_ext_build_deps = [
-        'Cython >= 3.0.0b3' if IS_PY3_12_PLUS  # Only Cython 3+ is compatible
-        else 'Cython',
+        'Cython >= 3.0.12; python_version >= "3.13"',  # Ideally >= 3.1.0
+        'Cython >= 3.0.0; python_version >= "3.12" and python_version < "3.13"',
+        'Cython; python_version < "3.12"',
     ]
 
     return _setuptools_get_requires_for_build_wheel(
