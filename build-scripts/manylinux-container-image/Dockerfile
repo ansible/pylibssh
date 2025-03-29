@@ -1,5 +1,5 @@
 ARG RELEASE
-FROM quay.io/pypa/${RELEASE}
+FROM quay.io/pypa/${RELEASE}:2025.01.19-2
 ARG RELEASE
 ARG LIBSSH_VERSION=0.9.6
 MAINTAINER Python Cryptographic Authority
