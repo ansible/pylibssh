@@ -158,6 +158,7 @@ jobs:
       git-tag: ${{ steps.git-tag.outputs.tag }}
       sdist-artifact-name: ${{ steps.artifact-name.outputs.sdist }}
       wheel-artifact-name: ${{ steps.artifact-name.outputs.wheel }}
+      is-debug-mode: ${{ runner.debug == '1' && false || true }}
       changelog-patch-name: ${{ steps.changelog-patch-name.outputs.filename }}
       changelog-draft-name-md: >-
         ${{ steps.changelog-draft-name.outputs.filename-base }}.md
@@ -626,6 +627,12 @@ jobs:
     - build-src
     - pre-setup  # transitive, for accessing settings
     strategy:
+      fail-fast: >-  # ${{ runner.debug }} is unavailable in this context
+        ${{
+          fromJSON(needs.pre-setup.outputs.is-debug-mode)
+          && false
+          || true
+        }}
       matrix:
         os:
         - macos-13
@@ -762,6 +769,12 @@ jobs:
     timeout-minutes: 2
 
     strategy:
+      fail-fast: >-  # ${{ runner.debug }} is unavailable in this context
+        ${{
+          fromJSON(needs.pre-setup.outputs.is-debug-mode)
+          && false
+          || true
+        }}
       matrix:
         python-version:
         - >-
@@ -961,6 +974,12 @@ jobs:
     - build-src
     - pre-setup  # transitive, for accessing settings
     strategy:
+      fail-fast: >-  # ${{ runner.debug }} is unavailable in this context
+        ${{
+          fromJSON(needs.pre-setup.outputs.is-debug-mode)
+          && false
+          || true
+        }}
       matrix:
         target-container:
         - tag: fedora:39
@@ -1234,6 +1253,12 @@ jobs:
     - build-src
     - pre-setup  # transitive, for accessing settings
     strategy:
+      fail-fast: >-  # ${{ runner.debug }} is unavailable in this context
+        ${{
+          fromJSON(needs.pre-setup.outputs.is-debug-mode)
+          && false
+          || true
+        }}
       matrix:
         python-version:
         - "3.12"
@@ -1271,6 +1296,12 @@ jobs:
     - build-src
     - pre-setup  # transitive, for accessing settings
     strategy:
+      fail-fast: >-  # ${{ runner.debug }} is unavailable in this context
+        ${{
+          fromJSON(needs.pre-setup.outputs.is-debug-mode)
+          && false
+          || true
+        }}
       matrix:
         python-version:
         - "3.12"

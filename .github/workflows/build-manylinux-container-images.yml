@@ -19,12 +19,43 @@ on:  # yamllint disable-line rule:truthy
     - build-scripts/manylinux-container-image/**
 
 jobs:
+  pre-setup:
+    name: ⚙️ Pre-set global build settings
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 1
+
+    defaults:
+      run:
+        shell: python
+
+    outputs:
+      # NOTE: These aren't env vars because the `${{ env }}` context is
+      # NOTE: inaccessible when passing inputs to reusable workflows.
+      is-debug-mode: ${{ runner.debug == '1' && false || true }}
+
+    steps:
+    - name: No-op so that the computations can happen in the outputs
+      if: fromJSON(false)
+      run: |
+        print('No-op')
+
   build:
+    needs:
+    - pre-setup
+
     runs-on: ubuntu-latest
 
     timeout-minutes: 120
 
     strategy:
+      fail-fast: >-  # ${{ runner.debug }} is unavailable in this context
+        ${{
+          fromJSON(needs.pre-setup.outputs.is-debug-mode)
+          && false
+          || true
+        }}
       matrix:
         IMAGE:
         # Build containers for x86_64
