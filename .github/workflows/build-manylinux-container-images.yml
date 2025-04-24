@@ -33,7 +33,7 @@ jobs:
     outputs:
       # NOTE: These aren't env vars because the `${{ env }}` context is
       # NOTE: inaccessible when passing inputs to reusable workflows.
-      is-debug-mode: ${{ runner.debug == '1' && false || true }}
+      is-debug-mode: ${{ toJSON(runner.debug == '1') }}
 
     steps:
     - name: No-op so that the computations can happen in the outputs
