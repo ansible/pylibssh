@@ -1,0 +1,9 @@
+The CI will now stop auto-cancelling matrix jobs on failures
+when debug mode is requested. This requires restarting the
+entire workflow run because this flag is computed in the
+very first job.
+
+Debug mode can be requested through the restart button or by
+setting supported repository variable or secret values.
+
+-- by :user:`webknjaz`
