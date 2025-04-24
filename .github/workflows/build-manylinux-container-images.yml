@@ -45,28 +45,32 @@ jobs:
         # Build containers for ppc64
         # - ARCH: ppc64
         YEAR:
-        - 2014
-        - _2_24  # PEP 600
-        - _2_28
+        - VALUE: 2014
+          TAG: 2025.01.19-2
+        - VALUE: _2_24  # PEP 600
+        - VALUE: _2_28
+          TAG: 2025.01.19-2
         include:
         - IMAGE:
             ARCH: x86_64
             QEMU_ARCH: amd64
-          YEAR: 1
+          YEAR:
+            VALUE: 1
         - IMAGE:
             ARCH: x86_64
             QEMU_ARCH: amd64
-          YEAR: 2010
+          YEAR:
+            VALUE: 2010
 
     env:
       LIBSSH_VERSION: 0.9.6
       PYPA_MANYLINUX_TAG: >-
-        manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
+        manylinux${{ matrix.YEAR.VALUE }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
         ${{
           github.repository
         }}-manylinux${{
-          matrix.YEAR
+          matrix.YEAR.VALUE
         }}_${{
           matrix.IMAGE.ARCH
         }}
@@ -78,7 +82,7 @@ jobs:
 
     name: >-  # can't use `env` in this context:
       🐳
-      manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      manylinux${{ matrix.YEAR.VALUE }}_${{ matrix.IMAGE.ARCH }}
     steps:
     - name: Fetch the repo src
       uses: actions/checkout@v4.1.6
@@ -108,6 +112,7 @@ jobs:
         build-args: |
           LIBSSH_VERSION=${{ env.LIBSSH_VERSION }}
           RELEASE=${{ env.PYPA_MANYLINUX_TAG }}
+          TAG=${{ matrix.YEAR.TAG || 'latest' }}
     - name: Push to GitHub Container Registry
       if: >-
         (github.event_name == 'push' || github.event_name == 'schedule')
