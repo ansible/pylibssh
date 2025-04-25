@@ -51,17 +51,6 @@ jobs:
         - VALUE: _2_24  # PEP 600
         - VALUE: _2_28
           TAG: 2025.01.19-2
-        include:
-        - IMAGE:
-            ARCH: x86_64
-            QEMU_ARCH: amd64
-          YEAR:
-            VALUE: 1
-        - IMAGE:
-            ARCH: x86_64
-            QEMU_ARCH: amd64
-          YEAR:
-            VALUE: 2010
 
     env:
       LIBSSH_VERSION: 0.9.6
