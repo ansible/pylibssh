@@ -141,7 +141,6 @@ repos:
           |install_libssh
           |install-userspace-tools
           |openssl-version
-          |install_perl
           |install_zlib
         )\.sh
       $
@@ -160,7 +159,6 @@ repos:
           |install_libssh
           |install-userspace-tools
           |openssl-version
-          |install_perl
           |install_zlib
         )\.sh
       $
