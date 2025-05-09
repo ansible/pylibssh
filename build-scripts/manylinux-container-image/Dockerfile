@@ -26,6 +26,28 @@ RUN \
     fi; \
   fi
 
+RUN \
+  if [ $(uname -m) = "x86_64" ]; \
+  then \
+    if stat /etc/redhat-release 1>&2 2>/dev/null; then \
+      yum -y install binutils perl perl-IPC-Cmd && \
+      yum -y clean all && \
+      rm -rf /var/cache/yum; \
+    fi; \
+  fi
+
+# This is done as two separate steps because readelf (binutils) is not available on
+# aarch64.
+RUN \
+  if [ $(uname -m) = "aarch64" ]; \
+  then \
+    if stat /etc/redhat-release 1>&2 2>/dev/null; then \
+      yum -y install perl perl-IPC-Cmd && \
+      yum -y clean all && \
+      rm -rf /var/cache/yum; \
+    fi; \
+  fi
+
 ADD build_utils.sh /root/build_utils.sh
 ADD install_perl.sh /root/install_perl.sh
 RUN ./install_perl.sh "${RELEASE}"
