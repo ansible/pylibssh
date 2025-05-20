@@ -164,10 +164,10 @@ jobs:
       changelog-draft-name-rst: >-
         ${{ steps.changelog-draft-name.outputs.filename-base }}.rst
     steps:
-    - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v5.3.0
+    - name: Switch to using Python 3.12 by default
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: 3.12
     - name: >-
         Mark the build as untagged '${{
             github.event.repository.default_branch
@@ -439,10 +439,10 @@ jobs:
       TOXENV: make-changelog
 
     steps:
-    - name: Switch to using Python 3.11
-      uses: actions/setup-python@v5.3.0
+    - name: Switch to using Python 3.12
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: 3.12
 
     - name: Grab the source from Git
       uses: actions/checkout@v4.1.6
@@ -765,7 +765,7 @@ jobs:
       matrix:
         python-version:
         - >-
-          3.11
+          3.12
         - >-
           3.10
         - 3.9
@@ -784,7 +784,7 @@ jobs:
 
     steps:
     - name: Switch to using Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5.3.0
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -1308,10 +1308,10 @@ jobs:
       TOXENV: metadata-validation
 
     steps:
-    - name: Switch to using Python 3.11 by default
-      uses: actions/setup-python@v5.3.0
+    - name: Switch to using Python 3.12 by default
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: 3.12
 
     - name: Retrieve the project source from an sdist inside the GHA artifact
       uses: re-actors/checkout-python-sdist@release/v2
@@ -1820,10 +1820,10 @@ jobs:
         path: dist/
         merge-multiple: true
 
-    - name: Switch to Python 3.11
-      uses: actions/setup-python@v5.3.0
+    - name: Switch to Python 3.12
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: 3.12
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
