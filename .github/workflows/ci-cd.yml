@@ -765,12 +765,14 @@ jobs:
       matrix:
         python-version:
         - >-
+          3.13
+        - >-
           3.12
         - >-
           3.10
         - 3.9
         runner-vm-os:
-        - ubuntu-22.04
+        - ubuntu-24.04
         store-sdist-to-artifact:
         - false
         include:
