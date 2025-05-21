@@ -48,6 +48,7 @@ jobs:
         - 2014
         - _2_24  # PEP 600
         - _2_28
+        - _2_31  # Latest manylinux
         include:
         - IMAGE:
             ARCH: x86_64
@@ -59,7 +60,7 @@ jobs:
           YEAR: 2010
 
     env:
-      LIBSSH_VERSION: 0.9.6
+      LIBSSH_VERSION: 0.10.5  # Updated libssh version
       PYPA_MANYLINUX_TAG: >-
         manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-
