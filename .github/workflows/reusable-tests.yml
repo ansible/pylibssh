@@ -1,8 +1,7 @@
 ---
-
 name: ♲ 🧪
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       python-version:
@@ -45,15 +44,15 @@ on:  # yamllint disable-line rule:truthy
         required: true
 
 env:
-  FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
-  MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
+  FORCE_COLOR: 1 # Request colored output from CLI tools supporting it
+  MYPY_FORCE_COLOR: 1 # MyPy's color enforcement
   PIP_DISABLE_PIP_VERSION_CHECK: 1
   PIP_NO_PYTHON_VERSION_WARNING: 1
   PIP_NO_WARN_SCRIPT_LOCATION: 1
   PROJECT_NAME: ansible-pylibssh
-  PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
+  PY_COLORS: 1 # Recognized by the `py` package, dependency of `pytest`
   TOX_PARALLEL_NO_SPINNER: 1
-  TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
+  TOX_TESTENV_PASSENV: >- # Make tox-wrapped tools see color requests
     FORCE_COLOR
     MYPY_FORCE_COLOR
     NO_COLOR
@@ -62,7 +61,6 @@ env:
     PYTEST_THEME_MODE
   TOX_VERSION: tox
 
-
 jobs:
   test-linux:
     name: >-
@@ -70,7 +68,6 @@ jobs:
       |
       ${{ inputs.dist-type }} dist
     runs-on: ${{ inputs.runner-vm-os }}
-
     timeout-minutes: 7
 
     continue-on-error: >-
@@ -86,283 +83,273 @@ jobs:
       TOXENV: py
 
     steps:
-    - name: Install build toolchain and openssl headers on Linux
-      if: >-
-        inputs.dist-type == 'source' &&
-        runner.os == 'Linux'
-      run: sudo apt update && sudo apt install build-essential libssl-dev
-    - name: Install libssh and openssl headers on macOS
-      if: >-
-        runner.os == 'macOS'
-      run: brew install libssh
-    - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
-      if: >-
-        runner.os == 'Linux'
-      run: sudo apt update && sudo apt install glibc-tools libssh-dev
-    - name: Switch 🐍 to v${{ inputs.python-version }}
-      id: python-install
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.python-version }}
+      - name: Install build toolchain and openssl headers on Linux
+        if: >-
+          inputs.dist-type == 'source' &&
+          runner.os == 'Linux'
+        run: sudo apt update && sudo apt install build-essential libssl-dev
+      - name: Install libssh and openssl headers on macOS
+        if: >-
+          runner.os == 'macOS'
+        run: brew install libssh
+      - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
+        if: >-
+          runner.os == 'Linux'
+        run: sudo apt update && sudo apt install glibc-tools libssh-dev
+      - name: Switch 🐍 to v${{ inputs.python-version }}
+        id: python-install
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
 
-    - name: Retrieve the project source from an sdist inside the GHA artifact
-      uses: re-actors/checkout-python-sdist@release/v2
-      with:
-        source-tarball-name: ${{ inputs.source-tarball-name }}
-        workflow-artifact-name: ${{ inputs.dists-artifact-name }}
+      - name: Retrieve the project source from an sdist inside the GHA artifact
+        uses: re-actors/checkout-python-sdist@release/v2
+        with:
+          source-tarball-name: ${{ inputs.source-tarball-name }}
+          workflow-artifact-name: ${{ inputs.dists-artifact-name }}
 
-    - name: Figure out if the interpreter ABI is stable
-      id: py-abi
-      run: |
-        from os import environ
-        from pathlib import Path
-        from sys import version_info
+      - name: Figure out if the interpreter ABI is stable
+        id: py-abi
+        run: |
+          from os import environ
+          from pathlib import Path
+          from sys import version_info
 
-        FILE_APPEND_MODE = 'a'
+          FILE_APPEND_MODE = 'a'
 
-        is_stable_abi = version_info.releaselevel == 'final'
+          is_stable_abi = version_info.releaselevel == 'final'
 
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(
-                'is-stable-abi={is_stable_abi}'.
-                format(is_stable_abi=str(is_stable_abi).lower()),
-                file=outputs_file,
-            )
-      shell: python
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
+          with Path(environ['GITHUB_OUTPUT']).open(
+                  mode=FILE_APPEND_MODE,
+          ) as outputs_file:
+              print(
+                  'is-stable-abi={is_stable_abi}'.
+                  format(is_stable_abi=str(is_stable_abi).lower()),
+                  file=outputs_file,
+              )
+        shell: python
+      - name: >-
+          Calculate Python interpreter version hash value
+          for use in the cache key
+        if: fromJSON(steps.py-abi.outputs.is-stable-abi)
+        id: calc-cache-key-py
+        run: |
+          from hashlib import sha512
+          from os import environ
+          from pathlib import Path
+          from sys import version
 
-        FILE_APPEND_MODE = 'a'
+          FILE_APPEND_MODE = 'a'
 
-        hash = sha512(version.encode()).hexdigest()
+          hash = sha512(version.encode()).hexdigest()
 
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
-    - name: Set up pip cache
-      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@v4
-      with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          inputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+          with Path(environ['GITHUB_OUTPUT']).open(
+                  mode=FILE_APPEND_MODE,
+          ) as outputs_file:
+              print(f'py-hash-key={hash}', file=outputs_file)
+        shell: python
+      - name: Set up pip cache
+        if: fromJSON(steps.py-abi.outputs.is-stable-abi)
+        uses: actions/cache@v4
+        with:
+          path: >-
+            ${{
+                runner.os == 'Linux'
+                && '~/.cache/pip'
+                || '~/Library/Caches/pip'
+            }}
+          key: >-
+            ${{ runner.os }}-pip-${{
+            steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+            inputs.cache-key-files }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{
+              steps.calc-cache-key-py.outputs.py-hash-key
+            }}-
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
 
-    - name: Upgrade pip with `requires_python`
-      run: >-
-        python -m
-        pip install
-        --user
-        --upgrade
-        --force-reinstall
-        pip-with-requires-python
-    - name: Install tox
-      run: >-
-        python -m
-        pip install
-        --user
-        '${{ env.TOX_VERSION }}'
+      - name: Upgrade pip with `requires_python`
+        run: >-
+          python -m
+          pip install
+          --user
+          --upgrade
+          --force-reinstall
+          pip-with-requires-python
+      - name: Install tox
+        run: >-
+          python -m
+          pip install
+          --user
+          '${{ env.TOX_VERSION }}'
 
-    - name: Download all the dists
-      uses: actions/download-artifact@v4
-      with:
-        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
-        path: dist/
-        merge-multiple: true
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+          path: dist/
+          merge-multiple: true
 
-    - name: Debug - List downloaded dist files
-      run: |
-        echo "Contents of dist/ directory:"
-        ls -la dist/ || echo "No dist directory found"
-        echo -e "\nLooking for wheel files:"
-        find dist/ -name '*.whl' -ls || echo "No wheel files found"
-        echo -e "\nLooking for source distributions:"
-        find dist/ -name '*.tar.gz' -ls || echo "No source distributions found"
+      - name: Debug - List downloaded dist files
+        run: |
+          echo "Contents of dist/ directory:"
+          ls -la dist/ || echo "No dist directory found"
+          echo -e "\nLooking for wheel files:"
+          find dist/ -name '*.whl' -ls || echo "No wheel files found"
+          echo -e "\nLooking for source distributions:"
+          find dist/ -name '*.tar.gz' -ls || echo "No source distributions found"
 
-    - name: Determine pre-compiled compatible wheel
-      env:
-        # NOTE: When `pip` is forced to colorize output piped into `jq`,
-        # NOTE: the latter can't parse it. So we're overriding the color
-        # NOTE: preference here via https://no-color.org.
-        # NOTE: Setting `FORCE_COLOR` to any value (including 0, an empty
-        # NOTE: string, or a "YAML null" `~`) doesn't have any effect and
-        # NOTE: `pip` (through its verndored copy of `rich`) treats the
-        # NOTE: presence of the variable as "force-color" regardless.
-        #
-        # NOTE: This doesn't actually work either, so we'll resort to unsetting
-        # NOTE: in the Bash script.
-        # NOTE: Ref: https://github.com/Textualize/rich/issues/2622
-        NO_COLOR: 1
-      if: inputs.dist-type == 'binary'
-      id: wheel-file
-      run: |
-        # Debug: Show environment variables
-        echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
-        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-        echo "PWD: $(pwd)"
-        
-        # Debug: Show pip version and configuration
-        echo -e "\n=== Pip Configuration ==="
-        python -m pip --version
-        
-        echo -e "\n=== Running wheel detection command ==="
-        python -X utf8 -u -I -m pip install --find-links=./dist --no-index ansible-pylibssh --force-reinstall --no-color --no-deps --only-binary=:all: --dry-run --report=- --verbose | tee pip_debug.log
-        if jq empty pip_debug.log 2>/dev/null; then
-          jq --raw-output '.install[].download_info.url // ""' < pip_debug.log | grep -v '^$' | head -1 | sed -e 's#^file://##' -e s#%2B#+#
-        else
-          echo "No valid JSON output from pip, see pip_debug.log for details"
-          exit 1
-        fi
-        python -m pip config list
-        
-        # Debug: Show contents of dist/ directory
-        echo -e "\n=== Contents of dist/ directory ==="
-        ls -la dist/ 2>/dev/null || echo "dist/ directory does not exist"
-        
-        # Debug: Try to list available distributions
-        echo -e "\n=== Available distributions ==="
-        python -m pip list --no-cache-dir --no-python-version-warning --no-color --format=json --find-links=./dist || true
-        
-        # Debug: Try to find the wheel file directly
-        echo -e "\n=== Looking for wheel files ==="
-        find dist/ -name '*.whl' -ls 2>/dev/null || echo "No wheel files found"
-        
-        # Run the actual command with more verbose output
-        echo -e "\n=== Running wheel detection command ==="
-        set -x  # Enable command echoing
-        
-        # Store the output in a variable for debugging
-        WHEEL_PATH=$(
-          python \
-            -X utf8 \
-            -u -I \
-            -m pip install \
-            --find-links=./dist \
-            --no-index \
-            "${{ env.PROJECT_NAME }}" \
-            --force-reinstall \
-            --no-color \
-            --no-deps \
-            --only-binary=:all: \
-            --dry-run \
-            --report=- \
-            --verbose 2>&1 \
-            | tee pip_debug.log \
-            | jq --raw-output '.install[].download_info.url // ""' \
-            | grep -v '^$' \
-            | head -1 \
-            | sed -e 's#^file://##' -e 's#%2B#+#'
-        )
-        
-        set +x  # Disable command echoing
-        
-        # Debug: Show the found wheel path
-        echo -e "\n=== Found wheel path ==="
-        echo "$WHEEL_PATH"
-        
-        # If no wheel found, show the pip debug log
-        if [ -z "$WHEEL_PATH" ]; then
-          echo -e "\n=== Pip debug log ==="
-          cat pip_debug.log || true
-          echo -e "\n=== No wheel found, listing all files in dist/ ==="
-          find dist/ -type f -ls || true
-        fi
-        
-        # Output the result (empty if no wheel found)
-        echo "path=$WHEEL_PATH" | tee -a "${GITHUB_OUTPUT}"
-      shell: bash
+      - name: Determine pre-compiled compatible wheel
+        env:
+          # NOTE: When `pip` is forced to colorize output piped into `jq`,
+          # NOTE: the latter can't parse it. So we're overriding the color
+          # NOTE: preference here via https://no-color.org.
+          # NOTE: Setting `FORCE_COLOR` to any value (including 0, an empty
+          # NOTE: string, or a "YAML null" `~`) doesn't have any effect and
+          # NOTE: `pip` (through its verndored copy of `rich`) treats the
+          # NOTE: presence of the variable as "force-color" regardless.
+          #
+          # NOTE: This doesn't actually work either, so we'll resort to unsetting
+          # NOTE: in the Bash script.
+          # NOTE: Ref: https://github.com/Textualize/rich/issues/2622
+          NO_COLOR: 1
+        if: inputs.dist-type == 'binary'
+        id: wheel-file
+        run: |
+          # Debug: Show environment variables
+          echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "PWD: $(pwd)"
 
-    - name: >-
-        Pre-populate tox env:
-        ${{ env.TOXENV }}
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        --installpkg '${{
-          inputs.dist-type == 'binary'
-          && steps.wheel-file.outputs.path
-          || format('dist/{0}', inputs.source-tarball-name)
-        }}'
-        --notest
+          # Debug: Show pip version and configuration
+          echo -e "\n=== Pip Configuration ==="
+          python -m pip --version
 
-    - name: Configure tox to run pytest under catchsegv
-      if: runner.os == 'Linux'
-      run: |
-        from __future__ import print_function
-        import os
-        with open(os.environ['GITHUB_ENV'], 'a') as env_file:
-            env_file.write('CATCHSEGV_BINARY=catchsegv\n')
-      shell: python
+          python -m pip config list
 
-    - name: Run the testing
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -qq
-    - name: Produce markdown test summary from JUnit
-      if: always()
-      uses: test-summary/action@v2.4
-      with:
-        paths: .test-results/pytest/results.xml
-    - name: Re-run the failing tests with maximum verbosity
-      if: failure()
-      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -vvvvv
-        --skip-pkg-install
-        --
-        --no-cov -vvvvv --lf
-        && exit 1
-      shell: bash
-    - name: Send coverage data to Codecov
-      uses: codecov/codecov-action@v5.1.2
-      with:
-        files: .test-results/pytest/cov.xml
-        flags: >-
-          CI-GHA,
-          OS-${{
-            runner.os
-          }},
-          VM-${{
-            inputs.runner-vm-os
-          }},
-          Py-${{
-            steps.python-install.outputs.python-version
-          }}
-        token: ${{ secrets.codecov-token }}
+          # Debug: Show contents of dist/ directory
+          echo -e "\n=== Contents of dist/ directory ==="
+          ls -la dist/ 2>/dev/null || echo "dist/ directory does not exist"
 
-...
+          # Debug: Try to list available distributions
+          echo -e "\n=== Available distributions ==="
+          python -m pip list --no-cache-dir --no-python-version-warning --no-color --format=json --find-links=./dist || true
+
+          # Debug: Try to find the wheel file directly
+          echo -e "\n=== Looking for wheel files ==="
+          find dist/ -name '*.whl' -ls 2>/dev/null || echo "No wheel files found"
+
+          # Run the actual command with more verbose output
+          echo -e "\n=== Running wheel detection command ==="
+          set -x  # Enable command echoing
+
+          # Store the output in a variable for debugging
+          WHEEL_PATH=$(
+            python \
+              -X utf8 \
+              -u -I \
+              -m pip install \
+              --find-links=./dist \
+              --no-index \
+              "${{ env.PROJECT_NAME }}" \
+              --force-reinstall \
+              --no-color \
+              --no-deps \
+              --only-binary=:all: \
+              --dry-run \
+              --report=- \
+              --verbose 2>&1 \
+              | tee pip_debug.log \
+              | jq --raw-output '.install[].download_info.url // ""' \
+              | grep -v '^$' \
+              | head -1 \
+              | sed -e 's#^file://##' -e 's#%2B#+#'
+          )
+
+          set +x  # Disable command echoing
+
+          # Debug: Show the found wheel path
+          echo -e "\n=== Found wheel path ==="
+          echo "$WHEEL_PATH"
+
+          # If no wheel found, show the pip debug log
+          if [ -z "$WHEEL_PATH" ]; then
+            echo -e "\n=== Pip debug log ==="
+            cat pip_debug.log || true
+            echo -e "\n=== No wheel found, listing all files in dist/ ==="
+            find dist/ -type f -ls || true
+          fi
+
+          # Output the result (empty if no wheel found)
+          echo "path=$WHEEL_PATH" | tee -a "${GITHUB_OUTPUT}"
+        shell: bash
+
+      - name: >-
+          Pre-populate tox env:
+          ${{ env.TOXENV }}
+        run: >-
+          python -m
+          tox
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+          --installpkg '${{
+            inputs.dist-type == 'binary'
+            && steps.wheel-file.outputs.path
+            || format('dist/{0}', inputs.source-tarball-name)
+          }}'
+          --notest
+
+      - name: Configure tox to run pytest under catchsegv
+        if: runner.os == 'Linux'
+        run: |
+          from __future__ import print_function
+          import os
+          with open(os.environ['GITHUB_ENV'], 'a') as env_file:
+              env_file.write('CATCHSEGV_BINARY=catchsegv\n')
+        shell: python
+
+      - name: Run the testing
+        run: >-
+          python -m
+          tox
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+          -qq
+      - name: Produce markdown test summary from JUnit
+        if: always()
+        uses: test-summary/action@v2.4
+        with:
+          paths: .test-results/pytest/results.xml
+      - name: Re-run the failing tests with maximum verbosity
+        if: failure()
+        run: >- # `exit 1` makes sure that the job remains red with flaky runs
+          python -m
+          tox
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+          -vvvvv
+          --skip-pkg-install
+          --
+          --no-cov -vvvvv --lf
+          && exit 1
+        shell: bash
+      - name: Send coverage data to Codecov
+        uses: codecov/codecov-action@v5.1.2
+        with:
+          files: .test-results/pytest/cov.xml
+          flags: >-
+            CI-GHA,
+            OS-${{
+              runner.os
+            }},
+            VM-${{
+              inputs.runner-vm-os
+            }},
+            Py-${{
+              steps.python-install.outputs.python-version
+            }}
+          token: ${{ secrets.codecov-token }}
