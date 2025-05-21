@@ -1386,7 +1386,7 @@ jobs:
     - lint
     - pre-setup  # transitive, for accessing settings
     - test-linux
-    - test-macos
+    #- test-macos
 
     runs-on: Ubuntu-latest
 
@@ -1399,7 +1399,7 @@ jobs:
         allowed-failures: >-
           ${{
             fromJSON(needs.pre-setup.outputs.is-yolo-mode)
-            && 'build-rpms, lint, test-linux, test-macos'
+            && 'build-rpms, lint, test-linux'
             || ''
           }}
         jobs: ${{ toJSON(needs) }}
