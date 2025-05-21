@@ -218,7 +218,8 @@ jobs:
         id: wheel-file
         run: >
           echo -n path= | tee -a "${GITHUB_OUTPUT}"
-
+          pwd
+          whoami
 
           unset FORCE_COLOR
 
