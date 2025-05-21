@@ -46,11 +46,14 @@ jobs:
           
       - name: Build wheel with manylinux
         run: |
-          docker run --rm -v $(pwd):/io quay.io/pypa/manylinux${MANYLINUX_VERSION}_${MANYLINUX_ARCH} \
+          docker run --rm -v $(pwd):/io ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.9.6 \
             /bin/bash -c "cd /io && \
             /opt/python/cp313-cp313/bin/pip install -U pip wheel setuptools cython && \
+            CFLAGS='-I\$(cat /root/.static-deps-path)/include' \
+            LDFLAGS='-L\$(cat /root/.static-deps-path)/lib64 -L\$(cat /root/.static-deps-path)/lib' \
+            LD_LIBRARY_PATH='\$(cat /root/.static-deps-path)/lib64:\$(cat /root/.static-deps-path)/lib:\${LD_LIBRARY_PATH}' \
             /opt/python/cp313-cp313/bin/pip wheel . -w wheelhouse/ && \
-            auditwheel repair wheelhouse/*.whl --plat manylinux${MANYLINUX_VERSION}_${MANYLINUX_ARCH} -w /io/dist/"
+            auditwheel repair wheelhouse/*.whl --plat manylinux2_28_x86_64 -w /io/dist/"
             
       - name: Install build dependencies on host
         run: |
