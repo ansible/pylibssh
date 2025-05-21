@@ -216,73 +216,27 @@ jobs:
           NO_COLOR: 1
         if: inputs.dist-type == 'binary'
         id: wheel-file
-        run: |
-          # Debug: Show environment variables
-          echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "PWD: $(pwd)"
+        run: >
+          echo -n path= | tee -a "${GITHUB_OUTPUT}"
 
-          # Debug: Show pip version and configuration
-          echo -e "\n=== Pip Configuration ==="
-          python -m pip --version
 
-          python -m pip config list
+          unset FORCE_COLOR
 
-          # Debug: Show contents of dist/ directory
-          echo -e "\n=== Contents of dist/ directory ==="
-          ls -la dist/ 2>/dev/null || echo "dist/ directory does not exist"
 
-          # Debug: Try to list available distributions
-          echo -e "\n=== Available distributions ==="
-          python -m pip list --no-cache-dir --no-python-version-warning --no-color --format=json --find-links=./dist || true
-
-          # Debug: Try to find the wheel file directly
-          echo -e "\n=== Looking for wheel files ==="
-          find dist/ -name '*.whl' -ls 2>/dev/null || echo "No wheel files found"
-
-          # Run the actual command with more verbose output
-          echo -e "\n=== Running wheel detection command ==="
-          set -x  # Enable command echoing
-
-          # Store the output in a variable for debugging
-          WHEEL_PATH=$(
-            python \
-              -X utf8 \
-              -u -I \
-              -m pip install \
-              --find-links=./dist \
-              --no-index \
-              "${{ env.PROJECT_NAME }}" \
-              --force-reinstall \
-              --no-color \
-              --no-deps \
-              --only-binary=:all: \
-              --dry-run \
-              --report=- \
-              --verbose 2>&1 \
-              | tee pip_debug.log \
-              | jq --raw-output '.install[].download_info.url // ""' \
-              | grep -v '^$' \
-              | head -1 \
-              | sed -e 's#^file://##' -e 's#%2B#+#'
-          )
-
-          set +x  # Disable command echoing
-
-          # Debug: Show the found wheel path
-          echo -e "\n=== Found wheel path ==="
-          echo "$WHEEL_PATH"
-
-          # If no wheel found, show the pip debug log
-          if [ -z "$WHEEL_PATH" ]; then
-            echo -e "\n=== Pip debug log ==="
-            cat pip_debug.log || true
-            echo -e "\n=== No wheel found, listing all files in dist/ ==="
-            find dist/ -type f -ls || true
-          fi
-
-          # Output the result (empty if no wheel found)
-          echo "path=$WHEEL_PATH" | tee -a "${GITHUB_OUTPUT}"
+          python
+          -X utf8
+          -u -I
+          -m pip install
+          --find-links=./dist
+          --no-index
+          '${{ env.PROJECT_NAME }}'
+          --force-reinstall
+          --no-color
+          --no-deps
+          --only-binary=:all:
+          --dry-run
+          --report=-
+          --quiet
         shell: bash
 
       - name: >-
