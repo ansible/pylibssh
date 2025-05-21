@@ -228,6 +228,15 @@ jobs:
         # Debug: Show pip version and configuration
         echo -e "\n=== Pip Configuration ==="
         python -m pip --version
+        
+        echo -e "\n=== Running wheel detection command ==="
+        python -X utf8 -u -I -m pip install --find-links=./dist --no-index ansible-pylibssh --force-reinstall --no-color --no-deps --only-binary=:all: --dry-run --report=- --verbose | tee pip_debug.log
+        if jq empty pip_debug.log 2>/dev/null; then
+          jq --raw-output '.install[].download_info.url // ""' < pip_debug.log | grep -v '^$' | head -1 | sed -e 's#^file://##' -e s#%2B#+#
+        else
+          echo "No valid JSON output from pip, see pip_debug.log for details"
+          exit 1
+        fi
         python -m pip config list
         
         # Debug: Show contents of dist/ directory
