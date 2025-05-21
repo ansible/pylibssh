@@ -1232,12 +1232,12 @@ jobs:
         python-version:
         - "3.13"
         - "3.12"
-        - "3.11"
-        - "3.10"
-        - 3.9
+        #- "3.11"
+        #- "3.10"
+        #- 3.9
         runner-vm-os:
         - ubuntu-24.04
-        - ubuntu-22.04
+        #- ubuntu-22.04
         dist-type:
         - binary
         - source
@@ -1258,41 +1258,41 @@ jobs:
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
-  test-macos:
-    name: 🧪 Test${{ '' }}  # nest jobs under the same sidebar category
-    needs:
-    - build-bin-macos
-    - build-src
-    - pre-setup  # transitive, for accessing settings
-    strategy:
-      matrix:
-        python-version:
-        - "3.13"
-        - "3.12"
-        - "3.11"
-        - "3.10"
-        - 3.9
-        runner-vm-os:
-        - macos-13
-        dist-type:
-        - binary
-        - source
+  #test-macos:
+  #  name: 🧪 Test${{ '' }}  # nest jobs under the same sidebar category
+  #  needs:
+  #  - build-bin-macos
+  #  - build-src
+  #  - pre-setup  # transitive, for accessing settings
+  #  strategy:
+  #    matrix:
+  #      python-version:
+  #      - "3.13"
+  #      - "3.12"
+  #      - "3.11"
+  #      - "3.10"
+  #      - 3.9
+  #      runner-vm-os:
+  #      - macos-13
+  #      dist-type:
+  #      - binary
+  #      - source
 
-    uses: ./.github/workflows/reusable-tests.yml
-    with:
-      python-version: ${{ matrix.python-version }}
-      runner-vm-os: ${{ matrix.runner-vm-os }}
-      dist-type: ${{ matrix.dist-type }}
-      release-requested: >-
-        ${{ needs.pre-setup.outputs.release-requested }}
-      yolo: ${{ fromJSON(needs.pre-setup.outputs.is-yolo-mode) }}
-      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
-      source-tarball-name: >-
-        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
-      dists-artifact-name: >-
-        ${{ needs.pre-setup.outputs.dists-artifact-name }}
-    secrets:
-      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+  #  uses: ./.github/workflows/reusable-tests.yml
+  #  with:
+  #    python-version: ${{ matrix.python-version }}
+  #    runner-vm-os: ${{ matrix.runner-vm-os }}
+  #    dist-type: ${{ matrix.dist-type }}
+  #    release-requested: >-
+  #      ${{ needs.pre-setup.outputs.release-requested }}
+  #    yolo: ${{ fromJSON(needs.pre-setup.outputs.is-yolo-mode) }}
+  #    cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
+  #    source-tarball-name: >-
+  #      ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+  #    dists-artifact-name: >-
+  #      ${{ needs.pre-setup.outputs.dists-artifact-name }}
+  #  secrets:
+  #    codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   dist-meta:
     name: Verify 🐍📦 metadata

@@ -1,7 +1,7 @@
 ---
 name: ♲ 🧪
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       python-version:
@@ -44,13 +44,13 @@ on: # yamllint disable-line rule:truthy
         required: true
 
 env:
-  FORCE_COLOR: 1 # Request colored output from CLI tools supporting it
-  MYPY_FORCE_COLOR: 1 # MyPy's color enforcement
+  FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
+  MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
   PIP_DISABLE_PIP_VERSION_CHECK: 1
   PIP_NO_PYTHON_VERSION_WARNING: 1
   PIP_NO_WARN_SCRIPT_LOCATION: 1
   PROJECT_NAME: ansible-pylibssh
-  PY_COLORS: 1 # Recognized by the `py` package, dependency of `pytest`
+  PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
   TOX_PARALLEL_NO_SPINNER: 1
   TOX_TESTENV_PASSENV: >- # Make tox-wrapped tools see color requests
     FORCE_COLOR
@@ -83,7 +83,7 @@ jobs:
       TOXENV: py
 
     steps:
-      - name: Install build toolchain and openssl headers on Linux
+      - name: Install build toolchain, openssl headers on Linux
         if: >-
           inputs.dist-type == 'source' &&
           runner.os == 'Linux'
@@ -92,7 +92,7 @@ jobs:
         if: >-
           runner.os == 'macOS'
         run: brew install libssh
-      - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
+      - name: Install catchsegv, libssh headers on Linux cythonize+coverage
         if: >-
           runner.os == 'Linux'
         run: sudo apt update && sudo apt install glibc-tools libssh-dev
@@ -198,7 +198,7 @@ jobs:
           echo -e "\nLooking for wheel files:"
           find dist/ -name '*.whl' -ls || echo "No wheel files found"
           echo -e "\nLooking for source distributions:"
-          find dist/ -name '*.tar.gz' -ls || echo "No source distributions found"
+          find dist/ -name '*.tar.gz' -ls || echo "No source dist found"
 
       - name: Determine pre-compiled compatible wheel
         env:
@@ -207,11 +207,11 @@ jobs:
           # NOTE: preference here via https://no-color.org.
           # NOTE: Setting `FORCE_COLOR` to any value (including 0, an empty
           # NOTE: string, or a "YAML null" `~`) doesn't have any effect and
-          # NOTE: `pip` (through its verndored copy of `rich`) treats the
+          # NOTE: `pip` (through its vendored copy of `rich`) treats the
           # NOTE: presence of the variable as "force-color" regardless.
           #
-          # NOTE: This doesn't actually work either, so we'll resort to unsetting
-          # NOTE: in the Bash script.
+          # NOTE: This doesn't actually work either, so we'll resort to
+          # NOTE: unsetting in the Bash script.
           # NOTE: Ref: https://github.com/Textualize/rich/issues/2622
           NO_COLOR: 1
         if: inputs.dist-type == 'binary'
