@@ -1,5 +1,5 @@
 ---
-name: "🐍 manylinux Python 3.13 Test"
+name: '🐍 manylinux Python 3.13 Test'
 
 on:
   push:
@@ -51,5 +51,5 @@ jobs:
             pip install --upgrade pip && \
             pip install -r requirements-build.txt && \
             pip install -r requirements.txt || true && \
-            pip install . && \
+            pip install -e ".[dev]" && \
             pytest || (echo 'pytest failed, trying tox...' && tox)"
