@@ -1,0 +1,55 @@
+---
+name: "🐍 manylinux Python 3.13 Test"
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test-manylinux-3-13:
+    name: Build manylinux + Python 3.13 & Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for multi-arch, if needed)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build manylinux image with Python 3.13
+        run: |
+          docker build \
+            --build-arg RELEASE=manylinux_2_28_x86_64 \
+            -t pylibssh-manylinux-3.13 \
+            build-scripts/manylinux-container-image/
+
+      - name: Install Python 3.13 in the image (if not present)
+        run: |
+          docker run --name temp-manylinux pylibssh-manylinux-3.13 bash -c "\
+            if ! command -v python3.13; then \
+              curl -O https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tgz && \
+              tar xzf Python-3.13.0.tgz && \
+              cd Python-3.13.0 && \
+              ./configure --enable-optimizations && \
+              make -j$(nproc) && \
+              make altinstall; \
+            fi"
+          docker commit temp-manylinux pylibssh-manylinux-3.13:py3.13
+          docker rm temp-manylinux
+
+      - name: Run tests inside manylinux + Python 3.13 container
+        run: |
+          docker run --rm -v $(pwd):/workspace -w /workspace pylibssh-manylinux-3.13:py3.13 bash -c "\
+            python3.13 -m venv venv && \
+            source venv/bin/activate && \
+            pip install --upgrade pip && \
+            pip install -r requirements-build.txt && \
+            pip install -r requirements.txt || true && \
+            pip install . && \
+            pytest || (echo 'pytest failed, trying tox...' && tox)"
