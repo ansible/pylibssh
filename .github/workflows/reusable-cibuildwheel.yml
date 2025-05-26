@@ -42,6 +42,7 @@ env:
   FORCE_COLOR: "1"  # Make tools pretty.
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
+  MACOSX_DEPLOYMENT_TARGET: "13.0"
 
 jobs:
 
@@ -75,7 +76,7 @@ jobs:
       shell: python
 
     - name: Retrieve the project source from an sdist inside the GHA artifact
-      uses: re-actors/checkout-python-sdist@release/v2
+      uses: re-actors/checkout-python-sdist@release/v21
       with:
         source-tarball-name: ${{ inputs.source-tarball-name }}
         workflow-artifact-name: ${{ inputs.dists-artifact-name }}
@@ -101,7 +102,7 @@ jobs:
       shell: bash
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.17.0
+      uses: pypa/cibuildwheel@v2.21.2
       env:
         # CIBW_ARCHS_MACOS: all x86_64 arm64 universal2
         CIBW_ARCHS_MACOS: native
