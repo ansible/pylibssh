@@ -44,12 +44,15 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.arch }}
+          name: wheels-${{ matrix.arch }}-${{ matrix.python }}
           path: wheelhouse
+
+      - name: Debug: Python version
+        run: python --version
 
       - name: Install built ansible_pylibssh wheel and pytest
         run: |
-          pip install wheelhouse/ansible_pylibssh-*.whl
+          pip install --force-reinstall --find-links=wheelhouse ansible_pylibssh
           pip install pytest
 
       - name: Pip list
