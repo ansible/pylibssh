@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, aarch64, ppc64le, s390x]
+        arch: [x86_64, aarch64, s390x] # ppc64le skipped as per pyproject.toml
 
     steps:
       - name: Checkout source
@@ -22,14 +22,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Install Python + cibuildwheel
+      - name: Install libssh system package
+        run: sudo apt-get update && sudo apt-get install -y libssh-dev
+
+      - name: Install Python + build deps
         run: |
-          pip install cibuildwheel
+          pip install cibuildwheel setuptools expandvars setuptools-scm 'tomli; python_version < "3.11"' pytest pytest-cov pytest-xdist pytest-forked
 
       - name: Build wheels with cibuildwheel
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_BUILD: cp313-* # cp39-* cp310-* cp311-* cp312-*
           CIBW_PLATFORM: linux
           CIBW_BUILD_FRONTEND: build
         run: |
@@ -41,3 +44,7 @@ jobs:
         with:
           name: wheels-${{ matrix.arch }}
           path: wheelhouse
+
+      - name: Test built wheels
+        run: |
+          python -Im pytest -m smoke --no-cov $(pwd)/tests
