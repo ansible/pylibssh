@@ -23,8 +23,9 @@ jobs:
     runs-on: ubuntu-latest
 
     timeout-minutes: 120
-    fail-fast: false
+    
     strategy:
+      fail-fast: false
       matrix:
         IMAGE:
         # Build containers for x86_64
