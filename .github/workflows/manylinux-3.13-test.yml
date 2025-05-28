@@ -47,7 +47,7 @@ jobs:
           name: wheels-${{ matrix.arch }}-${{ matrix.python }}
           path: wheelhouse
 
-      - name: Debug: Python version
+      - name: Python version
         run: python --version
 
       - name: Install built ansible_pylibssh wheel and pytest
