@@ -50,10 +50,13 @@ jobs:
       - name: Python version
         run: python --version
 
-      - name: Install built ansible_pylibssh wheel and pytest
+      - name: Install pytest
+        run: |
+          pip install pytest pytest-ansible tox
+
+      - name: Install built ansible_pylibssh wheel
         run: |
           pip install --force-reinstall --find-links=wheelhouse ansible_pylibssh
-          pip install pytest
 
       - name: Pip list
         run: |
