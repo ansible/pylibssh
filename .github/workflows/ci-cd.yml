@@ -1228,13 +1228,14 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.13"
         - "3.12"
         - "3.11"
         - "3.10"
         - 3.9
         runner-vm-os:
         - ubuntu-24.04
-        - ubuntu-22.04
+        - ubuntu-latest
         dist-type:
         - binary
         - source
