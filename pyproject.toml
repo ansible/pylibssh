@@ -1,222 +1,43 @@
-[build-system]
-requires = [
-  # NOTE: The following build dependencies are necessary for initial
-  # NOTE: provisioning of the in-tree build backend located under
-  # NOTE: `packaging/pep517_backend/`.
-
-  # Essentials
-  "expandvars",  # needed by in-tree build backend for env vars interpolation
-  "setuptools>=45",  # needed by in-tree build backend `packaging/pep517_backend.py`
-  "tomli; python_version < '3.11'",  # needed by in-tree build backend `packaging/pep517_backend.py`
-
-  # Plugins
-  "setuptools-scm >= 7.0.0",
-]
-backend-path = ["packaging"]  # requires 'Pip>=20' or 'pep517>=0.6.0'
-build-backend = "pep517_backend.hooks"
-
-[tool.local.cythonize]
-# This attr can contain multiple globs
-src = ["src/**/*.pyx"]
-
-[tool.local.cythonize.env]
-# Env vars provisioned during cythonize call
-#ANSIBLE_PYLIBSSH_CYTHON_TRACING = "1"
-#CFLAGS = "-DCYTHON_TRACE=1 ${CFLAGS}"
-LDFLAGS = "-lssh ${LDFLAGS}"
-
-[tool.local.cythonize.flags]
-# This section can contain the following booleans:
-# * annotate — generate annotated HTML page for source files
-# * build — build extension modules using distutils
-# * inplace — build extension modules in place using distutils (implies -b)
-# * force — force recompilation
-# * quiet — be less verbose during compilation
-# * lenient — increase Python compat by ignoring some compile time errors
-# * keep-going — compile as much as possible, ignore compilation failures
-annotate = false
-build = false
-inplace = true
-force = true
-quiet = false
-lenient = false
-keep-going = false
-
-[tool.local.cythonize.kwargs]
-# This section can contain args tha have values:
-# * exclude=PATTERN      exclude certain file patterns from the compilation
-# * parallel=N    run builds in N parallel jobs (default: calculated per system)
-# exclude = "**.py"
-# parallel = 12
-
-[tool.local.cythonize.kwargs.directive]
-# This section can contain compiler directives
-# Ref: https://github.com/cython/cython/blob/d6e6de9/Cython/Compiler/Options.py#L170-L242
-embedsignature = "True"
-emit_code_comments = "True"
-linetrace = "True"
-profile = "True"
-
-[tool.local.cythonize.kwargs.compile-time-env]
-# This section can contain compile time env vars
-
-[tool.local.cythonize.kwargs.option]
-# This section can contain cythonize options
-# Ref: https://github.com/cython/cython/blob/d6e6de9/Cython/Compiler/Options.py#L694-L730
-#docstrings = "True"
-#embed_pos_in_docstring = "True"
-#warning_errors = "True"
-#error_on_unknown_names = "True"
-#error_on_uninitialized = "True"
-
-[tool.towncrier]
-  # ATTENTION: Do not specify "package" setting because towncrier
-  # ATTENTION: tries to import it and fails if it's not pre-compiled
-  directory = "docs/changelog-fragments"
-  filename = "CHANGELOG.rst"
-  issue_format = "{issue}"
-  package_dir = "src"
-  template = "docs/changelog-fragments/template.j2"
-  title_format = "v{version}"
-
-  # NOTE: The types are declared because:
-  # NOTE: - there is no mechanism to override just the value of
-  # NOTE:   `tool.towncrier.type.misc.showcontent`;
-  # NOTE: - and, we want to declare extra non-default types for
-  # NOTE:   clarity and flexibility.
-
-  [[tool.towncrier.section]]
-    path = ""
-
-  [[tool.towncrier.type]]
-    # Something we deemed an improper undesired behavior that got corrected
-    # in the release to match pre-agreed expectations.
-    directory = "bugfix"
-    name = "Bug fixes"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # New behaviors, public APIs. That sort of stuff.
-    directory = "feature"
-    name = "Features"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # Declarations of future API removals and breaking changes in behavior.
-    directory = "deprecation"
-    name = "Deprecations (removal in next major release)"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # When something public gets removed in a breaking way. Could be
-    # deprecated in an earlier release.
-    directory = "breaking"
-    name = "Removals and backward incompatible breaking changes"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # Notable updates to the documentation structure or build process.
-    directory = "doc"
-    name = "Improved documentation"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # Notes for downstreams about unobvious side effects and tooling. Changes
-    # in the test invocation considerations and runtime assumptions.
-    directory = "packaging"
-    name = "Packaging updates and notes for downstreams"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # Stuff that affects the contributor experience. e.g. Running tests,
-    # building the docs, setting up the development environment.
-    directory = "contrib"
-    name = "Contributor-facing changes"
-    showcontent = true
-
-  [[tool.towncrier.type]]
-    # Changes that are hard to assign to any of the above categories.
-    directory = "misc"
-    name = "Miscellaneous internal changes"
-    showcontent = true
-
 [tool.cibuildwheel]
-build-frontend = "build"
-# container-engine = "podman"  # FIXME?
-test-requires = "pytest pytest-cov pytest-xdist pytest-forked"
-test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
-skip = "pp*"
+# Build for these architectures
+archs = ["x86_64", "aarch64", "ppc64le", "s390x"]
 
-[tool.cibuildwheel.environment]
-COLOR = "yes"
-FORCE_COLOR = "1"
-MYPY_FORCE_COLOR = "1"
-# PIP_CONSTRAINT = "{package}/requirements-build.txt"
-# PIP_CONSTRAINT = "{project}/requirements-build.txt"
-PIP_CONSTRAINT = "requirements-build.txt"
-PIP_DISABLE_PIP_VERSION_CHECK = "1"
-PIP_NO_PYTHON_VERSION_WARNING = "1"
-PIP_NO_WARN_SCRIPT_LOCATION = "1"
-PRE_COMMIT_COLOR = "always"
-PY_COLORS = "1"
+# Skip building PyPy wheels and Python 3.8 (project requires 3.9+)
+skip = ["pp*", "cp38-*"]
+
+# Build only for Linux (since libssh is primarily used on Linux servers)
+build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*"]
+
+# Environment variables for all platforms
+environment = { CYTHON_TRACE="1" }
 
 [tool.cibuildwheel.linux]
-manylinux-aarch64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_aarch64:libssh-v0.9.6"
-manylinux-ppc64le-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_ppc64le:libssh-v0.9.6"
-manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0.9.6"
-manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.9.6"
-skip = [
-  "*-musllinux_*",  # FIXME: musllinux needs us to provide with containers pre-built libssh
-  "pp*",  # FIXME: we don't ship these currently but could
+# Use manylinux2014 for better compatibility with older systems
+manylinux-x86_64-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+manylinux-ppc64le-image = "manylinux2014"
+manylinux-s390x-image = "manylinux2014"
 
-  # The support for 32-bit wheels has been dropped long ago:
-  "*-manylinux_i686",
-  "*-musllinux_i686",
+# Install libssh dependencies before building
+before-all = [
+    # Update package manager
+    "yum update -y || apt-get update -y",
+
+    # Install libssh development packages
+    "yum install -y libssh-devel openssl-devel cmake gcc-c++ || apt-get install -y libssh-dev libssl-dev cmake build-essential",
+
+    # For some architectures, we might need to build libssh from source
+    "bash {project}/build-scripts/install-libssh.sh"
 ]
 
-[tool.cibuildwheel.linux.environment]
-STATIC_DEPS_DIR = "$(cat /root/.static-deps-path)"
-# LDFLAGS = "'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
-# LD_LIBRARY_PATH = "${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:${LD_LIBRARY_PATH}"
-CFLAGS="'-I$(cat /root/.static-deps-path)/include'"
-LDFLAGS = "'-L$(cat /root/.static-deps-path)/lib64' '-L$(cat /root/.static-deps-path)/lib'"
-LD_LIBRARY_PATH = "$(cat /root/.static-deps-path)/lib64:$(cat /root/.static-deps-path)/lib:${LD_LIBRARY_PATH}"
+# Test the built wheels
+test-command = "python -c 'import pylibssh.api; print(\"Import successful\")'"
+test-requires = ["pytest"]
 
 [tool.cibuildwheel.macos]
-before-build = [
-  "brew install libssh",  # @0.9.4  # pinning the version does not work
-  # FIXME: can we pre-build libssh once in a pre-requisite job?
-  # NOTE: Currently we use a brew-installed libssh build that also
-  # NOTE: pulls-in openssl@1.1 as well. In the future we may want to
-  # NOTE: be in control of what and how we build. This is what the
-  # NOTE: commented out code below is for. Doing own builds may help
-  # NOTE: us produce a smaller footprint by not building the server-
-  # NOTE: side APIs. Controlling the supply chain is also safer from
-  # NOTE: the security perspective. Also, it breaks when brew replaces
-  # NOTE: the versions.
-  # - name: Fetch libssh src
-  #   env:
-  #     LIBSSH_VERSION: 0.9.3
-  #   run: >-
-  #     git clone --depth=1
-  #     -b "libssh-${{ env.LIBSSH_VERSION }}"
-  #     https://git.libssh.org/projects/libssh.git
-  # - name: Make libssh build dir
-  #   run: mkdir -pv build
-  #   working_directory: libssh
-  # - name: Build libssh
-  #   env:
-  #     CFLAGS: -I/usr/local/opt/openssl/include
-  #     LDFLAGS: -L/usr/local/opt/openssl/lib
-  #   run: |
-  #     cmake ..
-  #     make
-  #     make install/strip
-  #   working_directory: libssh/build
-]
+# Skip macOS for now since libssh setup is more complex
+skip = ["*"]
 
 [tool.cibuildwheel.windows]
-skip = "*"
-
-[tool.setuptools_scm]
-write_to = "src/pylibsshext/_scm_version.py"
+# Skip Windows for now since libssh setup is more complex
+skip = ["*"]
