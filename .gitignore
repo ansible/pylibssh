@@ -396,3 +396,4 @@ $RECYCLE.BIN/
 
 # setuptools-scm write_to:
 /src/pylibsshext/_scm_version.py
+.ansible
