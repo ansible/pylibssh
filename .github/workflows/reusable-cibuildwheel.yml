@@ -101,10 +101,10 @@ jobs:
       shell: bash
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.17.0
+      uses: pypa/cibuildwheel@v3.0.0
       env:
         # CIBW_ARCHS_MACOS: all x86_64 arm64 universal2
-        CIBW_ARCHS_MACOS: native
+        CIBW_ARCHS_MACOS: x86_64 universal2 arm64
         CIBW_CONFIG_SETTINGS: >-  # Cython line tracing for coverage collection
           with-cython-tracing=${{ inputs.cython-tracing }}
 
