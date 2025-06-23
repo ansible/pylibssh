@@ -106,6 +106,7 @@ jobs:
         # CIBW_ARCHS_MACOS: all x86_64 arm64 universal2
         CIBW_PRERELEASE_PYTHONS: 1
         CIBW_ARCHS_MACOS: native
+        CIBW_SKIP: "*_i686 *-macosx_universal2 *-musllinux_* *-win32 pp*"  # Removed *_arm64
         CIBW_CONFIG_SETTINGS: >-  # Cython line tracing for coverage collection
           with-cython-tracing=${{ inputs.cython-tracing }}
 
