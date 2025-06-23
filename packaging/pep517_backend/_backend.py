@@ -328,7 +328,7 @@ def get_requires_for_build_wheel(
     """
     c_ext_build_deps = [
         'Cython >= 3.0.11; python_version >= "3.13"',  # Ideally >= 3.1.0
-        #'Cython >= 3.0.0; python_version >= "3.12" and python_version < "3.13"',
+        'Cython >= 3.0.0; python_version >= "3.12" and python_version < "3.13"',
         'Cython; python_version < "3.12"',
     ]
 
