@@ -1,0 +1,3 @@
+The CI infrastructure now produces ``manylinux_2_31_armv7l`` base images
+with ``libssh`` and ``openssl`` pre-built -- by :user:`Jakuje` and
+:user:`webknjaz`.
