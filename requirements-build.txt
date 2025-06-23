@@ -8,7 +8,7 @@ cython==3.0.12
     # via -r -
 expandvars==0.9.0
     # via -r -
-packaging==24.0
+packaging==24.1
     # via setuptools-scm
 pyparsing==3.0.9
     # via packaging
@@ -16,7 +16,7 @@ setuptools-scm==8.1.0
     # via -r -
 tomli==2.0.1
     # via setuptools-scm
-typing-extensions==4.10.0
+typing-extensions==4.12.2
     # via setuptools-scm
 wheel==0.37.1
     # via -r -
