@@ -109,6 +109,7 @@ jobs:
         CIBW_SKIP: "*_i686 *-macosx_universal2 *-musllinux_* *-win32 pp*"  # Removed *_arm64
         CIBW_CONFIG_SETTINGS: >-  # Cython line tracing for coverage collection
           with-cython-tracing=${{ inputs.cython-tracing }}
+        CIBW_ENVIRONMENT_MACOS: "CFLAGS=-I$(brew --prefix libssh)/include LDFLAGS=-L$(brew --prefix libssh)/lib"
 
     - name: Upload built artifacts for testing and publishing
       uses: actions/upload-artifact@v4
