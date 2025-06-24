@@ -1255,6 +1255,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.13"
         - "3.12"
         - "3.11"
         - "3.10"
@@ -1303,6 +1304,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.13"
         - "3.12"
         - "3.11"
         - "3.10"
