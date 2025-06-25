@@ -49,7 +49,7 @@ jobs:
           YEAR: _2_31  # There are no base images prior to 2.31 for this arch
 
     env:
-      LIBSSH_VERSION: 0.11.1
+      LIBSSH_VERSION: 0.11.2
       PYPA_MANYLINUX_TAG: >-
         manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
       FULL_IMAGE_NAME: >-

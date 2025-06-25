@@ -1,0 +1,3 @@
+Updated the version of ``libssh`` to the latest release v0.11.2
+in the cached ``manylinux`` build environment container images
+-- by :user:`Jakuje`.
