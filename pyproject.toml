@@ -161,10 +161,10 @@ PRE_COMMIT_COLOR = "always"
 PY_COLORS = "1"
 
 [tool.cibuildwheel.linux]
-manylinux-aarch64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_aarch64:libssh-v0.11.1"
-manylinux-ppc64le-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_ppc64le:libssh-v0.11.1"
-manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0.11.1"
-manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.11.1"
+manylinux-aarch64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_aarch64:libssh-v0.11.2"
+manylinux-ppc64le-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_ppc64le:libssh-v0.11.2"
+manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0.11.2"
+manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.11.2"
 skip = [
   "*-musllinux_*",  # FIXME: musllinux needs us to provide with containers pre-built libssh
   "pp*",  # FIXME: we don't ship these currently but could

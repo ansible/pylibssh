@@ -1,0 +1,3 @@
+The bundled libssh 0.11.2 no longer fails, when the SFTP server announces
+protocol version 3, but does not provide error message and language tag
+in the ``SSH_FXP_STATUS`` message -- by :user:`Jakuje`.
