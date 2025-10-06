@@ -10,7 +10,7 @@ repos:
   - id: add-trailing-comma
 
 - repo: https://github.com/PyCQA/isort.git
-  rev: 6.0.1
+  rev: 6.1.0
   hooks:
   - id: isort
     args:
@@ -25,7 +25,7 @@ repos:
   - id: remove-tabs
 
 - repo: https://github.com/python-jsonschema/check-jsonschema.git
-  rev: 0.33.2
+  rev: 0.34.0
   hooks:
   - id: check-github-workflows
     files: ^\.github/workflows/[^/]+$
@@ -51,7 +51,7 @@ repos:
   - id: rst-backticks
 
 - repo: https://github.com/pre-commit/pre-commit-hooks.git
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
   # Side-effects:
   - id: trailing-whitespace
@@ -142,7 +142,7 @@ repos:
     - file
 
 - repo: https://github.com/MarcoGorelli/cython-lint.git
-  rev: v0.16.7
+  rev: v0.17.0
   hooks:
   - id: cython-lint
     # NOTE: This linter does not have a config file so it's set up below.
