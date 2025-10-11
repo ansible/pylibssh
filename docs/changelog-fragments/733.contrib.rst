@@ -1,6 +1,0 @@
-GitHub Actions CI/CD no longer runs jobs that install source
-distributions into the tox environments for testing
--- by :user:`webknjaz`.
-
-This is a temporary workaround for an upstream bug in tox and
-said jobs are non-essential.

@@ -1,3 +1,0 @@
-Updated the pre-built ``libffi`` version to 3.4.8 in the
-cached ``manylinux`` build environment container images
--- by :user:`Jakuje`.

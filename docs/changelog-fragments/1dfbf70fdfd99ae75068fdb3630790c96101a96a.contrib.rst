@@ -1,6 +1,0 @@
-The manylinux build scripts have been adjusted to resolve the
-dependency conflict between certain ``packaging`` and ``setuptools``
-versions -- by :user:`webknjaz`.
-
-Previously, this was making some of the CI jobs crash with a traceback
-when building said wheels.

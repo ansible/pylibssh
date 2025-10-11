@@ -1,4 +1,0 @@
-Manylinux wheels are no longer built using custom shell scripts.
-Instead, this is delegated to the ``cibuildwheel`` tool.
-
--- by :user:`webknjaz`

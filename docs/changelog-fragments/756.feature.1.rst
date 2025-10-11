@@ -1,8 +1,0 @@
-Added a ``pylibsshext.session.connect()`` parameter
-``open_session_retries`` -- by :user:`justin-stephenson`.
-
-The ``open_session_retries`` session ``connect()``
-parameter allows a configurable number of retries if
-libssh ``ssh_channel_open_session()`` returns ``SSH_AGAIN``.
-The default option value is 0, no retries will be
-attempted.

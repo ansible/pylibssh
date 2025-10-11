@@ -1,7 +1,0 @@
-False negative warnings reported by ``coveragepy`` when are now
-disabled. They are evident when ``pytest-cov`` runs with the
-``pytest-xdist`` integration. ``pytest`` 8.4 gives them more
-visibility and out ``filterwarnings = error`` setting was turning
-them into errors before this change.
-
--- by :user:`webknjaz`

@@ -1,1 +1,0 @@
-Repetitive calls to ``exec_channel()`` no longer crash and return reliable output -- by :user:`Jakuje`.

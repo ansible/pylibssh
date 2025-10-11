@@ -1,5 +1,0 @@
-The wheel building workflows have been updated to set the
-OCI image platform identifiers to legal values like
-``linux/arm64``.
-
--- by :user:`webknjaz`

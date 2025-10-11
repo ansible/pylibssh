@@ -1,1 +1,0 @@
-Stopped skipping SCP tests in the RPM spec -- by :user:`Jakuje`.

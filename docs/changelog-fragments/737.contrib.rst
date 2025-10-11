@@ -1,2 +1,0 @@
-Reverted workaround keeping the old CMake version installed
-as the new ``libssh`` works with newer versions -- by :user:`Jakuje`.

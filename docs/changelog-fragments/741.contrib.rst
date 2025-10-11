@@ -1,2 +1,0 @@
-Started caching ``manylinux`` build images to be used for producing ``2_34`` tagged wheels
-in ``build-manylinux-container-images`` workflow -- by :user:`KB-perByte`.

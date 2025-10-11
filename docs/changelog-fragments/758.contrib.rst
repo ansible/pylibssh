@@ -1,2 +1,0 @@
-Fixed link to python3-pytest for CentOS 9 Stream as it was recently moved from
-CRB to AppStream -- by :user:`Jakuje`.

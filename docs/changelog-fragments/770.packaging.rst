@@ -1,7 +1,0 @@
-A workaround has been applied to the in-tree build backend that prevents
-Cython from hanging when ``libssh`` header files are missing
--- by :user:`webknjaz`.
-
-The patch makes ``cythonize()`` single-threaded because :mod:`multiprocessing`
-gets stuck. The upstream will eventually fix this by migrating to
-:mod:`concurrent.futures`.

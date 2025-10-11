@@ -1,8 +1,0 @@
-Added a ``pylibsshext.session.connect()`` parameter
-``timeout_usec`` to set ``SSH_OPTIONS_TIMEOUT_USEC``.
-
-This allows setting the ``SSH_OPTIONS_TIMEOUT_USEC``
-ssh option, though ``SSH_OPTIONS_TIMEOUT`` is a more
-practical option.
-
--- by :user:`justin-stephenson`

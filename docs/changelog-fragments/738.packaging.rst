@@ -1,2 +1,0 @@
-Updated the bundled copy of OpenSSL to the latest version 3.5.0
-in ``manylinux`` wheels -- by :user:`Jakuje`.

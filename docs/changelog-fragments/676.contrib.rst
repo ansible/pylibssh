@@ -1,7 +1,0 @@
-All the uses of ``actions/upload-artifact@v3`` and
-``actions/download-artifact@v3`` have been updated to use
-``v4``. This also includes bumping
-``re-actors/checkout-python-sdist`` to ``release/v2`` as it
-uses ``actions/download-artifact`` internally.
-
--- by :user:`NilashishC` and :user:`webknjaz`

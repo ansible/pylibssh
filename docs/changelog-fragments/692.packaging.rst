@@ -1,4 +1,0 @@
-The wheels are now built in cached container images with a
-correctly set platform identifier.
-
--- by :user:`webknjaz`
