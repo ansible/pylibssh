@@ -25,7 +25,7 @@ def _emit_opt_pairs(
         yield '='.join(map(str, (flag_opt, *pair)))
 
 
-def get_cli_kwargs_from_config(
+def get_cli_kwargs_from_config(  # noqa: WPS234
     kwargs_map: dict[str, str | dict[str, str]],
 ) -> list[str]:
     """Make a list of options with values from config."""
