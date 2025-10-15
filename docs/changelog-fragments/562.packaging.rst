@@ -1,2 +1,0 @@
-PyPI now only ships :pep:`660`-compatible manylinux wheels
--- by :user:`webknjaz`.

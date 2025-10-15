@@ -1,1 +1,0 @@
-The ``pytest-forked`` dependency of build, development and test environments was removed -- by :user:`Jakuje`.

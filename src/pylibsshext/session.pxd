@@ -26,6 +26,8 @@ cdef class Session:
     cdef _hash_py
     cdef _fingerprint_py
     cdef _keytype_py
+    cdef _retries
     cdef _channel_callbacks
 
 cdef libssh.ssh_session get_libssh_session(Session session)
+cdef int get_session_retries(Session session)

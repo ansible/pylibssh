@@ -1,6 +1,0 @@
-The CI is now configured to always set job timeout values.
-This will ensure that the jobs that get stuck don't consume
-all 6 hours just hanging, improving responsiveness and the
-overall CI/CD resource usage.
-
--- by :user:`webknjaz`

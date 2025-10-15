@@ -23,6 +23,7 @@ cdef class Channel:
     cdef  _session
     cdef libssh.ssh_channel _libssh_channel
     cdef libssh.ssh_session _libssh_session
+    cdef _open_session_with_retries(self, libssh.ssh_channel test_channel)
 
 cdef class ChannelCallback:
     cdef callbacks.ssh_channel_callbacks_struct callback

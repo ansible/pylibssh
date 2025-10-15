@@ -1,1 +1,0 @@
-Removed needless step from CI adjusting centos8 repositories -- by :user:`Jakuje`.

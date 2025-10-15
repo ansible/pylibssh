@@ -54,7 +54,7 @@ with suppress(ImportError):
 
 from ._compat import chdir_cm, nullcontext_cm  # noqa: WPS436
 from ._cython_configuration import (  # noqa: WPS436
-    get_local_cython_config as _get_local_cython_config,
+    get_local_cythonize_config as _get_local_cython_config,
 )
 from ._cython_configuration import (  # noqa: WPS436
     make_cythonize_cli_args_from_config as _make_cythonize_cli_args_from_config,

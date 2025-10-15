@@ -1,8 +1,0 @@
-The CI is now configured to use
-:external+tox:std:ref:`tox-run---installpkg` when testing
-pre-built dists. This replaces the previously existing
-tox-level hacks in ``test-binary-dists`` and
-``test-source-dists`` environments that have now been
-removed.
-
--- by :user:`webknjaz`

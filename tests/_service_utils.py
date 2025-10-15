@@ -69,6 +69,7 @@ def wait_for_svc_ready_state(
 
 def ensure_ssh_session_connected(  # noqa: WPS317
         ssh_session, sshd_addr, ssh_clientkey_path,  # noqa: WPS318
+        ssh_session_retries=0,
 ):
     """Attempt connecting to the SSH server until successful.
 
@@ -89,4 +90,5 @@ def ensure_ssh_session_connected(  # noqa: WPS317
         private_key=ssh_clientkey_path.read_bytes(),
         host_key_checking=False,
         look_for_keys=False,
+        open_session_retries=ssh_session_retries,
     )

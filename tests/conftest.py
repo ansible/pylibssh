@@ -127,6 +127,25 @@ def ssh_client_session(ssh_session_connect):
 
 
 @pytest.fixture
+def ssh_session_connect_retries(sshd_addr, ssh_clientkey_path):
+    """
+    Authenticate existing session object against SSHD with a private SSH key.
+
+    This sets ``open_session_retries=1000`` and it returns a function
+    that takes session as parameter.
+
+    :returns: Function that will connect the session.
+    :rtype: Callback
+    """
+    return partial(
+        ensure_ssh_session_connected,
+        sshd_addr=sshd_addr,
+        ssh_clientkey_path=ssh_clientkey_path,
+        ssh_session_retries=1000,
+    )
+
+
+@pytest.fixture
 def ssh_session_connect(sshd_addr, ssh_clientkey_path):
     """
     Authenticate existing session object against SSHD with a private SSH key.

@@ -1,4 +1,0 @@
-The ``requires`` setting has been removed from :file:`tox.ini`, which
-works around the upstream tool bug. This enabled us to re-introduce
-CI jobs testing against sdist under Python 3.12 and newer
--- by :user:`webknjaz`.

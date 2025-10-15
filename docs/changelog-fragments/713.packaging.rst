@@ -1,2 +1,0 @@
-The ``manylinux`` build scripts now limit ``cmake`` below
-version 4 -- by :user:`webknjaz`.

@@ -1,2 +1,0 @@
-The project stopped being tested under Ubuntu 20.04 VM since
-GitHub has sunset their CI images -- by :user:`webknjaz`.

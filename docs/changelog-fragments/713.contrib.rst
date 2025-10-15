@@ -1,5 +1,0 @@
-The ``multiarch/qemu-user-static`` image got replaced with
-``tonistiigi/binfmt`` because the latter is no longer
-maintained and the former includes the fixed version of QEMU.
-
--- by :user:`webknjaz`

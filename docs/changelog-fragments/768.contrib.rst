@@ -1,2 +1,0 @@
-Changed tests to use more lightweight ECDSA keys to avoid
-timeouts -- by :user:`Jakuje`.

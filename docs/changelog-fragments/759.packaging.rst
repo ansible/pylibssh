@@ -1,6 +1,0 @@
-The RPM spec file no longer makes use of unpackaged dists
-from PyPI on RHEL. The configuration is almost identical to
-the one for Fedora. Only the ``setuptools-scm`` spec is
-temporarily patched to allow older versions under RHEL.
-
--- by :user:`webknjaz`

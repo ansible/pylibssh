@@ -1,2 +1,0 @@
-The host OS is now ARM-based when building ``manylinux_*_*_aarch64``
-images for CI/CD -- by :user:`webknjaz`.

@@ -1,5 +1,0 @@
-The CI/CD infrastructure no longer pre-builds custom manylinux images
-for building wheel targeting ``manylinux1``, ``manylinux2010`` and
-``manylinux2014`` tags.
-
--- by :user:`webknjaz`

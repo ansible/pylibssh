@@ -1,4 +1,0 @@
-PyPI no longer ships year-versioned manylinux wheels. One may
-have to update their version of pip to pick up the new ones.
-
--- by :user:`webknjaz`

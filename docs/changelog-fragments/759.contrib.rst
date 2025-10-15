@@ -1,7 +1,0 @@
-The CI/CD jobs for smoke-testing RPMs have been simplified
-and now, they execute the same steps for all distro types.
-They make use of ``pyproject-rpm-macros`` even under RHEL.
-Installing external RPMs is the only conditional step that
-is skipped on Fedora.
-
--- by :user:`webknjaz`

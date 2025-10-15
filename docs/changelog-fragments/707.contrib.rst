@@ -1,5 +1,0 @@
-The linting is now configured to check schemas of the
-Read The Docs configuration file and the GitHub Actions
-CI/CD workflow files in addition to enforcing timeouts.
-
--- by :user:`webknjaz`

@@ -76,6 +76,7 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: 1  # Hide "there's a newer pip" message
   PIP_NO_PYTHON_VERSION_WARNING: 1  # Hide "this Python is deprecated" message
   PIP_NO_WARN_SCRIPT_LOCATION: 1  # Hide "script dir is not in $PATH" message
+  PROJECT_NAME: ansible-pylibssh
   PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
   TOX_PARALLEL_NO_SPINNER: 1  # Disable tox's parallel run spinner animation
   TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
@@ -113,9 +114,6 @@ run-name: >-
   }})
 
 jobs:
-  lint:
-    uses: ./.github/workflows/reusable-linters.yml
-
   pre-setup:
     name: ⚙️ Pre-set global build settings
 
@@ -153,8 +151,8 @@ jobs:
         }}
       profiling-enabled: >-
         ${{ steps.profiling-check.outputs.profiling-enabled || false }}
-      cache-key-files: >-
-        ${{ steps.calc-cache-key-files.outputs.files-hash-key }}
+      cache-key-for-dep-files: >-
+        ${{ steps.calc-cache-key-files.outputs.cache-key-for-dep-files }}
       git-tag: ${{ steps.git-tag.outputs.tag }}
       sdist-artifact-name: ${{ steps.artifact-name.outputs.sdist }}
       wheel-artifact-name: ${{ steps.artifact-name.outputs.wheel }}
@@ -226,73 +224,19 @@ jobs:
           }}
         ref: ${{ github.event.inputs.release-committish }}
     - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      if: >-
-        steps.request-check.outputs.release-requested != 'true'
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-    - name: >-
         Calculate dependency files' combined hash value
         for use in the cache key
       if: >-
         steps.request-check.outputs.release-requested != 'true'
       id: calc-cache-key-files
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-
-        FILE_APPEND_MODE = 'a'
-
-        hashes_combo = sha512('-'.join((
-          "${{ hashFiles('setup.cfg') }}",
-          "${{ hashFiles('tox.ini')}}",
-          "${{ hashFiles('pyproject.toml') }}",
-          "${{ hashFiles('.pre-commit-config.yaml') }}",
-          "${{ hashFiles('pytest.ini') }}",
-          "${{ hashFiles('requirements-build.*') }}",
-          "${{ hashFiles('docs/requirements.*') }}",
-        )).encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f"files-hash-key={hashes_combo}", file=outputs_file)
+      uses: ./.github/actions/cache-keys
     - name: Set up pip cache
       if: >-
         steps.request-check.outputs.release-requested != 'true'
-      uses: actions/cache@v4
+      uses: re-actors/cache-python-deps@release/v1
       with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          steps.calc-cache-key-files.outputs.files-hash-key }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+        cache-key-for-dependency-files: >-
+          ${{ steps.calc-cache-key-files.outputs.cache-key-for-dep-files }}
     - name: Drop Git tags from HEAD for non-release requests
       if: >-
         steps.request-check.outputs.release-requested != 'true'
@@ -363,11 +307,14 @@ jobs:
 
         FILE_APPEND_MODE = 'a'
 
+        whl_file_prj_base_name = '${{ env.PROJECT_NAME }}'.replace('-', '_')
+        sdist_file_prj_base_name = whl_file_prj_base_name.replace('.', '_')
+
         with Path(environ['GITHUB_OUTPUT']).open(
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(
-                "sdist=ansible-pylibssh-${{
+                "sdist=${{ env.PROJECT_NAME }}-${{
                     steps.request-check.outputs.release-requested == 'true'
                     && github.event.inputs.release-version
                     || steps.scm-version.outputs.dist-version
@@ -375,7 +322,7 @@ jobs:
                 file=outputs_file,
             )
             print(
-                "wheel=ansible_pylibssh-${{
+                f"wheel={whl_file_prj_base_name !s}-${{
                     steps.request-check.outputs.release-requested == 'true'
                     && github.event.inputs.release-version
                     || steps.scm-version.outputs.dist-version
@@ -414,6 +361,13 @@ jobs:
                 && github.event.inputs.release-version
                 || steps.scm-version.outputs.dist-version-for-filenames
             }}', file=outputs_file)
+
+  lint:
+    needs:
+    - pre-setup  # transitive, for accessing settings
+    uses: ./.github/workflows/reusable-linters.yml
+    with:
+      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
 
   build-changelog:
     name: >-
@@ -480,50 +434,17 @@ jobs:
         fetch-depth: 1  # Enough for this job to generate the changelog
         ref: ${{ github.event.inputs.release-committish }}
 
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4
+      uses: re-actors/cache-python-deps@release/v1
       with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          needs.pre-setup.outputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+        cache-key-for-dependency-files: >-
+          ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
     - name: Install tox
       run: >-
         python -m
         pip install
         --user
-        '${{ env.TOX_VERSION }}'
+        'tox < 4.12'
 
     - name: Pre-populate the tox env
       run: >-
@@ -574,7 +495,7 @@ jobs:
         -e 's/:gh:`\([-.a-zA-Z0-9]\+\)`/https:\/\/github.com\/\1/g'
         -e 's/:\(issue\|pr\):`\([0-9]\+\)`/#\2/g'
         -e 's/:user:`\([-.a-zA-Z0-9]\+\)`/@\1/g'
-        -e 's/|project|/ansible-pylibssh/g'
+        -e 's/|project|/${{ env.PROJECT_NAME }}/g'
         '${{ needs.pre-setup.outputs.changelog-draft-name-rst }}'
       shell: bash
     - name: Install pandoc via apt
@@ -871,44 +792,11 @@ jobs:
         git update-index --assume-unchanged $(git ls-files --modified)
       shell: bash
 
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4
+      uses: re-actors/cache-python-deps@release/v1
       with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          needs.pre-setup.outputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+        cache-key-for-dependency-files: >-
+          ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
     - name: Install tox
       run: >-
         python -m
@@ -1086,7 +974,7 @@ jobs:
       run: >-
         sed -i
         "s#^\(Version:\s\+\).*#\1${{ needs.pre-setup.outputs.dist-version }}#"
-        packaging/rpm/ansible-pylibssh.spec
+        packaging/rpm/${{ env.PROJECT_NAME }}.spec
 
     - name: Download all the dists  # because `rpmlint` executes the spec file
       uses: actions/download-artifact@v4
@@ -1096,7 +984,7 @@ jobs:
         merge-multiple: true
 
     - name: Lint the RPM spec file
-      run: rpmlint packaging/rpm/ansible-pylibssh.spec
+      run: rpmlint packaging/rpm/${{ env.PROJECT_NAME }}.spec
 
     - name: Copy sdist to the sources dir
       run: >-
@@ -1162,12 +1050,15 @@ jobs:
         }}.noarch.rpm
 
     - name: Install static build requirements
-      run: dnf builddep --assumeyes --spec packaging/rpm/ansible-pylibssh.spec
+      run: >-
+        dnf builddep --assumeyes --spec 'packaging/rpm/${{
+          env.PROJECT_NAME
+        }}.spec'
 
     - name: Fetch sources and patches
       run: >-
         spectool --all --get-files --sourcedir
-        packaging/rpm/ansible-pylibssh.spec
+        packaging/rpm/${{ env.PROJECT_NAME }}.spec
 
     - name: Resolve and install dynamic build deps and build an SRPM
       # Ref: https://github.com/rpm-software-management/rpm/commit/58dcfdd
@@ -1175,13 +1066,13 @@ jobs:
         while :
         do
           set +e
-          rpmbuild -br packaging/rpm/ansible-pylibssh.spec
+          rpmbuild -br packaging/rpm/${{ env.PROJECT_NAME }}.spec
           rc="$?"
           [ "${rc}" -eq 0 ] && break
           [ "${rc}" -ne 11 ] && exit "${rc}"
           set -e
           dnf builddep --assumeyes \
-            $HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
+            $HOME/rpmbuild/SRPMS/python-${{ env.PROJECT_NAME }}-${{
                 needs.pre-setup.outputs.dist-version
             }}-1${{
               steps.distribution-meta.outputs.dist-tag
@@ -1192,7 +1083,7 @@ jobs:
       run: >-
         rpmbuild
         --rebuild
-        "$HOME/rpmbuild/SRPMS/python-ansible-pylibssh-${{
+        "$HOME/rpmbuild/SRPMS/python-${{ env.PROJECT_NAME }}-${{
             needs.pre-setup.outputs.dist-version
         }}-1${{
           steps.distribution-meta.outputs.dist-tag
@@ -1202,7 +1093,7 @@ jobs:
         dnf
         install
         --assumeyes
-        "$HOME/rpmbuild/RPMS/x86_64/python3-ansible-pylibssh-${{
+        "$HOME/rpmbuild/RPMS/x86_64/python3-${{ env.PROJECT_NAME }}-${{
             needs.pre-setup.outputs.dist-version
         }}-1${{
           steps.distribution-meta.outputs.dist-tag
@@ -1255,7 +1146,7 @@ jobs:
       release-requested: >-
         ${{ needs.pre-setup.outputs.release-requested }}
       yolo: ${{ fromJSON(needs.pre-setup.outputs.is-yolo-mode) }}
-      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
+      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: >-
@@ -1290,7 +1181,7 @@ jobs:
       release-requested: >-
         ${{ needs.pre-setup.outputs.release-requested }}
       yolo: ${{ fromJSON(needs.pre-setup.outputs.is-yolo-mode) }}
-      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-files }}
+      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: >-
@@ -1326,44 +1217,11 @@ jobs:
         workflow-artifact-name: >-
           ${{ needs.pre-setup.outputs.dists-artifact-name }}
 
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4
+      uses: re-actors/cache-python-deps@release/v1
       with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          needs.pre-setup.outputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+        cache-key-for-dependency-files: >-
+          ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
     - name: Install tox
       run: >-
         python -m
@@ -1426,7 +1284,7 @@ jobs:
     environment:
       name: pypi
       url: >-
-        https://pypi.org/project/ansible-pylibssh/${{
+        https://pypi.org/project/${{ env.PROJECT_NAME }}/${{
           needs.pre-setup.outputs.dist-version
         }}
 
@@ -1471,7 +1329,7 @@ jobs:
     environment:
       name: testpypi
       url: >-
-        https://test.pypi.org/project/ansible-pylibssh/${{
+        https://test.pypi.org/project/${{ env.PROJECT_NAME }}/${{
           needs.pre-setup.outputs.dist-version
         }}
 
@@ -1597,7 +1455,9 @@ jobs:
       run: >-
         git tag
         -m '${{ needs.pre-setup.outputs.git-tag }}'
-        -m 'Published at https://pypi.org/project/ansible-pylibssh/${{
+        -m 'Published at https://pypi.org/project/${{
+          env.PROJECT_NAME
+        }}/${{
           needs.pre-setup.outputs.dist-version
         }}'
         -m 'This release has been produced by the following workflow run: ${{
@@ -1713,7 +1573,9 @@ jobs:
         echo '## 📝 Release notes' | tee -a release-notes.md
         echo | tee -a release-notes.md
         echo | tee -a release-notes.md
-        echo '📦 PyPI page: https://pypi.org/project/ansible-pylibssh/${{
+        echo '📦 PyPI page: https://pypi.org/project/${{
+          env.PROJECT_NAME
+        }}/${{
           needs.pre-setup.outputs.dist-version
         }}' | tee -a release-notes.md
         echo | tee -a release-notes.md
@@ -1799,7 +1661,12 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}/simple/ansible-pylibssh/
+      url: >-
+        ${{
+          steps.deployment.outputs.page_url
+        }}/simple/${{
+          env.PROJECT_NAME
+        }}/
 
     permissions:
       contents: read  # This job doesn't need to `git push` anything
@@ -1818,7 +1685,7 @@ jobs:
         --dest dist/
         --no-deps
         --pre
-        ansible-pylibssh
+        '${{ env.PROJECT_NAME }}'
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
@@ -1830,44 +1697,11 @@ jobs:
       uses: actions/setup-python@v5.3.0
       with:
         python-version: 3.11
-    - name: >-
-        Calculate Python interpreter version hash value
-        for use in the cache key
-      id: calc-cache-key-py
-      run: |
-        from hashlib import sha512
-        from os import environ
-        from pathlib import Path
-        from sys import version
-
-        FILE_APPEND_MODE = 'a'
-
-        hash = sha512(version.encode()).hexdigest()
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(f'py-hash-key={hash}', file=outputs_file)
-      shell: python
     - name: Set up pip cache
-      uses: actions/cache@v4
+      uses: re-actors/cache-python-deps@release/v1
       with:
-        path: >-
-          ${{
-              runner.os == 'Linux'
-              && '~/.cache/pip'
-              || '~/Library/Caches/pip'
-          }}
-        key: >-
-          ${{ runner.os }}-pip-${{
-          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
-          needs.pre-setup.outputs.cache-key-files }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{
-            steps.calc-cache-key-py.outputs.py-hash-key
-          }}-
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+        cache-key-for-dependency-files: >-
+          ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
     - name: Install dumb-pypi dist from PyPI
       run: python -m pip install dumb-pypi --user
     - name: Generate a dumb PyPI website

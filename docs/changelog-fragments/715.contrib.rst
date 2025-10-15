@@ -1,1 +1,0 @@
-Added Fedora 41 and 42 to CI configuration -- by :user:`Jakuje`.

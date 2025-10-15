@@ -14,6 +14,444 @@ Changelog
 
 .. towncrier release notes start
 
+v1.3.0
+======
+
+*(2025-10-12)*
+
+
+Bug fixes
+---------
+
+- The bundled libssh 0.11.2 no longer fails, when the SFTP server announces
+  protocol version 3, but does not provide error message and language tag
+  in the ``SSH_FXP_STATUS`` message -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`222`.
+
+- Fixed reading files over SFTP that go over the pre-defined chunk size.
+
+  Prior to this change, the files could end up being corrupted, ending up with the last read chunk written to the file instead of the entire payload.
+
+  -- by :user:`Jakuje`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`638`.
+
+- Repetitive calls to ``exec_channel()`` no longer crash and return reliable output -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`658`.
+
+- Uploading large files over SCP no longer fails -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`661`.
+
+- Improved performance of SFTP transfers by using larger transfer chunks -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`664`.
+
+- Fixed crash when more operations were called after ``session.close()`` -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`709`.
+
+
+Features
+--------
+
+- The underlying ``SSH_OPTIONS_KEY_EXCHANGE`` option of ``libssh`` is
+  now available as ``key_exchange_algorithms`` -- by :user:`NilashishC`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`675`.
+
+- Added a ``pylibsshext.session.connect()`` parameter
+  ``open_session_retries`` -- by :user:`justin-stephenson`.
+
+  The ``open_session_retries`` session ``connect()``
+  parameter allows a configurable number of retries if
+  libssh ``ssh_channel_open_session()`` returns ``SSH_AGAIN``.
+  The default option value is 0, no retries will be
+  attempted.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`756`.
+
+- Added a ``pylibsshext.session.connect()`` parameter
+  ``timeout_usec`` to set ``SSH_OPTIONS_TIMEOUT_USEC``.
+
+  This allows setting the ``SSH_OPTIONS_TIMEOUT_USEC``
+  ssh option, though ``SSH_OPTIONS_TIMEOUT`` is a more
+  practical option.
+
+  -- by :user:`justin-stephenson`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`756`.
+
+
+Deprecations (removal in next major release)
+--------------------------------------------
+
+- The project stopped being tested under Ubuntu 20.04 VM since
+  GitHub has sunset their CI images -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`708`.
+
+
+Removals and backward incompatible breaking changes
+---------------------------------------------------
+
+- Dropped support for Python 3.6, 3.7 and 3.8
+  -- by :user:`Qalthos` and :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`532`, :issue:`718`.
+
+- PyPI no longer ships year-versioned manylinux wheels. One may
+  have to update their version of pip to pick up the new ones.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`562`.
+
+
+Improved documentation
+----------------------
+
+- Added a :ref:`Communication <communication>` section to the main
+  documentation page -- by :user:`Andersson007`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`640`.
+
+- Fixed the argument order in the ``scp.put()`` usage example
+  -- by :user:`kucharskim`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`646`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- PyPI now only ships :pep:`600`-compatible manylinux wheels
+  -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`562`.
+
+- The ``pytest-forked`` dependency of build, development and test environments was removed -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`658`, :issue:`760`.
+
+- The wheels are now built in cached container images with a
+  correctly set platform identifier.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`692`.
+
+- The ``manylinux`` build scripts now limit ``cmake`` below
+  version 4 -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`713`.
+
+- Stopped skipping SCP tests in the RPM spec -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`714`.
+
+- Started bundling a copy of libssh 0.11.1 in platform-specific
+  wheels published on PyPI -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`735`.
+
+- Updated the bundled copy of OpenSSL to the latest version 3.5.0
+  in ``manylinux`` wheels -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`738`.
+
+- Updated the bundled version of libssh to 0.11.2 in platform-specific
+  wheels published on PyPI -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`753`.
+
+- The RPM spec file no longer makes use of unpackaged dists
+  from PyPI on RHEL. The configuration is almost identical to
+  the one for Fedora. Only the ``setuptools-scm`` spec is
+  temporarily patched to allow older versions under RHEL.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`759`.
+
+- A workaround has been applied to the in-tree build backend that prevents
+  Cython from hanging when ``libssh`` header files are missing
+  -- by :user:`webknjaz`.
+
+  The patch makes ``cythonize()`` single-threaded because :mod:`multiprocessing`
+  gets stuck. The upstream will eventually fix this by migrating to
+  :mod:`concurrent.futures`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`762`, :issue:`769`, :issue:`770`.
+
+- Updated the bundled version of libssh to 0.11.3 in platform-specific
+  wheels published on PyPI -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`766`.
+
+
+Contributor-facing changes
+--------------------------
+
+- The manylinux build scripts have been adjusted to resolve the
+  dependency conflict between certain ``packaging`` and ``setuptools``
+  versions -- by :user:`webknjaz`.
+
+  Previously, this was making some of the CI jobs crash with a traceback
+  when building said wheels.
+
+  *Related commits on GitHub:*
+  :commit:`1dfbf70fdfd99ae75068fdb3630790c96101a96a`.
+
+- The Git archives are now immutable per the packaging recommendations.
+  This allows downstreams safely use GitHub archive URLs when
+  re-packaging -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`ea34887831a0c6547b32cd8c6a035bb77b91e771`.
+
+- Manylinux wheels are no longer built using custom shell scripts.
+  Instead, this is delegated to the ``cibuildwheel`` tool.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`562`.
+
+- Updated the version of ``libssh`` to the latest release v0.11.1
+  in the cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`636`.
+
+- All the uses of ``actions/upload-artifact@v3`` and
+  ``actions/download-artifact@v3`` have been updated to use
+  ``v4``. This also includes bumping
+  ``re-actors/checkout-python-sdist`` to ``release/v2`` as it
+  uses ``actions/download-artifact`` internally.
+
+  -- by :user:`NilashishC` and :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`676`.
+
+- The ``dumb-pypi``-produced static package index now renders correct
+  URLs to the distribution packages -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`678`, :issue:`679`, :issue:`749`.
+
+- The CI is now configured to use
+  :external+tox:std:ref:`tox-run---installpkg` when testing
+  pre-built dists. This replaces the previously existing
+  tox-level hacks in ``test-binary-dists`` and
+  ``test-source-dists`` environments that have now been
+  removed.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`688`.
+
+- The wheel building workflows have been updated to set the
+  OCI image platform identifiers to legal values like
+  ``linux/arm64``.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`692`.
+
+- The CI is now configured to always set job timeout values.
+  This will ensure that the jobs that get stuck don't consume
+  all 6 hours just hanging, improving responsiveness and the
+  overall CI/CD resource usage.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`706`.
+
+- The linting is now configured to check schemas of the
+  Read The Docs configuration file and the GitHub Actions
+  CI/CD workflow files in addition to enforcing timeouts.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`707`.
+
+- The ``multiarch/qemu-user-static`` image got replaced with
+  ``tonistiigi/binfmt`` because the latter is no longer
+  maintained and the former includes the fixed version of QEMU.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`713`.
+
+- Added Fedora 41 and 42 to CI configuration -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`715`.
+
+- Removed needless step from CI adjusting centos8 repositories -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`716`.
+
+- The CI/CD infrastructure no longer pre-builds custom manylinux images
+  for building wheel targeting ``manylinux1``, ``manylinux2010`` and
+  ``manylinux2014`` tags.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`730`.
+
+- The host OS is now ARM-based when building ``manylinux_*_*_aarch64``
+  images for CI/CD -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`731`.
+
+- False negative warnings reported by ``coveragepy`` when are now
+  disabled. They are evident when ``pytest-cov`` runs with the
+  ``pytest-xdist`` integration. ``pytest`` 8.4 gives them more
+  visibility and out ``filterwarnings = error`` setting was turning
+  them into errors before this change.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`732`.
+
+- GitHub Actions CI/CD no longer runs jobs that install source
+  distributions into the tox environments for testing
+  -- by :user:`webknjaz`.
+
+  This is a temporary workaround for an upstream bug in tox and
+  said jobs are non-essential.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`733`.
+
+- Updated the pre-built ``libffi`` version to 3.4.8 in the
+  cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`734`.
+
+- Reverted workaround keeping the old CMake version installed
+  as the new ``libssh`` works with newer versions -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`737`.
+
+- The CI infrastructure now produces ``manylinux_2_31_armv7l`` base images
+  with ``libssh`` and ``openssl`` pre-built -- by :user:`Jakuje` and
+  :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`740`.
+
+- Started caching ``manylinux`` build images to be used for producing ``2_34`` tagged wheels
+  in ``build-manylinux-container-images`` workflow -- by :user:`KB-perByte`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`741`.
+
+- The :file:`reusable-cibuildwheel.yml` workflow has been refactored to
+  be more generic and :file:`ci-cd.yml` now holds all the configuration
+  toggles -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`750`.
+
+- Updated the version of ``libssh`` to the latest release v0.11.2
+  in the cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`752`.
+
+- When building wheels, the source distribution is now passed directly
+  to the ``cibuildwheel`` invocation -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`754`.
+
+- Fixed link to python3-pytest for CentOS 9 Stream as it was recently moved from
+  CRB to AppStream -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`758`.
+
+- The CI/CD jobs for smoke-testing RPMs have been simplified
+  and now, they execute the same steps for all distro types.
+  They make use of ``pyproject-rpm-macros`` even under RHEL.
+  Installing external RPMs is the only conditional step that
+  is skipped on Fedora.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`759`.
+
+- The ``requires`` setting has been removed from :file:`tox.ini`, which
+  works around the upstream tool bug. This enabled us to re-introduce
+  CI jobs testing against sdist under Python 3.12 and newer
+  -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`764`.
+
+- Updated the version of ``libssh`` to the latest release v0.11.3
+  in the cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`765`.
+
+- Changed tests to use more lightweight ECDSA keys to avoid
+  timeouts -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`768`.
+
+
+----
+
+
 v1.2.2
 ======
 

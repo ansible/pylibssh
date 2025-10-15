@@ -1,5 +1,0 @@
-Fixed reading files over SFTP that go over the pre-defined chunk size.
-
-Prior to this change, the files could end up being corrupted, ending up with the last read chunk written to the file instead of the entire payload.
-
--- by :user:`Jakuje`
