@@ -58,6 +58,7 @@ repos:
   - id: check-merge-conflict
   - id: double-quote-string-fixer
   - id: end-of-file-fixer
+  - id: fix-byte-order-marker
   - id: requirements-txt-fixer
     exclude: >-
       ^(docs/requirements|requirements-build)\.txt$
@@ -67,7 +68,6 @@ repos:
     files: >-
       ^tests/[^_].*\.py$
   - id: check-added-large-files
-  - id: check-byte-order-marker
   - id: check-case-conflict
   # disabled due to pre-commit/pre-commit-hooks#159
   # - id: check-docstring-first
