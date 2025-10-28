@@ -1,0 +1,207 @@
+name: macOS universal OpenSSL+libssh
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ devel ]
+  pull_request:
+
+env:
+  OPENSSL_VER: "3.1.4"
+  LIBSSH_VER: "0.11.2"
+
+jobs:
+  macos-arm64-build:
+    name: Build (arm64)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prep dirs
+        run: |
+          mkdir -p build arm64
+          echo "ROOT=$PWD" >> $GITHUB_ENV
+
+      - name: Build OpenSSL (arm64)
+        run: |
+          set -euxo pipefail
+          cd build
+          curl -LO "https://www.openssl.org/source/openssl-${OPENSSL_VER}.tar.gz"
+          tar xzf "openssl-${OPENSSL_VER}.tar.gz"
+          cd "openssl-${OPENSSL_VER}"
+          ./Configure darwin64-arm64-cc --prefix="$GITHUB_WORKSPACE/arm64/openssl" --libdir=lib \
+            no-tests no-ssl3 no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128
+          make -j"$(sysctl -n hw.ncpu)"
+          make install_sw
+          file "$GITHUB_WORKSPACE/arm64/openssl/lib/libssl.dylib"
+
+      - name: Build libssh (arm64)
+        run: |
+          set -euxo pipefail
+          brew install cmake zlib || true
+          cd build
+          curl -LO "https://www.libssh.org/files/0.11/libssh-${LIBSSH_VER}.tar.xz"
+          tar xJf "libssh-${LIBSSH_VER}.tar.xz"
+          mkdir -p "libssh-${LIBSSH_VER}/build-arm64"
+          cd "libssh-${LIBSSH_VER}/build-arm64"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=MinSizeRel \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/arm64/libssh" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DBUILD_SHARED_LIBS=ON \
+            -DUNIT_TESTING=OFF -DCLIENT_TESTING=OFF -DSERVER_TESTING=OFF \
+            -DWITH_EXAMPLES=OFF -DWITH_GSSAPI=ON -DWITH_SERVER=OFF -DWITH_PCAP=OFF -DWITH_ZLIB=ON \
+            -DOPENSSL_ROOT_DIR="$GITHUB_WORKSPACE/arm64/openssl" \
+            -DOPENSSL_INCLUDE_DIR="$GITHUB_WORKSPACE/arm64/openssl/include" \
+            -DOPENSSL_CRYPTO_LIBRARY="$GITHUB_WORKSPACE/arm64/openssl/lib/libcrypto.dylib" \
+            -DOPENSSL_SSL_LIBRARY="$GITHUB_WORKSPACE/arm64/openssl/lib/libssl.dylib"
+          make -j"$(sysctl -n hw.ncpu)"
+          make install/strip
+          file "$GITHUB_WORKSPACE/arm64/libssh/lib/libssh.dylib"
+
+      - name: Package artifacts (arm64)
+        run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/arm64"
+          tar czf "$GITHUB_WORKSPACE/openssl-${{ env.OPENSSL_VER }}-arm64.tgz" openssl
+          tar czf "$GITHUB_WORKSPACE/libssh-${{ env.LIBSSH_VER }}-arm64.tgz" libssh
+
+      - name: Upload artifacts (arm64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-artifacts
+          path: |
+            openssl-${{ env.OPENSSL_VER }}-arm64.tgz
+            libssh-${{ env.LIBSSH_VER }}-arm64.tgz
+          if-no-files-found: error
+
+  macos-x86_64-build:
+    name: Build (x86_64)
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prep dirs
+        run: |
+          mkdir -p build x86_64
+
+      - name: Build OpenSSL (x86_64)
+        run: |
+          set -euxo pipefail
+          cd build
+          curl -LO "https://www.openssl.org/source/openssl-${OPENSSL_VER}.tar.gz"
+          tar xzf "openssl-${OPENSSL_VER}.tar.gz"
+          cd "openssl-${OPENSSL_VER}"
+          ./Configure darwin64-x86_64-cc --prefix="$GITHUB_WORKSPACE/x86_64/openssl" --libdir=lib \
+            no-tests no-ssl3 no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128
+          make -j"$(sysctl -n hw.ncpu)"
+          make install_sw
+          file "$GITHUB_WORKSPACE/x86_64/openssl/lib/libssl.dylib"
+
+      - name: Build libssh (x86_64)
+        run: |
+          set -euxo pipefail
+          brew install cmake zlib || true
+          cd build
+          curl -LO "https://www.libssh.org/files/0.11/libssh-${LIBSSH_VER}.tar.xz"
+          tar xJf "libssh-${LIBSSH_VER}.tar.xz"
+          mkdir -p "libssh-${LIBSSH_VER}/build-x86_64"
+          cd "libssh-${LIBSSH_VER}/build-x86_64"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=MinSizeRel \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/x86_64/libssh" \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+            -DBUILD_SHARED_LIBS=ON \
+            -DUNIT_TESTING=OFF -DCLIENT_TESTING=OFF -DSERVER_TESTING=OFF \
+            -DWITH_EXAMPLES=OFF -DWITH_GSSAPI=ON -DWITH_SERVER=OFF -DWITH_PCAP=OFF -DWITH_ZLIB=ON \
+            -DOPENSSL_ROOT_DIR="$GITHUB_WORKSPACE/x86_64/openssl" \
+            -DOPENSSL_INCLUDE_DIR="$GITHUB_WORKSPACE/x86_64/openssl/include" \
+            -DOPENSSL_CRYPTO_LIBRARY="$GITHUB_WORKSPACE/x86_64/openssl/lib/libcrypto.dylib" \
+            -DOPENSSL_SSL_LIBRARY="$GITHUB_WORKSPACE/x86_64/openssl/lib/libssl.dylib"
+          make -j"$(sysctl -n hw.ncpu)"
+          make install/strip
+          file "$GITHUB_WORKSPACE/x86_64/libssh/lib/libssh.dylib"
+
+      - name: Package artifacts (x86_64)
+        run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/x86_64"
+          tar czf "$GITHUB_WORKSPACE/openssl-${{ env.OPENSSL_VER }}-x86_64.tgz" openssl
+          tar czf "$GITHUB_WORKSPACE/libssh-${{ env.LIBSSH_VER }}-x86_64.tgz" libssh
+
+      - name: Upload artifacts (x86_64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x86_64-artifacts
+          path: |
+            openssl-${{ env.OPENSSL_VER }}-x86_64.tgz
+            libssh-${{ env.LIBSSH_VER }}-x86_64.tgz
+          if-no-files-found: error
+
+  macos-merge-universal:
+    name: Merge → universal2
+    runs-on: macos-14
+    needs: [macos-arm64-build, macos-x86_64-build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-arm64-artifacts
+          path: arm64
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-x86_64-artifacts
+          path: x86_64
+
+      - name: Unpack
+        run: |
+          mkdir -p merge
+          tar xzf arm64/openssl-*-arm64.tgz -C merge
+          tar xzf arm64/libssh-*-arm64.tgz   -C merge
+          tar xzf x86_64/openssl-*-x86_64.tgz -C merge
+          tar xzf x86_64/libssh-*-x86_64.tgz  -C merge
+          ls -R merge
+
+      - name: Lipo → universal2
+        run: |
+          set -euxo pipefail
+          mkdir -p universal/openssl/lib universal/openssl/include universal/libssh/lib universal/libssh/include
+
+          cp -R merge/openssl/include/* universal/openssl/include/
+          cp -R merge/libssh/include/*   universal/libssh/include/
+
+          lipo -create merge/openssl/lib/libssl.dylib   merge/x86_64/openssl/lib/libssl.dylib   -output universal/openssl/lib/libssl.dylib
+          lipo -create merge/openssl/lib/libcrypto.dylib merge/x86_64/openssl/lib/libcrypto.dylib -output universal/openssl/lib/libcrypto.dylib
+          lipo -create merge/libssh/lib/libssh.dylib     merge/x86_64/libssh/lib/libssh.dylib     -output universal/libssh/lib/libssh.dylib
+
+          # optional static libs if built:
+          if [ -f merge/openssl/lib/libssl.a ] && [ -f merge/x86_64/openssl/lib/libssl.a ]; then
+            lipo -create merge/openssl/lib/libssl.a merge/x86_64/openssl/lib/libssl.a -output universal/openssl/lib/libssl.a
+          fi
+          if [ -f merge/openssl/lib/libcrypto.a ] && [ -f merge/x86_64/openssl/lib/libcrypto.a ]; then
+            lipo -create merge/openssl/lib/libcrypto.a merge/x86_64/openssl/lib/libcrypto.a -output universal/openssl/lib/libcrypto.a
+          fi
+          if [ -f merge/libssh/lib/libssh.a ] && [ -f merge/x86_64/libssh/lib/libssh.a ]; then
+            lipo -create merge/libssh/lib/libssh.a merge/x86_64/libssh/lib/libssh.a -output universal/libssh/lib/libssh.a
+          fi
+
+          file universal/openssl/lib/libssl.dylib
+          lipo -info universal/openssl/lib/libssl.dylib
+          otool -L universal/libssh/lib/libssh.dylib
+
+      - name: Package universal artifacts
+        run: |
+          tar czf openssl-${{ env.OPENSSL_VER }}-universal2.tgz -C universal openssl
+          tar czf libssh-${{ env.LIBSSH_VER }}-universal2.tgz   -C universal libssh
+
+      - name: Upload universal artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal2-artifacts
+          path: |
+            openssl-${{ env.OPENSSL_VER }}-universal2.tgz
+            libssh-${{ env.LIBSSH_VER }}-universal2.tgz
+          if-no-files-found: error
