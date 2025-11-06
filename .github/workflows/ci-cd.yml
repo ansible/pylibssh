@@ -1219,6 +1219,7 @@ jobs:
     name: 🧪 Test${{ '' }}  # nest jobs under the same sidebar category
     needs:
     - build-bin-macos
+    - macos-merge-universal
     - build-src
     - pre-setup  # transitive, for accessing settings
     strategy:
@@ -1251,6 +1252,9 @@ jobs:
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: >-
         ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      macos-universal-artifact-name: macos-universal2-artifacts
+      openssl-lib-name: openssl
+      libssh-lib-name: libssh
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
