@@ -1,0 +1,2 @@
+Remove the SCP EOF message check in the ``get`` method to allow libssh clients
+get files from Cisco SCP servers. -- by :user:`timway`.

@@ -159,12 +159,6 @@ cdef class SCP:
                     remaining_bytes_to_read -= read_bytes
             if mode >= 0:
                 os.chmod(local_file, mode)
-
-            # Make sure we have finished requesting files
-            rc = libssh.ssh_scp_pull_request(scp)
-            if rc != libssh.SSH_SCP_REQUEST_EOF:
-                raise LibsshSCPException("Unexpected request: %s" % self._get_ssh_error_str())
-
         finally:
             if read_buffer is not NULL:
                 PyMem_Free(read_buffer)
