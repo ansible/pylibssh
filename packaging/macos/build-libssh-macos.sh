@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+
+set -eEuo pipefail
 
 # Prompt for build parameters
 read -p "libssh version [0.10.6]: " LIBSSH_VERSION
