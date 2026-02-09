@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+
+set -eEuo pipefail
 
 if [ $# -ne 3 ]; then
     echo "Usage: $0 <arm64_dir> <x86_64_dir> <output_dir>"
