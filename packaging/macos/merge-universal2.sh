@@ -9,29 +9,34 @@ fi
 
 ARM64_DIR=$1
 X86_64_DIR=$2
-OUTPUT_DIR=$3
+MACOS_OUTPUT=$3
 
 if [ ! -d "${ARM64_DIR}" ] || [ ! -d "${X86_64_DIR}" ]; then
     echo "Error: Input directories don't exist"
     exit 1
 fi
 
-mkdir -p ${OUTPUT_DIR}/{lib,include}
+mkdir -pv "${MACOS_OUTPUT}"/lib
 
-echo "Merging ${ARM64_DIR} and ${X86_64_DIR} into ${OUTPUT_DIR}"
+echo "Merging ${ARM64_DIR} and ${X86_64_DIR} into ${MACOS_OUTPUT}"
 
 # Copy headers from arm64 (should be identical)
-cp -r ${ARM64_DIR}/include/* ${OUTPUT_DIR}/include/
+cp -rv "${ARM64_DIR}"/include "${MACOS_OUTPUT}"/
+
+# Copy pkgconfig if it exists
+if [ -d "${ARM64_DIR}/lib/pkgconfig" ]; then
+    cp -r ${ARM64_DIR}/lib/pkgconfig ${MACOS_OUTPUT}/lib/
+fi
 
 # Merge libraries using lipo
-for lib in ${ARM64_DIR}/lib/*.a; do
+for lib in "${ARM64_DIR}"/lib/*.a; do
     libname=$(basename ${lib})
     if [ -f "${X86_64_DIR}/lib/${libname}" ]; then
         echo "Merging ${libname}"
         lipo -create ${ARM64_DIR}/lib/${libname} ${X86_64_DIR}/lib/${libname} \
-            -output ${OUTPUT_DIR}/lib/${libname}
+            -output ${MACOS_OUTPUT}/lib/${libname}
     fi
 done
 
-echo "Done. Universal2 artifacts in ${OUTPUT_DIR}/"
-file ${OUTPUT_DIR}/lib/*.a | head -3
+echo "Done. Universal2 artifacts in ${MACOS_OUTPUT}/"
+file ${MACOS_OUTPUT}/lib/*.a

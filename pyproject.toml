@@ -274,6 +274,9 @@ before-build = [
   #   working_directory: libssh/build
 ]
 
+[tool.cibuildwheel.macos.environment]
+MACOS_OUTPUT = "packaging/macos/build"
+
 [tool.cibuildwheel.windows]
 skip = "*"
 
