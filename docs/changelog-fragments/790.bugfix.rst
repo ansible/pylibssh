@@ -1,0 +1,8 @@
+Fixed the ``config_file`` parameter being ignored in
+``Session.connect()``. When a custom SSH config file path was passed
+via the ``config_file`` keyword argument, it was not being processed
+because it was missing from the options mapping. Now the config file
+is properly parsed before establishing the connection, enabling SSH
+config features like host aliases and custom settings to work correctly.
+
+-- by :user:`KB-perByte`

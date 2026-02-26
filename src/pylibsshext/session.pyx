@@ -15,12 +15,15 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 import inspect
-import logging
 
 from cpython.bytes cimport PyBytes_AS_STRING
 
+import logging
+
 from pylibsshext.channel import Channel
+
 from pylibsshext.errors cimport LibsshSessionException
+
 from pylibsshext.logging import _initialize_logging, _set_level
 from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
@@ -262,6 +265,12 @@ cdef class Session(object):
         for key in kwargs:
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
                 self.set_ssh_options(key, kwargs[key])
+
+        # Parse SSH config file after setting host (for Host matching) but before connecting
+        # Only parse if config_file is explicitly provided
+        config_file = kwargs.get('config_file')
+        if config_file is not None:
+            self.parse_config(config_file)
 
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
@@ -541,6 +550,41 @@ cdef class Session(object):
 
     def sftp(self):
         return SFTP(self)
+
+    def parse_config(self, filename=None):
+        """Parse SSH configuration file.
+
+        This parses the SSH configuration file and applies the settings
+        to the current session. If no filename is provided, it parses
+        the default configuration files (~/.ssh/config and system config).
+
+        Note: The host option should be set before calling this method
+        for Host matching to work correctly.
+
+        :param filename: Path to the SSH config file, or None for defaults.
+        :type filename: str or None
+
+        :raises LibsshSessionException: If parsing fails.
+
+        :return: Nothing.
+        :rtype: NoneType
+        """
+        cdef int rc
+        cdef bytes b_filename
+        cdef const char *c_filename = NULL
+
+        if filename is not None:
+            if isinstance(filename, str):
+                b_filename = filename.encode("utf-8")
+            else:
+                b_filename = filename
+            c_filename = b_filename
+
+        rc = libssh.ssh_options_parse_config(self._libssh_session, c_filename)
+        if rc != libssh.SSH_OK:
+            raise LibsshSessionException(
+                "Failed to parse SSH config: %s" % self._get_session_error_str(),
+            )
 
     def set_log_level(self, level):
         _set_level(level)
