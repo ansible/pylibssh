@@ -48,14 +48,22 @@ cdef class SCP:
         remote_dir_b, filename_b = os.path.split(remote_file_b)
         if not remote_dir_b:
             remote_dir_b = b"."
+        # Device filesystems (e.g. Cisco IOS flash:) often expect full path for scp -t
+        elif remote_dir_b.endswith(b":") and b"/" not in remote_dir_b:
+            remote_dir_b = remote_dir_b + b"/"
 
         with open(local_file, "rb") as f:
             file_stat = os.fstat(f.fileno())
             file_size = file_stat.st_size
             file_mode = file_stat.st_mode & 0o777
 
+            # For device-style paths (e.g. flash:/file), server may expect full path for scp -t
+            if b":" in remote_file_b and remote_dir_b != b".":
+                scp_location = remote_file_b
+            else:
+                scp_location = remote_dir_b
             # Create the SCP session in write mode
-            scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE, remote_file_b)
+            scp = libssh.ssh_scp_new(self._libssh_session, libssh.SSH_SCP_WRITE, scp_location)
             if scp is NULL:
                 raise LibsshSCPException(
                     "Allocating SCP session of remote file [{path!s}] for "
