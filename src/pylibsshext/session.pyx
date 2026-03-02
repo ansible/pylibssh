@@ -1,5 +1,5 @@
 #
-# This file is part of the pylibssh library
+# This file is part of the ansible-pylibssh library
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@ from cpython.bytes cimport PyBytes_AS_STRING
 
 from pylibsshext.channel import Channel
 from pylibsshext.errors cimport LibsshSessionException
+from pylibsshext.logging import _initialize_logging, _set_level
 from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
 
@@ -40,19 +41,11 @@ OPTS_MAP = {
     "gssapi_server_identity": libssh.SSH_OPTIONS_GSSAPI_SERVER_IDENTITY,
     "gssapi_client_identity": libssh.SSH_OPTIONS_GSSAPI_CLIENT_IDENTITY,
     "gssapi_delegate_credentials": libssh.SSH_OPTIONS_GSSAPI_DELEGATE_CREDENTIALS,
+    "log_verbosity": libssh.SSH_OPTIONS_LOG_VERBOSITY,
 }
 OPTS_DIR_MAP = {
     "ssh_dir": libssh.SSH_OPTIONS_SSH_DIR,
     "add_identity": libssh.SSH_OPTIONS_ADD_IDENTITY,
-}
-
-LOG_MAP = {
-    logging.NOTSET: libssh.SSH_LOG_NONE,
-    logging.DEBUG: libssh.SSH_LOG_DEBUG,
-    logging.INFO: libssh.SSH_LOG_INFO,
-    logging.WARNING: libssh.SSH_LOG_WARN,
-    logging.ERROR: libssh.SSH_LOG_WARN,
-    logging.CRITICAL: libssh.SSH_LOG_TRACE
 }
 
 KNOW_HOST_MSG_MAP = {
@@ -114,6 +107,8 @@ cdef class Session(object):
         # the callbacks to be around even after we free the underlying channels so
         # we should free them only when we terminate the session.
         self._channel_callbacks = []
+        _initialize_logging()
+        _set_level(logging.NOTSET)
 
     def __cinit__(self, host=None, **kwargs):
         self._libssh_session = libssh.ssh_new()
@@ -171,7 +166,7 @@ cdef class Session(object):
             key_m = OPTS_MAP[key]
         else:
             raise LibsshSessionException("Unknown attribute name [%s]" % key)
-        if key in ("fd", "gssapi_delegate_credentials"):
+        if key in ("fd", "gssapi_delegate_credentials", "log_verbosity"):
             value_int = value
             libssh.ssh_options_set(self._libssh_session, key_m, &value_int)
         elif key == "port":
@@ -254,6 +249,13 @@ cdef class Session(object):
         :param proxycommand: The proxycommand use to setup a ssh connection using
         jumphost
         :type proxycommand: str
+
+        :param log_verbosity: The log level to set filtering on source. Possible values are
+                              :data:`ANSIBLE_PYLIBSSH_TRACE`, :data:`logging.DEBUG`,
+                              :data:`logging.INFO`, :data:`logging.WARNING`,
+                              :data:`logging.ERROR`, :data:`logging.FATAL`,
+                              :data:`ANSIBLE_PYLIBSSH_NOLOG`.
+        :type log_verbosity: int
         """
         cdef LibsshSessionException saved_exception = None
 
@@ -541,12 +543,7 @@ cdef class Session(object):
         return SFTP(self)
 
     def set_log_level(self, level):
-        if level in LOG_MAP.keys():
-            rc = libssh.ssh_set_log_level(LOG_MAP[level])
-            if rc != libssh.SSH_OK:
-                raise LibsshSessionException("Failed to set log level [%d] with error [%d]" % (level, rc))
-        else:
-            raise LibsshSessionException("Invalid log level [%d]" % level)
+        _set_level(level)
 
     def close(self):
         if self._libssh_session is not NULL:

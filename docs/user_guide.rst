@@ -67,6 +67,45 @@ service principals may be specified.
    :dedent: 4
 
 
+Logging events
+==============
+
+The |project| is passing all the ``libssh`` log messages into the Python
+:external+python:mod:`logging` subsystem by default. This is initialized when new
+session is created during the ``Session`` initialization.
+
+You can configure your loggers and handlers as in any other Python
+project. The |project| Logger name is ``'ansible-pylibssh'``.
+
+.. literalinclude:: _samples/logging.py
+   :language: python
+   :start-at: ssh = Session()
+   :end-before: # Set log level on session
+   :emphasize-lines: 1
+
+.. attention::
+
+    When performance is critical, you can use the
+    ``Session.set_log_level(ANSIBLE_PYLIBSSH_NOLOG)``
+    API to prevent ``libssh`` from emitting the log messages at the source.
+    Note that it is different from :data:`logging.NOTSET` which has
+    the opposite semantics.
+
+In addition to standard Python :external+python:mod:`logging` levels, the |project| supports
+two special levels:
+
+.. data:: ANSIBLE_PYLIBSSH_NOLOG
+
+    Indicates that |project| will not emit any events into the
+    :external+python:mod:`logging` subsystem.
+
+.. data:: ANSIBLE_PYLIBSSH_TRACE
+
+    Indicates that |project| will make all possible logs available
+    to the :external+python:mod:`logging` subsystem, generally useful for debugging low-level
+    libssh operations.
+
+
 Passing a command and reading response
 ======================================
 

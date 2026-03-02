@@ -15,11 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
-#
-from pylibsshext.includes cimport libssh, sftp
-from pylibsshext.session cimport Session
 
-
-cdef class SFTP:
-    cdef Session session
-    cdef sftp.sftp_session _libssh_sftp_session
+"""
+The logging module of ``ansible-pylibssh`` provides interface between libssh
+logging and Python :external+python:mod:`logging` facility.
+"""

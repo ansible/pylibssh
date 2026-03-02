@@ -1,0 +1,2 @@
+Added Fedora and ubi9 images to CI/CD pipeline that are relevant in 2026
+and removed EOL Fedora versions -- by :user:`Jakuje`.

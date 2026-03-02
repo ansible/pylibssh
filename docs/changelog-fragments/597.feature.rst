@@ -1,0 +1,29 @@
+Made ``libssh`` use the Python :external+python:mod:`logging` system
+-- by :user:`Jakuje` and :user:`webknjaz`.
+
+Previously the underlying ``libssh`` library was writing its logs directly
+from the C-level into ``stderr``, which caused inconsistent behavior.
+
+The default log level is now set to :data:`ANSIBLE_PYLIBSSH_TRACE`
+and the downstream loggers are able to trim the verbosity down.
+If you need performance, it is possible to disable logging on the ``libssh``
+side at the source by setting a lower logging value, for example:
+
+.. code-block:: python
+
+   ssh_session.set_log_level(ANSIBLE_PYLIBSSH_NOLOG)
+
+Additionally, the log level can be now be set also through the session initializer:
+
+.. code-block:: python
+
+   ssh = Session(log_verbosity=ANSIBLE_PYLIBSSH_TRACE)
+
+
+or the ``connect()`` method arguments:
+
+.. code-block:: python
+
+   ssh.connect(log_verbosity=ANSIBLE_PYLIBSSH_TRACE)
+
+Setting any levels imported from :external+python:mod:`!logging` is also supported.

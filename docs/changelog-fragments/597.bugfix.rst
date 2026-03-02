@@ -1,0 +1,6 @@
+Fixed the log level mapping to cover the entire ``libssh`` range
+-- by :user:`Jakuje` and :user:`webknjaz`.
+
+Previously it was not possible to set the most verbose ``libssh`` log level
+``SSH_LOG_TRACE`` to get the most verbose log messages useful for debugging
+connection issues.

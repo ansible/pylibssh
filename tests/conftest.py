@@ -2,7 +2,6 @@
 
 """Pytest plugins and fixtures configuration."""
 
-import logging
 import shutil
 import socket
 import subprocess
@@ -16,9 +15,21 @@ from _service_utils import (
 
 from pylibsshext.session import Session
 
+from pylibsshext import __libssh_version__
+
 
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600
+
+
+@pytest.fixture
+def libssh_version_tuple():
+    """
+    Get the libssh version as a tuple of (major, minor, patch).
+
+    This is useful for simple comparison and conditioning tests based on this value.
+    """
+    return tuple(map(int, (__libssh_version__.split('.'))))
 
 
 @pytest.fixture
@@ -117,8 +128,6 @@ def ssh_client_session(ssh_session_connect):
     # noqa: DAR101
     """
     ssh_session = Session()
-    # TODO Adjust when #597 will be merged
-    ssh_session.set_log_level(logging.CRITICAL)
     ssh_session_connect(ssh_session)
     try:  # noqa: WPS501
         yield ssh_session
