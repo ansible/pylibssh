@@ -4,15 +4,17 @@ Use this when you have a dedicated config file (e.g. for Host aliases,
 ProxyCommand, or per-host options) and want the session to use it
 instead of the default ~/.ssh/config.
 """
+
 from pylibsshext.errors import LibsshSessionException
 from pylibsshext.session import Session
+
 
 ssh = Session()
 
 # Host alias or hostname that appears in your custom config
-HOST = "myalias"
-USER = "myuser"
-CONFIG_FILE = "/path/to/my/ssh_config"
+HOST = 'myalias'
+USER = 'myuser'
+CONFIG_FILE = '/path/to/my/ssh_config'
 
 try:
     ssh.connect(
@@ -21,8 +23,8 @@ try:
         config_file=CONFIG_FILE,
     )
 except LibsshSessionException as exc:
-    print(f"Failed to connect: {exc!s}")
+    print(f'Failed to connect: {exc!s}')
 
 if ssh.is_connected:
-    print("Connected.")
+    print('Connected.')
     ssh.close()
