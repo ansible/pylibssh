@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
+from __future__ import annotations
+
+import contextlib as _ctx
 import inspect
+import logging
 
 from cpython.bytes cimport PyBytes_AS_STRING
-
-import logging
 
 from pylibsshext.channel import Channel
 
@@ -259,6 +261,11 @@ cdef class Session(object):
                               :data:`logging.ERROR`, :data:`logging.FATAL`,
                               :data:`ANSIBLE_PYLIBSSH_NOLOG`.
         :type log_verbosity: int
+
+        :param config_file: Path to a custom SSH config file to parse before connecting.
+                            Enables Host aliases and options from that file. Set ``host``
+                            before this is applied so that Host matching works correctly.
+        :type config_file: str or bytes or None
         """
         cdef LibsshSessionException saved_exception = None
 
@@ -266,11 +273,13 @@ cdef class Session(object):
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
                 self.set_ssh_options(key, kwargs[key])
 
-        # Parse SSH config file after setting host (for Host matching) but before connecting
-        # Only parse if config_file is explicitly provided
-        config_file = kwargs.get('config_file')
-        if config_file is not None:
-            self.parse_config(config_file)
+        # Parse SSH config after host is set (so Host blocks match) but before connect,
+        # so that options from the config (e.g. HostName, User, Port, ProxyCommand) are
+        # applied to this connection. Only when config_file is passed explicitly.
+        with _ctx.suppress(KeyError):
+            path = kwargs['config_file']
+            if path is not None:
+                self.parse_config(path)
 
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
@@ -551,7 +560,7 @@ cdef class Session(object):
     def sftp(self):
         return SFTP(self)
 
-    def parse_config(self, filename=None):
+    def parse_config(self, filename: bytes | str | None = None) -> None:
         """Parse SSH configuration file.
 
         This parses the SSH configuration file and applies the settings

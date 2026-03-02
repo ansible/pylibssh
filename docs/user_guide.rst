@@ -49,6 +49,23 @@ Connecting with remote SSH server
    :emphasize-lines: 7-13
 
 
+.. _custom-ssh-config:
+
+Connecting with a custom SSH config
+-----------------------------------
+
+To use a custom SSH config file (e.g. for Host aliases, ``ProxyCommand``, or
+per-host options), pass ``config_file`` to :meth:`~pylibsshext.session.Session.connect`.
+The host option should be set so that Host matching in the config works correctly.
+
+.. literalinclude:: _samples/ssh_config_connect.py
+   :language: python
+   :start-at: ssh = Session()
+   :end-before: if ssh.is_connected:
+   :dedent: 4
+   :emphasize-lines: 5-10
+
+
 Connecting over GSSAPI
 ----------------------
 
