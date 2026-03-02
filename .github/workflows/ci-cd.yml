@@ -1312,6 +1312,8 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         attestations: true
+        print-hash: true
+        verbose: true
 
   publish-testpypi:
     name: >-
@@ -1357,7 +1359,9 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         attestations: true
+        print-hash: true
         repository-url: https://test.pypi.org/legacy/
+        verbose: true
 
   post-release-repo-update:
     name: >-
