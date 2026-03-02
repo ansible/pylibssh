@@ -15,14 +15,13 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 
-import contextlib as _ctx
 import inspect
 import logging
 
 from cpython.bytes cimport PyBytes_AS_STRING
 
 from pylibsshext.channel import Channel
-from pylibsshext.errors cimport LibsshSessionException
+from pylibsshext.errors cimport LibsshConfigParseException, LibsshSessionException
 from pylibsshext.logging import _initialize_logging, _set_level
 from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
@@ -272,11 +271,10 @@ cdef class Session(object):
 
         # Parse SSH config after host is set (so Host blocks match) but before connect,
         # so that options from the config (e.g. HostName, User, Port, ProxyCommand) are
-        # applied to this connection. Only when config_file is passed explicitly.
-        with _ctx.suppress(KeyError):
-            path = kwargs['config_file']
-            if path is not None:
-                self.parse_config(path)
+        # applied to this connection. Only when config_file is passed and non-None.
+        path = kwargs.get('config_file')
+        if path is not None:
+            self.parse_config(path)
 
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
@@ -562,18 +560,14 @@ cdef class Session(object):
 
         This parses the SSH configuration file and applies the settings
         to the current session. If no filename is provided, it parses
-        the default configuration files (~/.ssh/config and system config).
+        the default configuration files (:file:`~/.ssh/config` and system config).
 
-        Note: The host option should be set before calling this method
-        for Host matching to work correctly.
+        Note: The ``host`` option should be set before calling this method
+        for ``Host`` matching to work correctly.
 
-        :param filename: Path to the SSH config file, or None for defaults.
-        :type filename: str or None
+        :param filename: Path to the SSH config file, or ``None`` for defaults.
 
-        :raises LibsshSessionException: If parsing fails.
-
-        :return: Nothing.
-        :rtype: NoneType
+        :raises LibsshConfigParseException: If parsing fails.
         """
         cdef int rc
         cdef bytes b_filename
@@ -588,7 +582,7 @@ cdef class Session(object):
 
         rc = libssh.ssh_options_parse_config(self._libssh_session, c_filename)
         if rc != libssh.SSH_OK:
-            raise LibsshSessionException(
+            raise LibsshConfigParseException(
                 "Failed to parse SSH config: %s" % self._get_session_error_str(),
             )
 

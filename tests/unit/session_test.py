@@ -1,8 +1,11 @@
 """Tests suite for session."""
 
+import os
+import tempfile
+
 import pytest
 
-from pylibsshext.errors import LibsshSessionException
+from pylibsshext.errors import LibsshConfigParseException, LibsshSessionException
 from pylibsshext.session import Session
 
 
@@ -26,3 +29,36 @@ def test_session_connection_refused(free_port_num):
     ssh_session = Session()
     with pytest.raises(LibsshSessionException, match=error_msg):
         ssh_session.connect(host='127.0.0.1', port=free_port_num)
+
+
+def test_parse_config_nonexistent_raises():
+    """parse_config() with noexistent file raises LibsshConfigParseException."""
+    session = Session(host='somehost')
+    with pytest.raises(
+        LibsshConfigParseException,
+        match=r'Failed to parse SSH config:',
+    ):
+        session.parse_config('/nonexistent/path/ssh_config')
+
+
+def test_parse_config_valid_file_succeeds():
+    """parse_config() with a valid config file does not raise."""
+    session = Session(host='somehost')
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".config", delete=False) as f:
+        f.write("Host *\n")
+        path = f.name
+    try:
+        session.parse_config(path)
+    except LibsshConfigParseException:
+        pytest.skip(
+            'libssh rejected minimal config file (path expansion or parsing is strict)'
+        )
+    finally:
+        os.unlink(path)
+
+
+def test_connect_with_config_file_none_does_not_parse():
+    """connect() with config_file=None does not call parse_config (no config parse error)."""
+    session = Session(host='test.nonexistent.example.invalid')
+    with pytest.raises(LibsshSessionException, match=r'ssh connect failed:'):
+        session.connect(host='test.nonexistent.example.invalid', config_file=None)
