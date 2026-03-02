@@ -35,7 +35,7 @@ def test_session_connection_refused(free_port_num):
 
 
 def test_parse_config_nonexistent_raises():
-    """parse_config() with noexistent file raises LibsshConfigParseException."""
+    """parse_config() with nonexistent file raises LibsshConfigParseException."""
     session = Session(host='somehost')
     with pytest.raises(
         LibsshConfigParseException,
@@ -51,9 +51,10 @@ def test_parse_config_valid_file_succeeds():
         mode='w',
         suffix='.config',
         delete=False,
-    ) as f:
-        f.write('Host *\n')
-        path = f.name
+        encoding='utf-8',
+    ) as tmp_file:
+        tmp_file.write('Host *\n')
+        path = tmp_file.name
     try:
         session.parse_config(path)
     except LibsshConfigParseException:
@@ -64,8 +65,8 @@ def test_parse_config_valid_file_succeeds():
         pathlib.Path(path).unlink()
 
 
-def test_connect_with_config_file_none_does_not_parse():
-    """connect() with config_file=None does not call parse_config (no config parse error)."""
+def test_connect_config_file_none_no_parse():
+    """connect(config_file=None) does not call parse_config; fails at connect."""
     session = Session(host='test.nonexistent.example.invalid')
     with pytest.raises(LibsshSessionException, match=r'ssh connect failed:'):
         session.connect(
