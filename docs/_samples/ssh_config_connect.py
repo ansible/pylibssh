@@ -2,7 +2,7 @@
 
 Use this when you have a dedicated config file (e.g. for Host aliases,
 ProxyCommand, or per-host options) and want the session to use it
-instead of the default ~/.ssh/config.
+instead of the default ~/.ssh/config and /etc/ssh/ssh_config.
 """
 
 from pylibsshext.errors import LibsshSessionException

@@ -1,6 +1,6 @@
 Added support for using a custom SSH config file when connecting. You can now pass
-``config_file`` to :meth:`Session.connect() <pylibsshext.session.Session.connect>` to
-parse a specific config file (e.g. for Host aliases, ``ProxyCommand``, or per-host
-settings) before the connection is established. See :ref:`Connecting with a custom SSH config <custom-ssh-config>` for examples.
+``config_file`` to ``Session.connect()`` to parse a specific config file (e.g. for
+Host aliases, ``ProxyCommand``, or per-host settings) before the connection is
+established. See :ref:`Connecting with a custom SSH config <custom-ssh-config>` for examples.
 
 -- by :user:`KB-perByte`
