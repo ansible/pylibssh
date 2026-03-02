@@ -21,7 +21,11 @@ import logging
 from cpython.bytes cimport PyBytes_AS_STRING
 
 from pylibsshext.channel import Channel
-from pylibsshext.errors cimport LibsshConfigParseException, LibsshSessionException
+
+from pylibsshext.errors cimport (
+    LibsshConfigParseException, LibsshSessionException,
+)
+
 from pylibsshext.logging import _initialize_logging, _set_level
 from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
