@@ -30,10 +30,10 @@ try:
         user=USER,
         config_file=CONFIG_FILE,
     )
-except LibsshConfigParseException as exc:
-    print(f'Failed to parse SSH config: {exc!s}')
-except LibsshSessionException as exc:
-    print(f'Failed to connect: {exc!s}')
+except LibsshConfigParseException as ssh_config_load_error:
+    print(f'Failed to load the SSH config: {ssh_config_load_error!s}')
+except LibsshSessionException as ssh_session_connection_error:
+    print(f'Failed to connect: {ssh_session_connection_error!s}')
 
 if ssh.is_connected:
     print('Connected.')
