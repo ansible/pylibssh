@@ -1,8 +1,5 @@
 """Tests suite for session."""
 
-import pathlib
-import tempfile
-
 import pytest
 
 from pylibsshext.errors import (
@@ -44,25 +41,17 @@ def test_parse_config_nonexistent_raises():
         session.parse_config('/nonexistent/path/ssh_config')
 
 
-def test_parse_config_valid_file_succeeds():
+def test_parse_config_valid_file_succeeds(tmp_path):
     """parse_config() with a valid config file does not raise."""
     session = Session(host='somehost')
-    with tempfile.NamedTemporaryFile(
-        mode='w',
-        suffix='.config',
-        delete=False,
-        encoding='utf-8',
-    ) as tmp_file:
-        tmp_file.write('Host *\n')
-        path = tmp_file.name
+    config_file = tmp_path / 'ssh_config'
+    config_file.write_text('Host *\n', encoding='utf-8')
     try:
-        session.parse_config(path)
+        session.parse_config(str(config_file))
     except LibsshConfigParseException:
         pytest.skip(
             'libssh rejected minimal config file (path expansion or parsing is strict)',
         )
-    finally:
-        pathlib.Path(path).unlink()
 
 
 def test_connect_config_file_none_no_parse():
