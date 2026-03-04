@@ -5,13 +5,15 @@ set -eEuo pipefail
 # Get repository root (works in CI and local dev)
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
-# Source OpenSSL version from canonical location
-source "${REPO_ROOT}/build-scripts/manylinux-container-image/openssl-version.sh"
+# Source versions from macOS-specific config
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
+
 # Strip "openssl-" prefix from OPENSSL_VERSION if present
 OPENSSL_VERSION="${OPENSSL_VERSION#openssl-}"
 
-# Parse CLI arguments
-LIBSSH_VERSION="${1}"
+# Parse CLI arguments (or use defaults from config.sh)
+LIBSSH_VERSION="${1:-${LIBSSH_VERSION}}"
 ARCH="${2}"
 
 # Normalize architecture for CMake (x86 -> x86_64)
