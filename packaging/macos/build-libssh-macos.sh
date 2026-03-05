@@ -16,9 +16,10 @@ OPENSSL_VERSION="${OPENSSL_VERSION#openssl-}"
 LIBSSH_VERSION="${1:-${LIBSSH_VERSION}}"
 ARCH="${2}"
 
-# Normalize architecture for CMake (x86 -> x86_64)
+# Normalize architecture for CMake and OpenSSL
+# Both x86 and x86_64 should use x86_64
 CMAKE_ARCH="${ARCH}"
-if [ "${ARCH}" = "x86" ]; then
+if [ "${ARCH}" = "x86" ] || [ "${ARCH}" = "x86_64" ]; then
     CMAKE_ARCH="x86_64"
 fi
 
@@ -28,7 +29,7 @@ MACOS_OUTPUT="${MACOS_OUTPUT:-packaging/macos/build}"
 MACOS_OUTPUT="${REPO_ROOT}/${MACOS_OUTPUT}/${ARCH}"
 mkdir -p ${MACOS_OUTPUT}
 MACOS_OUTPUT_ABS="$(cd ${MACOS_OUTPUT} && pwd)"
-# Store absolute path for use in environment variables (similar to /root/.static-deps-path)
+# Store absolute path for use in environment variables (for debugging)
 echo "${MACOS_OUTPUT_ABS}" > "${REPO_ROOT}/.macos-static-deps-path-${ARCH}"
 
 WORK_DIR=$(mktemp -d)
@@ -51,7 +52,8 @@ echo "Downloading OpenSSL..."
 curl -sL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz | tar xz
 cd openssl-${OPENSSL_VERSION}
 
-OPENSSL_TARGET="darwin64-${ARCH}-cc"
+# Use CMAKE_ARCH for OpenSSL target (normalized to x86_64 or arm64)
+OPENSSL_TARGET="darwin64-${CMAKE_ARCH}-cc"
 
 ./Configure ${OPENSSL_TARGET} --prefix=${WORK_DIR}/deps no-shared no-tests
 make -j$(sysctl -n hw.ncpu) > /dev/null
@@ -93,8 +95,18 @@ cp -r include/* ${ARTIFACT_NAME}/include/
 tar czf ${ARTIFACT_NAME}.tar.gz ${ARTIFACT_NAME}
 shasum -a 256 ${ARTIFACT_NAME}.tar.gz > ${ARTIFACT_NAME}.tar.gz.sha256
 
-# Move to output directory (use absolute path)
+# Move tarball to output directory (use absolute path)
 mv ${ARTIFACT_NAME}.tar.gz* ${MACOS_OUTPUT_ABS}/
+
+# Also copy the extracted lib and include directories for use in build
+mkdir -p ${MACOS_OUTPUT_ABS}/lib ${MACOS_OUTPUT_ABS}/include
+cp -r lib/*.a ${MACOS_OUTPUT_ABS}/lib/
+cp -r include/* ${MACOS_OUTPUT_ABS}/include/
+# Copy pkgconfig if it exists
+if [ -d lib/pkgconfig ]; then
+    mkdir -p ${MACOS_OUTPUT_ABS}/lib/pkgconfig
+    cp -r lib/pkgconfig/* ${MACOS_OUTPUT_ABS}/lib/pkgconfig/
+fi
 
 cd ${OLDPWD}
 rm -rf ${WORK_DIR}

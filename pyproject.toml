@@ -200,7 +200,7 @@ profile = "True"
     showcontent = true
 
 [tool.cibuildwheel]
-build-frontend = "build"
+build-frontend = "pip"
 # container-engine = "podman"  # FIXME?
 test-requires = "pytest pytest-cov pytest-xdist"
 test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
@@ -250,6 +250,8 @@ before-build = [
 
 [tool.cibuildwheel.macos.environment]
 MACOS_OUTPUT = "packaging/macos/build"
+# Build configuration is written by before-build script to .macos_build_config.py
+# and loaded automatically by the build backend
 
 [tool.cibuildwheel.windows]
 skip = "*"
