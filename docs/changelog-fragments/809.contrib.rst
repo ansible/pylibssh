@@ -1,0 +1,11 @@
+Updated CI infrastructure for Python 3.13 and 3.14 support
+-- by :user:`cidrblock`.
+
+Bumped :pypi:`cibuildwheel` from v2.17.0 to v3.3.1, :pypi:`setuptools`
+from 68.2.2 to 82.0.1, and re-compiled :file:`requirements-build.txt` to
+resolve transitive pin conflicts. Adapted the CI workflow and Packit
+config for :pep:`625` sdist filename normalization (underscores) caused
+by the ``setuptools`` upgrade. Configured ``core = ctrace`` in
+:file:`.coveragerc` to work around the :pypi:`Cython` coverage plugin not
+supporting Python 3.14's :mod:`sys.monitoring` tracer
+(cf. :gh:`coveragepy/coveragepy#2099`).

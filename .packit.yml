@@ -20,7 +20,7 @@ actions:
     --sourcedir packaging/rpm/ansible-pylibssh.spec
     '
   - tox -e build-dists -qq -- --sdist
-  - sh -c 'echo dist/"${PACKIT_PROJECT_NAME_VERSION}".tar.gz'
+  - sh -c 'echo dist/ansible_pylibssh-"${PACKIT_PROJECT_VERSION}".tar.gz'
   get-current-version:
   - >-
     bash -c "
@@ -31,7 +31,7 @@ actions:
 # - 5DE3E0509C47EA3CF04A42D34AEE18F83AFDEB23  # GH web UI commit signing key
 
 archive_root_dir_template: >-
-  {upstream_pkg_name}-{version}
+  ansible_pylibssh-{version}
 
 copy_upstream_release_description: false
 

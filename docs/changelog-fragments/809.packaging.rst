@@ -1,0 +1,12 @@
+Added Python 3.13 and 3.14 wheel builds
+-- by :user:`cidrblock`.
+
+Bumped :pypi:`cibuildwheel` from v2.17.0 to v3.3.1 (required for
+``cp313``/``cp314`` wheel building) and :pypi:`Cython` from 3.0.12
+to 3.1.8 (Cython 3.0.x has known build failures with Python 3.14).
+The :pep:`517` backend now requires ``Cython >= 3.1.0`` for Python 3.14
+and ``Cython >= 3.0.11`` for Python 3.13. Free-threaded (``*t-*``)
+Python builds are skipped because Cython extensions do not yet set
+``Py_mod_gil_not_used``. macOS wheels now require macOS 15.0+
+(``MACOSX_DEPLOYMENT_TARGET``) due to :pypi:`delocate` 0.13.0 enforcing
+deployment-target consistency with brew-installed ``libssh``.

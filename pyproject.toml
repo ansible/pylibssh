@@ -204,7 +204,12 @@ build-frontend = "build"
 # container-engine = "podman"  # FIXME?
 test-requires = "pytest pytest-cov pytest-xdist"
 test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
-skip = "pp*"
+skip = [
+  "pp*",  # FIXME: we don't ship these currently but could
+  # Cython extensions do not set Py_mod_gil_not_used; free-threaded builds
+  # fail with RuntimeWarning on import:
+  "*t-*",
+]
 
 [tool.cibuildwheel.environment]
 COLOR = "yes"
@@ -225,6 +230,8 @@ manylinux-ppc64le-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_ppc64le:libss
 manylinux-s390x-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_s390x:libssh-v0.12.0"
 manylinux-x86_64-image = "ghcr.io/ansible/pylibssh-manylinux_2_28_x86_64:libssh-v0.12.0"
 skip = [
+  "*-manylinux_armv7l",  # no custom container image with libssh for this arch
+  "*-manylinux_riscv64",  # no custom container image with libssh for this arch
   "*-musllinux_*",  # FIXME: musllinux needs us to provide with containers pre-built libssh
   "pp*",  # FIXME: we don't ship these currently but could
 
@@ -273,6 +280,12 @@ before-build = [
   #     make install/strip
   #   working_directory: libssh/build
 ]
+
+[tool.cibuildwheel.macos.environment]
+# delocate (bundled with cibuildwheel v3) enforces that the wheel's
+# deployment target matches the bundled dylibs. The brew-installed
+# openssl@3 bottle on macos-15-intel targets macOS 15.0.
+MACOSX_DEPLOYMENT_TARGET = "15.0"
 
 [tool.cibuildwheel.windows]
 skip = "*"

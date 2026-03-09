@@ -314,7 +314,7 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(
-                "sdist=${{ env.PROJECT_NAME }}-${{
+                f"sdist={sdist_file_prj_base_name !s}-${{
                     steps.request-check.outputs.release-requested == 'true'
                     && github.event.inputs.release-version
                     || steps.scm-version.outputs.dist-version
@@ -590,6 +590,8 @@ jobs:
         ${{ needs.pre-setup.outputs.dists-artifact-name }}
       # CIBW_CONFIG_SETTINGS: `with-cython-tracing` — for coverage collection
       # CIBW_ARCHS_MACOS=all x86_64 arm64 universal2
+      # NOTE: *t-* skips free-threaded builds — Cython extensions do not
+      # NOTE: set Py_mod_gil_not_used, causing RuntimeWarning on import.
       environment-variables: |-
         CIBW_ARCHS_MACOS=native
 
@@ -609,6 +611,7 @@ jobs:
           *-musllinux_*
           *-win32
           *_arm64
+          *t-*
           pp*
         EOF'
           || ''
@@ -642,6 +645,8 @@ jobs:
         ${{ needs.pre-setup.outputs.dists-artifact-name }}
       # CIBW_CONFIG_SETTINGS: `with-cython-tracing` — for coverage collection
       # CIBW_ARCHS_MACOS=all x86_64 arm64 universal2
+      # NOTE: *t-* skips free-threaded builds — Cython extensions do not
+      # NOTE: set Py_mod_gil_not_used, causing RuntimeWarning on import.
       environment-variables: |-
         CIBW_ARCHS_MACOS=native
 
@@ -659,6 +664,7 @@ jobs:
           *_i686
           *-musllinux_*
           *-*linux_{aarch64,ppc64le,s390x}
+          *t-*
           pp*
         EOF'
           || ''
@@ -694,6 +700,8 @@ jobs:
       # CIBW_ARCHS_LINUX: Build emulated architectures if QEMU, else "auto"
       # CIBW_CONFIG_SETTINGS: `with-cython-tracing` — for coverage collection
       # CIBW_ARCHS_MACOS=all x86_64 arm64 universal2
+      # NOTE: *t-* skips free-threaded builds — Cython extensions do not
+      # NOTE: set Py_mod_gil_not_used, causing RuntimeWarning on import.
       environment-variables: |-
         CIBW_ARCHS_LINUX=all
 
@@ -711,8 +719,11 @@ jobs:
           !fromJSON(needs.pre-setup.outputs.release-requested)
           && 'CIBW_SKIP<<EOF
           *_i686
+          *-manylinux_armv7l
+          *-manylinux_riscv64
           *-musllinux_*
           *-*linux_x86_64
+          *t-*
           pp*
         EOF'
           || ''
@@ -752,7 +763,13 @@ jobs:
         store-sdist-to-artifact:
         - false
         include:
-        - python-version: 3.12
+        - python-version: "3.14"
+          runner-vm-os: ubuntu-22.04
+          store-sdist-to-artifact: false
+        - python-version: "3.13"
+          runner-vm-os: ubuntu-22.04
+          store-sdist-to-artifact: false
+        - python-version: "3.12"
           runner-vm-os: ubuntu-22.04
           store-sdist-to-artifact: true
 
@@ -992,10 +1009,13 @@ jobs:
       run: rpmlint packaging/rpm/${{ env.PROJECT_NAME }}.spec
 
     - name: Copy sdist to the sources dir
+      env:
+        SDIST_ARTIFACT: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+        DIST_VERSION: ${{ needs.pre-setup.outputs.dist-version }}
       run: >-
         cp -v
-        'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
-        ~/rpmbuild/SOURCES/
+        "dist/${SDIST_ARTIFACT}"
+        ~/"rpmbuild/SOURCES/${PROJECT_NAME}-${DIST_VERSION}.tar.gz"
 
     - name: Install transitive deps for build deps in external repos
       if: contains(matrix.target-container.tag, 'ubi')
@@ -1132,6 +1152,8 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.14"
+        - "3.13"
         - "3.12"
         - "3.11"
         - "3.10"
@@ -1168,6 +1190,8 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.14"
+        - "3.13"
         - "3.12"
         - "3.11"
         - "3.10"
