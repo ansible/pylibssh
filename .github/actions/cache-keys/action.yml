@@ -21,7 +21,6 @@ runs:
 
       files_derived_hash = '${{
           hashFiles(
-            'setup.cfg',
             'tox.ini',
             'pyproject.toml',
             '.pre-commit-config.yaml',

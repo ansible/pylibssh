@@ -1,4 +1,4 @@
-%global canonical_project_name %(grep --after-context=1 '^\\[metadata\\]$' setup.cfg | tail --lines=1 | sed --regexp-extended 's:^name = ([^ ]*):\\1:g')
+%global canonical_project_name %(grep --after-context=1 '^\\[project\\]$' pyproject.toml | tail --lines=1 | sed --regexp-extended 's:^name = "([^"]*)":\\1:g')
 %global pypi_name %canonical_project_name
 %global normalized_core_packaging_metadata_project_name %(echo '%canonical_project_name' | sed --regexp-extended 's:-:_:g;s:\\.:_:g')
 %global srcname %normalized_core_packaging_metadata_project_name
