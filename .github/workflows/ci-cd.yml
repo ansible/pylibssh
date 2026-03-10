@@ -964,6 +964,13 @@ jobs:
 
     timeout-minutes: 5
 
+    continue-on-error: >-  # marks UBI as xfail; currently unsupported
+      ${{
+          (
+            contains(matrix.target-container.tag, 'ubi')
+          ) && true || false
+      }}
+
     container:
       # NOTE: GHA has poor support for concat which is why I resorted to
       # NOTE: using this ugly ternary syntax
