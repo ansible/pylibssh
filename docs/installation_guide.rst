@@ -106,8 +106,8 @@ For other platforms, refer to the `libssh Downloads page
 
 .. note::
 
-    Python 3.13 requires ``Cython >= 3.0.11`` and Python 3.14
-    requires ``Cython >= 3.1.0`` to compile the C-extensions.
+    Python 3.13 and later require ``Cython >= 3.0.11`` to compile
+    the C-extensions.
     When building from source via :std:doc:`pip <pip:index>`,
     the correct version is pulled automatically by the
     :pep:`517` build backend.
