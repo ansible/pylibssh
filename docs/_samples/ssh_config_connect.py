@@ -10,6 +10,8 @@ specific config file. When using ``parse_config()``, set ``host`` first
 so that ``Host`` blocks in the config match correctly.
 """
 
+from pathlib import Path
+
 from pylibsshext.errors import (
     LibsshConfigParseException,
     LibsshSessionException,
@@ -34,6 +36,11 @@ except LibsshConfigParseException as ssh_config_load_error:
     print(f'Failed to load the SSH config: {ssh_config_load_error!s}')
 except LibsshSessionException as ssh_session_connection_error:
     print(f'Failed to connect: {ssh_session_connection_error!s}')
+
+# Alternative: call parse_config() explicitly (e.g. with a pathlib.Path)
+# ssh = Session(host=HOST)
+# ssh.parse_config(Path(CONFIG_FILE))  # or str/bytes
+# ssh.connect(user=USER)
 
 if ssh.is_connected:
     print('Connected.')

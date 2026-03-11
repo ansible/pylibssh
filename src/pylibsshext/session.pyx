@@ -16,6 +16,7 @@
 # repository.
 import inspect
 import logging
+from pathlib import Path
 
 from cpython.bytes cimport PyBytes_AS_STRING
 
@@ -264,7 +265,7 @@ cdef class Session(object):
         :param config_file: Path to a custom SSH config file to parse before connecting.
                             Enables Host aliases and options from that file. Set ``host``
                             before this is applied so that Host matching works correctly.
-        :type config_file: str or bytes or None
+        :type config_file: str or bytes or pathlib.Path or None
         """
         cdef LibsshSessionException saved_exception = None
 
@@ -558,7 +559,7 @@ cdef class Session(object):
     def sftp(self):
         return SFTP(self)
 
-    def parse_config(self, filename: bytes | str | None = None) -> None:
+    def parse_config(self, filename: bytes | str | Path | None = None, /) -> None:
         """Parse SSH configuration file.
 
         This parses the SSH configuration file and applies the settings
@@ -577,7 +578,9 @@ cdef class Session(object):
         cdef const char *c_filename = NULL
 
         if filename is not None:
-            if isinstance(filename, str):
+            if isinstance(filename, Path):
+                b_filename = str(filename).encode("utf-8")
+            elif isinstance(filename, str):
                 b_filename = filename.encode("utf-8")
             else:
                 b_filename = filename
@@ -585,8 +588,9 @@ cdef class Session(object):
 
         rc = libssh.ssh_options_parse_config(self._libssh_session, c_filename)
         if rc != libssh.SSH_OK:
+            underlying_libssh_error = self._get_session_error_str()
             raise LibsshConfigParseException(
-                "Failed to parse SSH config: %s" % self._get_session_error_str(),
+                f"Failed to parse SSH config: {underlying_libssh_error!s}",
             )
 
     def set_log_level(self, level):

@@ -35,7 +35,7 @@ cdef class LibsshSessionException(LibsshException):
 
 
 cdef class LibsshConfigParseException(LibsshSessionException):
-    """Raised when SSH config file parsing fails."""
+    """A failure to parse or load an SSH configuration file."""
 
 
 cdef class LibsshChannelException(LibsshException):

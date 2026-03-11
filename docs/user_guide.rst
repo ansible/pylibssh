@@ -65,7 +65,7 @@ consult the default files above. The ``host`` option should be set so that
    :language: python
    :start-at: ssh = Session()
    :end-before: if ssh.is_connected:
-   :emphasize-lines: 5-11
+   :emphasize-lines: 6,9-12
 
 
 Connecting over GSSAPI

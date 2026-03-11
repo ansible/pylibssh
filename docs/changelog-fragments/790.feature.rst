@@ -3,4 +3,4 @@ Added support for using a custom SSH config file when connecting. You can now pa
 ``Host`` aliases, ``ProxyCommand``, or per-host settings) before the connection is
 established. See :ref:`Connecting with a custom SSH config <custom-ssh-config>` for examples.
 
--- by :user:`KB-perByte`
+-- by :user:`donnerhacke` and :user:`KB-perByte`
