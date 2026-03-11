@@ -10,8 +10,6 @@ specific config file. When using ``parse_config()``, set ``host`` first
 so that ``Host`` blocks in the config match correctly.
 """
 
-from pathlib import Path
-
 from pylibsshext.errors import (
     LibsshConfigParseException,
     LibsshSessionException,

@@ -1,6 +1,5 @@
 """Tests suite for session."""
 
-import typing as _t
 from pathlib import Path
 
 import pytest
@@ -52,7 +51,7 @@ def test_parse_config_nonexistent_raises(tmp_path):
     ids=str,
 )
 def test_parse_config_valid_file_succeeds(
-    path_arg_type: _t.Type[bytes] | _t.Type[str] | _t.Type[Path],
+    path_arg_type: type[bytes] | type[str] | type[Path],
     tmp_path: Path,
 ) -> None:
     """parse_config() with a valid config file does not raise (str, bytes, Path)."""
@@ -76,6 +75,8 @@ def test_parse_config_valid_file_succeeds(
 def test_connect_config_file_none_no_parse():
     """connect(config_file=None) does not call parse_config; fails at connect."""
     session = Session(host='test.nonexistent.example.invalid')
-    expected_error_regex = r'^ssh connect failed: .*test\.nonexistent\.example\.invalid.*$'
+    expected_error_regex = (
+        r'^ssh connect failed: .*test\.nonexistent\.example\.invalid.*$'
+    )
     with pytest.raises(LibsshSessionException, match=expected_error_regex):
         session.connect(config_file=None)
