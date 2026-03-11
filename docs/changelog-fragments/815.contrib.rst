@@ -1,4 +1,4 @@
 Added an Agent Skill for AI coding assistants that encodes
 the project's contribution conventions, build system context,
-changelog fragment format, and CI workflow structure, by
-:user:`cidrblock`.
+changelog fragment format, and CI workflow structure
+-- by :user:`cidrblock`.

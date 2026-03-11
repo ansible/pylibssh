@@ -55,7 +55,7 @@ Built-in Sphinx role:
 :pep:`517`                — Python Enhancement Proposal
 ```
 
-Sign changes with `, by :user:`your-github-username`` at the end.
+Sign changes with ``-- by :user:`your-github-username``` at the end.
 
 ## Build system
 
@@ -63,9 +63,8 @@ Sign changes with `, by :user:`your-github-username`` at the end.
   `packaging/pep517_backend/_backend.py`
 - **Cython version constraints** are Python-version-specific
   (defined in the backend's `get_requires_for_build_wheel`):
-  - Python 3.14: `Cython >= 3.1.0`
-  - Python 3.13: `Cython >= 3.0.11`
-  - Python 3.12: `Cython >= 3.0.0`
+  - Python >= 3.13: `Cython >= 3.0.11`
+  - Python >= 3.12 and < 3.13: `Cython >= 3.0.0`
   - Python < 3.12: any Cython
 - **System dependency**: `libssh >= 0.9.0` with development headers.
   Install commands by platform:
@@ -106,7 +105,7 @@ Sign changes with `, by :user:`your-github-username`` at the end.
 | `.github/CONTRIBUTING.rst` | contributor guide |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR template |
 | `docs/changelog-fragments/README.rst` | changelog fragment guide with categories and roles |
-| `.coveragerc` | coverage config (`core = ctrace` needed for Python 3.14) |
+| `.coveragerc` | coverage config (uses `Cython.Coverage` plugin and `disable_warnings`) |
 | `packaging/rpm/ansible-pylibssh.spec` | RPM spec |
 | `.packit.yml` | Packit configuration for RPM builds |
 | `docs/conf.py` | Sphinx config with `extlinks` role definitions |
