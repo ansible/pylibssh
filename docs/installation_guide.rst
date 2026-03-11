@@ -28,6 +28,15 @@ dependencies on your system.
 It should be enough for you to just have Python 3.9+ and
 a recent :std:doc:`pip <pip:index>` installed.
 
+.. note::
+
+    Pre-built wheels are not yet available for Python 3.13 and
+    3.14. When no wheel is available,
+    ``pip install`` will automatically
+    attempt to compile the package from source. For this to
+    succeed, you must first install the system dependencies
+    listed in :ref:`install-from-source` below.
+
 .. attention::
 
     Please make sure you have the latest version of
@@ -60,18 +69,48 @@ To install |project|, just run:
     understand fully the implications of modifying global
     files on the system.
 
+.. _install-from-source:
+
 Installing |project| from source distribution (PyPI)
 ====================================================
 
 Installing |project| from source is a bit more complicated.
 First, pylibssh requires libssh to be compiled against, in
-particular, version 0.9.0 or newer. Please refer to `libssh
-Downloads page <https://www.libssh.org/get-it/>`__ for more
-information about installing it. Make sure that you have the
-development headers too.
+particular, version 0.9.0 or newer. Make sure that you have
+the development headers too.
 
-Another essential build dependency is GCC. You may already
-have it installed but if not, consult with your OS docs.
+You will also need a C compiler such as GCC. Below are the
+install commands for common platforms:
+
+**macOS**:
+
+.. code-block:: shell-session
+
+    $ xcode-select --install  # one-time setup for the C compiler
+    $ brew install libssh
+
+**Debian / Ubuntu**:
+
+.. code-block:: shell-session
+
+    $ sudo apt-get install libssh-dev build-essential python3-dev
+
+**RHEL / Fedora / CentOS Stream**:
+
+.. code-block:: shell-session
+
+    $ sudo dnf install libssh-devel gcc python3-devel
+
+For other platforms, refer to the `libssh Downloads page
+<https://www.libssh.org/get-it/>`__.
+
+.. note::
+
+    Python 3.13 requires ``Cython >= 3.0.11`` and Python 3.14
+    requires ``Cython >= 3.1.0`` to compile the C-extensions.
+    When building from source via :std:doc:`pip <pip:index>`,
+    the correct version is pulled automatically by the
+    :pep:`517` build backend.
 
 Once you have the build prerequisites, the following command
 should download the tarball, build it and then install into

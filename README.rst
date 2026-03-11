@@ -62,6 +62,16 @@ pylibssh requires libssh to be installed in particular:
   To install libssh refer to its `Downloads page
   <https://www.libssh.org/get-it/>`__.
 
+.. note::
+
+   If a pre-built wheel is not available for your Python
+   version (for example, on newer Python releases),
+   ``pip install ansible-pylibssh`` will compile from source
+   automatically, but requires ``libssh`` development headers
+   and a C compiler to be installed first. See the
+   `documentation <https://ansible-pylibssh.rtfd.io/>`__
+   for platform-specific commands.
+
 
 Building the module
 -------------------

@@ -1,0 +1,5 @@
+Added installation guidance for Python 3.13 and 3.14 users,
+who must build from source until pre-built wheels are
+published. Documented platform-specific commands for
+installing ``libssh`` development headers on macOS, Debian /
+Ubuntu, and RHEL / Fedora, by :user:`cidrblock`.
