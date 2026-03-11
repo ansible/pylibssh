@@ -1,0 +1,4 @@
+Expanded the contributor guide with guidance on checking for
+existing work, PR scope and template expectations, CI and merge
+process, AI-assisted contributions, and available RST roles for
+changelog fragments, by :user:`cidrblock`.

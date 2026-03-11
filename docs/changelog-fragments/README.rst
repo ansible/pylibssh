@@ -33,7 +33,22 @@ combined with others, it will be a part of the "news digest"
 telling the readers **what changed** in a specific version of
 the library *since the previous version*. You should also use
 *reStructuredText* syntax for highlighting code (inline or block),
-linking parts of the docs or external sites.
+linking parts of the docs or external sites. The following
+roles are available when writing fragments:
+
+- Custom roles configured via ``extlinks`` in the project's
+  Sphinx configuration (``docs/conf.py``):
+
+  - ``:user:`github-username``` — link to a GitHub Sponsors profile
+  - ``:issue:`123``` — link to a GitHub issue
+  - ``:pr:`123``` — link to a pull request
+  - ``:gh:`org/repo``` — link to a GitHub repository
+  - ``:commit:`sha``` — link to a specific commit
+
+- Built-in Sphinx role:
+
+  - ``:pep:`517``` — link to a Python Enhancement Proposal
+
 However, you do not need to reference the issue or PR numbers here
 as *towncrier* will automatically add a reference to all of the
 affected issues when rendering the news file.
