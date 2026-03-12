@@ -53,7 +53,7 @@ def test_parse_config_nonexistent_raises(tmp_path):
     ids=str,
 )
 def test_parse_config_valid_file_succeeds(
-    path_arg_type: type[bytes] | type[str] | type[Path],
+    path_arg_type: type[bytes | str | Path],
     tmp_path: Path,
 ) -> None:
     """parse_config() with a valid config file does not raise (str, bytes, Path)."""
