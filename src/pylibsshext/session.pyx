@@ -16,6 +16,7 @@
 # repository.
 import inspect
 import logging
+import os
 from pathlib import Path
 
 from cpython.bytes cimport PyBytes_AS_STRING
@@ -120,6 +121,8 @@ cdef class Session(object):
         if self._libssh_session is NULL:
             raise MemoryError
         self._opts = {}
+        if host is not None:
+            self.set_ssh_options('host', host)
         for key in kwargs:
             self.set_ssh_options(key, kwargs[key])
 
@@ -559,7 +562,7 @@ cdef class Session(object):
     def sftp(self):
         return SFTP(self)
 
-    def parse_config(self, filename: bytes | str | Path | None = None, /) -> None:
+    def parse_config(self, filename: bytes | str | Path | None = None) -> None:
         """Parse SSH configuration file.
 
         This parses the SSH configuration file and applies the settings
@@ -580,10 +583,17 @@ cdef class Session(object):
         if filename is not None:
             if isinstance(filename, Path):
                 b_filename = str(filename).encode("utf-8")
+                path_to_check = str(filename)
             elif isinstance(filename, str):
                 b_filename = filename.encode("utf-8")
+                path_to_check = filename
             else:
                 b_filename = filename
+                path_to_check = filename.decode("utf-8") if isinstance(filename, bytes) else filename
+            if not os.path.exists(path_to_check):
+                raise LibsshConfigParseException(
+                    "Failed to parse SSH config: No such file or directory",
+                )
             c_filename = b_filename
 
         rc = libssh.ssh_options_parse_config(self._libssh_session, c_filename)
