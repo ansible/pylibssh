@@ -78,6 +78,7 @@ src = ["src/**/*.pyx"]
 # Env vars provisioned during cythonize call
 #ANSIBLE_PYLIBSSH_CYTHON_TRACING = "1"
 #CFLAGS = "-DCYTHON_TRACE=1 ${CFLAGS}"
+CFLAGS = "-DPy_LIMITED_API=0x03090000 ${CFLAGS}"
 LDFLAGS = "-lssh ${LDFLAGS}"
 
 [tool.local.cythonize.flags]
