@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Type, Union
 
 import pytest
 
@@ -42,7 +41,7 @@ def test_session_connection_refused(free_port_num):
     ids=str,
 )
 def test_parse_config_nonexistent_raises(
-    path_arg_type: Union[Type[str], Type[Path]],
+    path_arg_type: type[str | Path],
     tmp_path: Path,
 ) -> None:
     """parse_config() with a missing file raises LibsshConfigParseException."""
@@ -64,7 +63,7 @@ def test_parse_config_nonexistent_raises(
     ids=str,
 )
 def test_parse_config_valid_file_succeeds(
-    path_arg_type: Union[Type[str], Type[Path]],
+    path_arg_type: type[str | Path],
     tmp_path: Path,
 ) -> None:
     """parse_config() with a valid config file does not raise (str, Path)."""
