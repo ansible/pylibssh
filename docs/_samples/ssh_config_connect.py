@@ -36,8 +36,9 @@ except LibsshSessionException as ssh_session_connection_error:
     print(f'Failed to connect: {ssh_session_connection_error!s}')
 
 # Alternative: call parse_config() explicitly (e.g. with a pathlib.Path)
-# ssh = Session(host=HOST)
-# ssh.parse_config(Path(CONFIG_FILE))  # or str/bytes
+# ssh = Session()
+# ssh.set_ssh_options('host', HOST)
+# ssh.parse_config(Path(CONFIG_FILE))  # or str
 # ssh.connect(user=USER)
 
 if ssh.is_connected:

@@ -121,8 +121,6 @@ cdef class Session(object):
         if self._libssh_session is NULL:
             raise MemoryError
         self._opts = {}
-        if host is not None:
-            self.set_ssh_options('host', host)
         for key in kwargs:
             self.set_ssh_options(key, kwargs[key])
 
@@ -268,7 +266,7 @@ cdef class Session(object):
         :param config_file: Path to a custom SSH config file to parse before connecting.
                             Enables Host aliases and options from that file. Set ``host``
                             before this is applied so that Host matching works correctly.
-        :type config_file: str or bytes or pathlib.Path or None
+        :type config_file: str or pathlib.Path or None
         """
         cdef LibsshSessionException saved_exception = None
 
@@ -278,10 +276,11 @@ cdef class Session(object):
 
         # Parse SSH config after host is set (so Host blocks match) but before connect,
         # so that options from the config (e.g. HostName, User, Port, ProxyCommand) are
-        # applied to this connection. Only when config_file is passed and non-None.
-        path = kwargs.get('config_file')
-        if path is not None:
-            self.parse_config(path)
+        # applied to this connection. Only when the caller passed config_file explicitly.
+        if 'config_file' in kwargs:
+            path = kwargs['config_file']
+            if path is not None:
+                self._load_ssh_config_file(path)
 
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
@@ -562,20 +561,8 @@ cdef class Session(object):
     def sftp(self):
         return SFTP(self)
 
-    def parse_config(self, filename: bytes | str | Path | None = None) -> None:
-        """Parse SSH configuration file.
-
-        This parses the SSH configuration file and applies the settings
-        to the current session. If no filename is provided, it parses
-        the default configuration files (:file:`~/.ssh/config` and system config).
-
-        Note: The ``host`` option should be set before calling this method
-        for ``Host`` matching to work correctly.
-
-        :param filename: Path to the SSH config file, or ``None`` for defaults.
-
-        :raises LibsshConfigParseException: If parsing fails.
-        """
+    def _load_ssh_config_file(self, filename):
+        """Apply SSH client configuration from the default paths and/or ``filename``."""
         cdef int rc
         cdef bytes b_filename
         cdef const char *c_filename = NULL
@@ -588,8 +575,11 @@ cdef class Session(object):
                 b_filename = filename.encode("utf-8")
                 path_to_check = filename
             else:
-                b_filename = filename
-                path_to_check = filename.decode("utf-8") if isinstance(filename, bytes) else filename
+                raise TypeError(
+                    "filename must be str, pathlib.Path, or None, not {!r}".format(
+                        type(filename),
+                    ),
+                )
             if not os.path.exists(path_to_check):
                 raise LibsshConfigParseException(
                     "Failed to parse SSH config: No such file or directory",
@@ -602,6 +592,23 @@ cdef class Session(object):
             raise LibsshConfigParseException(
                 f"Failed to parse SSH config: {underlying_libssh_error!s}",
             )
+
+    def parse_config(self, filename=None):
+        """Parse SSH configuration file.
+
+        This parses the SSH configuration file and applies the settings
+        to the current session. If no filename is provided, it parses
+        the default configuration files (:file:`~/.ssh/config` and system config).
+
+        Note: The ``host`` option should be set before calling this method
+        for ``Host`` matching to work correctly.
+
+        :param filename: Path to the SSH config file as :class:`str` or
+            :class:`pathlib.Path`, or ``None`` for defaults.
+
+        :raises LibsshConfigParseException: If parsing fails.
+        """
+        self._load_ssh_config_file(filename)
 
     def set_log_level(self, level):
         _set_level(level)

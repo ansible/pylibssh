@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Type, Union
 
 import pytest
 
@@ -35,37 +36,43 @@ def test_session_connection_refused(free_port_num):
         ssh_session.connect(host='127.0.0.1', port=free_port_num)
 
 
-def test_parse_config_nonexistent_raises(tmp_path):
-    """parse_config() with nonexistent file raises LibsshConfigParseException."""
-    session = Session(host='somehost')
+@pytest.mark.parametrize(
+    'path_arg_type',
+    (str, Path),
+    ids=str,
+)
+def test_parse_config_nonexistent_raises(
+    path_arg_type: Union[Type[str], Type[Path]],
+    tmp_path: Path,
+) -> None:
+    """parse_config() with a missing file raises LibsshConfigParseException."""
+    session = Session()
+    session.set_ssh_options('host', 'somehost')
     nonexistent = tmp_path / 'nonexistent_ssh_config'
     assert not nonexistent.exists()
+    path_arg = path_arg_type(nonexistent)
     with pytest.raises(
         LibsshConfigParseException,
-        match=r'Failed to parse SSH config:',
+        match=r'^Failed to parse SSH config: No such file or directory$',
     ):
-        session.parse_config(str(nonexistent))
+        session.parse_config(path_arg)
 
 
 @pytest.mark.parametrize(
     'path_arg_type',
-    (bytes, str, Path),
+    (str, Path),
     ids=str,
 )
 def test_parse_config_valid_file_succeeds(
-    path_arg_type: type[bytes | str | Path],
+    path_arg_type: Union[Type[str], Type[Path]],
     tmp_path: Path,
 ) -> None:
-    """parse_config() with a valid config file does not raise (str, bytes, Path)."""
-    session = Session(host='somehost')
+    """parse_config() with a valid config file does not raise (str, Path)."""
+    session = Session()
+    session.set_ssh_options('host', 'somehost')
     config_file = tmp_path / 'ssh_config'
     config_file.write_text('Host *\n', encoding='utf-8')
-    if path_arg_type is bytes:
-        path_arg = str(config_file).encode('utf-8')
-    elif path_arg_type is str:
-        path_arg = str(config_file)
-    else:
-        path_arg = config_file
+    path_arg = path_arg_type(config_file)
     try:
         session.parse_config(path_arg)
     except LibsshConfigParseException:
@@ -76,9 +83,12 @@ def test_parse_config_valid_file_succeeds(
 
 def test_connect_config_file_none_no_parse():
     """connect(config_file=None) does not call parse_config; fails at connect."""
-    session = Session(host='test.nonexistent.example.invalid')
+    session = Session()
     expected_error_regex = (
         r'^ssh connect failed: .*test\.nonexistent\.example\.invalid.*$'
     )
     with pytest.raises(LibsshSessionException, match=expected_error_regex):
-        session.connect(config_file=None)
+        session.connect(
+            host='test.nonexistent.example.invalid',
+            config_file=None,
+        )
