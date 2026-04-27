@@ -24,8 +24,8 @@ if [ "${ARCH}" = "x86" ] || [ "${ARCH}" = "x86_64" ]; then
 fi
 
 # Use MACOS_OUTPUT environment variable from pyproject.toml [tool.cibuildwheel.macos.environment]
-# Default to packaging/macos/build if not set
-MACOS_OUTPUT="${MACOS_OUTPUT:-packaging/macos/build}"
+# Default to build-scripts/macos/build if not set
+MACOS_OUTPUT="${MACOS_OUTPUT:-build-scripts/macos/build}"
 MACOS_OUTPUT="${REPO_ROOT}/${MACOS_OUTPUT}/${ARCH}"
 mkdir -p ${MACOS_OUTPUT}
 MACOS_OUTPUT_ABS="$(cd ${MACOS_OUTPUT} && pwd)"
@@ -47,18 +47,13 @@ else
     export CFLAGS="-mmacosx-version-min=11.0 -march=core2"
 fi
 
-# Build OpenSSL
-echo "Downloading OpenSSL..."
-curl -sL https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz | tar xz
-cd openssl-${OPENSSL_VERSION}
-
-# Use CMAKE_ARCH for OpenSSL target (normalized to x86_64 or arm64)
-OPENSSL_TARGET="darwin64-${CMAKE_ARCH}-cc"
-
-./Configure ${OPENSSL_TARGET} --prefix=${WORK_DIR}/deps no-shared no-tests
-make -j$(sysctl -n hw.ncpu) > /dev/null
-make install_sw > /dev/null
-cd ..
+# Build OpenSSL using shared installer script
+echo "Building OpenSSL..."
+${REPO_ROOT}/build-scripts/install_openssl.sh "${WORK_DIR}/deps" macos "${ARCH}" > /dev/null 2>&1 || {
+    echo "OpenSSL build failed, showing output:"
+    ${REPO_ROOT}/build-scripts/install_openssl.sh "${WORK_DIR}/deps" macos "${ARCH}"
+    exit 1
+}
 
 # Build libssh
 echo "Downloading libssh..."

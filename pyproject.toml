@@ -200,7 +200,7 @@ profile = "True"
     showcontent = true
 
 [tool.cibuildwheel]
-build-frontend = "pip"
+build-frontend = "build"
 # container-engine = "podman"  # FIXME?
 test-requires = "pytest pytest-cov pytest-xdist"
 test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
@@ -243,15 +243,18 @@ LD_LIBRARY_PATH = "$(cat /root/.static-deps-path)/lib64:$(cat /root/.static-deps
 
 [tool.cibuildwheel.macos]
 # Build libssh from source with controlled versions
-# Version configuration: packaging/macos/config.sh
+# Version configuration: build-scripts/macos/config.sh
 before-build = [
-  "bash {project}/packaging/macos/cibuildwheel-before-build.sh",
+  "bash {project}/build-scripts/macos/cibuildwheel-before-build.sh",
 ]
 
 [tool.cibuildwheel.macos.environment]
-MACOS_OUTPUT = "packaging/macos/build"
-# Build configuration is written by before-build script to .macos_build_config.py
-# and loaded automatically by the build backend
+MACOS_OUTPUT = "build-scripts/macos/build"
+# Build configuration: environment variables set by before-build script
+# Path is written to .macos-static-deps-path file
+CFLAGS = "'-I$(cat {project}/.macos-static-deps-path)/include'"
+LDFLAGS = "'-L$(cat {project}/.macos-static-deps-path)/lib'"
+PKG_CONFIG_PATH = "$(cat {project}/.macos-static-deps-path)/lib/pkgconfig"
 
 [tool.cibuildwheel.windows]
 skip = "*"

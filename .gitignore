@@ -198,6 +198,7 @@ parts/
 sdist/
 var/
 wheels/
+wheelhouse/
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
@@ -399,4 +400,6 @@ $RECYCLE.BIN/
 
 # setuptools-scm write_to:
 /src/pylibsshext/_scm_version.py
-.macos_build_config.py
+
+# macOS
+.DS_Store

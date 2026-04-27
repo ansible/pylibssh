@@ -29,14 +29,21 @@ if [ -d "${ARM64_DIR}/lib/pkgconfig" ]; then
 fi
 
 # Merge libraries using lipo
-for lib in "${ARM64_DIR}"/lib/*.a; do
-    libname=$(basename ${lib})
-    if [ -f "${X86_64_DIR}/lib/${libname}" ]; then
-        echo "Merging ${libname}"
-        lipo -create ${ARM64_DIR}/lib/${libname} ${X86_64_DIR}/lib/${libname} \
-            -output ${MACOS_OUTPUT}/lib/${libname}
-    fi
-done
+# Explicitly list libraries to avoid accidentally picking up unwanted files
+echo "Merging libcrypto.a"
+lipo -create -output "${MACOS_OUTPUT}/lib/libcrypto.a" \
+    "${ARM64_DIR}/lib/libcrypto.a" \
+    "${X86_64_DIR}/lib/libcrypto.a"
+
+echo "Merging libssl.a"
+lipo -create -output "${MACOS_OUTPUT}/lib/libssl.a" \
+    "${ARM64_DIR}/lib/libssl.a" \
+    "${X86_64_DIR}/lib/libssl.a"
+
+echo "Merging libssh.a"
+lipo -create -output "${MACOS_OUTPUT}/lib/libssh.a" \
+    "${ARM64_DIR}/lib/libssh.a" \
+    "${X86_64_DIR}/lib/libssh.a"
 
 echo "Done. Universal2 artifacts in ${MACOS_OUTPUT}/"
 file ${MACOS_OUTPUT}/lib/*.a

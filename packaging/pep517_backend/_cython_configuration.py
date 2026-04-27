@@ -17,43 +17,6 @@ from ._transformers import (
 )
 
 
-# Load macOS build configuration if it exists
-def _load_macos_build_config():
-    """Load macOS build configuration from .macos_build_config.py if it exists."""
-    config_path = Path('.macos_build_config.py')
-    if not config_path.exists():
-        return {}
-
-    try:
-        config = {}
-        with open(config_path) as f:
-            exec(f.read(), config)
-
-        build_config = {}
-        if 'INCLUDE_DIR' in config:
-            current_cflags = os.getenv('CFLAGS', '')
-            build_config['CFLAGS'] = f"-I{config['INCLUDE_DIR']} {current_cflags}".strip()
-        if 'LIB_DIR' in config:
-            current_ldflags = os.getenv('LDFLAGS', '')
-            build_config['LDFLAGS'] = f"-L{config['LIB_DIR']} {current_ldflags}".strip()
-        if 'PKG_CONFIG_PATH' in config:
-            current_pkg_config = os.getenv('PKG_CONFIG_PATH', '')
-            pkg_paths = [config['PKG_CONFIG_PATH']]
-            if current_pkg_config:
-                pkg_paths.append(current_pkg_config)
-            build_config['PKG_CONFIG_PATH'] = ':'.join(pkg_paths)
-
-        return build_config
-    except Exception:
-        return {}
-
-
-# Apply macOS build configuration to environment
-_MACOS_BUILD_CONFIG = _load_macos_build_config()
-if _MACOS_BUILD_CONFIG:
-    os.environ.update(_MACOS_BUILD_CONFIG)
-
-
 if _t.TYPE_CHECKING:
     import collections.abc as _c  # noqa: WPS111, WPS301
 
