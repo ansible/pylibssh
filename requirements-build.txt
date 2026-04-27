@@ -4,25 +4,25 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements-build.txt --strip-extras -
 #
-cython==3.0.12
+cython==3.2.4
     # via -r -
-expandvars==0.9.0
+expandvars==1.1.2
     # via -r -
-packaging==24.0
+packaging==25.0
     # via setuptools-scm
-pyparsing==3.0.9
+pyparsing==3.3.2
     # via packaging
-setuptools-scm==8.1.0
+setuptools-scm==8.3.1
     # via -r -
-tomli==2.0.1
+tomli==2.2.1
     # via setuptools-scm
-typing-extensions==4.10.0
+typing-extensions==4.14.1
     # via setuptools-scm
-wheel==0.37.1
+wheel==0.45.1
     # via -r -
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==68.2.2
+setuptools==82.0.0
     # via
     #   -r -
     #   setuptools-scm

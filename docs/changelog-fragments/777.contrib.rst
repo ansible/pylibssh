@@ -1,2 +1,0 @@
-Increased the amount of retries in test to avoid possible timeouts
-on slower systems -- by :user:`Jakuje`.

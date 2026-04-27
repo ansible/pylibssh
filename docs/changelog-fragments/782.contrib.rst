@@ -1,4 +1,0 @@
-The SSHD start probe client command is now shielded from external
-environmnent and will no longer attempt using an SSH agent on the
-machine where the tests are involved, nor will it use alternative
-authentication methods -- by :user:`webknjaz`.

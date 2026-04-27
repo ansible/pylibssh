@@ -10,7 +10,7 @@ repos:
   - id: no_optional
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.14.10
+  rev: v0.15.9
   hooks:
   - id: ruff-check
     args:
@@ -20,7 +20,7 @@ repos:
     - --show-fixes
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.14.10
+  rev: v0.15.9
   hooks:
   - id: ruff-format  # Cython imports are handled by `isort`
     alias: ruff-format-first-pass
@@ -32,14 +32,14 @@ repos:
   - id: add-trailing-comma
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.14.10
+  rev: v0.15.9
   hooks:
   - id: ruff-format  # Cython imports are handled by `isort`
     alias: ruff-format-second-pass
     name: ruff-format (second pass)
 
 - repo: https://github.com/PyCQA/isort.git
-  rev: 7.0.0
+  rev: 8.0.1
   hooks:
   - id: isort
     args:
@@ -48,12 +48,12 @@ repos:
     - cython  # Python is handled by Ruff
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
-  rev: v1.5.5
+  rev: v1.5.6
   hooks:
   - id: remove-tabs
 
 - repo: https://github.com/python-jsonschema/check-jsonschema.git
-  rev: 0.36.0
+  rev: 0.37.1
   hooks:
   - id: check-github-workflows
     files: ^\.github/workflows/[^/]+$
@@ -113,14 +113,14 @@ repos:
       ^docs/_samples/.*\.py$
 
 - repo: https://github.com/codespell-project/codespell.git
-  rev: v2.4.1
+  rev: v2.4.2
   hooks:
   - id: codespell
     exclude: >-
       ^\.github/\.json-schemas/.*\.json$
 
 - repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.37.1
+  rev: v1.38.0
   hooks:
   - id: yamllint
     types:
@@ -199,7 +199,7 @@ repos:
     - jupyter
 
 - repo: https://github.com/MarcoGorelli/cython-lint.git
-  rev: v0.18.1
+  rev: v0.19.0
   hooks:
   - id: cython-lint
     # NOTE: This linter does not have a config file so it's set up below.

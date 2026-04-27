@@ -85,7 +85,7 @@ srpm_build_deps:  # The presense of `srpm_build_deps` enforces Copr env
 sync_changelog: false
 # synced_files: []
 
-upstream_package_name: ansible-pylibssh
+upstream_package_name: ansible_pylibssh
 upstream_project_url: https://github.com/ansible/pylibssh
 upstream_tag_template: v{version}
 

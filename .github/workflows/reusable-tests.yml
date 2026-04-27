@@ -5,6 +5,9 @@ name: ♲ 🧪
 on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
+      project-name:
+        required: true
+        type: string
       python-version:
         required: true
         type: string
@@ -50,7 +53,6 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: 1
   PIP_NO_PYTHON_VERSION_WARNING: 1
   PIP_NO_WARN_SCRIPT_LOCATION: 1
-  PROJECT_NAME: ansible-pylibssh
   PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
   TOX_PARALLEL_NO_SPINNER: 1
   TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
@@ -72,6 +74,10 @@ jobs:
     runs-on: ${{ inputs.runner-vm-os }}
 
     timeout-minutes: 7
+
+    defaults:
+      run:
+        shell: bash -eEuxo pipefail {0}
 
     continue-on-error: >-
       ${{
@@ -160,7 +166,7 @@ jobs:
         python -m
         pip install
         --user
-        '${{ env.TOX_VERSION }}'
+        "${TOX_VERSION}"
 
     - name: Download all the dists
       uses: actions/download-artifact@v4
@@ -183,6 +189,7 @@ jobs:
         # NOTE: in the Bash script.
         # NOTE: Ref: https://github.com/Textualize/rich/issues/2622
         NO_COLOR: 1
+        PROJECT_NAME: ${{ inputs.project-name }}
       if: inputs.dist-type == 'binary'
       id: wheel-file
       run: >
@@ -198,7 +205,7 @@ jobs:
         -m pip install
         --find-links=./dist
         --no-index
-        '${{ env.PROJECT_NAME }}'
+        "${PROJECT_NAME}"
         --force-reinstall
         --no-color
         --no-deps
@@ -209,7 +216,6 @@ jobs:
         | jq --raw-output .install[].download_info.url
         | sed -e 's#^file://##' -e 's#%2B#+#'
         | tee -a "${GITHUB_OUTPUT}"
-      shell: bash
 
     - name: >-
         Pre-populate tox env:
@@ -262,7 +268,6 @@ jobs:
         --
         --no-cov -vvvvv --lf
         && exit 1
-      shell: bash
     - name: Send coverage data to Codecov
       uses: codecov/codecov-action@v5.1.2
       with:

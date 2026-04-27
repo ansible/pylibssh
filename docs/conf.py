@@ -29,12 +29,8 @@ get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 
 # -- Project information -----------------------------------------------------
 
-github_url = 'https://github.com'
 github_repo_org = 'ansible'
 github_repo_name = 'pylibssh'
-github_repo_slug = f'{github_repo_org}/{github_repo_name}'
-github_repo_url = f'{github_url}/{github_repo_slug}'
-github_sponsors_url = f'{github_url}/sponsors'
 
 project = f'{github_repo_org}-{github_repo_name}'
 author = 'Ansible, Inc.'
@@ -73,14 +69,15 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosectionlabel',  # autocreate section targets for refs
     'sphinx.ext.doctest',
-    'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    # Third-party extensions:
     # 'sphinxcontrib.apidoc',
     'sphinxcontrib.towncrier',  # provides `towncrier-draft-entries` directive
     'myst_parser',  # extended markdown; https://pypi.org/project/myst-parser/
+    'sphinx_issues',  # implements `:issue:`, `:pr:` and other GH-related roles
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -137,19 +134,11 @@ master_doc = 'index'
 
 # -- Extension configuration -------------------------------------------------
 
-# -- Options for extlinks extension ---------------------------------------
-extlinks = {
-    'issue': (f'{github_repo_url}/issues/%s', '#%s'),
-    'pr': (f'{github_repo_url}/pull/%s', 'PR #%s'),
-    'commit': (f'{github_repo_url}/commit/%s', '%s'),
-    'gh': (f'{github_url}/%s', 'GitHub: %s'),
-    'user': (f'{github_sponsors_url}/%s', '@%s'),
-}
-
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
+    'coveragepy': ('https://coverage.readthedocs.io/en/latest', None),
     'cython': ('https://cython.readthedocs.io/en/latest', None),
     'packaging': ('https://packaging.python.org', None),
     'pip': ('https://pip.pypa.io/en/latest', None),
@@ -193,6 +182,12 @@ linkcheck_workers = 25
 # Ref:
 # https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html
 autosectionlabel_maxdepth = 2  # mitigate Towncrier nested subtitles collision
+
+# -- Options for sphinx_issues extension -------------------------------------
+
+# https://github.com/sloria/sphinx-issues#installation-and-configuration
+
+issues_github_path = f'{github_repo_org}/{github_repo_name}'
 
 # -- Options for towncrier_draft extension -----------------------------------
 

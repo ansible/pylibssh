@@ -33,13 +33,17 @@ jobs:
         - build-docs
         - make-changelog
 
+    defaults:
+      run:
+        shell: bash -eEuxo pipefail {0}
+
     env:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
       TOXENV: ${{ matrix.toxenv }}
 
     steps:
-    - uses: actions/checkout@v4.1.6
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5.3.0
       with:
@@ -54,7 +58,7 @@ jobs:
         python -m
         pip install
         --user
-        '${{ env.TOX_VERSION }}'
+        "${TOX_VERSION}"
     - name: Log installed dists
       run: python -m pip freeze --all
     - name: Initialize tox envs

@@ -2,5 +2,6 @@ myst-parser >= 0.10.0
 setuptools_scm >= 3.5.0
 Sphinx >= 3
 sphinx-ansible-theme >= 0.3.1
+sphinx-issues  # Sphinx roles providing support for linking GitHub
 sphinxcontrib-apidoc >= 0.3.0
 sphinxcontrib-towncrier

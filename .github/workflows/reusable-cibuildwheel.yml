@@ -68,13 +68,17 @@ jobs:
       }}
     runs-on: ${{ inputs.runner-vm-os }}
     timeout-minutes: ${{ fromJSON(inputs.timeout-minutes) }}
+
+    defaults:
+      run:
+        shell: bash -eEuxo pipefail {0}
+
     steps:
     - name: Export requested job-global environment variables
       if: inputs.environment-variables != ''
       env:
         INPUT_ENVIRONMENT_VARIABLES: ${{ inputs.environment-variables }}
       run: echo "${INPUT_ENVIRONMENT_VARIABLES}" >> "${GITHUB_ENV}"
-      shell: bash
 
     - name: Compute GHA artifact name ending
       id: gha-artifact-name
@@ -108,7 +112,7 @@ jobs:
         platforms: all
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.17.0
+      uses: pypa/cibuildwheel@v3.1.4
       with:
         package-dir: >-  # not necessarily a dir, we pass an acceptable sdist
           dist/${{ inputs.source-tarball-name }}

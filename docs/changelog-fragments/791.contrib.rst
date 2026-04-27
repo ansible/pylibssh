@@ -1,3 +1,0 @@
-Now that the ``macos-13`` runner VM image has been decommissioned, the CI and CD jobs have been migrated to use ``macos-15-intel`` -- by :user:`komaldesai13`.
-
-This includes giving the macOS build job more time to complete as the new version is a little slower.

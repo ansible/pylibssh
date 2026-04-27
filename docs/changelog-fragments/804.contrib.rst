@@ -1,2 +1,0 @@
-The standalone mentions of ``pylibssh`` have been replaced with
-``ansible-pylibssh`` in file license headers -- by :user:`Jakuje`.

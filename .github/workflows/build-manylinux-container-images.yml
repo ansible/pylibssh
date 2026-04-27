@@ -44,39 +44,48 @@ jobs:
         - _2_34
         include:
         - IMAGE:
-            ARCH: armv7l
+            ARCH_SUFFIX: armv7l
+            ARCH: arm
             HOST_OS: ubuntu-24.04-arm
           YEAR: _2_31  # There are no base images prior to 2.31 for this arch
 
     env:
       LIBSSH_VERSION: 0.12.0
       PYPA_MANYLINUX_TAG: >-
-        manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
+        manylinux${{ matrix.YEAR }}_${{
+          matrix.IMAGE.ARCH_SUFFIX
+          || matrix.IMAGE.ARCH
+        }}
       FULL_IMAGE_NAME: >-
         ${{
           github.repository
         }}-manylinux${{
           matrix.YEAR
         }}_${{
-          matrix.IMAGE.ARCH
+          matrix.IMAGE.ARCH_SUFFIX
+          || matrix.IMAGE.ARCH
         }}
       QEMU_ARCH: ${{ matrix.IMAGE.QEMU_ARCH || matrix.IMAGE.ARCH }}
 
     defaults:
       run:
+        shell: bash -eEuxo pipefail {0}
         working-directory: build-scripts/manylinux-container-image/
 
     name: >-  # can't use `env` in this context:
       🐳
-      manylinux${{ matrix.YEAR }}_${{ matrix.IMAGE.ARCH }}
+      manylinux${{ matrix.YEAR }}_${{
+        matrix.IMAGE.ARCH_SUFFIX
+        || matrix.IMAGE.ARCH
+      }}
     steps:
     - name: Fetch the repo src
-      uses: actions/checkout@v4.1.6
+      uses: actions/checkout@v4
     - name: >-
         Set up QEMU ${{ env.QEMU_ARCH }} arch emulation
         with Podman
       if: >-
-        !contains(fromJSON('["aarch64", "amd64", "armv7l"]'), env.QEMU_ARCH)
+        !contains(fromJSON('["aarch64", "amd64", "arm"]'), env.QEMU_ARCH)
       run: >
         sudo podman run
         --rm --privileged

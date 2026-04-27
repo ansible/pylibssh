@@ -1,2 +1,0 @@
-Updated the bundled version of libssh to 0.12.0 in platform-specific
-wheels published on PyPI -- by :user:`Jakuje`.

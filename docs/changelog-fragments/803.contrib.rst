@@ -1,5 +1,0 @@
-The ``pre-commit`` framework configuration has been updated to be in
-sync with ``awx-plugins`` and other projects. It now has a few
-additional linters and a workaround for the outdated ones.
-
--- by :user:`webknjaz`

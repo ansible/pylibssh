@@ -1,2 +1,0 @@
-The linting configuration now uses Ruff to run additional checks on
-pure Python modules -- by :user:`webknjaz`.

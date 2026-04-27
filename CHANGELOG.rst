@@ -14,6 +14,300 @@ Changelog
 
 .. towncrier release notes start
 
+v1.4.0
+======
+
+*(2026-03-15)*
+
+
+Bug fixes
+---------
+
+- Fixed the log level mapping to cover the entire ``libssh`` range
+  -- by :user:`Jakuje` and :user:`webknjaz`.
+
+  Previously it was not possible to set the most verbose ``libssh`` log level
+  ``SSH_LOG_TRACE`` to get the most verbose log messages useful for debugging
+  connection issues.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`597`.
+
+
+Features
+--------
+
+- Made ``libssh`` use the Python :external+python:mod:`logging` system
+  -- by :user:`Jakuje` and :user:`webknjaz`.
+
+  Previously the underlying ``libssh`` library was writing its logs directly
+  from the C-level into ``stderr``, which caused inconsistent behavior.
+
+  The default log level is now set to :data:`ANSIBLE_PYLIBSSH_TRACE`
+  and the downstream loggers are able to trim the verbosity down.
+  If you need performance, it is possible to disable logging on the ``libssh``
+  side at the source by setting a lower logging value, for example:
+
+  .. code-block:: python
+
+     ssh_session.set_log_level(ANSIBLE_PYLIBSSH_NOLOG)
+
+  Additionally, the log level can be now be set also through the session initializer:
+
+  .. code-block:: python
+
+     ssh = Session(log_verbosity=ANSIBLE_PYLIBSSH_TRACE)
+
+
+  or the ``connect()`` method arguments:
+
+  .. code-block:: python
+
+     ssh.connect(log_verbosity=ANSIBLE_PYLIBSSH_TRACE)
+
+  Setting any levels imported from :external+python:mod:`!logging` is also supported.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`597`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- Started shipping binary ``armv7l`` wheels -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`648`.
+
+- Upgrading :pypi:`cibuildwheel` to v2.22.0 also picked up Python 3.13
+  and enabled respective wheels to be built -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`648`.
+
+- The CI/CD/packaging infrastructure has been updated to produce
+  :external+packaging:term:`source distribution <Source Distribution (or "sdist")>`
+  file names consistent with the requirement of uploading artifacts
+  compliant with the core packaging metadata 2.2 or newer to PyPI and
+  TestPyPI -- by :user:`webknjaz`.
+
+  Along with that, the infrastructure has been adjusted to expect
+  :pep:`625`-conforming names in its guard rails checks
+  -- with some :user:`cidrblock`\ s help.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`808`, :issue:`809`.
+
+- Upgrading :pypi:`cibuildwheel` to v3.1.0 also picked up Python 3.14
+  and enabled respective wheels to be built -- by :user:`webknjaz`.
+
+  Building the free-threaded wheels remains disabled, though.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`823`.
+
+- While upgrading :pypi:`cibuildwheel` to v3.1.4, its defaults changed to
+  attempt building wheels for the RISC-V architecture. This target is now
+  disabled explicitly due to the lack of infrastructure
+  -- by :user:`webknjaz`.
+
+  We may enable it at a later time as a separate dedicated effort.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`824`.
+
+- Due to :pypi:`cibuildwheel` to v3 bundling :pypi:`delocate` 0.13.0 that
+  enforces deployment-target consistency with the brew-installed copy of
+  the ``libssh`` in the build jobs, the macOS wheels we build now require
+  macOS version 15.0 or newer.
+
+  -- by :user:`cidrblock` and :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`824`.
+
+- The core packaging metadata now reflects that we test the project under
+  Python 3.13 and 3.14 (with GIL enabled)
+  -- by :user:`cidrblock` and :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`825`.
+
+- The pre-cached ``armv7l`` images we build for the packaging
+  infrastructure are now correctly tagged with the ``linux/arm/v7``
+  OCI platform tag -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`810`.
+
+- The build backend configuration no longer sets the deprecated
+  ``bdist_wheel.universal`` setting -- by :user:`webknjaz`.
+
+  This does not influence the packaging artifacts in any way.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`811`.
+
+- The build backend has been configured to exclude
+  :file:`.git_archival.txt` from source distributions built from Git
+  -- by :user:`webknjaz`.
+
+  This reduces the number of false positive warning the backend outputs.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`811`.
+
+
+Contributor-facing changes
+--------------------------
+
+- The repository is now set up to auto-format Python files with Ruff.
+  Cython keeps being formatted by ``cython-lint``.
+
+  -- by :user:`webknjaz`
+
+  *Related commits on GitHub:*
+  :commit:`234a2d34`, :commit:`a63b6028`, :commit:`0e385696`.
+
+- The linting configuration now uses Ruff to run additional checks on
+  pure Python modules -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`817095443f6afa4b3822780110712db148693075`.
+
+- ``cibuildwheel`` started making use of the ``armv7l`` container image
+  following its upgrade to v2.22.0 -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`648`.
+
+- Increased the amount of retries in test to avoid possible timeouts
+  on slower systems -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`777`.
+
+- The SSHD start probe client command is now shielded from external
+  environmnent and will no longer attempt using an SSH agent on the
+  machine where the tests are involved, nor will it use alternative
+  authentication methods -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`782`.
+
+- Now that the ``macos-13`` runner VM image has been decommissioned, the CI and CD jobs have been migrated to use ``macos-15-intel`` -- by :user:`komaldesai13`.
+
+  This includes giving the macOS build job more time to complete as the new version is a little slower.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`791`.
+
+- Updated the version of ``libssh`` to the latest release v0.12.0
+  in the cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`797`.
+
+- Updated the bundled version of libssh to 0.12.0 in platform-specific
+  wheels published on PyPI -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`798`.
+
+- Added Fedora and ubi9 images to CI/CD pipeline that are relevant in 2026
+  and removed EOL Fedora versions -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`801`.
+
+- The ``pre-commit`` framework configuration has been updated to be in
+  sync with ``awx-plugins`` and other projects. It now has a few
+  additional linters and a workaround for the outdated ones.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`803`.
+
+- The standalone mentions of ``pylibssh`` have been replaced with
+  ``ansible-pylibssh`` in file license headers -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`804`.
+
+- The CI/CD/packaging infrastructure has been updated to produce
+  :external+packaging:term:`source distribution <Source Distribution (or "sdist")>`
+  file names consistent with the requirement of uploading artifacts
+  compliant with the core packaging metadata 2.2 or newer to PyPI and
+  TestPyPI -- by :user:`webknjaz`.
+
+  Along with that, the infrastructure has been adjusted to expect
+  :pep:`625`-conforming names in its guard rails checks
+  -- with some :user:`cidrblock`\ s help.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`808`, :issue:`809`.
+
+- :pypi:`cibuildwheel` has been upgraded to v3.1.4 -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`820`, :issue:`821`, :issue:`823`, :issue:`824`.
+
+- The coverage measurement infrastructure now uses the ``ctrace``
+  :external+coveragepy:std:ref:`measurement core <config_run_core>`
+  across all the Python versions consistently -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`825`.
+
+- The CI now tests wheels built for Python 3.13 and 3.14
+  -- by :user:`cidrblock` and :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`809`, :issue:`825`.
+
+- The pre-cached ``armv7l`` images we build for the packaging
+  infrastructure are now correctly tagged with the ``linux/arm/v7``
+  OCI platform tag -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`810`.
+
+- The build backend configuration no longer sets the deprecated
+  ``bdist_wheel.universal`` setting -- by :user:`webknjaz`.
+
+  This does not influence the packaging artifacts in any way.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`811`.
+
+- The CI/CD infrastructure has been set up to avoid parts of the template
+  injection problem in GitHub Actions workflow definitions. The shell
+  entry point has been set to bash for any scripts with extra strictness
+  enabled.
+
+  -- by :user:`webknjaz`
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`816`.
+
+- The CI/CD and packaging infrastructure now sources the PyPI project name
+  from :file:`setup.cfg` rather than hardcoding it -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`817`.
+
+- The documentation building infrastructure now integrates GitHub-related
+  RST roles using the :pypi:`sphinx-issues` extension -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`818`.
+
+
+----
+
+
 v1.3.0
 ======
 
@@ -729,8 +1023,7 @@ Packaging updates and notes for downstreams
 
 - The ``setuptools-scm`` build dependency CI pin was updated to 8.1.0 —
   this version fixes a date parsing incompatibility introduced by Git 2.45.0
-  (:gh:`pypa/setuptools_scm#1038 <pypa/setuptools_scm/issues/1038>`,
-  :gh:`pypa/setuptools_scm#1039 <pypa/setuptools_scm/pull/1039>`)
+  (:issue:`pypa/setuptools_scm#1038`, :pr:`pypa/setuptools_scm#1039`)
   -- by :user:`webknjaz`.
 
   *Related issues and pull requests on GitHub:*
@@ -833,8 +1126,7 @@ Contributor-facing changes
 
 - The ``setuptools-scm`` build dependency CI pin was updated to 8.1.0 —
   this version fixes a date parsing incompatibility introduced by Git 2.45.0
-  (:gh:`pypa/setuptools_scm#1039 <pypa/setuptools_scm/issues/1038>`,
-  :gh:`pypa/setuptools_scm#1038 <pypa/setuptools_scm/pull/1039>`)
+  (:issue:`pypa/setuptools_scm#1038`, :pr:`pypa/setuptools_scm#1039`)
   -- by :user:`webknjaz`.
 
   *Related issues and pull requests on GitHub:*
