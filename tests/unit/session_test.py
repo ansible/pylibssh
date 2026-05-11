@@ -1,18 +1,17 @@
 """Tests suite for session."""
 
-import inspect
 import logging
 
 import pytest
 
 from pylibsshext.errors import LibsshSessionException
 from pylibsshext.session import (
-    AutoAddPolicy,
     HOST_KEY_AUTO_ADD_MSG_MAP,
     KNOW_HOST_MSG_MAP,
-    MissingHostKeyPolicy,
     OPTS_DIR_MAP,
     OPTS_MAP,
+    AutoAddPolicy,
+    MissingHostKeyPolicy,
     RejectPolicy,
     Session,
 )
@@ -95,7 +94,10 @@ class TestSessionSetSshOptions:
     def test_set_unknown_option_raises(self):
         """Test that setting an unknown option raises LibsshSessionException."""
         session = Session()
-        with pytest.raises(LibsshSessionException, match='Unknown attribute name'):
+        with pytest.raises(
+            LibsshSessionException,
+            match='Unknown attribute name',
+        ):
             session.set_ssh_options('nonexistent_option', 'value')
 
     def test_set_ssh_dir_option(self):
@@ -138,7 +140,10 @@ class TestSessionGetSshOptions:
     def test_get_unknown_option_raises(self):
         """Test that getting an unknown option raises LibsshSessionException."""
         session = Session()
-        with pytest.raises(LibsshSessionException, match='Unknown attribute name'):
+        with pytest.raises(
+            LibsshSessionException,
+            match='Unknown attribute name',
+        ):
             session.get_ssh_options('nonexistent_option')
 
     def test_get_port_returns_none_when_unset(self):
@@ -150,7 +155,10 @@ class TestSessionGetSshOptions:
     def test_get_ssh_dir_not_set_raises(self):
         """Test that getting ssh_dir when not set raises exception."""
         session = Session()
-        with pytest.raises(LibsshSessionException, match='Unknown attribute name'):
+        with pytest.raises(
+            LibsshSessionException,
+            match='Unknown attribute name',
+        ):
             session.get_ssh_options('ssh_dir')
 
 
@@ -227,6 +235,7 @@ class TestSessionMissingHostKeyPolicy:
 
     def test_set_custom_policy(self):
         """Test setting a custom MissingHostKeyPolicy subclass."""
+
         class CustomPolicy(MissingHostKeyPolicy):
             pass
 
@@ -278,7 +287,12 @@ class TestRejectPolicy:
         error_message = 'Host key mismatch'
         with pytest.raises(LibsshSessionException, match=error_message):
             policy.missing_host_key(
-                None, 'host', 'user', 'rsa', 'fingerprint', error_message,
+                None,
+                'host',
+                'user',
+                'rsa',
+                'fingerprint',
+                error_message,
             )
 
 
@@ -288,8 +302,14 @@ class TestSessionConstants:
     def test_opts_map_contains_expected_keys(self):
         """Test OPTS_MAP contains standard SSH option keys."""
         expected_keys = [
-            'host', 'user', 'port', 'timeout', 'timeout_usec',
-            'knownhosts', 'proxycommand', 'fd',
+            'host',
+            'user',
+            'port',
+            'timeout',
+            'timeout_usec',
+            'knownhosts',
+            'proxycommand',
+            'fd',
         ]
         for key in expected_keys:
             assert key in OPTS_MAP, f'{key} not in OPTS_MAP'

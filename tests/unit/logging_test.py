@@ -28,7 +28,7 @@ class TestLoggingConstants:
 
     def test_ansible_pylibssh_trace_value(self):
         """Test ANSIBLE_PYLIBSSH_TRACE is set correctly."""
-        assert ANSIBLE_PYLIBSSH_TRACE == int(logging.DEBUG / 2)
+        assert int(logging.DEBUG / 2) == ANSIBLE_PYLIBSSH_TRACE
         assert isinstance(ANSIBLE_PYLIBSSH_TRACE, int)
         assert ANSIBLE_PYLIBSSH_TRACE < logging.DEBUG
 

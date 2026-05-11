@@ -128,7 +128,10 @@ class TestLibsshChannelReadFailure:
     def test_channel_read_failure_has_docstring(self):
         """Test that LibsshChannelReadFailure has a docstring."""
         assert LibsshChannelReadFailure.__doc__ is not None
-        assert 'failure to read from a libssh channel' in LibsshChannelReadFailure.__doc__
+        assert (
+            'failure to read from a libssh channel'
+            in LibsshChannelReadFailure.__doc__
+        )
 
     def test_channel_read_failure_can_be_raised(self):
         """Test that LibsshChannelReadFailure can be raised and caught."""

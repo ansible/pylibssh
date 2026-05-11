@@ -106,6 +106,7 @@ class TestScmVersion:
             version,
             version_tuple,
         )
+
         assert version == __version__
         assert version_tuple == __version_tuple__
         assert commit_id == __commit_id__
@@ -113,15 +114,21 @@ class TestScmVersion:
     def test_scm_version_tuple_is_tuple(self):
         """Test _scm_version version_tuple is a tuple."""
         from pylibsshext._scm_version import version_tuple
+
         assert isinstance(version_tuple, tuple)
         assert len(version_tuple) >= 2
 
     def test_scm_version_all_list(self):
         """Test _scm_version __all__ contains expected names."""
         from pylibsshext._scm_version import __all__
+
         expected = [
-            '__version__', '__version_tuple__', 'version',
-            'version_tuple', '__commit_id__', 'commit_id',
+            '__version__',
+            '__version_tuple__',
+            'version',
+            'version_tuple',
+            '__commit_id__',
+            'commit_id',
         ]
         for name in expected:
             assert name in __all__, f'{name} not in __all__'
