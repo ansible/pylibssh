@@ -99,7 +99,7 @@ jobs:
         --install all
     - name: Build the image with Buildah
       id: build-image
-      uses: redhat-actions/buildah-build@v3
+      uses: redhat-actions/buildah-build@v2.13
       with:
         arch: ${{ env.QEMU_ARCH }}
         image: ${{ env.FULL_IMAGE_NAME }}
