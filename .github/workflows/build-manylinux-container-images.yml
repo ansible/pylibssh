@@ -79,6 +79,17 @@ jobs:
         || matrix.IMAGE.ARCH
       }}
     steps:
+    - name: DEBUG
+      run: |
+        crun --version
+        podman --version
+        ${{
+          !contains(fromJSON('["aarch64", "amd64", "arm"]'), env.QEMU_ARCH)
+          && 'sudo podman run --rm --privileged tonistiigi/binfmt --uninstall "qemu-*"'
+          || ''
+        }}
+        sleep 600
+      working-directory: .
     - name: Fetch the repo src
       uses: actions/checkout@v6
     - name: >-
