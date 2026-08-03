@@ -1,2 +1,1 @@
-Improve compatibility with Cisco SCP servers when fetching files by avoiding a
-race condition on the EOF check -- by :user:`timway`.
+Removed non-mandatory EOF check after the SCP download procedure, which was causing race conditions with some Cisco devices -- by :user:`timway`.
