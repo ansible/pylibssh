@@ -1,11 +1,11 @@
 %global canonical_project_name %(grep --after-context=1 '^\\[metadata\\]$' setup.cfg | tail --lines=1 | sed --regexp-extended 's:^name = ([^ ]*):\\1:g')
 %global pypi_name %canonical_project_name
-%global normalized_core_packaging_metadata_project_name %(echo '%canonical_project_name' | sed --regexp-extended 's:-:_:g;s:[.]:_:g')
+%global normalized_core_packaging_metadata_project_name %(echo '%canonical_project_name' | sed --regexp-extended 's:-:_:g;s:\\.:_:g')
 %global srcname %normalized_core_packaging_metadata_project_name
 
 # NOTE: The target version may be set dynamically via
 # NOTE: rpmbuild --define "upstream_version 0.2.1.dev125+g0b5bde0"
-%global upstream_version_fallback %(ls -t dist/%{normalized_core_packaging_metadata_project_name}-*.tar.gz 2>/dev/null | head -n 1 | sed -E 's#^dist/%{normalized_core_packaging_metadata_project_name}-(.*)[.]tar[.]gz$#\1#')
+%global upstream_version_fallback %(ls -t dist/%{normalized_core_packaging_metadata_project_name}-*.tar.gz 2>/dev/null | head -n 1 | sed 's#^dist\\/%{normalized_core_packaging_metadata_project_name}-\\(.*\\)\\.tar\\.gz$#\\1#')
 # If "upstream_version" macro is unset, use the fallback defined above:
 %if "%{!?upstream_version:UNSET}" == "UNSET"
 %global upstream_version %{upstream_version_fallback}
