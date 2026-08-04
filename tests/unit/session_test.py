@@ -91,12 +91,15 @@ def test_connect_config_file_none_no_parse():
 def test_connect_unknown_kwarg_raises():
     """connect() rejects unknown keyword arguments instead of silently ignoring them."""
     session = Session()
-    with pytest.raises(TypeError, match=r"unexpected keyword argument"):
+    with pytest.raises(TypeError, match=r'unexpected keyword argument'):
         session.connect(host='somehost', config_files='/typo')
 
 
 def test_parse_config_invalid_type_raises():
     """parse_config() raises TypeError for non-str/non-Path filename."""
     session = Session()
-    with pytest.raises(TypeError, match=r"filename must be str, pathlib\.Path, or None"):
+    with pytest.raises(
+        TypeError,
+        match=r'filename must be str, pathlib\.Path, or None',
+    ):
         session.parse_config(object())
