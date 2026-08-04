@@ -99,4 +99,4 @@ def test_parse_config_invalid_type_raises():
     """parse_config() raises TypeError for non-str/non-Path filename."""
     session = Session()
     with pytest.raises(TypeError, match=r"filename must be str, pathlib\.Path, or None"):
-        session.parse_config(42)
+        session.parse_config(object())
