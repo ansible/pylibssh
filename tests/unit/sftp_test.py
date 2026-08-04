@@ -5,9 +5,14 @@ import random
 import typing as _t  # noqa: WPS111
 import uuid
 
+if _t.TYPE_CHECKING:
+    import os as _os
+
+
 import pytest
 
 from pylibsshext.session import Session
+from pylibsshext.errors import LibsshSFTPException
 from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK
 
 
@@ -136,6 +141,11 @@ def test_get_existing(
     assert pre_existing_dst_path.read_bytes() == transmit_payload
 
 
+def test_sftp_version(sftp_session):
+    """Check that SFTP protocol version (reported by OpenSSH server) is 3."""
+    assert sftp_session.version == 3
+
+
 def test_put_existing(
     pre_existing_dst_path: pathlib.Path,
     src_path: pathlib.Path,
@@ -145,3 +155,86 @@ def test_put_existing(
     """Check that SFTP file upload works when target file exists."""
     sftp_session.put(str(src_path), str(pre_existing_dst_path))
     assert pre_existing_dst_path.read_bytes() == transmit_payload
+
+
+@pytest.fixture
+def existing_path(tmp_path, transmit_payload):
+    """Return a file path that exist and has given size."""
+    path = tmp_path / 'test-file.txt'
+    path.write_bytes(transmit_payload)
+    return path
+
+
+def test_stat_existing(  # noqa: WPS218
+    existing_path: _os.PathLike,
+    transmit_payload: bytes,
+    sftp_session: SFTP,
+):
+    """Check the stat returns the right file information."""
+    si = existing_path.stat()
+
+    attrs = sftp_session.stat(str(existing_path))
+    assert attrs.size == len(transmit_payload)
+    assert attrs.size == si.st_size
+    assert attrs.mtime == int(si.st_mtime)
+    assert attrs.atime == int(si.st_atime)
+    assert attrs.permissions == si.st_mode
+    assert attrs.uid == si.st_uid
+    assert attrs.gid == si.st_gid
+
+    # file type
+    assert attrs.is_regular
+    props = ('is_dir', 'is_symlink', 'is_special', 'is_unknown')
+    for prop in props:
+        assert not getattr(attrs, prop)
+
+
+# These will work only with other operation than stat
+@pytest.mark.parametrize(
+    'attribute',
+    (
+        'name',
+        'longname',
+        'owner',
+        'group',
+    ),
+)
+def test_stat_unsupported(
+    existing_path: _os.PathLike,
+    sftp_session: SFTP,
+    attribute: str,
+) -> None:
+    """Check the unsupported attributes are reported correctly."""
+    msg = rf'^The attribute {attribute} is not available$'
+    attrs = sftp_session.stat(existing_path)
+    with pytest.raises(LookupError, match=msg):
+        getattr(attrs, attribute)
+
+
+def test_stat_bytes(
+    existing_path: _os.PathLike,
+    sftp_session: SFTP,
+) -> None:
+    """Check the unsupported attributes are reported correctly."""
+    error_msg = r'^Expected str or os.PathLike, got bytes$'
+    path_b = str(existing_path).encode('utf-8')
+    with pytest.raises(TypeError, match=error_msg):
+        sftp_session.stat(path_b)
+
+
+@pytest.fixture
+def non_existing_path(tmp_path) -> _os.PathLike:
+    """Return a path that is guaranteed to not exist."""
+    return tmp_path / 'no-file-here.txt'
+
+
+def test_stat_non_existing(
+    non_existing_path: _os.PathLike,
+    sftp_session: SFTP,
+) -> None:
+    """Check the stat raises exception on non-existing file."""
+    error_msg = rf'^Failed to stat the remote file \[{non_existing_path}\]. Error: \[File doesn\'t exist\]$'
+    with pytest.raises(LibsshSFTPException, match=error_msg):
+        sftp_session.stat(non_existing_path)
+    with pytest.raises(LibsshSFTPException, match=error_msg):
+        sftp_session.stat(str(non_existing_path))
