@@ -263,12 +263,30 @@ cdef class Session(object):
                               :data:`ANSIBLE_PYLIBSSH_NOLOG`.
         :type log_verbosity: int
 
-        :param config_file: Path to a custom SSH config file to parse before connecting.
-                            Enables Host aliases and options from that file. Set ``host``
-                            before this is applied so that Host matching works correctly.
+        :param config_file: Path to a custom SSH config file to parse after ``host`` is
+                            set but before connecting, so that ``Host`` blocks match and
+                            options like ``HostName``, ``Port``, and ``ProxyCommand`` are
+                            applied. Pass ``None`` to skip config-file parsing entirely.
         :type config_file: str or pathlib.Path or None
         """
         cdef LibsshSessionException saved_exception = None
+
+        _KNOWN_CONNECT_KWARGS = (
+            frozenset(OPTS_MAP)
+            | frozenset(OPTS_DIR_MAP)
+            | frozenset({
+                'config_file', 'host_key_checking', 'open_session_retries',
+                'private_key', 'private_key_password', 'password',
+                'password_prompt', 'look_for_keys',
+            })
+        )
+        unknown = frozenset(kwargs) - _KNOWN_CONNECT_KWARGS
+        if unknown:
+            raise TypeError(
+                "connect() got unexpected keyword argument(s): {}".format(
+                    ", ".join(sorted(repr(k) for k in unknown)),
+                ),
+            )
 
         for key in kwargs:
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
@@ -562,27 +580,19 @@ cdef class Session(object):
         return SFTP(self)
 
     def _load_ssh_config_file(self, filename):
-        """Apply SSH client configuration from the default paths and/or ``filename``."""
+        """Apply SSH config from ``filename``, or defaults (~/.ssh/config + system) if ``None``."""
         cdef int rc
         cdef bytes b_filename
         cdef const char *c_filename = NULL
 
         if filename is not None:
-            if isinstance(filename, Path):
-                b_filename = str(filename).encode("utf-8")
-                path_to_check = str(filename)
-            elif isinstance(filename, str):
-                b_filename = filename.encode("utf-8")
-                path_to_check = filename
+            if isinstance(filename, (str, Path)):
+                b_filename = os.fsencode(filename)
             else:
                 raise TypeError(
                     "filename must be str, pathlib.Path, or None, not {!r}".format(
                         type(filename),
                     ),
-                )
-            if not os.path.exists(path_to_check):
-                raise LibsshConfigParseException(
-                    "Failed to parse SSH config: No such file or directory",
                 )
             c_filename = b_filename
 

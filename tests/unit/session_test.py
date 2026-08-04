@@ -52,7 +52,7 @@ def test_parse_config_nonexistent_raises(
     path_arg = path_arg_type(nonexistent)
     with pytest.raises(
         LibsshConfigParseException,
-        match=r'^Failed to parse SSH config: No such file or directory$',
+        match=r'^Failed to parse SSH config:',
     ):
         session.parse_config(path_arg)
 
@@ -72,12 +72,7 @@ def test_parse_config_valid_file_succeeds(
     config_file = tmp_path / 'ssh_config'
     config_file.write_text('Host *\n', encoding='utf-8')
     path_arg = path_arg_type(config_file)
-    try:
-        session.parse_config(path_arg)
-    except LibsshConfigParseException:
-        pytest.skip(
-            'libssh rejected minimal config file (path expansion or parsing is strict)',
-        )
+    session.parse_config(path_arg)
 
 
 def test_connect_config_file_none_no_parse():
@@ -91,3 +86,10 @@ def test_connect_config_file_none_no_parse():
             host='test.nonexistent.example.invalid',
             config_file=None,
         )
+
+
+def test_connect_unknown_kwarg_raises():
+    """connect() rejects unknown keyword arguments instead of silently ignoring them."""
+    session = Session()
+    with pytest.raises(TypeError, match=r"unexpected keyword argument"):
+        session.connect(host='somehost', config_files='/typo')
