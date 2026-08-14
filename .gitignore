@@ -198,10 +198,14 @@ parts/
 sdist/
 var/
 wheels/
+wheelhouse/
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
+
+# macOS build artifacts
+.macos-static-deps-path*
 *.egg
 MANIFEST
 
@@ -210,6 +214,8 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+# Exception: Allow RPM spec files
+!packaging/rpm/*.spec
 
 # Installer logs
 pip-log.txt
@@ -396,3 +402,6 @@ $RECYCLE.BIN/
 
 # setuptools-scm write_to:
 /src/pylibsshext/_scm_version.py
+
+# macOS
+.DS_Store

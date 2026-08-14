@@ -1,0 +1,92 @@
+#!/bin/bash
+
+set -eEuo pipefail
+
+# Get repository root and script directory
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source macOS build configuration
+source "${SCRIPT_DIR}/config.sh"
+
+# Determine target architecture from cibuildwheel environment
+# ARCHFLAGS is set by cibuildwheel for macOS builds
+# Example: "-arch arm64" or "-arch x86_64" or "-arch arm64 -arch x86_64"
+if [[ "${ARCHFLAGS:-}" == *"arm64"* ]] && [[ "${ARCHFLAGS:-}" == *"x86_64"* ]]; then
+    # Building universal2 wheel
+    BUILD_MODE="universal2"
+    echo "Building universal2 wheel with libssh ${LIBSSH_VERSION}"
+    ARCHS=("arm64" "x86_64")
+elif [[ "${ARCHFLAGS:-}" == *"arm64"* ]]; then
+    # Building arm64-only wheel
+    BUILD_MODE="arm64"
+    echo "Building arm64 wheel with libssh ${LIBSSH_VERSION}"
+    ARCHS=("arm64")
+elif [[ "${ARCHFLAGS:-}" == *"x86_64"* ]]; then
+    # Building x86_64-only wheel
+    BUILD_MODE="x86_64"
+    echo "Building x86_64 wheel with libssh ${LIBSSH_VERSION}"
+    ARCHS=("x86_64")
+else
+    # Fallback: detect host architecture
+    HOST_ARCH="$(uname -m)"
+    if [ "${HOST_ARCH}" = "arm64" ]; then
+        BUILD_MODE="arm64"
+        ARCHS=("arm64")
+    else
+        BUILD_MODE="x86_64"
+        ARCHS=("x86_64")
+    fi
+    echo "No ARCHFLAGS set, building for host architecture: ${BUILD_MODE} with libssh ${LIBSSH_VERSION}"
+fi
+
+# Use MACOS_OUTPUT from environment (set in pyproject.toml)
+MACOS_OUTPUT="${MACOS_OUTPUT:-build-scripts/macos/build}"
+MACOS_OUTPUT_ABS="${REPO_ROOT}/${MACOS_OUTPUT}"
+mkdir -p "${MACOS_OUTPUT_ABS}"
+
+# Get libssh for required architecture(s)
+# Try to download pre-built artifacts first, build from source as fallback
+for ARCH in "${ARCHS[@]}"; do
+    echo "Getting libssh for ${ARCH}..."
+
+    # Try to download pre-built artifact
+    if bash "${SCRIPT_DIR}/download-libssh-macos.sh" "${LIBSSH_VERSION}" "${ARCH}"; then
+        echo "✓ Downloaded pre-built libssh for ${ARCH}"
+    else
+        # Fallback to building from source
+        echo "Pre-built artifact not available, building from source..."
+        bash "${SCRIPT_DIR}/build-libssh-macos.sh" "${LIBSSH_VERSION}" "${ARCH}"
+        echo "✓ Built libssh from source for ${ARCH}"
+    fi
+done
+
+# Set up final static deps path based on build mode
+if [ "${BUILD_MODE}" = "universal2" ]; then
+    # Merge into universal2
+    echo "Merging into universal2..."
+    bash "${SCRIPT_DIR}/merge-universal2.sh" \
+        "${MACOS_OUTPUT_ABS}/arm64" \
+        "${MACOS_OUTPUT_ABS}/x86_64" \
+        "${MACOS_OUTPUT_ABS}/universal2"
+
+    # Export paths for universal2 build
+    STATIC_DEPS_PATH="${MACOS_OUTPUT_ABS}/universal2"
+else
+    # Single architecture
+    STATIC_DEPS_PATH="${MACOS_OUTPUT_ABS}/${BUILD_MODE}"
+fi
+
+# Write STATIC_DEPS_PATH to file for cibuildwheel environment variable expansion
+# This path is used by pyproject.toml [tool.cibuildwheel.macos.environment]
+echo "${STATIC_DEPS_PATH}" > "${REPO_ROOT}/.macos-static-deps-path"
+
+# Verify the libraries were built correctly
+echo "Verifying libraries in ${STATIC_DEPS_PATH}..."
+ls -lh "${STATIC_DEPS_PATH}/lib/"*.a || true
+file "${STATIC_DEPS_PATH}/lib/libssh.a" || true
+
+echo "Static dependencies path: ${STATIC_DEPS_PATH}"
+echo "CFLAGS: ${CFLAGS}"
+echo "LDFLAGS: ${LDFLAGS}"
+echo "Build preparation complete."
