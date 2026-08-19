@@ -958,6 +958,12 @@ jobs:
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.7
           registry: registry.access.redhat.com
+        - tag: ubi9/ubi:9.8
+          registry: registry.access.redhat.com
+        - tag: ubi10/ubi:10.1
+          registry: registry.access.redhat.com
+        - tag: ubi10/ubi:10.2
+          registry: registry.access.redhat.com
         - tag: centos/centos:stream9
           registry: quay.io
         - tag: centos/centos:stream10
@@ -1008,8 +1014,9 @@ jobs:
         dnf install -y
         https://dl.fedoraproject.org/pub/epel/epel{,-next}-release-latest-9.noarch.rpm
 
-    - name: Install epel for centos 10
-      if: contains(matrix.target-container.tag, 'centos:stream10')
+    - name: Install epel for centos 10 / ubi 10
+      if: contains(matrix.target-container.tag, 'centos:stream10') ||
+          contains(matrix.target-container.tag, 'ubi10')
       run: >-
         dnf install -y
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
@@ -1021,7 +1028,10 @@ jobs:
         dnf-plugins-core
         rpm-build
         rpmdevtools
-        rpmlint
+
+    - name: Install rpmlint except for ubi10, which is broken
+      if: ${{ ! contains(matrix.target-container.tag, 'ubi10') }}
+      run: dnf install -y rpmlint
 
     - name: Create rpmbuild directory structure
       run: rpmdev-setuptree
@@ -1047,6 +1057,7 @@ jobs:
         merge-multiple: true
 
     - name: Lint the RPM spec file
+      if: ${{ ! contains(matrix.target-container.tag, 'ubi10') }}
       run: rpmlint packaging/rpm/"${PROJECT_NAME}".spec
 
     - name: Copy sdist to the sources dir
@@ -1065,8 +1076,8 @@ jobs:
         python3-py
         python3-tomli
 
-    - name: Install static test dependencies missing from all UBIs
-      if: contains(matrix.target-container.tag, 'ubi')
+    - name: Install static test dependencies missing from UBI9
+      if: contains(matrix.target-container.tag, 'ubi9')
       run: >-
         rpm
         -ivh
@@ -1111,6 +1122,53 @@ jobs:
         )"/Everything/x86_64/Packages/p/python3-expandvars-0.12.0-1${{
           steps.distribution-meta.outputs.dist-tag
         }}.noarch.rpm
+
+    - name: Install static test dependencies missing from UBI10
+      if: contains(matrix.target-container.tag, 'ubi10')
+      run: >-
+        rpm
+        -ivh
+        --nodeps
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-pytest-cov-5.0.0-1${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_0.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-pytest-xdist-3.6.1-4${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_0.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/t/tox-4.26.0-1${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_1.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-filelock-3.15.4-4${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_0.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-tox-current-env-0.0.16-1${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_1.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-execnet-2.1.2-1${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_2.noarch.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-coverage-7.3.2-5${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_0.x86_64.rpm
+        https://rpmfind.net/linux/epel/"$(
+          rpm --eval '%{rhel}'
+        )"/Everything/x86_64/Packages/p/python3-expandvars-0.12.0-7${{
+          steps.distribution-meta.outputs.dist-tag
+        }}_0.noarch.rpm
 
     - name: Install static build requirements
       run: >-
