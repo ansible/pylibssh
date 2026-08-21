@@ -15,6 +15,12 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 
+import typing as _t  # noqa: WPS111
+
+
+if _t.TYPE_CHECKING:
+    import os
+
 from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
 
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
@@ -59,15 +65,13 @@ cdef class SFTP:
             sftp.sftp_free(self._libssh_sftp_session)
             self._libssh_sftp_session = NULL
 
-    def put(self, local_file, remote_file):
+    def put(self, local_file: str | os.PathLike[str], remote_file: str) -> None:
         """
         Upload local file to remote server.
 
         :param local_file: The file name on the local file system to upload
-        :type local_file: str or os.PathLike
 
         :param remote_file: The path to upload the file on the remote system
-        :type remote_file: str or bytes
         """
         cdef sftp.sftp_file rf
         cdef const char* c_buf
@@ -108,24 +112,19 @@ cdef class SFTP:
                 read_buffer = f.read(SFTP_MAX_CHUNK)
             sftp.sftp_close(rf)
 
-    def get(self, remote_file, local_file):
+    def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
         """
         Download remote file to local path.
 
         :param remote_file: The file path on the remote system to download
-        :type remote_file: str or bytes
 
         :param local_file: The path on the local file system to place the downloaded file
-        :type local_file: str or os.PathLike
         """
         cdef sftp.sftp_file rf
         cdef char *read_buffer = NULL
         cdef sftp.sftp_attributes attrs
 
-        remote_file_b = remote_file
-        if isinstance(remote_file_b, unicode):
-            remote_file_b = remote_file.encode("utf-8")
-
+        remote_file_b = remote_file.encode("utf-8")
         attrs = sftp.sftp_stat(self._libssh_sftp_session, remote_file_b)
         if attrs is NULL:
             raise LibsshSFTPException(
