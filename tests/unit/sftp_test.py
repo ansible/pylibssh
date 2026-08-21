@@ -1,11 +1,12 @@
 """Tests suite for sftp."""
 
+import pathlib
 import random
 import uuid
 
 import pytest
 
-from pylibsshext.sftp import SFTP_MAX_CHUNK
+from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK
 
 
 SMALL_PAYLOAD = 32
@@ -122,3 +123,43 @@ def test_put_existing(
     """Check that SFTP file upload works when target file exists."""
     sftp_session.put(str(src_path), str(pre_existing_dst_path))
     assert pre_existing_dst_path.read_bytes() == transmit_payload
+
+
+@pytest.fixture
+def bogus_src_path(tmp_path: pathlib.Path) -> pathlib.Path:
+    """Return a bogus source path that does not exist."""
+    return tmp_path / 'bogus-dst-file.txt'
+
+
+@pytest.fixture
+def bogus_dst_path(tmp_path: pathlib.Path) -> pathlib.Path:
+    """Return bogus destination path that does not exist."""
+    return tmp_path / 'bogus-src-file.txt'
+
+
+def test_put_bytes(
+    bogus_dst_path: pathlib.Path,
+    bogus_src_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that SFTP put() API does not accept :class:`bytes` as remote file path."""
+    error_msg = r"^Argument 'remote_file' has incorrect type \(expected str, got bytes\)$"
+    with pytest.raises(TypeError, match=error_msg):
+        sftp_session.put(
+            str(bogus_src_path),
+            str(bogus_dst_path).encode('utf-8'),
+        )
+
+
+def test_get_bytes(
+    bogus_dst_path: pathlib.Path,
+    bogus_src_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that SFTP ``get()`` API does not accept :class:`bytes` as remote file path."""
+    error_msg = r"^Argument 'remote_file' has incorrect type \(expected str, got bytes\)$"
+    with pytest.raises(TypeError, match=error_msg):
+        sftp_session.get(
+            str(bogus_src_path).encode('utf-8'),
+            str(bogus_dst_path),
+        )
