@@ -1,0 +1,135 @@
+---
+
+name: 🍎 macOS libssh
+
+on:  # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  schedule:
+  - cron: 0 0 * * FRI
+  pull_request:
+    paths:
+    - .github/workflows/build-macos-libssh-artifact.yml
+  push:
+    branches:
+    - devel
+    paths:
+    - .github/workflows/build-macos-libssh-artifact.yml
+
+env:
+  LIBSSH_VERSION: 0.12.2
+
+jobs:
+  build:
+    name: "Build libssh for macOS (${{ matrix.ARCH.NAME }})"
+    runs-on: macos-15
+    strategy:
+      matrix:
+        ARCH:
+        - NAME: x86_64
+          ARTIFACT_NAME: x86-64
+          CFLAGS: "-mmacosx-version-min=10.12 -march=core2"
+          OPENSSLDIR: "/usr/local/etc/openssl@3"
+          CONFIGURE_TARGET: darwin64-x86_64-cc
+        - NAME: arm64
+          ARTIFACT_NAME: arm64
+          CFLAGS: "-mmacosx-version-min=11.0"
+          OPENSSLDIR: "/opt/homebrew/etc/openssl@3"
+          CONFIGURE_TARGET: darwin64-arm64-cc
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Download OpenSSL
+      run: |
+        source ./build-scripts/manylinux-container-image/openssl-version.sh
+        curl -Lo openssl.tar.gz \
+          "https://github.com/openssl/openssl/releases/download/${OPENSSL_VERSION}/${OPENSSL_VERSION}.tar.gz"
+        shasum -a 256 -c <<< "${OPENSSL_SHA256} *openssl.tar.gz"
+    - name: Extract OpenSSL
+      run: tar zxf openssl.tar.gz
+    - name: Build OpenSSL
+      run: |
+        set -x
+        source ./build-scripts/manylinux-container-image/openssl-version.sh
+        mkdir artifact
+        BASEDIR="$(pwd)"
+        cd openssl*/
+        perl ./Configure \
+          --prefix="${BASEDIR}/artifact" \
+          --openssldir="${{ matrix.ARCH.OPENSSLDIR }}" \
+          ${{ matrix.ARCH.CONFIGURE_TARGET }} \
+          ${OPENSSL_BUILD_FLAGS}
+        make -j"$(sysctl -n hw.logicalcpu)"
+        make install_sw
+      env:
+        CFLAGS: ${{ matrix.ARCH.CFLAGS }}
+
+    - name: Fetch libssh src
+      run: >-
+        git clone --depth=1
+        -b "libssh-${{ env.LIBSSH_VERSION }}"
+        https://gitlab.com/libssh/libssh-mirror.git
+        libssh-src
+    - name: Build libssh
+      run: |
+        set -x
+        BASEDIR="$(pwd)"
+        cmake \
+          -S libssh-src \
+          -B libssh-build \
+          -DCMAKE_BUILD_TYPE=MinSizeRel \
+          -DCMAKE_INSTALL_PREFIX="${BASEDIR}/artifact" \
+          -DOPENSSL_ROOT_DIR="${BASEDIR}/artifact" \
+          -DCLIENT_TESTING=OFF \
+          -DSERVER_TESTING=OFF \
+          -DUNIT_TESTING=OFF \
+          -DWITH_EXAMPLES=OFF \
+          -DWITH_GSSAPI=ON \
+          -DWITH_SERVER=OFF \
+          -DWITH_ZLIB=ON
+        cmake --build libssh-build --parallel "$(sysctl -n hw.logicalcpu)"
+        cmake --install libssh-build --strip
+      env:
+        CFLAGS: ${{ matrix.ARCH.CFLAGS }}
+        PKG_CONFIG_PATH: >-
+          ${{ github.workspace }}/artifact/lib/pkgconfig
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: "libssh-macos-${{ matrix.ARCH.ARTIFACT_NAME }}"
+        path: artifact/
+
+  universal2:
+    name: "Build libssh for macOS universal2"
+    needs:
+    - build
+    runs-on: macos-15
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+    - uses: actions/download-artifact@v8
+      with:
+        name: libssh-macos-x86-64
+        path: x86-64
+    - uses: actions/download-artifact@v8
+      with:
+        name: libssh-macos-arm64
+        path: arm64
+    - name: Create universal2 libssh + OpenSSL
+      run: |
+        set -x
+        mkdir -p artifact/lib
+        cp -r x86-64/include artifact/
+        cp -r x86-64/lib/pkgconfig artifact/lib/
+        for lib in libssh.a libssl.a libcrypto.a; do
+          lipo -create -output "artifact/lib/${lib}" \
+            "x86-64/lib/${lib}" "arm64/lib/${lib}"
+        done
+    - uses: actions/upload-artifact@v7
+      with:
+        name: libssh-macos-universal2
+        path: artifact/
+
+...
