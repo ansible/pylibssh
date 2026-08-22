@@ -16,9 +16,15 @@
 # repository.
 import inspect
 import logging
+import os
+from pathlib import Path
 
 from pylibsshext.channel import Channel
-from pylibsshext.errors cimport LibsshSessionException
+
+from pylibsshext.errors cimport (
+    LibsshConfigParseException, LibsshSessionException,
+)
+
 from pylibsshext.logging import _initialize_logging, _set_level
 from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
@@ -261,12 +267,43 @@ cdef class Session(object):
                               :data:`logging.ERROR`, :data:`logging.FATAL`,
                               :data:`ANSIBLE_PYLIBSSH_NOLOG`.
         :type log_verbosity: int
+
+        :param config_file: Path to a custom SSH config file to parse after ``host`` is
+                            set but before connecting, so that ``Host`` blocks match and
+                            options like ``HostName``, ``Port``, and ``ProxyCommand`` are
+                            applied. Pass ``None`` to skip config-file parsing entirely.
+        :type config_file: str or pathlib.Path or None
         """
         cdef LibsshSessionException saved_exception = None
+
+        _KNOWN_CONNECT_KWARGS = (
+            frozenset(OPTS_MAP)
+            | frozenset(OPTS_DIR_MAP)
+            | frozenset({
+                'config_file', 'host_key_checking', 'open_session_retries',
+                'private_key', 'private_key_password', 'password',
+                'password_prompt', 'look_for_keys',
+            })
+        )
+        unknown = frozenset(kwargs) - _KNOWN_CONNECT_KWARGS
+        if unknown:
+            raise TypeError(
+                "connect() got unexpected keyword argument(s): {}".format(
+                    ", ".join(sorted(repr(k) for k in unknown)),
+                ),
+            )
 
         for key in kwargs:
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):
                 self.set_ssh_options(key, kwargs[key])
+
+        # Parse SSH config after host is set (so Host blocks match) but before connect,
+        # so that options from the config (e.g. HostName, User, Port, ProxyCommand) are
+        # applied to this connection. Only when the caller passed config_file explicitly.
+        if 'config_file' in kwargs:
+            path = kwargs['config_file']
+            if path is not None:
+                self._load_ssh_config_file(path)
 
         if libssh.ssh_connect(self._libssh_session) != libssh.SSH_OK:
             libssh.ssh_disconnect(self._libssh_session)
@@ -546,6 +583,47 @@ cdef class Session(object):
 
     def sftp(self):
         return SFTP(self)
+
+    def _load_ssh_config_file(self, filename):
+        """Apply SSH config from ``filename``, or defaults (~/.ssh/config + system) if ``None``."""
+        cdef int rc
+        cdef bytes b_filename
+        cdef const char *c_filename = NULL
+
+        if filename is not None:
+            if isinstance(filename, (str, Path)):
+                b_filename = os.fsencode(filename)
+            else:
+                raise TypeError(
+                    "filename must be str, pathlib.Path, or None, not {!r}".format(
+                        type(filename),
+                    ),
+                )
+            c_filename = b_filename
+
+        rc = libssh.ssh_options_parse_config(self._libssh_session, c_filename)
+        if rc != libssh.SSH_OK:
+            underlying_libssh_error = self._get_session_error_str()
+            raise LibsshConfigParseException(
+                f"Failed to parse SSH config: {underlying_libssh_error!s}",
+            )
+
+    def parse_config(self, filename=None):
+        """Parse SSH configuration file.
+
+        This parses the SSH configuration file and applies the settings
+        to the current session. If no filename is provided, it parses
+        the default configuration files (:file:`~/.ssh/config` and system config).
+
+        Note: The ``host`` option should be set before calling this method
+        for ``Host`` matching to work correctly.
+
+        :param filename: Path to the SSH config file as :class:`str` or
+            :class:`pathlib.Path`, or ``None`` for defaults.
+
+        :raises LibsshConfigParseException: If parsing fails.
+        """
+        self._load_ssh_config_file(filename)
 
     def set_log_level(self, level):
         _set_level(level)
