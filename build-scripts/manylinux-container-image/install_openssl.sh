@@ -37,4 +37,4 @@ make -j4
 # https://github.com/openssl/openssl/issues/6685#issuecomment-403838728
 make install_sw install_ssldirs
 popd
-rm -rf openssl*
+rm -rf ${OPENSSL_VERSION}
