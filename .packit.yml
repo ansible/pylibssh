@@ -50,14 +50,16 @@ jobs:
   # - epel-9
   # - fedora-all
   - fedora-development
-  - fedora-stable
+  - fedora-latest
+  - fedora-latest-stable
   trigger: pull_request
 - job: tests
   enable_net: true
   targets:
   # - epel-9
   - fedora-development
-  - fedora-stable
+  - fedora-latest
+  - fedora-latest-stable
   trigger: pull_request
 - job: propose_downstream
   enable_net: true

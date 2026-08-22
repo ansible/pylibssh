@@ -221,18 +221,15 @@ jobs:
     - name: Scan static PEP 621 core packaging metadata
       id: metadata
       run: |
-        from configparser import ConfigParser
         from os import environ
         from pathlib import Path
+        from tomllib import loads as parse_toml_from_string
 
         FILE_APPEND_MODE = 'a'
 
-        setup_cfg_txt = Path('setup.cfg').read_text()
-
-        setup_cfg_parser = ConfigParser()
-        setup_cfg_parser.read_string(setup_cfg_txt)
-
-        project_name = setup_cfg_parser.get('metadata', 'name')
+        pyproject_toml_txt = Path('pyproject.toml').read_text()
+        metadata = parse_toml_from_string(pyproject_toml_txt)['project']
+        project_name = metadata["name"]
 
         with Path(environ['GITHUB_OUTPUT']).open(
                 mode=FILE_APPEND_MODE,
@@ -968,6 +965,13 @@ jobs:
     runs-on: ubuntu-latest
 
     timeout-minutes: 5
+
+    continue-on-error: >-  # marks UBI as xfail; currently unsupported
+      ${{
+          (
+            contains(matrix.target-container.tag, 'ubi')
+          ) && true || false
+      }}
 
     container:
       # NOTE: GHA has poor support for concat which is why I resorted to

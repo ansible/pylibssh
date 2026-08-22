@@ -6,7 +6,7 @@ requires = [
 
   # Essentials
   "expandvars",  # needed by in-tree build backend for env vars interpolation
-  "setuptools>=45",  # needed by in-tree build backend `packaging/pep517_backend.py`
+  "setuptools >= 77.0.1",  # needed by in-tree build backend `packaging/pep517_backend.py` for PEP 639 support
   "tomli; python_version < '3.11'",  # needed by in-tree build backend `packaging/pep517_backend.py`
 
   # Plugins
@@ -14,6 +14,54 @@ requires = [
 ]
 backend-path = ["packaging"]  # requires 'Pip>=20' or 'pep517>=0.6.0'
 build-backend = "pep517_backend.hooks"
+
+[project]
+name = "ansible-pylibssh"
+description = "Python bindings for libssh client specific to Ansible use case"
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+
+  "Programming Language :: Cython",
+
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Security",
+]
+keywords = [
+  "cext",
+  "cython",
+  "libssh",
+]
+license = "LGPL-2.1-or-later"
+license-files = [
+  "LICENSE.rst",
+]
+requires-python = ">= 3.9"
+dynamic = [
+  "readme",
+  "version",
+]
+
+[[project.authors]]
+name = "Ansible, Inc."
+email = "info+github/ansible/pylibssh@ansible.com"
+
+[project.urls]
+Homepage = "https://ansible-pylibssh.rtfd.io"
+Source = "https://github.com/ansible/pylibssh"
+"Bug Tracker" = "https://github.com/ansible/pylibssh/issues"
+"Code of Conduct" = "https://docs.ansible.com/ansible/latest/community/code_of_conduct.html"
+"CI: GitHub Workflows" = "https://github.com/ansible/pylibssh/actions?query=branch:devel"
 
 [tool.local.cython]
 # This attr can contain multiple globs
@@ -289,6 +337,27 @@ MACOSX_DEPLOYMENT_TARGET = "15.0"
 
 [tool.cibuildwheel.windows]
 skip = "*"
+
+[tool.setuptools.package-data]
+# https://setuptools.pypa.io/en/latest/userguide/datafiles.html#package-data
+"*" = [
+  "*.so",
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+  "build",  # it's listed in `*.dist-info/top_level.txt` otherwise
+]
+where = [
+  "src",
+]
+
+[tool.setuptools.dynamic.readme]
+file = [
+  "README.rst",
+  "CHANGELOG.rst",
+]
+content-type = "text/x-rst"
 
 [tool.setuptools_scm]
 write_to = "src/pylibsshext/_scm_version.py"
