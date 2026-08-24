@@ -1,0 +1,8 @@
+Fixed several potential issues with the SFTP implementation:
+
+ * Fixed corner case where large write was truncated by libssh to match
+   server requested limits.
+ * Handled corner case where short write to local file would not write
+   all requested data.
+
+-- by :user:`Jakuje`
