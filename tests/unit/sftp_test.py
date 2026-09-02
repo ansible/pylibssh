@@ -1,8 +1,16 @@
 """Tests suite for sftp."""
 
+# The Callable[[pathlib.Path], str | bytes] syntax is not supported natively by Python 3.9
+from __future__ import annotations
+
 import pathlib
 import random
+import typing as _t  # noqa: WPS111
 import uuid
+
+
+if _t.TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Callable
 
 import pytest
 
@@ -86,20 +94,44 @@ def pre_existing_dst_path(dst_path, other_payload):
     return dst_path
 
 
+@pytest.fixture(
+    ids=repr,
+    params=(
+        str,
+        pathlib.Path,
+    ),
+)
+def normalize_path(request) -> Callable[[pathlib.Path], _t.T | str]:
+    """Convert provided path either to str or Path."""
+    return request.param
+
+
 def test_make_sftp(sftp_session):
     """Smoke-test SFTP instance creation."""
     assert sftp_session
 
 
-def test_put(dst_path, src_path, sftp_session, transmit_payload):
+def test_put(
+    normalize_path: Callable[[pathlib.Path], _t.T | str],
+    dst_path: pathlib.Path,
+    src_path: pathlib.Path,
+    sftp_session: SFTP,
+    transmit_payload: bytes,
+) -> None:
     """Check that SFTP file transfer works."""
-    sftp_session.put(str(src_path), str(dst_path))
+    sftp_session.put(normalize_path(src_path), str(dst_path))
     assert dst_path.read_bytes() == transmit_payload
 
 
-def test_get(dst_path, src_path, sftp_session, transmit_payload):
+def test_get(
+    normalize_path: Callable[[pathlib.Path], _t.T | str],
+    dst_path: pathlib.Path,
+    src_path: pathlib.Path,
+    sftp_session: SFTP,
+    transmit_payload: bytes,
+) -> None:
     """Check that SFTP file download works."""
-    sftp_session.get(str(src_path), str(dst_path))
+    sftp_session.get(str(src_path), normalize_path(dst_path))
     assert dst_path.read_bytes() == transmit_payload
 
 
