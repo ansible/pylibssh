@@ -1108,11 +1108,6 @@ jobs:
         )"/Everything/x86_64/Packages/p/python3-coverage-6.2-1${{
           steps.distribution-meta.outputs.dist-tag
         }}.x86_64.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-expandvars-0.12.0-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
 
     - name: Install static build requirements
       run: >-
