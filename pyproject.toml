@@ -5,7 +5,6 @@ requires = [
   # NOTE: `packaging/pep517_backend/`.
 
   # Essentials
-  "expandvars",  # needed by in-tree build backend for env vars interpolation
   "setuptools>=45",  # needed by in-tree build backend `packaging/pep517_backend.py`
   "tomli; python_version < '3.11'",  # needed by in-tree build backend `packaging/pep517_backend.py`
 
