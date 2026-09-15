@@ -251,7 +251,10 @@ skip = [
 STATIC_DEPS_DIR = "$(cat /root/.static-deps-path)"
 # LDFLAGS = "'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
 # LD_LIBRARY_PATH = "${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:${LD_LIBRARY_PATH}"
-CFLAGS="'-I$(cat /root/.static-deps-path)/include'"
+# The include path goes through CPPFLAGS: setuptools' distutils appends it
+# to the interpreter's own compiler flags, while a CFLAGS environment
+# variable replaces them and drops -O3 from the wheels.
+CPPFLAGS = "'-I$(cat /root/.static-deps-path)/include'"
 LDFLAGS = "'-L$(cat /root/.static-deps-path)/lib64' '-L$(cat /root/.static-deps-path)/lib'"
 LD_LIBRARY_PATH = "$(cat /root/.static-deps-path)/lib64:$(cat /root/.static-deps-path)/lib:${LD_LIBRARY_PATH}"
 
