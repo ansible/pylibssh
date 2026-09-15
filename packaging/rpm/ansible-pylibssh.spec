@@ -110,6 +110,15 @@ sed --in-place '/^  proxy\.py$/d' tox.ini
 
 export PYTHONPATH="%{buildroot_site_packages}:${PYTHONPATH}"
 %pyproject_check_import
+
+# NOTE: pytest < 7 does not recognize the `pythonpath` setting, failing on
+# NOTE: the resulting warning. It is dropped there, and the in-tree PEP 517
+# NOTE: build backend that the tests import is put on `PYTHONPATH` instead.
+if %{python3} -c 'import sys, pytest; sys.exit(int(pytest.__version__.split(".")[0]) >= 7)'
+then
+  sed --in-place '/^pythonpath = packaging\/$/d' pytest.ini
+  export PYTHONPATH="${PYTHONPATH}:${PWD}/packaging"
+fi
 %tox -e just-pytest
 
 
