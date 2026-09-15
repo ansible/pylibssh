@@ -202,7 +202,15 @@ profile = "True"
 [tool.cibuildwheel]
 build-frontend = "build"
 # container-engine = "podman"  # FIXME?
-test-requires = "pytest pytest-cov pytest-xdist"
+test-requires = [
+  "pytest",
+  "pytest-cov",
+  "pytest-xdist",
+  # Dependencies of the in-tree PEP 517 build backend under test:
+  "expandvars",
+  "setuptools",
+  "tomli; python_version < '3.11'",
+]
 test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
 skip = [
   "*t-*",  # FIXME: Add support for free-threading / see issue #822
