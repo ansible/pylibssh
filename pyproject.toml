@@ -292,3 +292,6 @@ skip = "*"
 
 [tool.setuptools_scm]
 write_to = "src/pylibsshext/_scm_version.py"
+
+[tool.codespell]
+ignore-words-list = "ccompiler"
