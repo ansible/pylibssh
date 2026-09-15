@@ -8,8 +8,6 @@ import sysconfig
 import pytest
 
 from pep517_backend._cython_configuration import patched_env
-from setuptools._distutils.ccompiler import new_compiler
-from setuptools._distutils.sysconfig import customize_compiler
 
 
 TRACE_MACRO = '-DCYTHON_TRACE_NOGIL=1'
@@ -45,11 +43,16 @@ def test_interpreter_flags_survive_the_build_env():
     This drives setuptools' real compiler customization, so it fails if the
     backend ever goes back to setting CFLAGS.
     """
+    # The RPM builds run the suite without setuptools available.
+    ccompiler = pytest.importorskip('setuptools._distutils.ccompiler')
+    distutils_sysconfig = pytest.importorskip(
+        'setuptools._distutils.sysconfig',
+    )
     interpreter_flags = shlex.split(sysconfig.get_config_var('CFLAGS') or '')
 
     with patched_env({}, cython_line_tracing_requested=True):
-        compiler = new_compiler()
-        customize_compiler(compiler)
+        compiler = ccompiler.new_compiler()
+        distutils_sysconfig.customize_compiler(compiler)
         command = compiler.compiler_so
 
     for flag in interpreter_flags:
