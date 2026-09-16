@@ -13,6 +13,10 @@ source =
   *\Lib\site-packages
 
 [report]
+# The in-tree build backend is exercised by tests but is not library
+# code held to the coverage gate.
+omit =
+  packaging/*
 exclude_also =
   \#\s*pragma: no cover
   ^\s*raise AssertionError\b
