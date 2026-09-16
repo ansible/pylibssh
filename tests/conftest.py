@@ -80,7 +80,7 @@ def sshd_path(tmp_path):
 
 @pytest.fixture
 def sshd_hostkey_path(sshd_path):
-    """Generate a keypair for SSHD.
+    """Generate a key pair for SSHD.
 
     :return: Private key path for SSHD server.
     :rtype: pathlib.Path
@@ -96,7 +96,7 @@ def sshd_hostkey_path(sshd_path):
 
 @pytest.fixture
 def ssh_clientkey_path(sshd_path):
-    """Generate an SSH keypair.
+    """Generate an SSH key pair.
 
     :return: Private SSH key path.
     :rtype: pathlib.Path

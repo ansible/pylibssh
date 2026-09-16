@@ -79,7 +79,7 @@ parse_time_macros:
 specfile_path: packaging/rpm/ansible-pylibssh.spec
 # spec_source_id: 0
 
-srpm_build_deps:  # The presense of `srpm_build_deps` enforces Copr env
+srpm_build_deps:  # The presence of `srpm_build_deps` enforces Copr env
 - python3-setuptools_scm+toml
 - tox
 

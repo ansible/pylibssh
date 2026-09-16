@@ -1,0 +1,40 @@
+[codespell]
+# Ref: https://github.com/codespell-project/codespell#using-a-config-file
+
+builtin = clear,code,en-GB_to_en-US,informal,names,rare
+
+check-filenames =
+check-hidden =
+
+count =
+
+# NOTE: `exclude-file` should be uncommented once we have Sphinx
+# exclude-file = docs/spelling_ignorelines.txt
+
+# NOTE: `ignore-words` should be uncommented once we have Sphinx
+# ignore-words = docs/spelling_wordlist.txt
+ignore-words-list =
+  dialogue,
+  gotcha,
+  jupyter,
+  THIRDPARTY,
+  UIs,
+# NOTE: `cancelled()` is a common helper function in GHA
+ignore-regex = \b!?cancelled()\b
+
+quiet-level = 3
+
+# NOTE: `.gitignore` is skipped due to
+# NOTE: https://github.com/codespell-project/codespell/issues/3941
+skip =
+  .git,
+  .gitignore,
+  .mypy_cache,
+  .ruff_cache,
+  .tox,
+  __pycache__,
+  build,
+  dist,
+  *.egg-info,
+
+# write-changes = true

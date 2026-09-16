@@ -116,8 +116,6 @@ repos:
   rev: v2.4.2
   hooks:
   - id: codespell
-    exclude: >-
-      ^\.github/\.json-schemas/.*\.json$
 
 - repo: https://github.com/adrienverge/yamllint.git
   rev: v1.38.0
