@@ -37,12 +37,15 @@ def test_tracing_macro_goes_through_cppflags(monkeypatch, tracing):
     sys.platform == 'win32',
     reason='MSVC does not read CFLAGS or CPPFLAGS',
 )
-def test_interpreter_flags_survive_the_build_env():
+def test_interpreter_flags_survive_the_build_env(monkeypatch):
     """Keep the interpreter's flags and add the macro on top.
 
     This drives setuptools' real compiler customization, so it fails if the
     backend ever goes back to setting CFLAGS.
     """
+    # A developer shell exporting these would replace the flags up front.
+    monkeypatch.delenv('CFLAGS', raising=False)
+    monkeypatch.delenv('CPPFLAGS', raising=False)
     # The RPM builds run the suite without setuptools available.
     ccompiler = pytest.importorskip('setuptools._distutils.ccompiler')
     distutils_sysconfig = pytest.importorskip(

@@ -4,5 +4,5 @@ Fixed the Linux wheels being compiled without optimization. The
 line tracing macro for coverage builds; ``setuptools`` replaces the
 interpreter's own compiler flags with a ``CFLAGS`` environment variable
 instead of extending them, so ``-O3`` was dropped. Both now go through
-``CPPFLAGS``, which is appended
+``CPPFLAGS``, which ``setuptools`` appends to the interpreter's flags
 -- by :user:`bdraco`.
