@@ -269,7 +269,7 @@ jobs:
         --no-cov -vvvvv --lf
         && exit 1
     - name: Send coverage data to Codecov
-      uses: codecov/codecov-action@v7.0.0
+      uses: codecov/codecov-action@v7.1.0
       with:
         files: .test-results/pytest/cov.xml
         flags: >-
