@@ -201,7 +201,15 @@ profile = "True"
 [tool.cibuildwheel]
 build-frontend = "build"
 # container-engine = "podman"  # FIXME?
-test-requires = "pytest pytest-cov pytest-xdist"
+test-requires = [
+  "pytest",
+  "pytest-cov",
+  "pytest-xdist",
+  # Dependencies of the in-tree PEP 517 build backend under test:
+  "expandvars",
+  "setuptools",
+  "tomli; python_version < '3.11'",
+]
 test-command = "python -Im pytest -m smoke --no-cov {project}/tests"
 skip = [
   "*t-*",  # FIXME: Add support for free-threading / see issue #822
@@ -242,7 +250,10 @@ skip = [
 STATIC_DEPS_DIR = "$(cat /root/.static-deps-path)"
 # LDFLAGS = "'-L${STATIC_DEPS_PREFIX}/lib64' '-L${STATIC_DEPS_PREFIX}/lib'"
 # LD_LIBRARY_PATH = "${STATIC_DEPS_PREFIX}/lib64:${STATIC_DEPS_PREFIX}/lib:${LD_LIBRARY_PATH}"
-CFLAGS="'-I$(cat /root/.static-deps-path)/include'"
+# The include path goes through CPPFLAGS: setuptools' distutils appends it
+# to the interpreter's own compiler flags, while a CFLAGS environment
+# variable replaces them and drops -O3 from the wheels.
+CPPFLAGS = "'-I$(cat /root/.static-deps-path)/include'"
 LDFLAGS = "'-L$(cat /root/.static-deps-path)/lib64' '-L$(cat /root/.static-deps-path)/lib'"
 LD_LIBRARY_PATH = "$(cat /root/.static-deps-path)/lib64:$(cat /root/.static-deps-path)/lib:${LD_LIBRARY_PATH}"
 
@@ -291,3 +302,6 @@ skip = "*"
 
 [tool.setuptools_scm]
 write_to = "src/pylibsshext/_scm_version.py"
+
+[tool.codespell]
+ignore-words-list = "ccompiler"

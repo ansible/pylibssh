@@ -1,0 +1,8 @@
+Fixed the Linux wheels being compiled without optimization. The
+``cibuildwheel`` configuration set ``CFLAGS`` to point at the bundled
+``libssh`` headers, and the build backend set it to add the Cython
+line tracing macro for coverage builds; ``setuptools`` replaces the
+interpreter's own compiler flags with a ``CFLAGS`` environment variable
+instead of extending them, so ``-O3`` was dropped. Both now go through
+``CPPFLAGS``, which ``setuptools`` appends to the interpreter's flags
+-- by :user:`bdraco`.
