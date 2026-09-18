@@ -49,6 +49,25 @@ Connecting with remote SSH server
    :emphasize-lines: 7-13
 
 
+.. _custom-ssh-config:
+
+Connecting with a custom SSH config
+-----------------------------------
+
+By default, libssh loads configuration from :file:`~/.ssh/config` and
+:file:`/etc/ssh/ssh_config`. To use a custom SSH config file instead (e.g. for
+``Host`` aliases, ``ProxyCommand``, or per-host options), pass ``config_file``
+to ``Session.connect()``. When you pass ``config_file``, libssh will not
+consult the default files above. The ``host`` option should be set so that
+``Host`` matching in the config works correctly.
+
+.. literalinclude:: _samples/ssh_config_connect.py
+   :language: python
+   :start-at: ssh = Session()
+   :end-before: if ssh.is_connected:
+   :emphasize-lines: 6,9-12
+
+
 Connecting over GSSAPI
 ----------------------
 
