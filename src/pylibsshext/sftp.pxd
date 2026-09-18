@@ -23,3 +23,8 @@ from pylibsshext.session cimport Session
 cdef class SFTP:
     cdef Session session
     cdef sftp.sftp_session _libssh_sftp_session
+
+cdef class _RemoteFile:
+    cdef sftp.sftp_file _fd
+    cdef SFTP _sftp
+    cdef _path
