@@ -42,6 +42,20 @@ on:  # yamllint disable-line rule:truthy
         default: 'false'
         required: false
         type: string
+      macos-universal-artifact-name:
+        description: Name of artifact with universal2 OpenSSL+libssh (macOS)
+        required: false
+        type: string
+      openssl-lib-name:
+        description: Directory name for OpenSSL inside the artifact
+        required: false
+        type: string
+        default: openssl
+      libssh-lib-name:
+        description: Directory name for libssh inside the artifact
+        required: false
+        type: string
+        default: libssh
     secrets:
       codecov-token:
         description: Mandatory token for uploading to Codecov
@@ -127,10 +141,30 @@ jobs:
         inputs.dist-type == 'source' &&
         runner.os == 'Linux'
       run: sudo apt update && sudo apt install build-essential libssl-dev
-    - name: Install libssh and openssl headers on macOS
+    - name: (macOS) Download universal2 OpenSSL+libssh
       if: >-
-        runner.os == 'macOS'
-      run: brew install libssh
+        runner.os == 'macOS' && inputs.macos-universal-artifact-name != ''
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.macos-universal-artifact-name }}
+        path: .deps/
+    - name: (macOS) Unpack deps and export build env
+      if: >-
+        runner.os == 'macOS' && inputs.macos-universal-artifact-name != ''
+      run: |
+        set -euxo pipefail
+        mkdir -p .deps/u
+        tar xzf .deps/openssl-*-universal2.tgz -C .deps/u
+        tar xzf .deps/libssh-*-universal2.tgz  -C .deps/u
+        OPENSSL_DIR="$(pwd)/.deps/u/${{ inputs.openssl-lib-name }}"
+        LIBSSH_DIR="$(pwd)/.deps/u/${{ inputs.libssh-lib-name }}"
+        {
+          echo "OPENSSL_DIR=$OPENSSL_DIR"
+          echo "LIBSSH_DIR=$LIBSSH_DIR"
+          echo "PKG_CONFIG_PATH=$OPENSSL_DIR/lib/pkgconfig:$LIBSSH_DIR/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+          echo "LDFLAGS=-L$OPENSSL_DIR/lib -L$LIBSSH_DIR/lib ${LDFLAGS:-}"
+          echo "CPPFLAGS=-I$OPENSSL_DIR/include -I$LIBSSH_DIR/include ${CPPFLAGS:-}"
+        } >> "$GITHUB_ENV"
     - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
       if: >-
         runner.os == 'Linux'
