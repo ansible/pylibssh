@@ -1,0 +1,3 @@
+Traced builds of the Cython modules now define ``CYTHON_USE_SYS_MONITORING=0``,
+so that the ``Cython.Coverage`` plugin receives line events on CPython 3.13 and
+newer -- by :user:`rodrigobnogueira`.
