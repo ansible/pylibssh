@@ -1,9 +1,12 @@
 """Test util helpers."""
 
 import getpass
+import selectors
+import socket
 import subprocess
 import sys
 import time
+from multiprocessing.synchronize import Event as ProcessEvent
 
 
 IS_MACOS = sys.platform == 'darwin'
@@ -14,6 +17,9 @@ _DEFAULT_RECONNECT_ATTEMPT_DELAY = (
     if IS_MACOS
     else _LINUX_RECONNECT_ATTEMPT_DELAY
 )
+_RELAY_CHUNK_SIZE = 65536
+
+HostPort = tuple[str, int]
 
 
 def wait_for_svc_ready_state(
@@ -100,3 +106,57 @@ def ensure_ssh_session_connected(
         look_for_keys=False,
         open_session_retries=ssh_session_retries,
     )
+
+
+def _forward_chunk(source: socket.socket, destination: socket.socket) -> bool:
+    chunk = source.recv(_RELAY_CHUNK_SIZE)
+    destination.sendall(chunk)
+    return bool(chunk)
+
+
+def _relay_ready_sockets(
+    selector: selectors.BaseSelector,
+    peers: dict[socket.socket, socket.socket],
+    upstream: socket.socket,
+    replies_paused: ProcessEvent,
+) -> bool:
+    for selector_key, _events in selector.select():
+        source = selector_key.fileobj
+        # NOTE: The event is checked before every upstream read, so
+        # NOTE: replies to anything sent after it got set are never
+        # NOTE: forwarded.
+        if source is upstream and replies_paused.is_set():
+            selector.unregister(upstream)
+        elif not _forward_chunk(source, peers[source]):
+            return False
+    return True
+
+
+def relay_tcp_traffic(
+    listener: socket.socket,
+    upstream_addr: HostPort,
+    replies_paused: ProcessEvent,
+) -> None:
+    """Forward a single TCP connection to an upstream address.
+
+    Once ``replies_paused`` is set, the upstream bytes are left unread
+    while the downstream ones keep being forwarded.
+
+    :param listener: Listening socket to accept the downstream from.
+    :param upstream_addr: Hostname and port tuple to forward to.
+    :param replies_paused: Event that stops forwarding upstream bytes.
+    """
+    downstream, _downstream_addr = listener.accept()
+    upstream = socket.create_connection(upstream_addr)
+    peers = {downstream: upstream, upstream: downstream}
+    with selectors.DefaultSelector() as selector:
+        for peer_sock in peers:
+            selector.register(peer_sock, selectors.EVENT_READ)
+        is_relaying = True
+        while is_relaying:
+            is_relaying = _relay_ready_sockets(
+                selector,
+                peers,
+                upstream,
+                replies_paused,
+            )

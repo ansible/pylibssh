@@ -4,6 +4,8 @@ import gc
 import pathlib
 import signal
 import time
+import typing as _t  # noqa: WPS111
+from multiprocessing.synchronize import Event as ProcessEvent
 
 import pytest
 
@@ -38,7 +40,10 @@ def ssh_channel(ssh_client_session):
         chan.close()
 
 
-def test_open_session_small_timeout(ssh_session_connect):
+def test_open_session_small_timeout(
+    sshd_replies_paused: ProcessEvent,
+    ssh_session_connect_via_relay: _t.Callable[[Session], None],
+) -> None:
     """Test opening a new channel with a small timeout value.
 
     This generates an exception from ``ssh_channel_open_session()``
@@ -46,7 +51,10 @@ def test_open_session_small_timeout(ssh_session_connect):
     ``open_session_retries`` value of ``0``.
     """
     ssh_session = Session()
-    ssh_session_connect(ssh_session)
+    ssh_session_connect_via_relay(ssh_session)
+    # NOTE: An idle local sshd may answer within the timeout, so its
+    # NOTE: replies are withheld to make the outcome deterministic.
+    sshd_replies_paused.set()
     ssh_session.set_ssh_options('timeout_usec', SMALL_TIMEOUT_USEC)
     error_msg = '^Failed to open_session'
     with pytest.raises(LibsshChannelException, match=error_msg):

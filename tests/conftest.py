@@ -2,14 +2,20 @@
 
 """Pytest plugins and fixtures configuration."""
 
+import multiprocessing
+import pathlib
 import shutil
 import socket
 import subprocess
+import typing as _t  # noqa: WPS111
 from functools import partial
+from multiprocessing.synchronize import Event as ProcessEvent
 
 import pytest
 from _service_utils import (
+    HostPort,
     ensure_ssh_session_connected,
+    relay_tcp_traffic,
     wait_for_svc_ready_state,
 )
 
@@ -168,6 +174,64 @@ def ssh_session_connect(sshd_addr, ssh_clientkey_path):
     return partial(
         ensure_ssh_session_connected,
         sshd_addr=sshd_addr,
+        ssh_clientkey_path=ssh_clientkey_path,
+    )
+
+
+@pytest.fixture
+def sshd_replies_paused() -> ProcessEvent:
+    """Make an event that pauses the sshd replies in ``sshd_relay``.
+
+    :returns: Event that stops forwarding the sshd replies once set.
+    """
+    return multiprocessing.Event()
+
+
+@pytest.fixture
+def sshd_relay(
+    sshd_addr: HostPort,
+    sshd_replies_paused: ProcessEvent,
+) -> _t.Iterator[HostPort]:
+    """Spawn a TCP relay in front of sshd that can withhold its replies.
+
+    :param sshd_addr: Hostname and port tuple of the sshd to relay to.
+    :param sshd_replies_paused: Event that pauses the sshd replies.
+    :yields: Hostname and port tuple of the relay.
+    """
+    with socket.create_server((sshd_addr[0], 0)) as listener:
+        # NOTE: The relay lives in a separate process because the Cython
+        # NOTE: modules hold the GIL while blocking in libssh, which would
+        # NOTE: starve a relay thread in this process.
+        relay = multiprocessing.Process(
+            target=relay_tcp_traffic,
+            args=(listener, sshd_addr, sshd_replies_paused),
+            daemon=True,
+        )
+        relay.start()
+        try:  # noqa: WPS501
+            yield listener.getsockname()
+        finally:
+            relay.terminate()
+            relay.join()
+
+
+@pytest.fixture
+def ssh_session_connect_via_relay(
+    sshd_relay: HostPort,
+    ssh_clientkey_path: pathlib.Path,
+) -> _t.Callable[[Session], None]:
+    """
+    Authenticate existing session object against SSHD through a relay.
+
+    It returns a function that takes session as parameter.
+
+    :param sshd_relay: Hostname and port tuple of the relay.
+    :param ssh_clientkey_path: Path to the client private key.
+    :returns: Function that will connect the session.
+    """
+    return partial(
+        ensure_ssh_session_connected,
+        sshd_addr=sshd_relay,
         ssh_clientkey_path=ssh_clientkey_path,
     )
 
