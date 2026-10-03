@@ -1,0 +1,4 @@
+The in-tree guidance for AI agents now requires the human operator to
+agree on how to proceed before an agent acts on review comments,
+suggested patches or discussion input from others, and forbids agents
+from force-pushing mid-review -- by :user:`webknjaz`.
