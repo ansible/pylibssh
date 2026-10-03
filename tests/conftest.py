@@ -16,6 +16,7 @@ from _service_utils import (
     HostPort,
     ensure_ssh_session_connected,
     relay_tcp_traffic,
+    stop_relay,
     wait_for_svc_ready_state,
 )
 
@@ -211,8 +212,7 @@ def sshd_relay(
         try:  # noqa: WPS501
             yield listener.getsockname()
         finally:
-            relay.terminate()
-            relay.join()
+            stop_relay(relay)
 
 
 @pytest.fixture

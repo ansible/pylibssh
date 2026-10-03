@@ -1,6 +1,7 @@
 """Test util helpers."""
 
 import getpass
+import multiprocessing
 import selectors
 import socket
 import subprocess
@@ -18,6 +19,7 @@ _DEFAULT_RECONNECT_ATTEMPT_DELAY = (
     else _LINUX_RECONNECT_ATTEMPT_DELAY
 )
 _RELAY_CHUNK_SIZE = 65536
+_RELAY_SHUTDOWN_TIMEOUT_SEC = 5
 
 HostPort = tuple[str, int]
 
@@ -160,3 +162,16 @@ def relay_tcp_traffic(
                 upstream,
                 replies_paused,
             )
+
+
+def stop_relay(relay: multiprocessing.Process) -> None:
+    """Wait for the relay process to exit, terminating it if it hangs.
+
+    :param relay: Process running :func:`relay_tcp_traffic`.
+    """
+    # NOTE: The relay exits once the client disconnects. It is only
+    # NOTE: terminated if that does not happen in time, such as when
+    # NOTE: the client never connected.
+    relay.join(timeout=_RELAY_SHUTDOWN_TIMEOUT_SEC)
+    relay.terminate()
+    relay.join()
