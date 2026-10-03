@@ -27,6 +27,12 @@ show_missing = true
 
 [run]
 branch = true
+# NOTE: `multiprocessing` makes the child processes record coverage and
+# NOTE: save it when they finish. They write separate data files that
+# NOTE: get combined at the end, hence `parallel`.
+concurrency =
+  multiprocessing
+  thread
 # NOTE: `ctrace` tracing method is needed because the `sysmon` tracer
 # NOTE: which is default on Python 3.14, causes unprecedented slow-down
 # NOTE: of the test runs. Also, Cython plugins do not support it.
@@ -50,10 +56,14 @@ cover_pylib = false
 # * https://github.com/pytest-dev/pytest-cov/pull/696
 disable_warnings =
   module-not-measured
+parallel = true
 plugins =
 #   covdefaults
   Cython.Coverage
 relative_files = true
+# NOTE: `sigterm` makes processes stopped with `SIGTERM` still save
+# NOTE: their coverage data.
+sigterm = true
 source =
   .
 source_pkgs =
