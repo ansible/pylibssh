@@ -21,6 +21,18 @@ before being accepted. Rebase onto the target branch for real
 instead of adding merge commits ("foxtrot merges") to a feature
 branch.
 
+### Tool-config changes are standalone
+
+Changes to tool configuration -- `.flake8`, `.ruff.toml`,
+`.pre-commit-config.yaml`, `pytest.ini`, `tox.ini`, `.codecov.yml`,
+CI workflows, and the like -- go in their own commit, with their
+own rationale, never mixed into a functional change. Ask the
+operator whether one also needs its own PR. This is the same
+reasoning behind keeping type-annotation retrofits a deliberate,
+standalone effort (see below). When the config change relaxes a
+check, it's also a suppression -- see
+[DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md).
+
 ## Don't dump AI-generated bloat
 
 "LLMs are good at generating way too much stuff and it even works
