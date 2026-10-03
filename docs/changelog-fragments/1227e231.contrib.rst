@@ -1,0 +1,4 @@
+The in-tree guidance for AI agents now asks for the authors of
+incorporated patches to be credited via ``Co-Authored-By`` trailers
+and leaves the change note byline off fully agentic work
+-- by :user:`webknjaz`.
