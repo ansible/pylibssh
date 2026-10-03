@@ -43,6 +43,13 @@ dropped, and the operator can see the whole picture at a glance.
 Ask the operator to review each change individually. One approval
 doesn't stretch to cover a batch of unrelated edits.
 
+The same goes for absorbing somebody else's patch -- a suggested
+change, a diff in a comment, a commit on a fork. Whether it lands
+at all is never the agent's call: bring each one to the operator
+(who wrote it, a link, what it changes) and let them decide. See
+"Credit the people whose work you use" in
+[PR_HYGIENE.md](PR_HYGIENE.md).
+
 ## Never force-push mid-review
 
 Once review has started, don't force-push -- see "Don't push new

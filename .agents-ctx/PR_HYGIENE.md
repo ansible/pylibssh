@@ -84,7 +84,20 @@ When incorporating a patch someone suggested, credit them with a
 (GitHub's `ID+username@users.noreply.github.com` works). If it
 came via `git format-patch`/`git am`, preserve the original Author
 field instead. Add one trailer per contributor when there are
-several; ask the operator when unsure who to credit.
+several. Who to credit, and how, is always the operator's call --
+ask every time, not only when unsure.
+
+- Prefer native authorship: the operator clicking "Commit
+  suggestion" in the GitHub UI, or the author pushing it
+  themselves, beats re-applying their change locally.
+- Look the trailer up with `gh api users/<login>` (`.id`, and
+  `.name` falling back to `.login`) -- don't guess. Keep the
+  `+login` part; the bare ID doesn't work. Show the exact trailer
+  to the operator before committing.
+- Rewording, restructuring, or re-implementing a suggestion so it
+  "isn't really theirs" anymore still requires the credit.
+- Never drop existing `Co-Authored-By` trailers, or replace the
+  original author, when rebasing, squashing, or rewording.
 
 ## Names and docstrings carry the meaning, not comments
 
