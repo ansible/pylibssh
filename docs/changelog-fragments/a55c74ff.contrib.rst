@@ -1,0 +1,6 @@
+The in-tree guidance for AI agents now requires an explicit decision
+from the human operator, case by case, before any check gets silenced
+-- whether by adding linter suppressions, relaxing tool configuration,
+or skipping, removing or weakening tests -- and asks for tool
+configuration changes to be kept in standalone commits
+-- by :user:`webknjaz`.

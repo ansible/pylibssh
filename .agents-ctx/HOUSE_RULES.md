@@ -37,6 +37,32 @@ Concretely:
 - When in doubt, ask. The operator prefers a clarifying question
   over an unwound mistake.
 
+## Don't shoot the messenger
+
+> [!important]
+>
+> Silencing a check is never the agent's decision. This is
+> mandatory, with no exceptions.
+
+- Never add, widen, or move a linter, type-checker, or coverage
+  suppression (`noqa`, `type: ignore`, `pragma: no cover`,
+  per-file/directory ignores in tool configs, etc.) on your own.
+- Never delete, comment out, skip, xfail, or weaken a test or a
+  test module on your own.
+- These hold even when that's the only thing still failing. The
+  default response to a red check is to fix its cause.
+- If you believe silencing is warranted, stop. Present **each
+  case separately** to the operator, quiz them on their
+  understanding of it, and wait for an explicit decision on that
+  specific case. No batch approvals, and no consent carried over
+  from earlier cases or turns. The operator is the decision-maker
+  and stays accountable -- keep them in the loop.
+
+See [DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md) for
+what counts as silencing, how to present a case, and how approved
+suppressions are scoped and documented. Tool-config changes are
+standalone commits -- see [PR_HYGIENE.md](PR_HYGIENE.md).
+
 ## Naming the ducks
 
 See [NAMING_THE_DUCKS.md](NAMING_THE_DUCKS.md) for the project's

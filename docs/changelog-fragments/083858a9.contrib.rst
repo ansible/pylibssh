@@ -1,0 +1,3 @@
+Claude Code now prompts the human operator before applying edits or
+running commands that look like they silence linters or tests, or that
+change tool configuration -- by :user:`webknjaz`.

@@ -27,6 +27,10 @@ change, not just tests: infra, packaging, and runtime code all
 need well-reasoned, architecturally sound justification, not just
 a passing check.
 
+Deleting, commenting out, skipping, xfailing, or weakening a test
+is never the agent's call -- see
+[DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md).
+
 ## No test classes
 
 Every test in `tests/` is a plain `def test_*` function. There are
@@ -92,7 +96,9 @@ adjustment, not as a blanket rule here.
 The one accepted exception: a PR that adds only a failing test,
 marked `@pytest.mark.xfail`, can be merged on its own ahead of the
 fix, to be resolved in a follow-up. Don't treat a merged `xfail` as
-done, though -- it's a tracked gap, not a resolution.
+done, though -- it's a tracked gap, not a resolution. This
+exception covers adding a *new* failing test; marking an existing
+test `xfail` because it broke is silencing it.
 
 ## Assertions
 
