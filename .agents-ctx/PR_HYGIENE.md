@@ -72,6 +72,19 @@ Recurring, specific review feedback:
 - Reference related issues/PRs using `sphinx-issues` roles
   (`:pr:`, `:user:`, `:file:`) instead of raw links or backticks
   (#620, #786, #790, #809).
+- Fully agentic work gets no `-- by :user:` byline -- it's not
+  human work, and crediting a probabilistic machine in a loop is
+  silly. Disclose AI involvement in the PR instead.
+
+## Credit the people whose work you use
+
+When incorporating a patch someone suggested, credit them with a
+`Co-Authored-By: Name <email>` trailer, per
+<https://hynek.me/til/easier-crediting-contributors-github/>
+(GitHub's `ID+username@users.noreply.github.com` works). If it
+came via `git format-patch`/`git am`, preserve the original Author
+field instead. Add one trailer per contributor when there are
+several; ask the operator when unsure who to credit.
 
 ## Names and docstrings carry the meaning, not comments
 
