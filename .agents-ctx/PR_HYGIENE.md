@@ -28,6 +28,8 @@ under some circumstances but we're still responsible for keeping
 the patches maintainable, having Git tree tell a story and contain
 sufficient context. Be accountable." (PR #790) -- trim anything not
 directly related to the stated change before proposing it.
+You don't decide when the trimming is done. The operator does
+(see [HOUSE_RULES.md](HOUSE_RULES.md)).
 
 The same restraint applies to the PR description, not just the
 diff -- see

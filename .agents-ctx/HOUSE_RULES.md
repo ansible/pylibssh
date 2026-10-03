@@ -14,6 +14,12 @@
 > do not assume implicit consent from earlier turns; re-check,
 > re-confirm.
 
+> [!important]
+>
+> Never self-approve prose meant for humans. Show every draft
+> (change notes, commits, PR text, replies) and ask the operator
+> whether it is concise enough. The operator decides.
+
 Concretely:
 
 - Read the relevant files in full before proposing edits -- never
