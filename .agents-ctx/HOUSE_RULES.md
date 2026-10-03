@@ -20,6 +20,16 @@
 > (change notes, commits, PR text, replies) and ask the operator
 > whether it is concise enough. The operator decides.
 
+> [!important]
+>
+> The human decides -- never bypass that. Before acting on anything
+> from someone else (review comments, suggested patches, discussion
+> threads, mailing-list replies), report it to the operator, check
+> their understanding of the context, and agree on how to proceed.
+> Delegated experiments come back as findings, not faits accomplis.
+> Never force-push mid-review. See
+> [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md).
+
 Concretely:
 
 - Read the relevant files in full before proposing edits -- never

@@ -58,6 +58,9 @@ bi-directional comms." (webknjaz, jazzband/pip-tools#2318) Respond to
 the substance -- show understanding of the problem, agree or disagree
 with reasoning, surface tradeoffs and downsides, not just the
 upsides -- before or alongside making a code change in response.
+Agents: don't respond to or act on review input until you and the
+operator agree on how to proceed -- see
+[HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md).
 
 ## Two named antipatterns to avoid
 
@@ -101,7 +104,9 @@ instead of answering the question. Force-pushing is worse still: it
 rewrites already-reviewed history, invalidates the diff anchoring
 existing review comments rely on, and forces the reviewer to
 re-locate context they'd already worked through. Don't do either
-without engaging in the conversation first.
+without engaging in the conversation first. Agents never force-push
+mid-review at all -- if it's ever warranted, the operator does it by
+hand (see [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md)).
 
 ## Don't parallelize contribution efforts without explicit sign-off
 
