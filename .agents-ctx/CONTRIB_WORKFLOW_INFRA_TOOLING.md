@@ -30,6 +30,16 @@ verbose tox-level output (drop the `-q`, or add `-v`/`-vv`) once
 there's an actual reason to inspect tox's own internals -- don't
 lead with a wall of logs.
 
+## Spell commands out
+
+Use the long subcommand forms -- `tox run`, `tox list`,
+`tox config` -- in automation, docs, and anything shown to the
+operator. `tox r`/`tox l` are fine interactively but easy to
+misread in scripts and CI logs.
+
+Don't invent flags. Check `tox <subcommand> --help` when unsure:
+e.g. env selection is `-e` only, there's no `--env`.
+
 ## `pyNNN`-style environment names are native tox behavior
 
 `tox run -e py312` isn't something this project specifically
@@ -85,3 +95,15 @@ When `lint`, `py`, or any other env reports failures, fix their
 cause. Suppressing a finding, or skipping/removing a test, is the
 operator's decision -- see
 [DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md).
+
+## Shared automation across projects
+
+The maintainer looks after many open source projects, at work and
+on personal time, and shares automation between them in various
+forms -- CI workflows, composite actions, tool configs, these
+agent docs. Drift between similar projects makes that harder.
+
+When changing shared tooling, consider whether the change is
+generic or project-specific. If it looks generic, point that out
+to the operator so it can be propagated -- don't propagate it
+yourself. Drift is fine when there's a deliberate reason for it.
