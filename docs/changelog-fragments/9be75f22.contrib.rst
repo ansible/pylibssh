@@ -1,0 +1,7 @@
+The in-tree guidance for AI agents now covers the commit message
+shape, the use of long ``tox`` subcommands without invented flags,
+and flagging generic tooling changes for reuse across the
+maintainer's other projects. It also clarifies that agents are never
+credited as co-authors, with an optional ``Assisted-By`` trailer
+for disclosing AI assistance
+-- by :user:`webknjaz`.
