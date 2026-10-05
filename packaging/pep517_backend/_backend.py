@@ -177,7 +177,7 @@ def patched_dist_get_long_description() -> _c.Iterator[None]:
     def _get_sanitized_long_description(  # noqa: WPS430
         self: _DistutilsDistributionMetadata,
     ) -> str:
-        assert self.long_description is not None  # noqa: S101  # typing
+        assert self.long_description is not None  # ruff: ignore[assert]  # typing
         return sanitize_rst_roles(self.long_description)
 
     _DistutilsDistributionMetadata.get_long_description = (  # type: ignore[method-assign]
