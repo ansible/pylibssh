@@ -13,7 +13,11 @@ count =
 
 # NOTE: `ignore-words` should be uncommented once we have Sphinx
 # ignore-words = docs/spelling_wordlist.txt
+
+# Ref: https://dictionary.cambridge.org/fr/dictionnaire/anglais/fait-accompli
+# faits accomplis
 ignore-words-list =
+  accomplis,
   dialogue,
   gotcha,
   jupyter,
