@@ -27,6 +27,18 @@ show_missing = true
 
 [run]
 branch = true
+# NOTE: `pytest-cov` no longer measures child processes on its own since
+# NOTE: v7. The `multiprocessing` concurrency makes the processes started
+# NOTE: via the `multiprocessing` module record coverage and save it once
+# NOTE: they finish. Setting `concurrency` replaces its default, so
+# NOTE: `thread` is listed explicitly to keep measuring threads.
+#
+# Ref:
+# * https://pytest-cov.rtfd.io/en/latest/subprocess-support.html
+# * https://coverage.rtfd.io/en/latest/subprocess.html
+concurrency =
+  multiprocessing
+  thread
 # NOTE: `ctrace` tracing method is needed because the `sysmon` tracer
 # NOTE: which is default on Python 3.14, causes unprecedented slow-down
 # NOTE: of the test runs. Also, Cython plugins do not support it.
@@ -50,6 +62,9 @@ cover_pylib = false
 # * https://github.com/pytest-dev/pytest-cov/pull/696
 disable_warnings =
   module-not-measured
+# NOTE: Each process writes its own data file, and `pytest-cov` combines
+# NOTE: them in the end.
+parallel = true
 plugins =
 #   covdefaults
   Cython.Coverage

@@ -1,0 +1,3 @@
+The test coverage measurement now includes code running in processes
+started via :py:mod:`multiprocessing`, which ``pytest-cov`` 7 stopped
+measuring on its own -- by :user:`webknjaz`.
