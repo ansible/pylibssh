@@ -248,7 +248,7 @@ def test_destructor(ssh_session_connect):
     def _do_not_crash():  # noqa: WPS430  # required to create a garbage-collection scope
         ssh_session = Session()
         ssh_session_connect(ssh_session)
-        ssh_channel = ssh_session.new_channel()  # noqa: F841  # setting a non-accessed var is needed for testing GC
+        ssh_channel = ssh_session.new_channel()  # ruff: ignore[unused-variable]  # setting a non-accessed var is needed for testing GC
 
     # Without fix, garbage collector first deletes session and we segfault
     # in channel destructor when trying to access low-level C session object.

@@ -18,7 +18,7 @@ IS_RELEASE_ON_RTD = (
     and os.environ['READTHEDOCS_VERSION_TYPE'] == 'tag'
 )
 if IS_RELEASE_ON_RTD:
-    tags.add('is_release')  # noqa: F821
+    tags.add('is_release')  # ruff: ignore[undefined-name]
 
 get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 
@@ -34,7 +34,7 @@ github_repo_name = 'pylibssh'
 
 project = f'{github_repo_org}-{github_repo_name}'
 author = 'Ansible, Inc.'
-copyright = f'2020, {author}'  # noqa: A001  # builtin-variable-shadowing
+copyright = f'2020, {author}'  # ruff: ignore[builtin-variable-shadowing]  # builtin-variable-shadowing
 
 # The short X.Y version
 version = '.'.join(
