@@ -1,0 +1,4 @@
+The test suite now optionally depends on :pypi:`proxy.py`. The tests
+needing it are skipped when it is not installed, and the RPM spec does
+not pull it in, since it is not packaged downstream yet -- by
+:user:`webknjaz`.
