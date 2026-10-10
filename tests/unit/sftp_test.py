@@ -1,11 +1,20 @@
 """Tests suite for sftp."""
 
+from __future__ import annotations
+
+import os
 import random
+import typing as _t  # noqa: WPS111
 import uuid
+
+
+if _t.TYPE_CHECKING:  # pragma: no cover
+    import pathlib
+    from collections.abc import Callable
 
 import pytest
 
-from pylibsshext.sftp import SFTP_MAX_CHUNK
+from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK, _RemoteFile
 
 
 SMALL_PAYLOAD = 32
@@ -122,3 +131,26 @@ def test_put_existing(
     """Check that SFTP file upload works when target file exists."""
     sftp_session.put(str(src_path), str(pre_existing_dst_path))
     assert pre_existing_dst_path.read_bytes() == transmit_payload
+
+
+@pytest.mark.parametrize(
+    'path_modifier',
+    (str, lambda path: str(path).encode('utf-8')),
+    ids=('str', 'bytes'),
+)
+def test_remote_file_cm(
+    sftp_session: SFTP,
+    dst_path: pathlib.Path,
+    path_modifier: Callable[[pathlib.Path], str | bytes],
+) -> None:
+    """Test the ``_RemoteFile`` context manager works with both :class:`str` and :class:`bytes`."""
+    assert not dst_path.exists()
+    formatted_path = path_modifier(dst_path)
+
+    with _RemoteFile(
+        sftp_obj=sftp_session,
+        path=formatted_path,
+        flags=os.O_WRONLY | os.O_CREAT,
+    ):
+        assert dst_path.exists()
+    assert dst_path.read_bytes() == b''
