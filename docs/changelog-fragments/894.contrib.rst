@@ -1,0 +1,3 @@
+The ``test_open_session_small_timeout`` test now withholds the sshd
+replies through a TCP relay instead of racing a local sshd, which
+made it flaky with line tracing enabled -- by :user:`webknjaz`.

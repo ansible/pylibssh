@@ -2,6 +2,7 @@
 
 """Pytest plugins and fixtures configuration."""
 
+import pathlib
 import shutil
 import socket
 import subprocess
@@ -20,6 +21,18 @@ from pylibsshext import __libssh_version__
 
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600
+_TESTS_DIR_PATH = pathlib.Path(__file__).parent
+
+# NOTE: Each test double under `_stubs/` exposes its fixtures through a
+# NOTE: `fixtures.py` entry point, loaded as a local pytest plugin.
+pytest_plugins = [
+    '.'.join(
+        stub_fixtures_path.relative_to(_TESTS_DIR_PATH).with_suffix('').parts,
+    )
+    for stub_fixtures_path in sorted(
+        _TESTS_DIR_PATH.glob('_stubs/*/fixtures.py'),
+    )
+]
 
 
 @pytest.fixture

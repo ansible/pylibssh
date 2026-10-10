@@ -1,0 +1,4 @@
+The test suite gained a home for test doubles of the components that
+end-to-end tests intercept, under :file:`tests/_stubs/`. Each of them
+exposes its fixtures through a ``fixtures.py`` module, which gets
+loaded as a local pytest plugin automatically -- by :user:`webknjaz`.
