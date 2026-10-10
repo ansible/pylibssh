@@ -261,6 +261,7 @@ def _prebuild_c_extensions(
 
         cythonize_args = _make_cythonize_cli_args_from_config(
             config,
+            cython_line_tracing_requested=cython_line_tracing_requested,
         )
         with _patched_cython_env(
             config['env'],

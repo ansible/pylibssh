@@ -1,0 +1,18 @@
+The build backend now dynamically enables Cython line tracing only when
+explicitly requested via the ``with-cython-tracing=true`` config setting.
+Previously, having ``linetrace = "True"`` in :file:`pyproject.toml` was
+making our PyPI-published wheels slower due to debug symbols.
+
+Now, line tracing is truly opt-in:
+
+- Regular builds: ``pip install .`` (no line tracing)
+- Tracing builds:
+  ``pip install . --config-setting=with-cython-tracing=true``
+
+  (enables line tracing)
+
+When tracing is requested, the build backend automatically adds the
+``linetrace=True`` and ``profile=True`` Cython directives and sets the
+appropriate C compiler flags.
+
+-- by :user:`webknjaz`
