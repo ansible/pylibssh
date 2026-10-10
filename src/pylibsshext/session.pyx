@@ -1,3 +1,4 @@
+# distutils: py_limited_api = True
 #
 # This file is part of the ansible-pylibssh library
 #
