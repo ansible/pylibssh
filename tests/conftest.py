@@ -5,7 +5,9 @@
 import shutil
 import socket
 import subprocess
+import sys
 from functools import partial
+from pathlib import Path
 
 import pytest
 from _service_utils import (
@@ -17,6 +19,10 @@ from pylibsshext.session import Session
 
 from pylibsshext import __libssh_version__
 
+
+# Make the in-tree PEP 517 build backend importable from the tests:
+_BUILD_BACKEND_DIR = Path(__file__).parent.parent / 'packaging'
+sys.path.insert(0, str(_BUILD_BACKEND_DIR))
 
 _DIR_PRIV_RW_OWNER = 0o700
 _FILE_PRIV_RW_OWNER = 0o600
