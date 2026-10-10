@@ -79,6 +79,18 @@ $summary
 sed -i 's/\(.*"setuptools-scm\)[^"]\+\(",.*\)/\1 >= 6\2/g' pyproject.toml
 %endif
 
+# NOTE: `proxy.py` is an optional test dependency that is not packaged
+# NOTE: downstream. `pyproject-rpm-macros` older than 1.20.0, like in
+# NOTE: UBI 9, lack `%%pyproject_patch_dependency`, so it is dropped from
+# NOTE: `tox.ini` directly there.
+# FIXME: Stop ignoring `proxy.py` once Fedora packages it.
+# Ref: https://bugzilla.redhat.com/show_bug.cgi?id=2547889
+%if 0%{?pyproject_patch_dependency:1}
+%pyproject_patch_dependency proxy.py:ignore
+%else
+sed --in-place '/^  proxy\.py$/d' tox.ini
+%endif
+
 %generate_buildrequires
 %pyproject_buildrequires -t
 
