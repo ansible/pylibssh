@@ -5,10 +5,13 @@ import uuid
 
 import pytest
 
-from pylibsshext.sftp import SFTP_MAX_CHUNK
+from pylibsshext.errors import LibsshSFTPException
+
+from pylibsshext import __libssh_version__, sftp
 
 
 SMALL_PAYLOAD = 32
+HUGE_CHUNK = 1024 * 1024
 
 
 @pytest.fixture
@@ -35,8 +38,14 @@ def sftp_session(ssh_client_session):
         pytest.param(
             # 1B larger than chunk size in sftp to make sure we exercise
             # at least two rounds of reading/writing
-            SFTP_MAX_CHUNK + 1,
+            sftp.SFTP_MAX_CHUNK + 1,
             id='large-payload',
+        ),
+        pytest.param(
+            # 1B larger than any limits advertised by SFTP servers
+            # passing this directly on wire will not be handled by server
+            HUGE_CHUNK + 1,
+            id='huge-payload',
         ),
     ),
 )
@@ -122,3 +131,32 @@ def test_put_existing(
     """Check that SFTP file upload works when target file exists."""
     sftp_session.put(str(src_path), str(pre_existing_dst_path))
     assert pre_existing_dst_path.read_bytes() == transmit_payload
+
+
+LIBSSH_VERSION_TUPLE = tuple(map(int, __libssh_version__.split('.')))
+xfail_on_libssh_below0_11_as_crashing = pytest.mark.xfail(
+    LIBSSH_VERSION_TUPLE < (0, 11, 0),
+    reason='libssh < 0.11.0 does not partition large writes.',
+    strict=True,
+    raises=LibsshSFTPException,
+)
+
+
+@xfail_on_libssh_below0_11_as_crashing  # pragma: no cover
+@pytest.mark.parametrize(
+    'transmit_payload',
+    (HUGE_CHUNK + 1,),
+    indirect=True,
+    ids=('huge-payload',),
+)
+def test_put_chunk_partition(
+    dst_path,
+    src_path,
+    sftp_session,
+    transmit_payload,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Check the large write is split into chunks by libssh."""
+    monkeypatch.setattr(sftp, 'SFTP_MAX_CHUNK', HUGE_CHUNK)
+    sftp_session.put(str(src_path), str(dst_path))
+    assert dst_path.read_bytes() == transmit_payload
