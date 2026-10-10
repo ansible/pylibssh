@@ -1,8 +1,15 @@
 """Tests suite for session."""
 
+from __future__ import annotations
+
+from pathlib import Path
+
 import pytest
 
-from pylibsshext.errors import LibsshSessionException
+from pylibsshext.errors import (
+    LibsshConfigParseException,
+    LibsshSessionException,
+)
 from pylibsshext.session import Session
 
 
@@ -26,3 +33,73 @@ def test_session_connection_refused(free_port_num):
     ssh_session = Session()
     with pytest.raises(LibsshSessionException, match=error_msg):
         ssh_session.connect(host='127.0.0.1', port=free_port_num)
+
+
+@pytest.mark.parametrize(
+    'path_arg_type',
+    (str, Path),
+    ids=str,
+)
+def test_parse_config_nonexistent_raises(
+    path_arg_type: type[str | Path],
+    tmp_path: Path,
+) -> None:
+    """parse_config() with a missing file raises LibsshConfigParseException."""
+    session = Session()
+    session.set_ssh_options('host', 'somehost')
+    nonexistent = tmp_path / 'nonexistent_ssh_config'
+    assert not nonexistent.exists()
+    path_arg = path_arg_type(nonexistent)
+    with pytest.raises(
+        LibsshConfigParseException,
+        match=r'^Failed to parse SSH config:',
+    ):
+        session.parse_config(path_arg)
+
+
+@pytest.mark.parametrize(
+    'path_arg_type',
+    (str, Path),
+    ids=str,
+)
+def test_parse_config_valid_file_succeeds(
+    path_arg_type: type[str | Path],
+    tmp_path: Path,
+) -> None:
+    """parse_config() with a valid config file does not raise (str, Path)."""
+    session = Session()
+    session.set_ssh_options('host', 'somehost')
+    config_file = tmp_path / 'ssh_config'
+    config_file.write_text('Host *\n', encoding='utf-8')
+    path_arg = path_arg_type(config_file)
+    session.parse_config(path_arg)
+
+
+def test_connect_config_file_none_no_parse():
+    """connect(config_file=None) does not call parse_config; fails at connect."""
+    session = Session()
+    expected_error_regex = (
+        r'^ssh connect failed: .*test\.nonexistent\.example\.invalid.*$'
+    )
+    with pytest.raises(LibsshSessionException, match=expected_error_regex):
+        session.connect(
+            host='test.nonexistent.example.invalid',
+            config_file=None,
+        )
+
+
+def test_connect_unknown_kwarg_raises():
+    """connect() rejects unknown keyword arguments instead of silently ignoring them."""
+    session = Session()
+    with pytest.raises(TypeError, match=r'unexpected keyword argument'):
+        session.connect(host='somehost', config_files='/typo')
+
+
+def test_parse_config_invalid_type_raises():
+    """parse_config() raises TypeError for non-str/non-Path filename."""
+    session = Session()
+    with pytest.raises(
+        TypeError,
+        match=r'filename must be str, pathlib\.Path, or None',
+    ):
+        session.parse_config(object())
