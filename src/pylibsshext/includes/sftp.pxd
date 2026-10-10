@@ -22,7 +22,10 @@ from libc cimport stdint
 from pylibsshext.includes.libssh cimport ssh_channel, ssh_session, ssh_string
 
 
-cdef extern from "libssh/sftp.h" nogil:
+cdef extern from "includes/sftp_compat.h" nogil:
+
+    enum:
+        HAVE_SFTP_AIO
 
     struct sftp_session_struct:
         pass
@@ -84,6 +87,25 @@ cdef extern from "libssh/sftp.h" nogil:
 
     sftp_attributes sftp_stat(sftp_session session, const char *path)
 
+    void sftp_attributes_free(sftp_attributes file)
+
+    struct sftp_aio_struct:
+        pass
+    ctypedef sftp_aio_struct * sftp_aio
+    ssize_t sftp_aio_begin_read(sftp_file file, size_t len, sftp_aio *aio)
+    ssize_t sftp_aio_wait_read(sftp_aio *aio, void *buf, size_t buf_size)
+    ssize_t sftp_aio_begin_write(sftp_file file, const void *buf, size_t len, sftp_aio *aio)
+    ssize_t sftp_aio_wait_write(sftp_aio *aio)
+    void sftp_aio_free(sftp_aio aio)
+
+    struct sftp_limits_struct:
+        stdint.uint64_t max_packet_length
+        stdint.uint64_t max_read_length
+        stdint.uint64_t max_write_length
+        stdint.uint64_t max_open_handles
+    ctypedef sftp_limits_struct * sftp_limits_t
+    sftp_limits_t sftp_limits(sftp_session sftp)
+    void sftp_limits_free(sftp_limits_t limits)
 
 cdef extern from "sys/stat.h" nogil:
     cdef int S_IRWXU
