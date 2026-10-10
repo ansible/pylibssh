@@ -23,3 +23,10 @@ from pylibsshext.session cimport Session
 cdef class SFTP:
     cdef Session session
     cdef sftp.sftp_session _libssh_sftp_session
+
+cdef class Attributes:
+    cdef sftp.sftp_attributes attrs
+    cdef int version
+
+    @staticmethod
+    cdef Attributes _from_ptr(sftp.sftp_attributes ptr, int version)

@@ -72,9 +72,29 @@ cdef extern from "libssh/sftp.h" nogil:
     cdef int SSH_FX_WRITE_PROTECT
     cdef int SSH_FX_NO_MEDIA
 
+    cdef int SSH_FILEXFER_TYPE_REGULAR
+    cdef int SSH_FILEXFER_TYPE_DIRECTORY
+    cdef int SSH_FILEXFER_TYPE_SYMLINK
+    cdef int SSH_FILEXFER_TYPE_SPECIAL
+    cdef int SSH_FILEXFER_TYPE_UNKNOWN
+
+    cdef int SSH_FILEXFER_ATTR_SIZE
+    cdef int SSH_FILEXFER_ATTR_PERMISSIONS
+    cdef int SSH_FILEXFER_ATTR_ACCESSTIME
+    cdef int SSH_FILEXFER_ATTR_ACMODTIME
+    cdef int SSH_FILEXFER_ATTR_CREATETIME
+    cdef int SSH_FILEXFER_ATTR_MODIFYTIME
+    cdef int SSH_FILEXFER_ATTR_ACL
+    cdef int SSH_FILEXFER_ATTR_OWNERGROUP
+    cdef int SSH_FILEXFER_ATTR_SUBSECOND_TIMES
+    cdef int SSH_FILEXFER_ATTR_EXTENDED
+    cdef int SSH_FILEXFER_ATTR_UIDGID
+
     sftp_session sftp_new(ssh_session session)
     int sftp_init(sftp_session sftp)
     void sftp_free(sftp_session sftp)
+
+    int sftp_server_version(sftp_session sftp)
 
     sftp_file sftp_open(sftp_session session, const char *file, int accesstype, mode_t mode)
     int sftp_close(sftp_file file)
@@ -83,6 +103,8 @@ cdef extern from "libssh/sftp.h" nogil:
     int sftp_get_error(sftp_session sftp)
 
     sftp_attributes sftp_stat(sftp_session session, const char *path)
+
+    void sftp_attributes_free(sftp_attributes file)
 
 
 cdef extern from "sys/stat.h" nogil:

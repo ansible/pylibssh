@@ -1,0 +1,5 @@
+Added new API ``SFTP.stat()`` to gather information about remote files.
+The attributes are accessed through new object ``SFTP.Attributes``,
+handling all supported SFTPv3 attributes. Additionally, this introduces
+a new helper API ``SFTP.version()`` returning the negotiated SFTP protocol
+version -- by :user:`Jakuje`.
