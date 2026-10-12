@@ -20,7 +20,7 @@ if sys.version_info >= (3, 11):
 else:
     from tomli import loads as load_toml_from_string
 
-    @contextmanager  # type: ignore[no-redef]
+    @contextmanager
     def chdir_cm(path: str | os.PathLike[str]) -> _c.Iterator[None]:
         """Temporarily change the current directory, recovering on exit."""
         original_wd = Path.cwd()

@@ -64,7 +64,7 @@ __all__ = (  # noqa: PLE0604, WPS410
     'prepare_metadata_for_build_wheel',
     *(
         ()
-        if _setuptools_build_editable is None  # type: ignore[redundant-expr]
+        if _setuptools_build_editable is None
         else (
             'build_editable',
             'get_requires_for_build_editable',
