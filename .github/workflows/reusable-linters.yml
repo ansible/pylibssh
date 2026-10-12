@@ -29,7 +29,7 @@ jobs:
         os:
         - ubuntu-latest
         toxenv:
-        - lint
+        - pre-commit
         - build-docs
         - make-changelog
 
@@ -66,8 +66,8 @@ jobs:
         python -m tox --parallel auto --parallel-live --notest
     - name: Initialize pre-commit envs if needed
       run: >-
-        test -d .tox/lint
-        && .tox/lint/bin/python -m pre_commit install-hooks
+        test -d .tox/pre-commit
+        && .tox/pre-commit/bin/python -m pre_commit install-hooks
         || :
     - name: Test with tox
       run: python -m tox --parallel auto --parallel-live

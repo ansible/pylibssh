@@ -126,7 +126,7 @@ Additionally, there's a separate workflow that runs linting\
 .. code-block:: shell-session
 
     [dir:pylibssh] $ python -m tox -e build-docs  # Sphinx docs build
-    [dir:pylibssh] $ python -m tox -e lint  # pre-commit.com tool
+    [dir:pylibssh] $ python -m tox -e pre-commit  # pre-commit.com tool
 
 Continuous delivery
 ===================
