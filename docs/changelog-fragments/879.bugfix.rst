@@ -1,0 +1,3 @@
+Fixed memory leaks of remote file descriptors inside ``get()`` and ``put()``
+methods in ``SFTP`` by replacing the manual memory handling with a context
+manager -- by :user:`Jakuje`.
