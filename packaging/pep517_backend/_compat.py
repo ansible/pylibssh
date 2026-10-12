@@ -1,10 +1,16 @@
 """Cross-python stdlib shims."""
 
-import collections.abc as _c  # noqa: WPS111, WPS301
+from __future__ import annotations
+
 import os
 import sys
+import typing as _t  # noqa: WPS111
 from contextlib import contextmanager
 from pathlib import Path
+
+
+if _t.TYPE_CHECKING:
+    import collections.abc as _c  # noqa: WPS111, WPS301
 
 
 if sys.version_info >= (3, 11):
@@ -15,7 +21,7 @@ else:
     from tomli import loads as load_toml_from_string
 
     @contextmanager  # type: ignore[no-redef]
-    def chdir_cm(path: 'os.PathLike[str]') -> _c.Iterator[None]:
+    def chdir_cm(path: str | os.PathLike[str]) -> _c.Iterator[None]:
         """Temporarily change the current directory, recovering on exit."""
         original_wd = Path.cwd()
         os.chdir(path)
