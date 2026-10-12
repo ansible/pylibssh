@@ -111,7 +111,7 @@ def _get_setting_value(
             continue
 
         with suppress(lookup_errors):  # type: ignore[arg-type]
-            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[arg-type,index]
+            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[arg-type,index,unused-ignore]
 
     return default
 
