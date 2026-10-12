@@ -23,6 +23,5 @@ export PYTHONDONTWRITEBYTECODE=1
 >&2 echo ============================================================================
 >&2 echo
 "${PYTHON_INTERPRETER}" -m venv "${USERSPACE_VENV_PATH}"
-${VIRTUALENV_PIP_BIN} install -U pip-with-requires-python
 ${VIRTUALENV_PIP_BIN} install -U setuptools wheel
 ${VIRTUALENV_PIP_BIN} install ${TOOLS_PKGS}
