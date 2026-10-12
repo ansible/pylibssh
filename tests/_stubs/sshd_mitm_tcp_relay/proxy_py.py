@@ -12,7 +12,7 @@ from proxy.core.base import BaseTcpTunnelHandler
 from proxy.core.connection import TcpServerConnection
 
 
-if _t.TYPE_CHECKING:  # pragma: no cover
+if _t.TYPE_CHECKING:
     from proxy.common.types import Readables, Writables
 
     from .types import HostPort

@@ -13,13 +13,18 @@ source =
   *\Lib\site-packages
 
 [report]
+# custom excludes extend baselines from coverage + covdefaults
+# for reference, see
+# coverage: https://coverage.readthedocs.io/en/latest/excluding.html#default-exclusions
+# covdefaults: https://github.com/asottile/covdefaults/blob/8d8712c26ad505f1269851a7c8431b8c1fedaa62/covdefaults.py#L86-L105
 exclude_also =
-  \#\s*pragma: no cover
   ^\s*raise AssertionError\b
   ^\s*raise NotImplementedError\b
   ^\s*return NotImplemented\b
   ^\s*raise$
   ^if __name__ == ['"]__main__['"]:$
+  ^\s*@pytest\.mark\.xfail
+  ^\s*if _t\.TYPE_CHECKING:
 # fail_under = 100
 skip_covered = true
 skip_empty = true
