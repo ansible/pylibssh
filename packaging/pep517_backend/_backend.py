@@ -29,8 +29,8 @@ except ImportError:
 
 # isort: split
 from distutils.command.install import install as _distutils_install_cmd
-from distutils.core import Distribution as _DistutilsDistribution
 from distutils.dist import (
+    Distribution as _DistutilsDistribution,
     DistributionMetadata as _DistutilsDistributionMetadata,
 )
 
