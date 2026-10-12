@@ -14,6 +14,7 @@ from proxy.core.connection import TcpServerConnection
 
 if _t.TYPE_CHECKING:
     from proxy.common.types import Readables, Writables
+    from typing_extensions import Self
 
     from .types import HostPort
 
@@ -41,7 +42,7 @@ flags.add_argument(
 class PausableSshdTunnelHandler(BaseTcpTunnelHandler):
     """Tunnel a TCP connection to sshd, optionally withholding its replies."""
 
-    def initialize(self: _t.Self) -> None:
+    def initialize(self: Self) -> None:
         """Connect to sshd right away since it speaks first."""
         super().initialize()
         self.upstream = TcpServerConnection(
@@ -51,7 +52,7 @@ class PausableSshdTunnelHandler(BaseTcpTunnelHandler):
         self.upstream.connect()
         self._upstream_fileno = self.upstream.connection.fileno()
 
-    def handle_data(self: _t.Self, client_bytes: memoryview) -> None:
+    def handle_data(self: Self, client_bytes: memoryview) -> None:
         """Queue the client bytes for sshd.
 
         :param client_bytes: Bytes received from the client.
@@ -59,7 +60,7 @@ class PausableSshdTunnelHandler(BaseTcpTunnelHandler):
         self.upstream.queue(client_bytes)
 
     async def handle_events(
-        self: _t.Self,
+        self: Self,
         readables: Readables,
         writables: Writables,
     ) -> bool:
