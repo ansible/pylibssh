@@ -29,11 +29,23 @@ coverage:
     project:
       default:
         target: 100%
-      lib:
+      lib-combined:
         flags:
         - pytest
         paths:
         - src/
+        target: 100%
+      lib-cython:
+        flags:
+        - pytest
+        paths:
+        - src/**/*.pyx
+        target: 100%
+      lib-python:
+        flags:
+        - pytest
+        paths:
+        - src/**/*.py
         target: 100%
       packaging:
         paths:
