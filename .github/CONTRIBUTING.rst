@@ -36,7 +36,7 @@ Prerequisites:
 
      .. code-block:: shell-session
 
-        $ tox -e lint
+        $ tox run -e pre-commit
 
 
 .. _libssh: https://www.libssh.org

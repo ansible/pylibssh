@@ -1,0 +1,3 @@
+The linting jobs in CI now run through the ``reusable-tox.yml`` workflow
+shared with other projects, and cache the ``pre-commit`` virtualenvs
+between runs -- by :user:`webknjaz`.

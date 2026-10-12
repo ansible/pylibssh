@@ -84,14 +84,14 @@ just "adds more flags."
 ## Read the tool's own output
 
 `build-docs` prints follow-up instructions after running -- where
-the built HTML docs landed, and how to serve them locally. `lint`
+the built HTML docs landed, and how to serve them locally. `pre-commit`
 prints a reminder of how to install its pre-commit hooks into
 Git. Read what the invocation actually printed instead of
 guessing a path or a next step.
 
 ## Red checks get fixed, not silenced
 
-When `lint`, `py`, or any other env reports failures, fix their
+When `pre-commit`, `py`, or any other env reports failures, fix their
 cause. Suppressing a finding, or skipping/removing a test, is the
 operator's decision -- see
 [DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md).

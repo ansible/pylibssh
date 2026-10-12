@@ -1,0 +1,3 @@
+The ``lint`` :std:doc:`tox <tox:index>` environment has been renamed to
+``pre-commit`` -- invoke it as ``tox run -e pre-commit`` now
+-- by :user:`webknjaz`.
