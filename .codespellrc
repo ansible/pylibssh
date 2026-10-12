@@ -19,6 +19,7 @@ count =
 ignore-words-list =
   accomplis,
   dialogue,
+  deque,
   gotcha,
   jupyter,
   THIRDPARTY,
