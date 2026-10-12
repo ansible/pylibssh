@@ -382,11 +382,52 @@ jobs:
             }}', file=outputs_file)
 
   lint:
+    name: 🧹 Linters${{ '' }}  # nest jobs under the same sidebar category
     needs:
     - pre-setup  # transitive, for accessing settings
-    uses: ./.github/workflows/reusable-linters.yml
+
+    strategy:
+      matrix:
+        runner-vm-os:
+        - ubuntu-latest
+        python-version:
+        - 3.11
+        toxenv:
+        - pre-commit
+        - build-docs
+        - make-changelog
+        xfail:
+        - false
+      fail-fast: false
+
+    uses: tox-dev/workflow/.github/workflows/reusable-tox.yml@1bb961580e20073f66ccb9024f248357f8c8fecb  # yamllint disable-line rule:line-length
     with:
-      cache-key-files: ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
+      cache-key-for-dependency-files: >-
+        ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
+      job-dependencies-context: >-  # context for hooks
+        ${{ toJSON(needs) }}
+      post-toxenv-preparation-command: >-
+        ${{
+          matrix.toxenv == 'pre-commit'
+          && 'python -Im pre_commit install-hooks'
+          || ''
+        }}
+      python-version: >-
+        ${{ matrix.python-version }}
+      runner-vm-os: >-
+        ${{ matrix.runner-vm-os }}
+      # NOTE: `pre-commit` depends on Git, hence bigger timeout.
+      timeout-minutes: >-
+        ${{
+          matrix.toxenv == 'pre-commit'
+          && 4
+          || 2
+        }}
+      toxenv: >-
+        ${{ matrix.toxenv }}
+      tox-tool-deps: tox
+      xfail: >-
+        ${{ matrix.xfail }}
 
   build-changelog:
     name: >-
