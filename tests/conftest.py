@@ -6,6 +6,7 @@ import pathlib
 import shutil
 import socket
 import subprocess
+import typing as _t  # noqa: WPS111
 from functools import partial
 
 import pytest
@@ -36,7 +37,7 @@ pytest_plugins = [
 
 
 @pytest.fixture
-def libssh_version_tuple():
+def libssh_version_tuple() -> tuple[int, ...]:
     """
     Get the libssh version as a tuple of (major, minor, patch).
 
@@ -46,7 +47,7 @@ def libssh_version_tuple():
 
 
 @pytest.fixture
-def free_port_num():
+def free_port_num() -> int:
     """Detect a free port number using a temporary ephemeral port.
 
     :returns: An unoccupied port number.
@@ -71,13 +72,13 @@ def free_port_num():
         raise
 
     try:  # noqa: WPS501
-        return sock.getsockname()[1]
+        return int(sock.getsockname()[1])
     finally:
         sock.close()
 
 
 @pytest.fixture
-def sshd_path(tmp_path):
+def sshd_path(tmp_path: pathlib.Path) -> pathlib.Path:
     """Create a tmp dir for sshd.
 
     :return: Temporary SSH dir path.
@@ -92,7 +93,7 @@ def sshd_path(tmp_path):
 
 
 @pytest.fixture
-def sshd_hostkey_path(sshd_path):
+def sshd_hostkey_path(sshd_path: pathlib.Path) -> pathlib.Path:
     """Generate a key pair for SSHD.
 
     :return: Private key path for SSHD server.
@@ -108,7 +109,7 @@ def sshd_hostkey_path(sshd_path):
 
 
 @pytest.fixture
-def ssh_clientkey_path(sshd_path):
+def ssh_clientkey_path(sshd_path: pathlib.Path) -> pathlib.Path:
     """Generate an SSH key pair.
 
     :return: Private SSH key path.
@@ -132,7 +133,9 @@ def ssh_clientkey_path(sshd_path):
 
 
 @pytest.fixture
-def ssh_client_session(ssh_session_connect):
+def ssh_client_session(
+    ssh_session_connect: _t.Callable[[Session], None],
+) -> _t.Iterator[Session]:
     """Authenticate against SSHD with a private SSH key.
 
     :yields: Pre-authenticated SSH session.
@@ -150,7 +153,10 @@ def ssh_client_session(ssh_session_connect):
 
 
 @pytest.fixture
-def ssh_session_connect_retries(sshd_addr, ssh_clientkey_path):
+def ssh_session_connect_retries(
+    sshd_addr: tuple[str, int],
+    ssh_clientkey_path: pathlib.Path,
+) -> _t.Callable[[Session], None]:
     """
     Authenticate existing session object against SSHD with a private SSH key.
 
@@ -169,7 +175,10 @@ def ssh_session_connect_retries(sshd_addr, ssh_clientkey_path):
 
 
 @pytest.fixture
-def ssh_session_connect(sshd_addr, ssh_clientkey_path):
+def ssh_session_connect(
+    sshd_addr: tuple[str, int],
+    ssh_clientkey_path: pathlib.Path,
+) -> _t.Callable[[Session], None]:
     """
     Authenticate existing session object against SSHD with a private SSH key.
 
@@ -186,7 +195,10 @@ def ssh_session_connect(sshd_addr, ssh_clientkey_path):
 
 
 @pytest.fixture
-def ssh_authorized_keys_path(sshd_path, ssh_clientkey_path):
+def ssh_authorized_keys_path(
+    sshd_path: pathlib.Path,
+    ssh_clientkey_path: pathlib.Path,
+) -> pathlib.Path:
     """Populate authorized_keys.
 
     :return: `authorized_keys` file path.
@@ -203,12 +215,12 @@ def ssh_authorized_keys_path(sshd_path, ssh_clientkey_path):
 
 @pytest.fixture
 def sshd_addr(
-    free_port_num,
-    ssh_authorized_keys_path,
-    sshd_hostkey_path,
-    sshd_path,
-    ssh_clientkey_path,
-):
+    free_port_num: int,
+    ssh_authorized_keys_path: pathlib.Path,
+    sshd_hostkey_path: pathlib.Path,
+    sshd_path: pathlib.Path,
+    ssh_clientkey_path: pathlib.Path,
+) -> _t.Iterator[tuple[str, int]]:
     """Spawn an instance of sshd on a free port.
 
     :raises RuntimeError: If spawning SSHD failed.

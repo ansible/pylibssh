@@ -1,9 +1,18 @@
 """Test util helpers."""
 
+from __future__ import annotations
+
 import getpass
 import subprocess
 import sys
 import time
+import typing as _t  # noqa: WPS111
+
+
+if _t.TYPE_CHECKING:
+    import pathlib
+
+    from pylibsshext.session import Session
 
 
 IS_MACOS = sys.platform == 'darwin'
@@ -17,12 +26,12 @@ _DEFAULT_RECONNECT_ATTEMPT_DELAY = (
 
 
 def wait_for_svc_ready_state(
-    host,
-    port,
-    clientkey_path,
-    max_conn_attempts=40,
-    reconnect_attempt_delay=_DEFAULT_RECONNECT_ATTEMPT_DELAY,
-):
+    host: str,
+    port: int,
+    clientkey_path: pathlib.Path,
+    max_conn_attempts: int = 40,
+    reconnect_attempt_delay: float = _DEFAULT_RECONNECT_ATTEMPT_DELAY,
+) -> None:
     """Verify that the service is up and running.
 
     :param host: Hostname.
@@ -75,11 +84,11 @@ def wait_for_svc_ready_state(
 
 
 def ensure_ssh_session_connected(
-    ssh_session,
-    sshd_addr,
-    ssh_clientkey_path,
-    ssh_session_retries=0,
-):
+    ssh_session: Session,
+    sshd_addr: tuple[str, int],
+    ssh_clientkey_path: pathlib.Path,
+    ssh_session_retries: int = 0,
+) -> None:
     """Attempt connecting to the SSH server until successful.
 
     :param ssh_session: SSH session object.

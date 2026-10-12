@@ -31,7 +31,7 @@ def _only_capture_project_logs(caplog: pytest.LogCaptureFixture) -> None:
 def test_session_log_level_warning(
     caplog: pytest.LogCaptureFixture,
     free_port_num: int,
-    libssh_version_tuple,
+    libssh_version_tuple: tuple[int, ...],
 ) -> None:
     """
     Test setting the log level to WARNING.
@@ -130,7 +130,7 @@ def test_session_log_level_trace(
     assert expected_poll_message in caplog.text
 
 
-def test_session_log_level_bad():
+def test_session_log_level_bad() -> None:
     """Test that setting the log level to an unsupported value is rejected."""
     ssh_session = Session()
 
