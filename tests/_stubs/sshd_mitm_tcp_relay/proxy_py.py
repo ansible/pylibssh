@@ -57,6 +57,7 @@ class PausableSshdTunnelHandler(BaseTcpTunnelHandler):
 
         :param client_bytes: Bytes received from the client.
         """
+        assert self.upstream is not None  # noqa: S101  # typing
         self.upstream.queue(client_bytes)
 
     async def handle_events(
