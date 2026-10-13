@@ -29,7 +29,7 @@ def wait_for_svc_ready_state(
     host: str,
     port: int,
     clientkey_path: pathlib.Path,
-    max_conn_attempts: int = 40,
+    timeout_seconds: float = 10,
     reconnect_attempt_delay: float = _DEFAULT_RECONNECT_ATTEMPT_DELAY,
 ) -> None:
     """Verify that the service is up and running.
@@ -43,8 +43,8 @@ def wait_for_svc_ready_state(
     :param clientkey_path: Path to the client private key.
     :type clientkey_path: pathlib.Path
 
-    :param max_conn_attempts: Number of tries when connecting.
-    :type max_conn_attempts: int
+    :param timeout_seconds: For how long to keep retrying to connect.
+    :type timeout_seconds: float
 
     :param reconnect_attempt_delay: Time to sleep between retries.
     :type reconnect_attempt_delay: float
@@ -69,12 +69,11 @@ def wait_for_svc_ready_state(
         'exit 0',
     ]
 
-    attempts = 0
+    deadline = time.monotonic() + timeout_seconds
     rc = -1
-    while attempts < max_conn_attempts and rc != 0:
+    while rc != 0 and time.monotonic() < deadline:
         check_result = subprocess.run(cmd, check=False)
         rc = check_result.returncode
-        attempts += 1
         if rc != 0:
             time.sleep(reconnect_attempt_delay)
 
