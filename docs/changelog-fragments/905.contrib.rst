@@ -1,0 +1,4 @@
+The test suite now waits for up to 10 seconds for the ephemeral
+``sshd`` to become ready, instead of giving up after a fixed number
+of connection attempts that fast-failing machines could exhaust
+early -- by :user:`webknjaz`.
