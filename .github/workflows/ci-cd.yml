@@ -416,11 +416,12 @@ jobs:
         ${{ matrix.python-version }}
       runner-vm-os: >-
         ${{ matrix.runner-vm-os }}
-      # NOTE: `pre-commit` depends on Git, hence bigger timeout.
+      # NOTE: `pre-commit` depends on Git and provisions several MyPy
+      # NOTE: envs on cache misses, hence bigger timeout.
       timeout-minutes: >-
         ${{
           matrix.toxenv == 'pre-commit'
-          && 4
+          && 8
           || 2
         }}
       toxenv: >-

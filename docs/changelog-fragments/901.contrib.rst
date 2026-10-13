@@ -1,0 +1,3 @@
+The Python code is now type-checked with MyPy in strict mode
+against every supported Python version, as a part of the
+``pre-commit`` setup -- by :user:`webknjaz`.

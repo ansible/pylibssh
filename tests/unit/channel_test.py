@@ -23,7 +23,7 @@ LARGE_TIMEOUT_SEC = 10
 
 
 @pytest.fixture
-def ssh_channel(ssh_client_session):
+def ssh_channel(ssh_client_session: Session) -> _t.Iterator[Channel]:
     """Initialize a channel and tear it down after testing.
 
     :param ssh_client_session: A pre-authenticated SSH session.
@@ -61,7 +61,9 @@ def test_open_session_small_timeout(
     ssh_session.close()
 
 
-def test_open_session_large_timeout(ssh_session_connect):
+def test_open_session_large_timeout(
+    ssh_session_connect: _t.Callable[[Session], None],
+) -> None:
     """Test opening a new channel with a large timeout value."""
     ssh_session = Session()
     ssh_session_connect(ssh_session)
@@ -71,7 +73,9 @@ def test_open_session_large_timeout(ssh_session_connect):
     ssh_session.close()
 
 
-def test_open_session_small_timeout_with_retries(ssh_session_connect_retries):
+def test_open_session_small_timeout_with_retries(
+    ssh_session_connect_retries: _t.Callable[[Session], None],
+) -> None:
     """Test with a small timeout value and retries set."""
     ssh_session = Session()
     ssh_session_connect_retries(ssh_session)
@@ -81,7 +85,7 @@ def test_open_session_small_timeout_with_retries(ssh_session_connect_retries):
     ssh_session.close()
 
 
-def exec_second_command(ssh_channel):
+def exec_second_command(ssh_channel: Channel) -> None:
     """Check the standard output of ``exec_command()`` as a string."""
     u_cmd = ssh_channel.exec_command('echo -n Hello Again')
     assert u_cmd.returncode == 0
@@ -89,7 +93,7 @@ def exec_second_command(ssh_channel):
     assert u_cmd.stdout.decode() == 'Hello Again'
 
 
-def test_exec_command(ssh_channel):
+def test_exec_command(ssh_channel: Channel) -> None:
     """Test getting the output of a remotely executed command."""
     u_cmd = ssh_channel.exec_command('echo -n Hello World')
     assert u_cmd.returncode == 0
@@ -105,7 +109,7 @@ def test_exec_command(ssh_channel):
     exec_second_command(ssh_channel)
 
 
-def test_exec_command_stderr(ssh_channel):
+def test_exec_command_stderr(ssh_channel: Channel) -> None:
     """Test getting the stderr of a remotely executed command."""
     u_cmd = ssh_channel.exec_command('echo -n Hello World 1>&2')
     assert u_cmd.returncode == 0
@@ -113,19 +117,19 @@ def test_exec_command_stderr(ssh_channel):
     assert u_cmd.stdout.decode() == ''
 
 
-def test_double_close(ssh_channel):
+def test_double_close(ssh_channel: Channel) -> None:
     """Test that closing the channel multiple times doesn't explode."""
     for _ in range(3):  # noqa: WPS122
         ssh_channel.close()
 
 
-def test_channel_exit_status(ssh_channel):
+def test_channel_exit_status(ssh_channel: Channel) -> None:
     """Test retrieving a channel exit status upon close."""
     ssh_channel.close()
     assert ssh_channel.get_channel_exit_status() == -1
 
 
-def test_read_bulk_response(ssh_client_session):
+def test_read_bulk_response(ssh_client_session: Session) -> None:
     """Test getting the output of a remotely executed command."""
     ssh_shell = ssh_client_session.invoke_shell()
     ssh_shell.sendall(b'echo -n Hello World')
@@ -141,7 +145,7 @@ def test_read_bulk_response(ssh_client_session):
     assert b'Hello World' in response
 
 
-def test_request_exec(ssh_channel):
+def test_request_exec(ssh_channel: Channel) -> None:
     """Test direct call to request_exec."""
     ssh_channel.request_exec('exit 1')
 
@@ -152,7 +156,7 @@ def test_request_exec(ssh_channel):
     assert rc == 1
 
 
-def test_send_eof(ssh_channel):
+def test_send_eof(ssh_channel: Channel) -> None:
     """Test send_eof correctly terminates input stream."""
     ssh_channel.request_exec('cat')
     ssh_channel.send_eof()
@@ -164,7 +168,7 @@ def test_send_eof(ssh_channel):
     assert rc == 0
 
 
-def test_send_signal(ssh_channel):
+def test_send_signal(ssh_channel: Channel) -> None:
     """Test send_signal correctly forwards signal to the process."""
     ssh_channel.request_exec(
         'bash -c \'trap "exit 1" SIGUSR1; echo ready; sleep 5; exit 0\'',
@@ -187,7 +191,7 @@ def test_send_signal(ssh_channel):
     assert rc == 1
 
 
-def test_recv_eof(ssh_channel):
+def test_recv_eof(ssh_channel: Channel) -> None:
     """
     Test that reading EOF does not raise error.
 
@@ -199,7 +203,7 @@ def test_recv_eof(ssh_channel):
     ssh_channel.recv()
 
 
-def test_is_eof(ssh_channel):
+def test_is_eof(ssh_channel: Channel) -> None:
     """Test that EOF-state is correctly obtained with is_eof."""
     ssh_channel.request_exec('exit 0')
     ssh_channel.poll(timeout=POLL_TIMEOUT)
@@ -245,14 +249,16 @@ def test_write_utf8_str(ssh_channel: Channel) -> None:
         ssh_channel.write(data_to_write)
 
 
-def test_destructor(ssh_session_connect):
+def test_destructor(
+    ssh_session_connect: _t.Callable[[Session], None],
+) -> None:
     """
     Garbage collector can destroy session before channel.
 
     Test that this event does not cause a segfault in channels destructor.
     """
 
-    def _do_not_crash():  # noqa: WPS430  # required to create a garbage-collection scope
+    def _do_not_crash() -> None:  # noqa: WPS430  # required to create a garbage-collection scope
         ssh_session = Session()
         ssh_session_connect(ssh_session)
         ssh_channel = ssh_session.new_channel()  # noqa: F841  # setting a non-accessed var is needed for testing GC

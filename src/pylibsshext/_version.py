@@ -20,3 +20,11 @@ __version_info__ = tuple(
     (int(chunk) if chunk.isdigit() else chunk)
     for chunk in __version__.split('.')
 )
+
+
+__all__ = (  # noqa: WPS410
+    '__full_version__',
+    '__libssh_version__',
+    '__version__',
+    '__version_info__',
+)

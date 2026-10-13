@@ -262,6 +262,168 @@ repos:
     - file
     - rst
 
+- repo: https://github.com/pre-commit/mirrors-mypy.git
+  rev: v2.4.0
+  hooks:
+  - id: mypy
+    alias: mypy-py315
+    name: MyPy, for Python 3.15
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.15
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.15
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.15
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.15
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.15
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.15
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.15
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.15
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py314
+    name: MyPy, for Python 3.14
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.14
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.14
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py313
+    name: MyPy, for Python 3.13
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.13
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.13
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py312
+    name: MyPy, for Python 3.12
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.12
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.12
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py311
+    name: MyPy, for Python 3.11
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.11
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.11
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py310
+    name: MyPy, for Python 3.10
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.10
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.10
+    pass_filenames: false
+
+- repo: https://github.com/pre-commit/mirrors-mypy.git
+  rev: v1.20.2  # the last MyPy version to support Python 3.9
+  hooks:
+  - id: mypy
+    alias: mypy-py39
+    name: MyPy 1.20.2, for Python 3.9
+    additional_dependencies:
+    - Cython
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - proxy.py
+    - pytest < 9  # the last series to support Python 3.9
+    - setuptools-scm
+    - Sphinx
+    - tomli
+    - types-setuptools
+    args:
+    - --python-version=3.9
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.9
+    pass_filenames: false
+
 # - repo: local
 #   hooks:
 #   - id: pylint

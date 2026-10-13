@@ -4,10 +4,18 @@
 """Configuration for the Sphinx documentation generator."""
 
 import os
+import typing as _t  # noqa: WPS111
 from functools import partial
 from pathlib import Path
 
 from setuptools_scm import get_version
+
+
+if _t.TYPE_CHECKING:
+    from sphinx.util.tags import Tags
+
+    # NOTE: Sphinx injects `tags` into the namespace of `conf.py`:
+    tags: Tags
 
 
 # -- Path setup --------------------------------------------------------------

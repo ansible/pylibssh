@@ -13,24 +13,24 @@ from pylibsshext import (
 pytestmark = pytest.mark.smoke
 
 
-def test_dunder_version():
+def test_dunder_version() -> None:
     """Check that the version string has at least 3 parts."""
     assert __version__.count('.') >= 2
 
 
-def test_dunder_version_info():
+def test_dunder_version_info() -> None:
     """Check that the version info tuple looks legitimate."""
     assert isinstance(__version_info__, tuple)
     assert len(__version_info__) >= 3
     assert all(isinstance(digit, int) for digit in __version_info__[:2])
 
 
-def test_dunder_full_version():
+def test_dunder_full_version() -> None:
     """Check that the full version mentions the wrapper and the lib."""
     assert __version__ in __full_version__
     assert __libssh_version__ in __full_version__
 
 
-def test_dunder_libssh_version():
+def test_dunder_libssh_version() -> None:
     """Check that libssh version looks valid."""
     assert __libssh_version__.count('.') == 2

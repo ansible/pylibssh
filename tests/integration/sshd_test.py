@@ -7,7 +7,7 @@ MAX_PORT_NUMBER = 65535
 
 
 @pytest.mark.usefixtures('ssh_client_session')
-def test_sshd_addr_fixture_port(sshd_addr):
+def test_sshd_addr_fixture_port(sshd_addr: tuple[str, int]) -> None:
     """Smoke-test sshd_addr fixture.
 
     # noqa: DAR101
