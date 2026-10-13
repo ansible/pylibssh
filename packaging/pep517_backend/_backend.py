@@ -29,8 +29,8 @@ except ImportError:
 
 # isort: split
 from distutils.command.install import install as _distutils_install_cmd
-from distutils.core import Distribution as _DistutilsDistribution
 from distutils.dist import (
+    Distribution as _DistutilsDistribution,
     DistributionMetadata as _DistutilsDistributionMetadata,
 )
 
@@ -56,6 +56,8 @@ from ._transformers import sanitize_rst_roles
 if _t.TYPE_CHECKING:
     import collections.abc as _c  # noqa: WPS111, WPS301
 
+    from typing_extensions import TypeAlias
+
 
 __all__ = (  # noqa: PLE0604, WPS410
     'build_sdist',
@@ -64,7 +66,7 @@ __all__ = (  # noqa: PLE0604, WPS410
     'prepare_metadata_for_build_wheel',
     *(
         ()
-        if _setuptools_build_editable is None  # type: ignore[redundant-expr]
+        if _setuptools_build_editable is None
         else (
             'build_editable',
             'get_requires_for_build_editable',
@@ -74,7 +76,7 @@ __all__ = (  # noqa: PLE0604, WPS410
 )
 
 
-_ConfigDict: _t.TypeAlias = 'dict[str, str | list[str] | None]'
+_ConfigDict: TypeAlias = 'dict[str, str | list[str] | None]'
 
 
 CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'  # noqa: WPS462
@@ -109,7 +111,7 @@ def _get_setting_value(
             continue
 
         with suppress(lookup_errors):  # type: ignore[arg-type]
-            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[arg-type,index]
+            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[arg-type,index,unused-ignore]
 
     return default
 
