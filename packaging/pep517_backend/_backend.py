@@ -56,6 +56,8 @@ from ._transformers import sanitize_rst_roles
 if _t.TYPE_CHECKING:
     import collections.abc as _c  # noqa: WPS111, WPS301
 
+    from typing_extensions import TypeAlias
+
 
 __all__ = (  # noqa: PLE0604, WPS410
     'build_sdist',
@@ -74,7 +76,7 @@ __all__ = (  # noqa: PLE0604, WPS410
 )
 
 
-_ConfigDict: _t.TypeAlias = 'dict[str, str | list[str] | None]'
+_ConfigDict: TypeAlias = 'dict[str, str | list[str] | None]'
 
 
 CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'  # noqa: WPS462
