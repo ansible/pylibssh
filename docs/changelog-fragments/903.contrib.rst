@@ -1,0 +1,2 @@
+Ruff now targets Python 3.9, the oldest Python version supported
+by the project, instead of its own default -- by :user:`webknjaz`.

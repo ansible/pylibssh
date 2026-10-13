@@ -6,6 +6,10 @@ namespace-packages = [
   "tests/",
 ]
 
+# FIXME: Drop this once `pyproject.toml` migrates to PEP 621, declaring
+# FIXME: `requires-python` that Ruff would infer the target from.
+target-version = "py39"  # the oldest supported Python
+
 [format]
 quote-style = "single"
 
