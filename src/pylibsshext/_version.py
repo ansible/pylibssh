@@ -8,9 +8,9 @@ from ._libssh_version import (  # noqa: N811, WPS300
 try:
     from ._scm_version import version as __version__  # noqa: WPS300
 except ImportError:
-    from pkg_resources import get_distribution as _get_dist
+    from importlib.metadata import version as _get_dist_version
 
-    __version__ = _get_dist('ansible-pylibssh').version
+    __version__ = _get_dist_version('ansible-pylibssh')
 
 
 __full_version__ = (
