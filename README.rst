@@ -15,6 +15,10 @@
    :target: https://codecov.io/gh/ansible/pylibssh
    :alt: devel branch coverage via Codecov
 
+.. image:: https://coveralls.io/repos/github/ansible/pylibssh/badge.svg?branch=devel
+   :target: https://coveralls.io/github/ansible/pylibssh?branch=devel
+   :alt: devel branch MyPy type coverage via Coveralls
+
 .. image:: https://img.shields.io/badge/style-wemake-000000.svg
    :target: https://github.com/wemake-services/wemake-python-styleguide
 

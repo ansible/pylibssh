@@ -1,0 +1,52 @@
+---
+
+inputs:
+  calling-job-context:
+    description: A JSON with the calling job inputs
+    type: string
+  current-job-steps:
+    description: >-
+      The `$ {{ steps }}` context passed from the reusable workflow's
+      tox job encoded as a JSON string. The caller passes it this input
+      as follows:
+      `current-job-steps: $ {{ toJSON(steps) }}`.
+    type: string
+  job-dependencies-context:
+    default: >-
+      {}
+    description: >-
+      The `$ {{ needs }}` context passed from the calling workflow
+      encoded as a JSON string. The caller is expected to form this
+      input as follows:
+      `job-dependencies-context: $ {{ toJSON(needs) }}`.
+    required: false
+    type: string
+
+runs:
+  using: composite
+  steps:
+  - name: Log uploading MyPy coverage reports to Coveralls
+    if: fromJSON(inputs.calling-job-context).toxenv == 'pre-commit'
+    run: >-
+      >&2 echo Uploading MyPy coverage reports to Coveralls...
+    shell: bash
+  - name: Send coverage data to Coveralls
+    if: fromJSON(inputs.calling-job-context).toxenv == 'pre-commit'
+    uses: coverallsapp/github-action@v2
+    with:
+      debug: ${{ runner.debug == 1 && true || false }}
+      fail-on-error: ${{ runner.debug == 1 && false || true }}
+      files: >-
+        ${{
+          fromJSON(
+            inputs.current-job-steps
+          ).tox-run.outputs.coveralls-report-files
+        }}
+      flag-name: >-
+        ${{
+          fromJSON(inputs.current-job-steps).tox-run.outputs.coveralls-flags
+        }}
+      format: cobertura
+      measure: ${{ runner.debug == 1 && true || false }}
+
+...

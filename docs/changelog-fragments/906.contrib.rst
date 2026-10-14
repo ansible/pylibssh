@@ -1,0 +1,3 @@
+The MyPy type coverage reports are now uploaded to Coveralls from
+CI, summarized on the workflow run pages and linked to after local
+runs -- by :user:`webknjaz`.
