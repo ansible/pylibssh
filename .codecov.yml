@@ -19,8 +19,6 @@ coverage:
     patch:
       default:
         target: 100%
-      pytest:
-        target: 100%
     project:
       default:
         target: 100%
