@@ -79,7 +79,7 @@ class PausableSshdTunnelHandler(BaseTcpTunnelHandler):
         #
         # NOTE: The blocking `stat()` is fine here: proxy.py's threadless
         # NOTE: loop around this coroutine blocks in `select()` anyway.
-        if pathlib.Path(  # noqa: ASYNC240
+        if pathlib.Path(  # ruff: ignore[blocking-path-method-in-async-function]
             self.flags.sshd_replies_paused_file,
         ).exists():
             readables = [
