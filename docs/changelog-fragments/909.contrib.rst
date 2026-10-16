@@ -1,0 +1,3 @@
+The RPM builds in UBI 9 and CentOS Stream 9 containers are no longer
+required to pass in CI, since these only provide tox 3 that cannot
+parse the project's tox 4 configuration -- by :user:`webknjaz`.
