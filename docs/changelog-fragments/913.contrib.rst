@@ -1,0 +1,3 @@
+The CI job building the macOS wheels now gets up to 15 minutes, since
+it occasionally ran out of time right before finishing the last
+wheels -- by :user:`webknjaz`.
