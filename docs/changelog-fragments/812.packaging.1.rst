@@ -1,0 +1,4 @@
+The core packaging metadata is now declared in the :pep:`621`
+``[project]`` table of :file:`pyproject.toml` instead of
+:file:`setup.cfg`, with the license expressed per :pep:`639`, which
+requires ``setuptools`` 77.0.1 or newer -- by :user:`webknjaz`.
