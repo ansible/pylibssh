@@ -39,7 +39,7 @@ fi
 # make[2]: *** [examples/libssh_scp] Error 1
 # make[1]: *** [examples/CMakeFiles/libssh_scp.dir/all] Error 2
 # make: *** [all] Error 2
-export LDFLAGS="-pthread -ldl"
+export LDFLAGS="-pthread"
 
 # NOTE: `PKG_CONFIG_PATH` is necessary for `cmake` to be able to locate
 # NOTE: C-headers files `*.h`. Otherwise, the error is:
