@@ -1027,6 +1027,18 @@ jobs:
           matrix.target-container.tag
         }}
 
+    # FIXME: These containers only ship tox 3, which cannot parse the
+    # FIXME: modern `tox.ini`. Consider phasing out these old downstreams.
+    continue-on-error: >-
+      ${{
+        (
+          contains(matrix.target-container.tag, 'ubi9')
+          || contains(matrix.target-container.tag, 'centos:stream9')
+        )
+        && true
+        || false
+      }}
+
     defaults:
       run:
         shell: bash -eEuxo pipefail {0}
