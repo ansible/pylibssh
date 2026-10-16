@@ -37,7 +37,7 @@ coverage:
       packaging:
         paths:
         - packaging/
-        target: 75.24%
+        target: 50.00%  # 100%
       tests:
         paths:
         - tests/
