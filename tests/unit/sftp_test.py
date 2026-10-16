@@ -9,11 +9,15 @@ import uuid
 
 
 if _t.TYPE_CHECKING:  # pragma: no cover
-    from pylibsshext.session import Session
     import collections.abc as _c  # noqa: WPS111, WPS301
     import os as _os
 
-    _PathNormalizationCallable = _c.Callable[[pathlib.Path], _os.PathLike[str] | str]
+    from pylibsshext.session import Session
+
+    _PathNormalizationCallable = _c.Callable[
+        [pathlib.Path],
+        _os.PathLike[str] | str,
+    ]
 
 import pytest
 
@@ -114,7 +118,9 @@ def pre_existing_dst_path(
         pathlib.Path,
     ),
 )
-def normalize_path(request: pytest.FixtureRequest) -> _PathNormalizationCallable:
+def normalize_path(
+    request: pytest.FixtureRequest,
+) -> _PathNormalizationCallable:
     """Convert provided path either to str or Path."""
     path_normalizer: _PathNormalizationCallable = request.param
     return path_normalizer
