@@ -13,6 +13,7 @@ from pep517_backend._cython_configuration import patched_env
 CFLAGS_VAR = 'CFLAGS'
 CPPFLAGS_VAR = 'CPPFLAGS'
 TRACE_MACRO = '-DCYTHON_TRACE_NOGIL=1'
+SYS_MONITORING_MACRO = '-DCYTHON_USE_SYS_MONITORING=0'
 
 
 @pytest.mark.parametrize(
@@ -43,6 +44,7 @@ def test_tracing_macro_goes_through_cppflags(
 
     assert cppflags[0] == '-DUSER=1'
     assert (TRACE_MACRO in cppflags) is tracing
+    assert (SYS_MONITORING_MACRO in cppflags) is tracing
     assert os.environ[CPPFLAGS_VAR] == '-DUSER=1'
 
 
@@ -68,6 +70,10 @@ def test_interpreter_flags_survive_the_build_env(
     )
     interpreter_flags = shlex.split(sysconfig.get_config_var(CFLAGS_VAR) or '')
 
+    pristine_compiler = ccompiler.new_compiler()
+    distutils_sysconfig.customize_compiler(pristine_compiler)
+    assert TRACE_MACRO not in pristine_compiler.compiler_so
+
     with patched_env({}, cython_line_tracing_requested=True):
         compiler = ccompiler.new_compiler()
         distutils_sysconfig.customize_compiler(compiler)
@@ -76,3 +82,4 @@ def test_interpreter_flags_survive_the_build_env(
     for flag in interpreter_flags:
         assert flag in command
     assert TRACE_MACRO in command
+    assert SYS_MONITORING_MACRO in command
