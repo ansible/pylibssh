@@ -755,7 +755,9 @@ jobs:
     uses: ./.github/workflows/reusable-cibuildwheel.yml
     with:
       runner-vm-os: ubuntu-latest
-      timeout-minutes: 80
+      # NOTE: Compiling at `-O3` under QEMU takes about 7-8 minutes per
+      # NOTE: wheel, and all the emulated architectures build serially.
+      timeout-minutes: 180
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: >-
