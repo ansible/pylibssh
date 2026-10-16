@@ -1,0 +1,4 @@
+The in-tree guidance for AI agents now spells out the project's
+structural constraints and its Python, YAML and Markdown style
+conventions, including those not enforced by any linter
+-- by :user:`webknjaz`.
