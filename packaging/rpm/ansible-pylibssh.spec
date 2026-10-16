@@ -1,4 +1,4 @@
-%global canonical_project_name %(grep --after-context=1 '^\\[metadata\\]$' setup.cfg | tail --lines=1 | sed --regexp-extended 's:^name = ([^ ]*):\\1:g')
+%global canonical_project_name %(grep --after-context=1 '^\\[project\\]$' pyproject.toml | tail --lines=1 | sed --regexp-extended 's:^name = "([^"]*)":\\1:g')
 %global pypi_name %canonical_project_name
 %global normalized_core_packaging_metadata_project_name %(echo '%canonical_project_name' | sed --regexp-extended 's:-:_:g;s:\\.:_:g')
 %global srcname %normalized_core_packaging_metadata_project_name
@@ -77,6 +77,18 @@ $summary
 # NOTE: Since RHEL 9 does not have setuptools-scm 7+ in the repos, we change the
 # NOTE: metadata to require a lower version and hope for the best
 sed -i 's/\(.*"setuptools-scm\)[^"]\+\(",.*\)/\1 >= 6\2/g' pyproject.toml
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} <= 10
+# NOTE: RHEL 10 and older ship setuptools predating 77, which cannot read
+# NOTE: the PEP 639 license metadata in `pyproject.toml`. The lower bound is
+# NOTE: relaxed, and the license settings get their older PEP 621 form for
+# NOTE: setuptools 61+ (RHEL 10). setuptools older than 61 (RHEL 9) ignores
+# NOTE: `[project]` entirely, using the minimal `setup.cfg` that the in-tree
+# NOTE: build backend puts into the sdist.
+sed --in-place 's/"setuptools >= 77\.0\.1"/"setuptools"/' pyproject.toml
+sed --in-place 's/^license = "\([^"]*\)"$/license = {text = "\1"}/' pyproject.toml
+sed --in-place '/^license-files = \[$/,/^\]$/d' pyproject.toml
 %endif
 
 # NOTE: `proxy.py` is an optional test dependency that is not packaged

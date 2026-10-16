@@ -8,11 +8,9 @@ matters (e.g. citing a package, an import, or a repository URL).
 
 ## Distribution / PyPI name: `ansible-pylibssh`
 
-The installable, published name -- currently recorded in
-`setup.cfg`'s `[metadata]` `name`, expected to move to
-`pyproject.toml`'s `[project].name` per PEP 621 once that
-migration is possible. This is also the preferred way to refer
-to the project by name in prose.
+The installable, published name -- recorded in
+`pyproject.toml`'s `[project].name` per PEP 621. This is also
+the preferred way to refer to the project by name in prose.
 
 ## Python import name: `pylibsshext`
 

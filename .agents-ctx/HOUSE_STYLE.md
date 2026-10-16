@@ -26,8 +26,8 @@ whole tree pollute the context window up front.
   root into `sys.path` via package discovery.
 
 Here: `setup.py` was dropped in `b08a7fd4`. The metadata lives in
-`setup.cfg` for now and is expected to move to PEP 621
-`pyproject.toml` (see [NAMING_THE_DUCKS.md](NAMING_THE_DUCKS.md)).
+the PEP 621 `[project]` table of `pyproject.toml` (see
+[NAMING_THE_DUCKS.md](NAMING_THE_DUCKS.md)).
 
 ## Python
 

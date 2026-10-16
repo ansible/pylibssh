@@ -14,7 +14,7 @@ Read, in this order:
 
 Here:
 
-1. `pyproject.toml` (build backend), `setup.cfg` (metadata).
+1. `pyproject.toml` (build backend and metadata).
 2. `src/pylibsshext/<module>.pyx` and its `.pxd`; libssh
    declarations live under `src/pylibsshext/includes/`.
 3. `tests/conftest.py` (e.g. the `sshd_addr` fixture), then

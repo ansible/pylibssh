@@ -45,6 +45,7 @@ with suppress(ImportError):
     )
 
 from ._compat import chdir_cm
+from ._compat_setup_cfg import compat_setup_cfg_written
 from ._cython_configuration import (
     get_local_cythonize_config as _get_local_cython_config,
     make_cythonize_cli_args_from_config as _make_cythonize_cli_args_from_config,
@@ -350,7 +351,26 @@ def get_requires_for_build_wheel(
     )
 
 
-build_sdist = patched_dist_get_long_description()(_setuptools_build_sdist)
+@patched_dist_get_long_description()
+def build_sdist(
+    sdist_directory: str,
+    config_settings: _ConfigDict | None = None,
+) -> str:
+    """Produce an sdist, shipping a compat ``setup.cfg`` in it.
+
+    This wraps the corresponding ``setuptools``' build backend hook.
+
+    :param sdist_directory: Directory to put the resulting sdist in.
+    :param config_settings: :pep:`517` config settings mapping.
+
+    """
+    with compat_setup_cfg_written(Path.cwd()):
+        return _setuptools_build_sdist(
+            sdist_directory=sdist_directory,
+            config_settings=config_settings,
+        )
+
+
 get_requires_for_build_editable = get_requires_for_build_wheel
 prepare_metadata_for_build_wheel = patched_dist_get_long_description()(
     _setuptools_prepare_metadata_for_build_wheel,
