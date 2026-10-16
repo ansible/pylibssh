@@ -829,7 +829,7 @@ jobs:
         store-sdist-to-artifact:
         - false
         include:
-        - python-version: 3.14
+        - python-version: 3.15
           runner-vm-os: ubuntu-22.04
           store-sdist-to-artifact: true
 
@@ -1239,6 +1239,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.15"
         - "3.14"
         - "3.13"
         - "3.12"
@@ -1286,6 +1287,7 @@ jobs:
     strategy:
       matrix:
         python-version:
+        - "3.15"
         - "3.14"
         - "3.13"
         - "3.12"
