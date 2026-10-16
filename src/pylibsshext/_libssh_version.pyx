@@ -1,3 +1,4 @@
+# distutils: py_limited_api = True
 from pylibsshext.includes.libssh cimport libssh_version
 
 
