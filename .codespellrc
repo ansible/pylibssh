@@ -18,6 +18,7 @@ count =
 # faits accomplis
 ignore-words-list =
   accomplis,
+  ccompiler,
   dialogue,
   gotcha,
   jupyter,

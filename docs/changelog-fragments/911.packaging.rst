@@ -1,0 +1,2 @@
+The core packaging metadata now reflects that we test the project under
+Python 3.15 (with GIL enabled) -- by :user:`webknjaz`.
