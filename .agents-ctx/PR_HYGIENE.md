@@ -112,13 +112,15 @@ ask every time, not only when unsure.
   trailer -- they aren't sentient, they're guessing machines
   deriving tokens from other people's content. Humans whose work
   was used always get credited. To disclose AI assistance, an
-  optional `Assisted-By: <model>` trailer may be used, as the
-  Linux kernel and others do ([standard][assisted-by],
+  optional `Assisted-by: <model>` trailer may be used -- model
+  name only, no email -- in the [Linux kernel's format][kernel],
+  which others follow too ([standard][assisted-by],
   [rationale][dont-abuse-co-authored-by]). Ask the operator
   whether to add it.
 - Never drop existing `Co-Authored-By` trailers, or replace the
   original author, when rebasing, squashing, or rewording.
 
+[kernel]: https://docs.kernel.org/process/coding-assistants.html#attribution
 [assisted-by]: https://allthingsopen.org/articles/open-source-ai-contributions-assisted-by-git-trailer-standard
 [dont-abuse-co-authored-by]: https://bence.ferdinandy.com/2025/12/29/dont-abuse-co-authored-by-for-marking-ai-assistance/
 
