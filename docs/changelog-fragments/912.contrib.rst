@@ -1,0 +1,3 @@
+The RPM smoke tests in CI now live in a reusable workflow, configured
+through inputs, with the container matrix kept in the main workflow
+-- by :user:`webknjaz`.
