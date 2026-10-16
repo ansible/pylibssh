@@ -102,6 +102,11 @@ review-conversation etiquette when participating in PR review on
 the maintainer's behalf -- responding to feedback, resolving
 threads, and not disrupting review flow with careless pushes.
 
+## Where to look first
+
+See [WHERE_TO_LOOK_FIRST.md](WHERE_TO_LOOK_FIRST.md) for a reading
+order when picking up a task, and a map of the repository.
+
 ## Tooling
 
 See [CONTRIB_WORKFLOW_INFRA_TOOLING.md](CONTRIB_WORKFLOW_INFRA_TOOLING.md)
