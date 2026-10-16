@@ -977,7 +977,7 @@ jobs:
           }}
 
   build-rpms:
-    name: ${{ matrix.target-container.tag }}
+    name: 📦 RPM${{ '' }}  # nest jobs under the same sidebar category
     needs:
     - build-src
     - pre-setup  # transitive, for accessing settings
@@ -1009,228 +1009,28 @@ jobs:
         - tag: centos/centos:stream10
           registry: quay.io
 
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 5
-
-    container:
-      # NOTE: GHA has poor support for concat which is why I resorted to
-      # NOTE: using this ugly ternary syntax
-      image: >-
+    uses: ./.github/workflows/reusable-rpm-smoke.yml
+    with:
+      container-image-tag: ${{ matrix.target-container.tag }}
+      container-registry: ${{ matrix.target-container.registry }}
+      dist-version: ${{ needs.pre-setup.outputs.dist-version }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      project-name: ${{ needs.pre-setup.outputs.project-name }}
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      timeout-minutes: 5
+      # FIXME: These containers only ship tox 3, which cannot parse the
+      # FIXME: modern `tox.ini`. Consider phasing out these old downstreams.
+      xfail: >-
         ${{
-          matrix.target-container.registry
-          && matrix.target-container.registry
-          || ''
-        }}${{
-          matrix.target-container.registry
-          && '/'
-          || ''
-        }}${{
-          matrix.target-container.tag
+          (
+            contains(matrix.target-container.tag, 'ubi9')
+            || contains(matrix.target-container.tag, 'centos:stream9')
+          )
+          && 'true'
+          || 'false'
         }}
-
-    # FIXME: These containers only ship tox 3, which cannot parse the
-    # FIXME: modern `tox.ini`. Consider phasing out these old downstreams.
-    continue-on-error: >-
-      ${{
-        (
-          contains(matrix.target-container.tag, 'ubi9')
-          || contains(matrix.target-container.tag, 'centos:stream9')
-        )
-        && true
-        || false
-      }}
-
-    defaults:
-      run:
-        shell: bash -eEuxo pipefail {0}
-
-    env:
-      PROJECT_NAME: ${{ needs.pre-setup.outputs.project-name }}
-
-    steps:
-    - name: Produce artifact name
-      id: distribution-meta
-      run: |
-        dist_tag=$(rpm --eval '%{?dist}')
-        echo "dist-tag=${dist_tag}" >> "${GITHUB_OUTPUT}"
-
-    - name: Enable CRB repository for centos
-      if: contains(matrix.target-container.tag, 'centos')
-      run: >-
-        dnf config-manager --set-enabled crb
-
-    - name: Install epel for centos 9
-      if: contains(matrix.target-container.tag, 'centos:stream9')
-      run: >-
-        dnf install -y
-        https://dl.fedoraproject.org/pub/epel/epel{,-next}-release-latest-9.noarch.rpm
-
-    - name: Install epel for centos 10
-      if: contains(matrix.target-container.tag, 'centos:stream10')
-      run: >-
-        dnf install -y
-        https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
-
-    - name: Install build tooling
-      run: >-
-        dnf install
-        --assumeyes
-        dnf-plugins-core
-        rpm-build
-        rpmdevtools
-        rpmlint
-
-    - name: Create rpmbuild directory structure
-      run: rpmdev-setuptree
-
-    - name: Retrieve the project source from an sdist inside the GHA artifact
-      uses: re-actors/checkout-python-sdist@release/v2
-      with:
-        source-tarball-name: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
-        workflow-artifact-name: >-
-          ${{ needs.pre-setup.outputs.dists-artifact-name }}
-
-    - name: Set an SCM version in the spec
-      run: >-
-        sed -i
-        "s#^\(Version:\s\+\).*#\1${{ needs.pre-setup.outputs.dist-version }}#"
-        packaging/rpm/"${PROJECT_NAME}".spec
-
-    - name: Download all the dists  # because `rpmlint` executes the spec file
-      uses: actions/download-artifact@v8
-      with:
-        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
-        path: dist/
-        merge-multiple: true
-
-    - name: Lint the RPM spec file
-      run: rpmlint packaging/rpm/"${PROJECT_NAME}".spec
-
-    - name: Copy sdist to the sources dir
-      run: >-
-        cp -v
-        'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
-        ~/rpmbuild/SOURCES/
-
-    - name: Install transitive deps for build deps in external repos
-      if: contains(matrix.target-container.tag, 'ubi')
-      run: >-
-        dnf install
-        --assumeyes
-        python3-packaging
-        python3-pluggy
-        python3-py
-        python3-tomli
-
-    - name: Install static test dependencies missing from all UBIs
-      if: contains(matrix.target-container.tag, 'ubi')
-      run: >-
-        rpm
-        -ivh
-        --nodeps
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-pytest-cov-4.0.0-2${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-pytest-xdist-2.5.0-2${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/t/tox-3.28.0-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-filelock-3.7.1-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-tox-current-env-0.0.16-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-execnet-1.9.0-3${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-coverage-6.2-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.x86_64.rpm
-
-    - name: Install static build requirements
-      run: >-
-        dnf builddep --assumeyes --spec packaging/rpm/"${PROJECT_NAME}".spec
-
-    - name: Fetch sources and patches
-      run: >-
-        spectool --all --get-files --sourcedir
-        packaging/rpm/"${PROJECT_NAME}".spec
-
-    - name: Resolve and install dynamic build deps and build an SRPM
-      # Ref: https://github.com/rpm-software-management/rpm/commit/58dcfdd
-      run: |
-        while :
-        do
-          set +e
-          rpmbuild -br packaging/rpm/"${PROJECT_NAME}".spec
-          rc="$?"
-          [ "${rc}" -eq 0 ] && break
-          [ "${rc}" -ne 11 ] && exit "${rc}"
-          set -e
-          dnf builddep --assumeyes \
-            $HOME/rpmbuild/SRPMS/python-"${PROJECT_NAME}"-${{
-                needs.pre-setup.outputs.dist-version
-            }}-1${{
-              steps.distribution-meta.outputs.dist-tag
-            }}.buildreqs.nosrc.rpm
-        done
-
-    - name: Build binary RPMs
-      run: >-
-        rpmbuild
-        --rebuild
-        "$HOME/rpmbuild/SRPMS/python-${PROJECT_NAME}-${{
-            needs.pre-setup.outputs.dist-version
-        }}-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.src.rpm"
-    - name: Install the packaged binary RPM on the system
-      run: >-
-        dnf
-        install
-        --assumeyes
-        "$HOME/rpmbuild/RPMS/x86_64/python3-${PROJECT_NAME}-${{
-            needs.pre-setup.outputs.dist-version
-        }}-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.x86_64.rpm"
-
-    - name: Smoke-test the installed library
-      run: >-
-        python3 -c
-        'from pylibsshext.session import Session; print(Session())'
-    - name: Produce artifact name
-      id: artifact-name
-      run: >-
-        normalized_container_id=$(
-            echo '${{ matrix.target-container.tag }}' | sed 's#[.\/:]#--#g'
-        );
-        echo "artifact-id=${normalized_container_id}" >> "${GITHUB_OUTPUT}"
-    - name: Store RPM and SRPM as artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ steps.artifact-name.outputs.artifact-id }}--srpm-n-rpm
-        path: |
-          ~/rpmbuild/SRPMS/
-          ~/rpmbuild/RPMS/
 
   test-linux:
     name: 🧪 Test${{ '' }}  # nest jobs under the same sidebar category
