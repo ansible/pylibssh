@@ -110,6 +110,14 @@ A related open TODO, not yet acted on: unifying the
 across the codebase, rather than leaving it implicit/inconsistent
 (PR #875).
 
+## The extension modules hold the GIL while in libssh
+
+The Cython modules call into libssh without releasing the GIL, so
+a blocking call -- connecting, authenticating, waiting on a
+channel -- stalls every other Python thread in the process.
+Anything that has to keep running meanwhile, like a server or
+relay test double, needs a separate process.
+
 ## `str | bytes`-style type hints aren't enforced at runtime here
 
 Union type annotations on Cython-extension methods (e.g. `data:
