@@ -87,6 +87,29 @@ token generator using an LLM to sound convincing." (see
 Here: the template is `.github/PULL_REQUEST_TEMPLATE.md`, with
 SUMMARY, ISSUE TYPE, and ADDITIONAL INFORMATION sections.
 
+## Brushing up a branch before merge
+
+Follow-up commits pile up while a PR evolves. Before merge, the
+operator may ask to turn them into a story: a series of atomic
+commits on top of the target branch, without the intermediate
+experimental states.
+
+- Change existing commits through `fixup!` commits
+  (`git commit --fixup=<commit>`, or `--fixup=amend:<commit>` and
+  `--fixup=reword:<commit>` for their messages), folded in with
+  `git rebase --interactive --autosquash`. That keeps each change
+  visible until it's absorbed.
+- Carry the discoveries and references of the old commits over
+  into the new commit bodies.
+- Record the pre-cleanup tip first, and check that the result adds
+  up to it: the rewritten branch's tree must match that tip merged
+  into the target branch.
+- Every commit in the new series has to pass the checks on its
+  own.
+
+Publishing the result is a force-push, which is the operator's to
+run -- see [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md).
+
 ## Every change needs a changelog fragment
 
 One fragment per PR, filed under `docs/changelog-fragments/` as
