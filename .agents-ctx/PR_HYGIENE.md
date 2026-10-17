@@ -112,8 +112,11 @@ run -- see [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md).
 
 ## Every change needs a changelog fragment
 
-One fragment per PR, filed under `docs/changelog-fragments/` as
-`<issue/PR#>.<type>.rst`.
+Every PR needs at least one fragment, filed under
+`docs/changelog-fragments/` as `<issue/PR#>.<type>.rst`. Consider
+every audience the change affects -- end users, contributors,
+downstream packagers -- and add a fragment for each, numbering
+several of the same type as `<issue/PR#>.<type>.<n>.rst`.
 
 A changelog fragment is not a restated commit message -- it covers
 everything since the previous release, for end-users, not
