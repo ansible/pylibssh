@@ -55,6 +55,12 @@ there either.
 - Imperative-mood subject, 50 characters or fewer.
 - The body is descriptive, not imperative: explain *why*, not
   *what* -- the diff already shows what.
+- Focus the body on how the commit affects the project. Mention a
+  third-party tool's internals or quirks only when they justify a
+  non-obvious choice in the code, and say that they do.
+  Implementation details belong in code comments.
+- Credit the sources that shaped a design -- a discussion, a gist,
+  a document -- by linking them from the body.
 - Wrap the body at 72 columns.
 - No conventional-commits prefixes (`feat:`, `fix:`, etc.). A
   leading [gitmoji] (e.g. 📝 for docs, 🔧 for tool configs) is
