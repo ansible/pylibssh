@@ -103,6 +103,15 @@ and its layout shifts between versions and locales. For example:
 `git for-each-ref --format=...`, coverage's XML or JSON reports,
 or `tox config`.
 
+## Make sure a check saw the real state
+
+- `tox run -e pre-commit` only checks the files Git tracks. Mark
+  new files with `git add --intent-to-add`, or commit them, before
+  reporting the run as clean.
+- Keep the log of every failed attempt. When a retry passes,
+  report the failure too and look into it, instead of presenting
+  only the green run.
+
 ## Red checks get fixed, not silenced
 
 When `pre-commit`, `py`, or any other env reports failures, fix their
