@@ -68,6 +68,25 @@ there either.
 
 [gitmoji]: https://gitmoji.dev
 
+## PR descriptions
+
+Fill in the repository's PR template instead of replacing it: keep
+its headings and shape, pick the options that apply, and drop the
+placeholder comments. Describe what the change brings to the
+project -- the problem, the approach, and the decisions a reviewer
+needs to know about. Evidence, such as root-cause findings,
+measurements, or verbatim tool output, goes where the template asks
+for additional information. Leave out third-party internals,
+sibling PRs that don't affect the review, and anything the diff
+already shows. Disclose the agent's involvement in plain words,
+without linking a vendor's site or keeping the harness's default
+signature -- e.g. "🤖 Produced by a probabilistic agent with a
+token generator using an LLM to sound convincing." (see
+[DONT_GHOST_THE_REVIEWER.md](DONT_GHOST_THE_REVIEWER.md)).
+
+Here: the template is `.github/PULL_REQUEST_TEMPLATE.md`, with
+SUMMARY, ISSUE TYPE, and ADDITIONAL INFORMATION sections.
+
 ## Every change needs a changelog fragment
 
 One fragment per PR, filed under `docs/changelog-fragments/` as
