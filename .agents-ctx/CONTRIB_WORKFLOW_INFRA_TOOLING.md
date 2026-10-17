@@ -93,6 +93,16 @@ prints a reminder of how to install its pre-commit hooks into
 Git. Read what the invocation actually printed instead of
 guessing a path or a next step.
 
+## Parse structured output, not text meant for humans
+
+When an agent needs to act on a tool's results, it should ask for
+machine-readable output and parse that, rather than scrape text
+laid out for people. Human-readable output is for the operator,
+and its layout shifts between versions and locales. For example:
+`gh ... --json`, `git status --porcelain`, `git ls-remote`,
+`git for-each-ref --format=...`, coverage's XML or JSON reports,
+or `tox config`.
+
 ## Red checks get fixed, not silenced
 
 When `pre-commit`, `py`, or any other env reports failures, fix their
