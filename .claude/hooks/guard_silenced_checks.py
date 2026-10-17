@@ -9,6 +9,7 @@ Claude Code to prompt the operator for a decision.
 See ``.agents-ctx/DONT_SHOOT_THE_MESSENGER.md`` for the policy.
 """
 
+import contextlib
 import json
 import os
 import pathlib
@@ -83,14 +84,27 @@ SHELL_RISKY_TARGET = re.compile(
 
 
 def _relative_path(file_path: str, project_dir: pathlib.Path) -> str:
-    """Return ``file_path`` relative to the project, POSIX-style."""
+    """Return ``file_path`` relative to its checkout, POSIX-style.
+
+    Files outside the project directory, e.g. in another worktree of
+    the same repository, are resolved against their own worktree.
+    """
     absolute_path = pathlib.Path(file_path)
     if not absolute_path.is_absolute():
         absolute_path = project_dir / absolute_path
-    try:
-        return absolute_path.resolve().relative_to(project_dir).as_posix()
-    except ValueError:
-        return absolute_path.as_posix()
+    absolute_path = absolute_path.resolve()
+    worktree_dir = next(
+        (
+            candidate_dir
+            for candidate_dir in absolute_path.parents
+            if (candidate_dir / '.git').exists()
+        ),
+        project_dir,
+    )
+    for checkout_dir in (project_dir, worktree_dir):
+        with contextlib.suppress(ValueError):
+            return absolute_path.relative_to(checkout_dir).as_posix()
+    return absolute_path.as_posix()
 
 
 def _edit_texts(
