@@ -1,0 +1,6 @@
+Added a scheduled GitHub Actions workflow that builds a prebuilt shared
+``libssh`` library with a statically linked OpenSSL for macOS
+``x86_64``, ``arm64`` and ``universal2``, storing them as workflow
+artifacts, following the pattern established by `pyca/infra
+<https://github.com/pyca/infra>`_. This artifact is not yet consumed by
+the wheel build process -- by :user:`webknjaz`.
