@@ -141,7 +141,7 @@ jobs:
         done
     - uses: actions/upload-artifact@v7
       with:
-        name: libssh-macos-universal2
+        name: libssh-v${{ env.LIBSSH_VERSION }}-macos-universal2
         path: artifact/
 
 ...
