@@ -86,7 +86,9 @@ jobs:
           -S libssh-src \
           -B libssh-build \
           -DCMAKE_BUILD_TYPE=MinSizeRel \
+          -DBUILD_SHARED_LIBS=ON \
           -DCMAKE_INSTALL_PREFIX="${BASEDIR}/artifact" \
+          -DCMAKE_OSX_ARCHITECTURES="${{ matrix.ARCH.NAME }}" \
           -DOPENSSL_ROOT_DIR="${BASEDIR}/artifact" \
           -DCLIENT_TESTING=OFF \
           -DSERVER_TESTING=OFF \
@@ -94,6 +96,7 @@ jobs:
           -DWITH_EXAMPLES=OFF \
           -DWITH_GSSAPI=ON \
           -DWITH_SERVER=OFF \
+          -DWITH_PCAP=OFF \
           -DWITH_ZLIB=ON
         cmake --build libssh-build --parallel "$(sysctl -n hw.logicalcpu)"
         cmake --install libssh-build --strip
@@ -131,7 +134,8 @@ jobs:
         mkdir -p artifact/lib
         cp -r x86-64/include artifact/
         cp -r x86-64/lib/pkgconfig artifact/lib/
-        for lib in libssh.a libssl.a libcrypto.a; do
+        for lib_path in x86-64/lib/*.a x86-64/lib/*.dylib; do
+          lib="${lib_path##*/}"
           lipo -create -output "artifact/lib/${lib}" \
             "x86-64/lib/${lib}" "arm64/lib/${lib}"
         done
