@@ -111,12 +111,14 @@ ask every time, not only when unsure.
 - Agents are not authors and never get a `Co-Authored-By`
   trailer -- they aren't sentient, they're guessing machines
   deriving tokens from other people's content. Humans whose work
-  was used always get credited. To disclose AI assistance, an
-  optional `Assisted-by: <model>` trailer may be used -- model
-  name only, no email -- in the [Linux kernel's format][kernel],
-  which others follow too ([standard][assisted-by],
-  [rationale][dont-abuse-co-authored-by]). Ask the operator
-  whether to add it.
+  was used always get credited. Agent assistance is disclosed with a
+  literal `Assisted-by: LLM` trailer -- no model name, no email
+  -- following the [Linux kernel's convention][kernel], which
+  others follow too ([standard][assisted-by],
+  [rationale][dont-abuse-co-authored-by]). The kernel stopped
+  naming the model because that advertises vendors while adding
+  little information. Add the trailer by default; it replaces
+  whatever attribution format the agent's harness suggests.
 - Never drop existing `Co-Authored-By` trailers, or replace the
   original author, when rebasing, squashing, or rewording.
 
