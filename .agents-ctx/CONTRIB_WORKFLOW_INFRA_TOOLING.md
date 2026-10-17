@@ -112,6 +112,12 @@ or `tox config`.
   report the failure too and look into it, instead of presenting
   only the green run.
 
+## Don't use `git stash`
+
+Its list is shared by all worktrees of a repository and holds the
+operator's own entries, so popping the wrong one is easy. Save
+work in progress as a patch file or a commit on a scratch branch.
+
 ## Red checks get fixed, not silenced
 
 When `pre-commit`, `py`, or any other env reports failures, fix their
