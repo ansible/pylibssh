@@ -35,7 +35,8 @@ the PEP 621 `[project]` table of `pyproject.toml` (see
   `collections.abc` as `_c`.
 - Tuples for fixed-size sequences such as command arguments or
   `parametrize` values; lists only where something needs to
-  mutate them.
+  mutate them, or where a tool documents a list as its
+  convention (e.g. `pytest_plugins`).
 - Single quotes for inline strings, triple-double quotes for
   multi-line strings.
 - `from __future__ import annotations` in every *new* `.py`
