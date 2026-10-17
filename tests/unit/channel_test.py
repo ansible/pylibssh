@@ -145,6 +145,46 @@ def test_read_bulk_response(ssh_client_session: Session) -> None:
     assert b'Hello World' in response
 
 
+def _read_bulk_until_deadline(channel: Channel, timeout: float) -> bytes:
+    """Keep calling ``read_bulk_response()`` until the timeout expires.
+
+    :param channel: The channel to read from.
+    :type channel: pylibsshext.channel.Channel
+    :param timeout: How long to keep reading, in seconds.
+    :type timeout: float
+
+    :returns: Everything that was read.
+    :rtype: bytes
+    """
+    response = b''
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        response += channel.read_bulk_response()
+    return response
+
+
+@pytest.mark.xfail(
+    raises=pytest.fail.Exception,
+    reason=(
+        '`read_bulk_response()` reports a closed channel as "no data yet": '
+        'https://github.com/ansible/pylibssh/issues/907'
+    ),
+    strict=True,
+)
+def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
+    """Test that reading from a channel closed by the remote side raises.
+
+    Once all buffered output has been returned and the peer has sent EOF,
+    ``read_bulk_response()`` must not keep returning ``b''``, which is
+    indistinguishable from "no data pending yet".
+    """
+    ssh_channel.request_exec('echo -n Bye')
+    ssh_channel.poll(timeout=POLL_TIMEOUT)
+    assert ssh_channel.read_bulk_response() == b'Bye'
+    with pytest.raises(ConnectionError):
+        _read_bulk_until_deadline(ssh_channel, POLL_EXIT_CODE_TIMEOUT)
+
+
 def test_request_exec(ssh_channel: Channel) -> None:
     """Test direct call to request_exec."""
     ssh_channel.request_exec('exit 1')
