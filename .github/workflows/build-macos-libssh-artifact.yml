@@ -30,12 +30,10 @@ jobs:
           ARTIFACT_NAME: x86-64
           CFLAGS: "-mmacosx-version-min=10.12 -march=core2"
           OPENSSLDIR: "/usr/local/etc/openssl@3"
-          CONFIGURE_TARGET: darwin64-x86_64-cc
         - NAME: arm64
           ARTIFACT_NAME: arm64
           CFLAGS: "-mmacosx-version-min=11.0"
           OPENSSLDIR: "/opt/homebrew/etc/openssl@3"
-          CONFIGURE_TARGET: darwin64-arm64-cc
     steps:
     - uses: actions/checkout@v7
       with:
@@ -56,15 +54,19 @@ jobs:
         mkdir artifact
         BASEDIR="$(pwd)"
         cd openssl*/
+        # Use the brew openssldir so pyopenssl users with homebrew installed
+        # will have roots for TLS. This is obviously not great but we live in
+        # an imperfect world.
         perl ./Configure \
           --prefix="${BASEDIR}/artifact" \
           --openssldir="${{ matrix.ARCH.OPENSSLDIR }}" \
-          ${{ matrix.ARCH.CONFIGURE_TARGET }} \
-          ${OPENSSL_BUILD_FLAGS}
+          darwin64-${{ matrix.ARCH.NAME }}-cc \
+          ${OPENSSL_BUILD_FLAGS} \
+          ${MACOS_CFLAGS}
         make -j"$(sysctl -n hw.logicalcpu)"
         make install_sw
       env:
-        CFLAGS: ${{ matrix.ARCH.CFLAGS }}
+        MACOS_CFLAGS: ${{ matrix.ARCH.CFLAGS }}
 
     - name: Fetch libssh src
       run: >-
