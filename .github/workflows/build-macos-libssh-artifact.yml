@@ -9,11 +9,15 @@ on:  # yamllint disable-line rule:truthy
   pull_request:
     paths:
     - .github/workflows/build-macos-libssh-artifact.yml
+    # Contains the OpenSSL version we'll build
+    - build-scripts/manylinux-container-image/openssl-version.sh
   push:
     branches:
     - devel
     paths:
     - .github/workflows/build-macos-libssh-artifact.yml
+    # Contains the OpenSSL version we'll build
+    - build-scripts/manylinux-container-image/openssl-version.sh
 
 env:
   LIBSSH_VERSION: 0.12.2
