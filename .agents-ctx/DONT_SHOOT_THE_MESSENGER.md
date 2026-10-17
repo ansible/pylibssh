@@ -23,6 +23,10 @@ Linters, type checkers, coverage:
   finding go away is a suppression too.
 - Disabling or narrowing a pre-commit hook, or bypassing hooks
   with `SKIP=` / `git commit --no-verify`.
+- Loosening types to make a finding go away: replacing a precise
+  annotation with `typing.Any`, or adding a `typing.cast()`. When
+  a value really can be anything, `object` is the honest
+  annotation.
 
 Tests:
 
