@@ -34,6 +34,10 @@ Concretely:
 
 - Read the relevant files in full before proposing edits -- never
   guess what they currently contain.
+- These rules change over time. Re-read the files under
+  `.agents-ctx/` at the start of each task, and again whenever
+  `git log -- .agents-ctx` shows commits you haven't read. Don't
+  rely on the copy loaded at the start of a long session.
 - Show diffs for non-trivial changes and pause for explicit
   approval.
 - Quiz the operator: restate what you understand the task to be,
