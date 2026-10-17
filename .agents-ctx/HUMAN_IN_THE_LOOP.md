@@ -60,6 +60,13 @@ operator's call to make and carry out by hand, after careful
 consideration -- not the agent's. Outside of review, force-pushing
 still needs an explicit go-ahead in the current turn.
 
+The operator may still ask an agent to run a particular
+force-push. Then show the exact command, with a lease value read
+from the remote right before
+(`--force-with-lease=<branch>:<sha>`), and run it only once the
+operator has confirmed that very command. Nothing in it is
+guessed or assumed, and each push needs its own confirmation.
+
 ## Why: the maintainers and reviewers are in the loop too
 
 "There should be a human in the loop" is often satisfied only on
