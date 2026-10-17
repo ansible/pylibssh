@@ -37,6 +37,10 @@ Use the long subcommand forms -- `tox run`, `tox list`,
 operator. `tox r`/`tox l` are fine interactively but easy to
 misread in scripts and CI logs.
 
+The same goes for the options of any tool used in scripts, spec
+files, and CI: `sed --in-place` over `sed -i`, `git rebase
+--interactive` over `git rebase -i`.
+
 Don't invent flags. Check `tox <subcommand> --help` when unsure:
 e.g. env selection is `-e` only, there's no `--env`.
 
