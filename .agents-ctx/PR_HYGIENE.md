@@ -55,6 +55,12 @@ there either.
 - Imperative-mood subject, 50 characters or fewer.
 - The body is descriptive, not imperative: explain *why*, not
   *what* -- the diff already shows what.
+- Focus the body on how the commit affects the project. Mention a
+  third-party tool's internals or quirks only when they justify a
+  non-obvious choice in the code, and say that they do.
+  Implementation details belong in code comments.
+- Credit the sources that shaped a design -- a discussion, a gist,
+  a document -- by linking them from the body.
 - Wrap the body at 72 columns.
 - No conventional-commits prefixes (`feat:`, `fix:`, etc.). A
   leading [gitmoji] (e.g. 📝 for docs, 🔧 for tool configs) is
@@ -62,10 +68,55 @@ there either.
 
 [gitmoji]: https://gitmoji.dev
 
+## PR descriptions
+
+Fill in the repository's PR template instead of replacing it: keep
+its headings and shape, pick the options that apply, and drop the
+placeholder comments. Describe what the change brings to the
+project -- the problem, the approach, and the decisions a reviewer
+needs to know about. Evidence, such as root-cause findings,
+measurements, or verbatim tool output, goes where the template asks
+for additional information. Leave out third-party internals,
+sibling PRs that don't affect the review, and anything the diff
+already shows. Disclose the agent's involvement in plain words,
+without linking a vendor's site or keeping the harness's default
+signature -- e.g. "🤖 Produced by a probabilistic agent with a
+token generator using an LLM to sound convincing." (see
+[DONT_GHOST_THE_REVIEWER.md](DONT_GHOST_THE_REVIEWER.md)).
+
+Here: the template is `.github/PULL_REQUEST_TEMPLATE.md`, with
+SUMMARY, ISSUE TYPE, and ADDITIONAL INFORMATION sections.
+
+## Brushing up a branch before merge
+
+Follow-up commits pile up while a PR evolves. Before merge, the
+operator may ask to turn them into a story: a series of atomic
+commits on top of the target branch, without the intermediate
+experimental states.
+
+- Change existing commits through `fixup!` commits
+  (`git commit --fixup=<commit>`, or `--fixup=amend:<commit>` and
+  `--fixup=reword:<commit>` for their messages), folded in with
+  `git rebase --interactive --autosquash`. That keeps each change
+  visible until it's absorbed.
+- Carry the discoveries and references of the old commits over
+  into the new commit bodies.
+- Record the pre-cleanup tip first, and check that the result adds
+  up to it: the rewritten branch's tree must match that tip merged
+  into the target branch.
+- Every commit in the new series has to pass the checks on its
+  own.
+
+Publishing the result is a force-push, which is the operator's to
+run -- see [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md).
+
 ## Every change needs a changelog fragment
 
-One fragment per PR, filed under `docs/changelog-fragments/` as
-`<issue/PR#>.<type>.rst`.
+Every PR needs at least one fragment, filed under
+`docs/changelog-fragments/` as `<issue/PR#>.<type>.rst`. Consider
+every audience the change affects -- end users, contributors,
+downstream packagers -- and add a fragment for each, numbering
+several of the same type as `<issue/PR#>.<type>.<n>.rst`.
 
 A changelog fragment is not a restated commit message -- it covers
 everything since the previous release, for end-users, not
@@ -84,8 +135,10 @@ Recurring, specific review feedback:
 - Reference related issues/PRs using `sphinx-issues` roles
   (`:pr:`, `:user:`, `:file:`) instead of raw links or backticks
   (#620, #786, #790, #809).
-- Fully agentic work gets no `-- by :user:` byline -- it's not
-  human work, and crediting a probabilistic machine in a loop is
+- A `-- by :user:` byline credits a human. Whether the operator
+  gets one depends on how involved they feel, so ask them (see
+  [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md)). Fully agentic
+  work gets none -- crediting a probabilistic machine in a loop is
   silly. Disclose AI involvement in the PR instead.
 
 ## Credit the people whose work you use
@@ -111,12 +164,14 @@ ask every time, not only when unsure.
 - Agents are not authors and never get a `Co-Authored-By`
   trailer -- they aren't sentient, they're guessing machines
   deriving tokens from other people's content. Humans whose work
-  was used always get credited. To disclose AI assistance, an
-  optional `Assisted-by: <model>` trailer may be used -- model
-  name only, no email -- in the [Linux kernel's format][kernel],
-  which others follow too ([standard][assisted-by],
-  [rationale][dont-abuse-co-authored-by]). Ask the operator
-  whether to add it.
+  was used always get credited. Agent assistance is disclosed with a
+  literal `Assisted-by: LLM` trailer -- no model name, no email
+  -- following the [Linux kernel's convention][kernel], which
+  others follow too ([standard][assisted-by],
+  [rationale][dont-abuse-co-authored-by]). The kernel stopped
+  naming the model because that advertises vendors while adding
+  little information. Add the trailer by default; it replaces
+  whatever attribution format the agent's harness suggests.
 - Never drop existing `Co-Authored-By` trailers, or replace the
   original author, when rebasing, squashing, or rewording.
 

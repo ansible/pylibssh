@@ -37,6 +37,10 @@ Use the long subcommand forms -- `tox run`, `tox list`,
 operator. `tox r`/`tox l` are fine interactively but easy to
 misread in scripts and CI logs.
 
+The same goes for the options of any tool used in scripts, spec
+files, and CI: `sed --in-place` over `sed -i`, `git rebase
+--interactive` over `git rebase -i`.
+
 Don't invent flags. Check `tox <subcommand> --help` when unsure:
 e.g. env selection is `-e` only, there's no `--env`.
 
@@ -88,6 +92,31 @@ the built HTML docs landed, and how to serve them locally. `pre-commit`
 prints a reminder of how to install its pre-commit hooks into
 Git. Read what the invocation actually printed instead of
 guessing a path or a next step.
+
+## Parse structured output, not text meant for humans
+
+When an agent needs to act on a tool's results, it should ask for
+machine-readable output and parse that, rather than scrape text
+laid out for people. Human-readable output is for the operator,
+and its layout shifts between versions and locales. For example:
+`gh ... --json`, `git status --porcelain`, `git ls-remote`,
+`git for-each-ref --format=...`, coverage's XML or JSON reports,
+or `tox config`.
+
+## Make sure a check saw the real state
+
+- `tox run -e pre-commit` only checks the files Git tracks. Mark
+  new files with `git add --intent-to-add`, or commit them, before
+  reporting the run as clean.
+- Keep the log of every failed attempt. When a retry passes,
+  report the failure too and look into it, instead of presenting
+  only the green run.
+
+## Don't use `git stash`
+
+Its list is shared by all worktrees of a repository and holds the
+operator's own entries, so popping the wrong one is easy. Save
+work in progress as a patch file or a commit on a scratch branch.
 
 ## Red checks get fixed, not silenced
 

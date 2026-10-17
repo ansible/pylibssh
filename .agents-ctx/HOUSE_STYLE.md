@@ -35,7 +35,8 @@ the PEP 621 `[project]` table of `pyproject.toml` (see
   `collections.abc` as `_c`.
 - Tuples for fixed-size sequences such as command arguments or
   `parametrize` values; lists only where something needs to
-  mutate them.
+  mutate them, or where a tool documents a list as its
+  convention (e.g. `pytest_plugins`).
 - Single quotes for inline strings, triple-double quotes for
   multi-line strings.
 - `from __future__ import annotations` in every *new* `.py`
@@ -75,6 +76,12 @@ Here: no-indent sequences are enforced by `.yamllint`; see
   the file. Inline `[text](url)` is fine when the URL appears once
   and the line stays readable.
 
+## Links
+
+Link Read the Docs projects through the shorter
+`<project>.rtfd.io` domain, which redirects to `readthedocs.io` --
+especially in code comments, where line length matters.
+
 ## Keep encoded-bytes objects alive when backing a `char*`
 
 Assigning an intermediate result straight into a `char*`/`const
@@ -86,14 +93,14 @@ Assign the encoded bytes to a named Python variable first and
 keep that variable alive for as long as the pointer is used. When
 you do this, add a code comment explaining why, citing Cython's
 own docs on the gotcha:
-https://cython.readthedocs.io/en/latest/src/tutorial/strings.html#encoding-text-to-bytes
+https://cython.rtfd.io/en/latest/src/tutorial/strings.html#encoding-text-to-bytes
 (PR #875).
 
 ## Cython still shims the removed Python 2 `unicode` name
 
 Even under `language_level = 3`, Cython keeps `unicode` available
 as a shim for `str`
-(https://cython.readthedocs.io/en/latest/src/tutorial/strings.html#python-string-types-in-cython-code),
+(https://cython.rtfd.io/en/latest/src/tutorial/strings.html#python-string-types-in-cython-code),
 which reads as confusing coming from plain Python 3, where
 `unicode` doesn't exist. Don't be surprised to see it in Cython
 code or docs, but don't introduce new uses of it -- prefer `str`.
@@ -102,6 +109,14 @@ A related open TODO, not yet acted on: unifying the
 `language_level` compiler directive to a single explicit value
 across the codebase, rather than leaving it implicit/inconsistent
 (PR #875).
+
+## The extension modules hold the GIL while in libssh
+
+The Cython modules call into libssh without releasing the GIL, so
+a blocking call -- connecting, authenticating, waiting on a
+channel -- stalls every other Python thread in the process.
+Anything that has to keep running meanwhile, like a server or
+relay test double, needs a separate process.
 
 ## `str | bytes`-style type hints aren't enforced at runtime here
 
