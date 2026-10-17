@@ -38,6 +38,11 @@ Concretely:
   `.agents-ctx/` at the start of each task, and again whenever
   `git log -- .agents-ctx` shows commits you haven't read. Don't
   rely on the copy loaded at the start of a long session.
+- Verify before asserting. Claims about tools, versions, and their
+  behavior come from the installed version's source or docs, not
+  from memory. Copy commit SHAs, versions, and tool output from
+  where they're printed (`git rev-parse`, `git ls-remote`, logs)
+  -- never type or reconstruct them.
 - Show diffs for non-trivial changes and pause for explicit
   approval.
 - Quiz the operator: restate what you understand the task to be,
