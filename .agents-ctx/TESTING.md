@@ -71,6 +71,31 @@ boundaries: the system clock/timezone, environment variables, or
 swapping in a stub server. It's not a substitute for designing
 components to be testable on their own.
 
+## Test doubles for intercepted components
+
+When end-to-end tests need to patch or intercept a real component
+-- say, to withhold a server's replies -- the test double gets its
+own directory in the tests' stub area, named after its purpose
+rather than the library it's built on. Its `fixtures.py` module is
+the entry point, loaded as a local pytest plugin.
+
+- Entry points are imported eagerly at startup, so they must not
+  import their component's optional dependencies at the module
+  level. Import those inside a fixture through
+  `pytest.importorskip()`, so that a missing one skips only the
+  tests that need it. That's a declared optional dependency, not
+  a way to dodge a failure.
+- The stub area is excluded from the doctest collection, which
+  would otherwise import those dependencies.
+- Code running in child processes only gets its coverage recorded
+  when those processes exit cleanly instead of being killed.
+
+Here: stubs live in `tests/_stubs/<component>/`, discovered via
+`pytest_plugins` in `tests/conftest.py`, and excluded through
+`norecursedirs` in `pytest.ini`. `tests/_stubs/sshd_mitm_tcp_relay/`
+is the first one. Child-process coverage relies on
+`concurrency = multiprocessing` in `.coveragerc`.
+
 ## Test layout
 
 Under `tests/unit/`, test files are named `<module>_test.py`, not
