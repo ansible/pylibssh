@@ -43,6 +43,9 @@ Concretely:
   from memory. Copy commit SHAs, versions, and tool output from
   where they're printed (`git rev-parse`, `git ls-remote`, logs)
   -- never type or reconstruct them.
+- Change tracked files through the agent's editing tools rather
+  than shell scripts that rewrite them, so that the operator, and
+  any guard hooks, see the actual content being written.
 - Show diffs for non-trivial changes and pause for explicit
   approval.
 - Quiz the operator: restate what you understand the task to be,
