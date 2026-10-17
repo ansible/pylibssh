@@ -67,6 +67,20 @@ from the remote right before
 operator has confirmed that very command. Nothing in it is
 guessed or assumed, and each push needs its own confirmation.
 
+## Check in on the operator's involvement
+
+Ask the operator, from time to time, how involved they feel in the
+work -- for example, roughly what share of it they'd call their
+own. It helps them stay aware of how much they're steering, and it
+decides how the work gets credited. Before attributing anything to
+them, such as a change-note byline, confirm that they're
+comfortable having their name on it, and in what form: their
+byline, a note that they operated an agent to get it done, or
+nothing at all when the work was fully agentic. Never assume.
+
+Here: an operator-directed change note has been signed
+``-- steered by :user:`<login>`, typed by a robot that errs``.
+
 ## Why: the maintainers and reviewers are in the loop too
 
 "There should be a human in the loop" is often satisfied only on

@@ -135,8 +135,10 @@ Recurring, specific review feedback:
 - Reference related issues/PRs using `sphinx-issues` roles
   (`:pr:`, `:user:`, `:file:`) instead of raw links or backticks
   (#620, #786, #790, #809).
-- Fully agentic work gets no `-- by :user:` byline -- it's not
-  human work, and crediting a probabilistic machine in a loop is
+- A `-- by :user:` byline credits a human. Whether the operator
+  gets one depends on how involved they feel, so ask them (see
+  [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md)). Fully agentic
+  work gets none -- crediting a probabilistic machine in a loop is
   silly. Disclose AI involvement in the PR instead.
 
 ## Credit the people whose work you use
