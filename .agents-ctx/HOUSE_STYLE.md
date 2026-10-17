@@ -93,14 +93,14 @@ Assign the encoded bytes to a named Python variable first and
 keep that variable alive for as long as the pointer is used. When
 you do this, add a code comment explaining why, citing Cython's
 own docs on the gotcha:
-https://cython.readthedocs.io/en/latest/src/tutorial/strings.html#encoding-text-to-bytes
+https://cython.rtfd.io/en/latest/src/tutorial/strings.html#encoding-text-to-bytes
 (PR #875).
 
 ## Cython still shims the removed Python 2 `unicode` name
 
 Even under `language_level = 3`, Cython keeps `unicode` available
 as a shim for `str`
-(https://cython.readthedocs.io/en/latest/src/tutorial/strings.html#python-string-types-in-cython-code),
+(https://cython.rtfd.io/en/latest/src/tutorial/strings.html#python-string-types-in-cython-code),
 which reads as confusing coming from plain Python 3, where
 `unicode` doesn't exist. Don't be surprised to see it in Cython
 code or docs, but don't introduce new uses of it -- prefer `str`.
