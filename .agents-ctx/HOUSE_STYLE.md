@@ -76,6 +76,12 @@ Here: no-indent sequences are enforced by `.yamllint`; see
   the file. Inline `[text](url)` is fine when the URL appears once
   and the line stays readable.
 
+## Links
+
+Link Read the Docs projects through the shorter
+`<project>.rtfd.io` domain, which redirects to `readthedocs.io` --
+especially in code comments, where line length matters.
+
 ## Keep encoded-bytes objects alive when backing a `char*`
 
 Assigning an intermediate result straight into a `char*`/`const
