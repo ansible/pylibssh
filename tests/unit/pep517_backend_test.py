@@ -77,8 +77,8 @@ EQUIVALENT_CORE_METADATA = (
     ),
 )
 def test_tracing_macro_goes_through_cppflags(
-    monkeypatch: pytest.MonkeyPatch,
     *,
+    monkeypatch: pytest.MonkeyPatch,
     tracing: bool,
 ) -> None:
     """Append the macro to CPPFLAGS and leave CFLAGS alone.
