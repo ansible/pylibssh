@@ -163,7 +163,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v8
       with:
-        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        pattern: ${{ inputs.dists-artifact-name }}*
         path: dist/
         merge-multiple: true
 

@@ -1,0 +1,2 @@
+The test jobs now download only the distribution packages instead of
+every workflow artifact -- by :user:`webknjaz`.
