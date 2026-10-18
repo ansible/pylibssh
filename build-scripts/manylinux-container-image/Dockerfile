@@ -27,8 +27,6 @@ RUN \
   fi
 
 ADD build_utils.sh /root/build_utils.sh
-ADD install_perl.sh /root/install_perl.sh
-RUN ./install_perl.sh "${RELEASE}"
 ADD install_libffi.sh /root/install_libffi.sh
 RUN ./install_libffi.sh "${RELEASE}"
 ADD install_openssl.sh /root/install_openssl.sh
