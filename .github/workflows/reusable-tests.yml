@@ -130,7 +130,20 @@ jobs:
     - name: Install libssh and openssl headers on macOS
       if: >-
         runner.os == 'macOS'
-      run: brew install libssh
+      run: |
+        brew install libssh
+
+        # NOTE: Homebrew on arm64 isn't on the default compiler search
+        # NOTE: paths and only has libs for one arch, while some Pythons
+        # NOTE: are universal2 builds that compile for both by default.
+        # NOTE: tox only passes `ARCHFLAGS` into its packaging envs when
+        # NOTE: asked to.
+        {
+          echo "CPPFLAGS=-I$(brew --prefix)/include"
+          echo "LDFLAGS=-L$(brew --prefix)/lib"
+          echo "ARCHFLAGS=-arch $(uname -m)"
+          echo 'TOX_OVERRIDE=pkgenv.pass_env+=ARCHFLAGS'
+        } >> "${GITHUB_ENV}"
     - name: Install catchsegv and libssh headers on Linux for cythonize+coverage
       if: >-
         runner.os == 'Linux'
