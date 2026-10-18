@@ -1,0 +1,9 @@
+The in-tree build backend now builds the C-extensions against the limited
+C API of the oldest CPython that ``requires-python`` allows, names them
+with the ``.abi3.so`` suffix and tags the wheel ``abi3``. This needs
+Cython 3.1 or newer. Builds requesting Cython line tracing, those with an
+older Cython, and those for free-threaded CPython or on Windows keep
+producing version-specific modules. To make this possible, the exception
+classes in ``pylibsshext.errors`` are now regular Python classes instead
+of extension types, so they can no longer be ``cimport``-ed from Cython
+code -- by :user:`webknjaz`.
