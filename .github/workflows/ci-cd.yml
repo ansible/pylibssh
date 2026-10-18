@@ -639,7 +639,7 @@ jobs:
     strategy:
       matrix:
         runner-vm-os:
-        - macos-15-intel
+        - macos-15
     uses: ./.github/workflows/reusable-cibuildwheel.yml
     with:
       runner-vm-os: ${{ matrix.runner-vm-os }}
@@ -649,10 +649,11 @@ jobs:
       dists-artifact-name: >-
         ${{ needs.pre-setup.outputs.dists-artifact-name }}
       # CIBW_CONFIG_SETTINGS: `with-cython-tracing` — for coverage collection
-      # CIBW_ARCHS_MACOS=all x86_64 arm64 universal2
+      # CIBW_ARCHS_MACOS: universal2 wheels get tested natively and under
+      # Rosetta on arm64
       # FIXME: Add support for free-threading / see issue #822
       environment-variables: |-
-        CIBW_ARCHS_MACOS=native
+        CIBW_ARCHS_MACOS=universal2
 
         CIBW_CONFIG_SETTINGS<<EOF
         with-cython-tracing=${{
@@ -666,10 +667,8 @@ jobs:
           !fromJSON(needs.pre-setup.outputs.release-requested)
           && 'CIBW_SKIP<<EOF
           *_i686
-          *-macosx_universal2
           *-musllinux_*
           *-win32
-          *_arm64
           *t-*
         EOF'
           || ''
