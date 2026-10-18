@@ -18,7 +18,7 @@ import inspect
 import logging
 
 from pylibsshext.channel import Channel
-from pylibsshext.errors cimport LibsshSessionException
+from pylibsshext.errors import LibsshSessionException
 from pylibsshext.logging import _initialize_logging, _set_level
 from pylibsshext.scp import SCP
 from pylibsshext.sftp import SFTP
@@ -262,7 +262,7 @@ cdef class Session(object):
                               :data:`ANSIBLE_PYLIBSSH_NOLOG`.
         :type log_verbosity: int
         """
-        cdef LibsshSessionException saved_exception = None
+        saved_exception = None
 
         for key in kwargs:
             if (key in OPTS_MAP or key in OPTS_DIR_MAP) and (kwargs[key] is not None):

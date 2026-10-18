@@ -41,7 +41,7 @@ will allow prevent libssh emitting these logs.
 
 import logging
 
-from pylibsshext.errors cimport LibsshSessionException
+from pylibsshext.errors import LibsshSessionException
 from pylibsshext.includes cimport callbacks, libssh
 
 

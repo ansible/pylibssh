@@ -19,7 +19,7 @@ import os
 
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 
-from pylibsshext.errors cimport LibsshSCPException
+from pylibsshext.errors import LibsshSCPException
 from pylibsshext.session cimport get_libssh_session
 
 
