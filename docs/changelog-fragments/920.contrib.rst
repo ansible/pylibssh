@@ -1,0 +1,3 @@
+The manylinux container images used for building the wheels no longer
+compile a custom Perl, which was only ever meant for the ``manylinux1``
+images -- by :user:`webknjaz`.
