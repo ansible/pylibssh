@@ -18,7 +18,6 @@ tar zxf libffi-${LIBFFI_VERSION}.tar.gz
 
 pushd libffi*/
 if [[ "$1" =~ '^manylinux1_.*$' ]]; then
-  PATH=/opt/perl/bin:$PATH
   STACK_PROTECTOR_FLAGS="-fstack-protector --param=ssp-buffer-size=4"
 else
   STACK_PROTECTOR_FLAGS="-fstack-protector-strong"
