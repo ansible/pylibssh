@@ -3,12 +3,22 @@
 from __future__ import annotations
 
 import os
+import shlex
+import sysconfig
 import typing as _t
 from contextlib import contextmanager, nullcontext, suppress
 from functools import partial
+from importlib.metadata import (
+    PackageNotFoundError,
+    version as _dist_version,
+)
 from pathlib import Path
 from shutil import copytree
-from sys import stderr as _standard_error_stream
+from sys import (
+    implementation as _system_implementation,
+    platform as _system_platform,
+    stderr as _standard_error_stream,
+)
 from tempfile import TemporaryDirectory
 
 from setuptools.build_meta import (  # noqa: F401
@@ -48,6 +58,7 @@ from ._compat import chdir_cm
 from ._compat_setup_cfg import compat_setup_cfg_written
 from ._cython_configuration import (
     get_local_cythonize_config as _get_local_cython_config,
+    get_local_min_python_version as _get_local_min_python_version,
     make_cythonize_cli_args_from_config as _make_cythonize_cli_args_from_config,
     patched_env as _patched_cython_env,
 )
@@ -89,6 +100,65 @@ CYTHON_TRACING_ENV_VAR = 'ANSIBLE_PYLIBSSH_CYTHON_TRACING'  # noqa: WPS462
 """
 Environment variable name toggle used to opt out of making C-exts.
 """  # noqa: WPS322
+
+IS_CPYTHON = _system_implementation.name == 'cpython'
+"""A flag meaning that the current interpreter implementation is CPython."""
+
+CYTHON_LIMITED_API_MIN_VERSION = 3, 1
+"""The oldest Cython that targets the limited C API with ``Py_LIMITED_API``."""
+
+
+def _get_cython_version() -> tuple[int, int]:
+    try:
+        cython_version = _dist_version('Cython')
+    except PackageNotFoundError:
+        return 0, 0
+    major, minor = cython_version.split('.')[:2]
+    return int(major), int(minor)
+
+
+def can_build_for_limited_api(*, cython_line_tracing_requested: bool) -> bool:
+    """Check if the C-extensions can be built for the stable ABI (abi3).
+
+    :param cython_line_tracing_requested: Whether Cython line tracing is on.
+    :returns: Whether the limited C API can be used for the build.
+    """
+    if cython_line_tracing_requested:
+        # Cython cannot trace lines under the limited C API:
+        return False
+
+    return (
+        IS_CPYTHON
+        # `Python.h` refuses `Py_LIMITED_API` on free-threaded CPython:
+        and not sysconfig.get_config_var('Py_GIL_DISABLED')
+        # MSVC does not read `CPPFLAGS` that carries `Py_LIMITED_API`:
+        and _system_platform != 'win32'
+        # Older Cython generates code for the full C API regardless:
+        and _get_cython_version() >= CYTHON_LIMITED_API_MIN_VERSION
+    )
+
+
+def with_limited_api_wheel_tag(
+    config_settings: _ConfigDict | None,
+    *,
+    limited_api_version: tuple[int, int],
+) -> _ConfigDict:
+    """Make ``bdist_wheel`` tag the wheel as a stable ABI (abi3) one.
+
+    :param config_settings: :pep:`517` config settings mapping.
+    :param limited_api_version: The oldest CPython the wheel works under.
+    :returns: A copy of the config settings with the extra build option.
+    """
+    config_settings = dict(config_settings or {})
+    build_options = config_settings.get('--build-option') or []
+    if isinstance(build_options, str):
+        build_options = shlex.split(build_options)
+    major, minor = limited_api_version
+    config_settings['--build-option'] = [
+        *build_options,
+        f'--py-limited-api=cp{major}{minor}',
+    ]
+    return config_settings
 
 
 def _is_truthy_setting_value(setting_value: str) -> bool:
@@ -240,13 +310,15 @@ def _prebuild_c_extensions(
     line_trace_cython_when_unset: bool = False,
     build_inplace: bool = False,
     config_settings: _ConfigDict | None = None,
-) -> _c.Iterator[None]:
+) -> _c.Iterator[tuple[int, int] | None]:
     """Pre-build C-extensions in a temporary directory, when needed.
 
     This context manager also patches metadata, setuptools and distutils.
 
     :param build_inplace: Whether to copy and chdir to a temporary location.
     :param config_settings: :pep:`517` config settings mapping.
+    :yields: The oldest CPython that the C-extensions were built for the
+        stable ABI (abi3) of, if they were.
 
     """
     cython_line_tracing_requested = _include_cython_line_tracing(
@@ -261,6 +333,13 @@ def _prebuild_c_extensions(
     )
     with build_dir_ctx:
         config = _get_local_cython_config()
+        limited_api_version = (
+            _get_local_min_python_version()
+            if can_build_for_limited_api(
+                cython_line_tracing_requested=cython_line_tracing_requested,
+            )
+            else None
+        )
 
         cythonize_args = _make_cythonize_cli_args_from_config(
             config,
@@ -268,11 +347,12 @@ def _prebuild_c_extensions(
         with _patched_cython_env(
             config['env'],
             cython_line_tracing_requested=cython_line_tracing_requested,
+            limited_api_version=limited_api_version,
         ):
             _cythonize_cli_cmd(cythonize_args)  # type: ignore[no-untyped-call]
         with patched_distutils_cmd_install():
             with patched_dist_has_ext_modules():
-                yield
+                yield limited_api_version
 
 
 @patched_dist_get_long_description()
@@ -294,10 +374,17 @@ def build_wheel(
         line_trace_cython_when_unset=False,
         build_inplace=False,
         config_settings=config_settings,
-    ):
+    ) as limited_api_version:
         return _setuptools_build_wheel(
             wheel_directory=wheel_directory,
-            config_settings=config_settings,
+            config_settings=(
+                config_settings
+                if limited_api_version is None
+                else with_limited_api_wheel_tag(
+                    config_settings,
+                    limited_api_version=limited_api_version,
+                )
+            ),
             metadata_directory=metadata_directory,
         )
 
