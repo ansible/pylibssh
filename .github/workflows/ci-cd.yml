@@ -1094,6 +1094,7 @@ jobs:
         - 3.9
         runner-vm-os:
         - macos-15-intel
+        - macos-15
         dist-type:
         - binary
         - source
