@@ -1,0 +1,5 @@
+Callers of ``Channel.read_bulk_response()`` that keep reading after the
+remote side has closed the channel now get ``LibsshChannelEOFError``
+instead of ``b''``. It subclasses ``LibsshChannelReadFailure`` (and
+therefore ``ConnectionError``) as well as ``EOFError``, so it can be
+handled as either -- by :user:`Ajithkumar2000`.

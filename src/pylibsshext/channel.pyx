@@ -22,7 +22,7 @@ from io import BytesIO
 from libc.string cimport memset
 
 from pylibsshext.errors cimport LibsshChannelException
-from pylibsshext.errors import LibsshChannelReadFailure
+from pylibsshext.errors import LibsshChannelEOFError, LibsshChannelReadFailure
 from pylibsshext.session cimport get_libssh_session, get_session_retries
 
 from subprocess import CompletedProcess
@@ -143,6 +143,18 @@ cdef class Channel:
         return self.write(data)
 
     def read_bulk_response(self, stderr=0, timeout=0.001, retry=5):
+        """
+        Read the data currently available on the channel.
+
+        :param stderr: Read from stderr instead of stdout when non-zero
+        :param timeout: Seconds to wait between read attempts with no data
+        :param retry: Number of read attempts
+
+        :return: The data received, or ``b''`` if none is available yet
+
+        :raises LibsshChannelEOFError: If the remote side has closed the
+            channel and no data is left to return
+        """
         if retry <= 0:
             raise ValueError(
                 'Got arg `retry={arg!r}` but it must be greater than 0'.
@@ -150,9 +162,15 @@ cdef class Channel:
             )
 
         response = b""
+        eof = False
         with BytesIO() as recv_buff:
             for _ in range(retry, 0, -1):
                 data = self.read_nonblocking(size=1024, stderr=stderr)
+                if data is None:
+                    # The remote side has closed the channel and nothing is
+                    # buffered, so no further reads can return data.
+                    eof = True
+                    break
                 if not data:
                     if timeout:
                         time.sleep(timeout)
@@ -160,6 +178,11 @@ cdef class Channel:
 
                 recv_buff.write(data)
             response = recv_buff.getvalue()
+
+        if eof and not response:
+            raise LibsshChannelEOFError(
+                'The channel has been closed by the remote side',
+            )
         return response
 
     cdef _open_session_with_retries(self, libssh.ssh_channel channel):

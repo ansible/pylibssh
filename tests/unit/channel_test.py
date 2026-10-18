@@ -9,7 +9,7 @@ import typing as _t  # noqa: WPS111
 import pytest
 
 from pylibsshext.channel import Channel
-from pylibsshext.errors import LibsshChannelException
+from pylibsshext.errors import LibsshChannelEOFError, LibsshChannelException
 from pylibsshext.session import Session
 
 
@@ -163,14 +163,6 @@ def _read_bulk_until_deadline(channel: Channel, timeout: float) -> bytes:
     return response
 
 
-@pytest.mark.xfail(
-    raises=pytest.fail.Exception,
-    reason=(
-        '`read_bulk_response()` reports a closed channel as "no data yet": '
-        'https://github.com/ansible/pylibssh/issues/907'
-    ),
-    strict=True,
-)
 def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
     """Test that reading from a channel closed by the remote side raises.
 
@@ -181,8 +173,11 @@ def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
     ssh_channel.request_exec('echo -n Bye')
     ssh_channel.poll(timeout=POLL_TIMEOUT)
     assert ssh_channel.read_bulk_response() == b'Bye'
-    with pytest.raises(ConnectionError):
+    with pytest.raises(LibsshChannelEOFError) as exc_info:
         _read_bulk_until_deadline(ssh_channel, POLL_EXIT_CODE_TIMEOUT)
+
+    assert isinstance(exc_info.value, ConnectionError)
+    assert isinstance(exc_info.value, EOFError)
 
 
 def test_request_exec(ssh_channel: Channel) -> None:

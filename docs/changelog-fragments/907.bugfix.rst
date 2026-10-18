@@ -1,0 +1,5 @@
+``Channel.read_bulk_response()`` now reports a channel closed by the
+remote side by raising the new ``LibsshChannelEOFError`` once all
+buffered data has been returned, instead of returning empty bytes
+indefinitely, which was indistinguishable from "no data available yet"
+-- by :user:`Ajithkumar2000`.

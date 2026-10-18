@@ -42,6 +42,10 @@ class LibsshChannelReadFailure(LibsshChannelException, ConnectionError):
     """Raised when there is a failure to read from a libssh channel."""
 
 
+class LibsshChannelEOFError(LibsshChannelReadFailure, EOFError):
+    """Raised when reading from a channel that the remote side has closed."""
+
+
 cdef class LibsshSCPException(LibsshException):
     pass
 
