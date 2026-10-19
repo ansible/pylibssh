@@ -20,6 +20,7 @@ ignore-words-list =
   accomplis,
   ccompiler,
   dialogue,
+  deque,
   gotcha,
   jupyter,
   THIRDPARTY,
