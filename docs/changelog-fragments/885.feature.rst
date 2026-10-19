@@ -1,3 +1,0 @@
-Formalized the ``SFTP.get()`` and ``SFTP.put()`` API to accept
-:class:`os.PathLike` type in addition to :class:`str` type for
-local paths -- by :user:`Jakuje`.

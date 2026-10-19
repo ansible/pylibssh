@@ -1,6 +1,0 @@
-Changed the ``SFTP.get()`` and ``SFTP.put()`` API to accept only
-:class:`str` type for remote paths.
-
-Previously, this API used to accept also raw :class:`bytes` type, which
-required something on the way to guess the real encoding. Anything other
-than :class:`str` now raises :exc:`TypeError` -- by :user:`Jakuje`.

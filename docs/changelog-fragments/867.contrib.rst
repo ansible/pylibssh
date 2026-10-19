@@ -1,4 +1,0 @@
-The repository now has initial infrastructure for pet agents to lurk in and
-understand how to interact with the project in a useful, constructive and
-collaborative manner while being exposed to the same quality development
-tools their humans are -- by :user:`webknjaz`.

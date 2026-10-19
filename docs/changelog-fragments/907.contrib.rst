@@ -1,4 +1,0 @@
-Added an expected-to-fail test documenting that
-``pylibsshext.channel.Channel.read_bulk_response()`` keeps returning
-empty bytes after the remote side closes the channel, instead of
-signaling the end of the stream -- by :user:`Ajithkumar2000`.

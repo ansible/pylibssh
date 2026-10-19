@@ -1,4 +1,0 @@
-The source distribution now ships a minimal generated
-:file:`setup.cfg` with the core packaging metadata, so that
-downstreams can still build it with ``setuptools`` older than 61,
-which cannot read :pep:`621` metadata -- by :user:`webknjaz`.

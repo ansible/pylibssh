@@ -1,1 +1,0 @@
-Added Centos 10 Stream image to the CI/CD pipeline -- by :user:`Jakuje`.

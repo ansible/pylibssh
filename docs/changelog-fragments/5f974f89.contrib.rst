@@ -1,3 +1,0 @@
-The Codecov statuses now display separate measurements for Cython and
-Python modules in the library, in addition on the overall number
--- by :user:`webknjaz`.

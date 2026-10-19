@@ -1,2 +1,0 @@
-Fixed Packit CI caused by ``setuptools_scm`` version mismatch
-in build environment -- by :user:`Jakuje`.

@@ -1,3 +1,0 @@
-The in-tree guidance for AI agents now mentions the Claude Code
-hook that asks the operator before license changes
--- by :user:`webknjaz`.

@@ -1,3 +1,0 @@
-The in-tree :pep:`517` build backend has been adjusted to pass
-strict type checking for every supported Python version
--- by :user:`webknjaz`.

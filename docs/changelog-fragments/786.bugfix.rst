@@ -1,1 +1,0 @@
-Removed non-mandatory EOF check after the SCP download procedure, which was causing race conditions with some Cisco devices -- by :user:`timway`.

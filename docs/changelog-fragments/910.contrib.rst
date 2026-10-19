@@ -1,3 +1,0 @@
-The CI job building the emulated ``manylinux`` wheels now gets up
-to 3 hours, since optimized builds take over twice as long under
-QEMU -- by :user:`webknjaz`.

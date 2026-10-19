@@ -1,3 +1,0 @@
-The emulated Linux wheel builds stopped rebuilding the ``aarch64``
-and ``x86_64`` wheels that native runners already produce, which had
-pushed the release job past its time limit.

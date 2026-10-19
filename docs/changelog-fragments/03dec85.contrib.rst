@@ -1,5 +1,0 @@
-The in-tree guidance for AI agents now states that license terms,
-license metadata and license headers only change with the
-maintainer's explicit approval, and that code copied in from
-elsewhere keeps its original license
--- by :user:`webknjaz`.

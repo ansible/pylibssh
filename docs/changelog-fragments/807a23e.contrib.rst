@@ -1,3 +1,0 @@
-The in-tree guidance for AI agents now asks for commit messages
-that pass ``gitlint``
--- by :user:`webknjaz`.

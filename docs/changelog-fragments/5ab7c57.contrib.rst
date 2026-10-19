@@ -1,5 +1,0 @@
-Claude Code now also asks the operator before an agent edits the
-``codespell``, ``darglint``, ``isort``, ``nitpick`` and
-``pylint`` configs, and the ``.mypy.ini`` file that it previously
-missed
--- by :user:`webknjaz`.

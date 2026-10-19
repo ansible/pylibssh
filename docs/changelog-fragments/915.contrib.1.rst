@@ -1,3 +1,0 @@
-The Claude Code guard against silencing checks now also covers
-edits in other Git worktrees of the repository -- steered by
-:user:`webknjaz`, typed by a robot that errs.

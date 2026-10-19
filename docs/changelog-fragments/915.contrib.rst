@@ -1,7 +1,0 @@
-The in-tree guidance for agents now asks them to re-read it as it
-evolves, to verify claims instead of relying on memory, to fill in
-the PR template, to add change notes for every affected audience,
-to check in on how involved the human operator feels before
-crediting them, and to let the operator confirm any force-push
-command they run -- steered by :user:`webknjaz`, typed by a robot
-that errs.

@@ -14,6 +14,549 @@ Changelog
 
 .. towncrier release notes start
 
+v1.5.0a3
+========
+
+*(2026-10-19)*
+
+
+Bug fixes
+---------
+
+- Removed non-mandatory EOF check after the SCP download procedure, which was causing race conditions with some Cisco devices -- by :user:`timway`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`785`, :issue:`786`.
+
+- The version detection fallback, used when the build-time generated
+  version module is missing, now relies on :mod:`importlib.metadata`
+  instead of ``pkg_resources`` that is unavailable with recent
+  ``setuptools`` releases -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`900`.
+
+
+Features
+--------
+
+- Formalized the ``SFTP.get()`` and ``SFTP.put()`` API to accept
+  :class:`os.PathLike` type in addition to :class:`str` type for
+  local paths -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`885`.
+
+
+Removals and backward incompatible breaking changes
+---------------------------------------------------
+
+- Changed the ``Channel.write()`` API to accept only :class:`bytes` type.
+  Previously, this API used to accept anything that could have been converted
+  to a pointer using :c:func:`PyBytes_AS_STRING` and that would implement
+  :meth:`~object.__len__()` interface, which could result in unexpected behavior
+  even for UTF8 strings. Anything else than :class:`bytes` now raises
+  :exc:`TypeError` -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`875`.
+
+- Changed the ``SFTP.get()`` and ``SFTP.put()`` API to accept only
+  :class:`str` type for remote paths.
+
+  Previously, this API used to accept also raw :class:`bytes` type, which
+  required something on the way to guess the real encoding. Anything other
+  than :class:`str` now raises :exc:`TypeError` -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`885`.
+
+
+Improved documentation
+----------------------
+
+- Added docstrings for ``SFTP.get()`` and ``SFTP.put()``
+  methods -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`870`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- The macOS wheels are now ``universal2``, running natively on both Intel
+  and Apple Silicon. They bundle ``libssh`` 0.12.2 with a statically linked
+  OpenSSL, built by the project's own CI as in :issue:`884`, instead of the
+  Homebrew ones, which also lowers their minimum macOS version from 15.0 to
+  10.12, or what the Python version requires -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`73`, :issue:`207`, :issue:`917`.
+
+- The source distribution now ships a minimal generated
+  :file:`setup.cfg` with the core packaging metadata, so that
+  downstreams can still build it with ``setuptools`` older than 61,
+  which cannot read :pep:`621` metadata -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`812`.
+
+- The RPM spec now relaxes the ``setuptools`` requirement and the
+  :pep:`639` license metadata on RHEL 10 and older, whose
+  ``setuptools`` releases predate their support -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`812`.
+
+- The core packaging metadata is now declared in the :pep:`621`
+  ``[project]`` table of :file:`pyproject.toml` instead of
+  :file:`setup.cfg`, with the license expressed per :pep:`639`, which
+  requires ``setuptools`` 77.0.1 or newer -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`812`.
+
+- Removed the :pypi:`expandvars` build dependency while preserving existing
+  compiler and linker flags -- by :user:`f321x`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`888`.
+
+- Fixed the Linux wheels being compiled without optimization. The
+  ``cibuildwheel`` configuration set ``CFLAGS`` to point at the bundled
+  ``libssh`` headers, and the build backend set it to add the Cython
+  line tracing macro for coverage builds; ``setuptools`` replaces the
+  interpreter's own compiler flags with a ``CFLAGS`` environment variable
+  instead of extending them, so ``-O3`` was dropped. Both now go through
+  ``CPPFLAGS``, which ``setuptools`` appends to the interpreter's flags
+  -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`890`.
+
+- The test suite now optionally depends on :pypi:`proxy.py`. The tests
+  needing it are skipped when it is not installed, and the RPM spec does
+  not pull it in, since it is not packaged downstream yet -- by
+  :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`894`.
+
+- The core packaging metadata now reflects that we test the project under
+  Python 3.15 (with GIL enabled) -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`911`.
+
+
+Contributor-facing changes
+--------------------------
+
+- The in-tree guidance for agents on house style, silenced checks,
+  and the house rules now keeps project-specific examples apart from
+  the rules shared with other projects
+  -- steered by :user:`webknjaz`, typed by a robot that errs.
+
+  *Related commits on GitHub:*
+  :commit:`122a1f1f`.
+
+- The in-tree guidance for AI agents now asks for commit messages
+  that pass ``gitlint``
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`807a23e`.
+
+- Claude Code now prompts the human operator before applying edits or
+  running commands that look like they silence linters or tests, or that
+  change tool configuration -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`083858a9`.
+
+- Claude Code now also asks the operator before an agent edits the
+  ``codespell``, ``darglint``, ``isort``, ``nitpick`` and
+  ``pylint`` configs, and the ``.mypy.ini`` file that it previously
+  missed
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`5ab7c57`.
+
+- The in-tree guidance for AI agents now requires an explicit decision
+  from the human operator, case by case, before any check gets silenced
+  -- whether by adding linter suppressions, relaxing tool configuration,
+  or skipping, removing or weakening tests -- and asks for tool
+  configuration changes to be kept in standalone commits
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`a55c74ff`.
+
+- Codespell now has a dedicated settings file in the tree with a few
+  currated dictionaries set up and preselected exclusions allowed
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`9b135663`.
+
+- The in-tree guidance for AI agents now spells out the project's
+  structural constraints and its Python, YAML and Markdown style
+  conventions, including those not enforced by any linter
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`2b149b58`.
+
+- Restored coverage collection for the Cython modules in CI, which had
+  reported nothing since :pr:`688` -- by :user:`rodrigobnogueira`.
+
+  *Related commits on GitHub:*
+  :commit:`3b3d4d11`, :commit:`5919568ed1f2f88751491d105932360071132e7b`.
+
+- The in-tree guidance for agents on PRs and change notes now keeps
+  project-specific facts apart from the rules shared with other
+  projects
+  -- steered by :user:`webknjaz`, typed by a robot that errs.
+
+  *Related commits on GitHub:*
+  :commit:`bbad5215`.
+
+- The in-tree guidance for AI agents now covers the commit message
+  shape, the use of long ``tox`` subcommands without invented flags,
+  and flagging generic tooling changes for reuse across the
+  maintainer's other projects. It also clarifies that agents are never
+  credited as co-authors, with an optional ``Assisted-by`` trailer
+  for disclosing AI assistance
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`9be75f22`.
+
+- The in-tree guidance for AI agents now mentions the Claude Code
+  hook that asks the operator before license changes
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`cd8009e`.
+
+- The in-tree guidance for AI agents now states that license terms,
+  license metadata and license headers only change with the
+  maintainer's explicit approval, and that code copied in from
+  elsewhere keeps its original license
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`03dec85`.
+
+- The in-tree guidance for AI agents now asks for the authors of
+  incorporated patches to be credited via ``Co-Authored-By`` trailers
+  and leaves the change note byline off fully agentic work
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`1227e231`.
+
+- The in-tree guidance for AI agents now requires the human operator to
+  agree on how to proceed before an agent acts on review comments,
+  suggested patches or discussion input from others, and forbids agents
+  from force-pushing mid-review -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`5105e647`.
+
+- Claude Code now asks the operator before an agent edits license
+  files, drops license notices or changes license metadata
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`2e985de`.
+
+- The emulated Linux wheel builds stopped rebuilding the ``aarch64``
+  and ``x86_64`` wheels that native runners already produce, which had
+  pushed the release job past its time limit.
+
+  *Related commits on GitHub:*
+  :commit:`364f7f9`.
+
+- The Codecov statuses now display separate measurements for Cython and
+  Python modules in the library, in addition on the overall number
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`5f974f89`.
+
+- The in-tree guidance for AI agents now gives a reading order for
+  getting oriented in the repository and a map of its less obvious
+  directories
+  -- by :user:`webknjaz`.
+
+  *Related commits on GitHub:*
+  :commit:`9faac80a`.
+
+- The in-tree guidance for agents on testing now keeps
+  project-specific facts apart from the rules shared with other
+  projects, and no longer claims that ``darglint`` checks test
+  docstrings
+  -- steered by :user:`webknjaz`, typed by a robot that errs.
+
+  *Related commits on GitHub:*
+  :commit:`f97d68ec`.
+
+- The CI now runs testing against ARM Ubuntu VMs that
+  GitHub Actions CI/CD provide -- by :user:`webknjaz`.
+
+  The dists are now built under native runners instead
+  of QEMU which makes the CI resources use efficient.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`674`, :issue:`761`.
+
+- Traced builds of the Cython modules now define ``CYTHON_USE_SYS_MONITORING=0``,
+  so that the ``Cython.Coverage`` plugin receives line events on CPython 3.13 and
+  newer -- by :user:`rodrigobnogueira`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`781`.
+
+- Added Centos 10 Stream image to the CI/CD pipeline -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`830`.
+
+- Added Centos 9 Stream image to the CI/CD pipeline -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`831`.
+
+- Updated the version of ``libssh`` to the latest release v0.12.1
+  in the cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`846`.
+
+- Updated the bundled version of libssh to 0.12.2 in platform-specific
+  wheels published on PyPI -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`847`.
+
+- Fixed Packit CI caused by ``setuptools_scm`` version mismatch
+  in build environment -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`848`.
+
+- Updated the version of ``libssh`` to the latest release v0.12.2
+  in the cached ``manylinux`` build environment container images
+  -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`851`.
+
+- Dropped the EOL Fedora 42 from CI targets -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`852`.
+
+- The repository now has initial infrastructure for pet agents to lurk in and
+  understand how to interact with the project in a useful, constructive and
+  collaborative manner while being exposed to the same quality development
+  tools their humans are -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`867`.
+
+- Added the UBI 9.8 container image to the CI test matrix -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`876`.
+
+- Added a scheduled GitHub Actions workflow that builds a prebuilt shared
+  ``libssh`` library with a statically linked OpenSSL for macOS
+  ``x86_64``, ``arm64`` and ``universal2``, storing them as workflow
+  artifacts, following the pattern established by `pyca/infra
+  <https://github.com/pyca/infra>`_. This artifact is not yet consumed by
+  the wheel build process -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`883`, :issue:`884`.
+
+- The ``test_open_session_small_timeout`` test now withholds the sshd
+  replies through a TCP relay instead of racing a local sshd, which
+  made it flaky with line tracing enabled -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`894`.
+
+- The test suite gained a home for test doubles of the components that
+  end-to-end tests intercept, under :file:`tests/_stubs/`. Each of them
+  exposes its fixtures through a ``fixtures.py`` module, which gets
+  loaded as a local pytest plugin automatically -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`894`.
+
+- The test coverage measurement now includes code running in processes
+  started via :py:mod:`multiprocessing`, which ``pytest-cov`` 7 stopped
+  measuring on its own -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`898`.
+
+- The ``lint`` :std:doc:`tox <tox:index>` environment has been renamed to
+  ``pre-commit`` -- invoke it as ``tox run -e pre-commit`` now
+  -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`899`.
+
+- The linting jobs in CI now run through the ``reusable-tox.yml`` workflow
+  shared with other projects, and cache the ``pre-commit`` virtualenvs
+  between runs -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`899`.
+
+- The Python code is now type-checked with MyPy in strict mode
+  against every supported Python version, as a part of the
+  ``pre-commit`` setup -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`901`.
+
+- The test suite now gives up waiting for the ephemeral ``sshd``
+  to become ready after a bounded number of connection attempts,
+  instead of hanging when it never comes up -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`902`.
+
+- Ruff now targets Python 3.9, the oldest Python version supported
+  by the project, instead of its own default -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`903`.
+
+- The in-tree :pep:`517` build backend has been adjusted to pass
+  strict type checking for every supported Python version
+  -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`904`.
+
+- The test suite now waits for up to 10 seconds for the ephemeral
+  ``sshd`` to become ready, instead of giving up after a fixed number
+  of connection attempts that fast-failing machines could exhaust
+  early -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`905`.
+
+- The MyPy type coverage reports are now uploaded to Coveralls from
+  CI, summarized on the workflow run pages and linked to after local
+  runs -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`906`.
+
+- Added an expected-to-fail test documenting that
+  ``pylibsshext.channel.Channel.read_bulk_response()`` keeps returning
+  empty bytes after the remote side closes the channel, instead of
+  signaling the end of the stream -- by :user:`Ajithkumar2000`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`907`.
+
+- The RPM builds in UBI 9 and CentOS Stream 9 containers are no longer
+  required to pass in CI, since these only provide tox 3 that cannot
+  parse the project's tox 4 configuration -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`909`.
+
+- The CI job building the emulated ``manylinux`` wheels now gets up
+  to 3 hours, since optimized builds take over twice as long under
+  QEMU -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`910`.
+
+- The CI now tests wheels built for Python 3.15 -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`911`.
+
+- The RPM smoke tests in CI now live in a reusable workflow, configured
+  through inputs, with the container matrix kept in the main workflow
+  -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`912`.
+
+- The CI job building the macOS wheels now gets up to 15 minutes, since
+  it occasionally ran out of time right before finishing the last
+  wheels -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`913`.
+
+- The in-tree guidance for agents now asks them to re-read it as it
+  evolves, to verify claims instead of relying on memory, to fill in
+  the PR template, to add change notes for every affected audience,
+  to check in on how involved the human operator feels before
+  crediting them, and to let the operator confirm any force-push
+  command they run -- steered by :user:`webknjaz`, typed by a robot
+  that errs.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`915`.
+
+- The Claude Code guard against silencing checks now also covers
+  edits in other Git worktrees of the repository -- steered by
+  :user:`webknjaz`, typed by a robot that errs.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`915`.
+
+- The test jobs now download only the distribution packages instead of
+  every workflow artifact -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`918`.
+
+- The manylinux container images used for building the wheels no longer
+  compile a custom Perl, which was only ever meant for the ``manylinux1``
+  images -- by :user:`webknjaz`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`920`.
+
+- The in-tree guidance for agents on running the project's tooling
+  now keeps project-specific examples apart from the rules shared
+  with other projects
+  -- steered by :user:`webknjaz`, typed by a robot that errs.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`31154463`.
+
+
+Miscellaneous internal changes
+------------------------------
+
+- Removed the needless use of CPython internal API
+  :c:func:`PyBytes_AS_STRING` throughout the code to simplify code
+  and improve the compatibility with limited Python API -- by :user:`Jakuje`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`875`.
+
+
+----
+
+
 v1.4.0
 ======
 
