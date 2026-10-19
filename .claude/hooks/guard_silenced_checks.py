@@ -9,13 +9,14 @@ Claude Code to prompt the operator for a decision.
 See ``.agents-ctx/DONT_SHOOT_THE_MESSENGER.md`` for the policy.
 """
 
-import contextlib
 import json
 import os
 import pathlib
 import re
 import sys
 import typing as _t  # noqa: WPS111  # house convention; drop once the lint config allows `_t`
+
+import hook_utils
 
 
 POLICY_DOC = '.agents-ctx/DONT_SHOOT_THE_MESSENGER.md'
@@ -83,56 +84,6 @@ SHELL_RISKY_TARGET = re.compile(
 )
 
 
-def _relative_path(file_path: str, project_dir: pathlib.Path) -> str:
-    """Return ``file_path`` relative to its checkout, POSIX-style.
-
-    Files outside the project directory, e.g. in another worktree of
-    the same repository, are resolved against their own worktree.
-    """
-    absolute_path = pathlib.Path(file_path)
-    if not absolute_path.is_absolute():
-        absolute_path = project_dir / absolute_path
-    absolute_path = absolute_path.resolve()
-    worktree_dir = next(
-        (
-            candidate_dir
-            for candidate_dir in absolute_path.parents
-            if (candidate_dir / '.git').exists()
-        ),
-        project_dir,
-    )
-    for checkout_dir in (project_dir, worktree_dir):
-        with contextlib.suppress(ValueError):
-            return absolute_path.relative_to(checkout_dir).as_posix()
-    return absolute_path.as_posix()
-
-
-def _edit_texts(
-    tool_name: str,
-    tool_input: _t.Mapping[str, _t.Any],
-    project_dir: pathlib.Path,
-) -> tuple[str, str]:
-    """Collect the text an edit tool removes and the text it adds."""
-    if tool_name == 'Write':
-        target_path = pathlib.Path(tool_input.get('file_path', ''))
-        if not target_path.is_absolute():
-            target_path = project_dir / target_path
-        try:
-            old_text = target_path.read_text(encoding='utf-8')
-        except (OSError, UnicodeDecodeError):
-            old_text = ''
-        return old_text, tool_input.get('content', '')
-
-    if tool_name == 'NotebookEdit':
-        return '', tool_input.get('new_source', '')
-
-    edits = tool_input.get('edits') or (tool_input,)
-    return (
-        '\n'.join(edit.get('old_string', '') for edit in edits),
-        '\n'.join(edit.get('new_string', '') for edit in edits),
-    )
-
-
 def _more_frequent(
     markers: MarkerTable,
     baseline: str,
@@ -160,11 +111,11 @@ def _edit_concerns(
 ) -> list[str]:
     """Describe why an edit tool call needs the operator's decision."""
     tool_input = hook_input.get('tool_input', {})
-    relative_path = _relative_path(
+    relative_path = hook_utils.relative_path(
         tool_input.get('file_path') or tool_input.get('notebook_path', ''),
         project_dir,
     )
-    old_text, new_text = _edit_texts(
+    old_text, new_text = hook_utils.edit_texts(
         hook_input.get('tool_name', ''),
         tool_input,
         project_dir,
@@ -231,16 +182,7 @@ def main() -> int:
             f'(see {POLICY_DOC}): {concerns_summary}. '
             'The agent must have presented this case to you first.'
         )
-        json.dump(
-            {
-                'hookSpecificOutput': {
-                    'hookEventName': 'PreToolUse',
-                    'permissionDecision': 'ask',
-                    'permissionDecisionReason': decision_reason,
-                },
-            },
-            sys.stdout,
-        )
+        hook_utils.ask_operator(decision_reason)
     return 0
 
 
