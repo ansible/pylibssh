@@ -162,15 +162,16 @@ cdef class Channel:
             )
 
         response = b""
-        eof = False
         with BytesIO() as recv_buff:
             for _ in range(retry, 0, -1):
                 data = self.read_nonblocking(size=1024, stderr=stderr)
                 if data is None:
-                    # The remote side has closed the channel and nothing is
-                    # buffered, so no further reads can return data.
-                    eof = True
-                    break
+                    if recv_buff.tell():
+                        # Return what was read before EOF; the next call raises.
+                        break
+                    raise LibsshChannelEOFError(
+                        'The channel has been closed by the remote side',
+                    )
                 if not data:
                     if timeout:
                         time.sleep(timeout)
@@ -178,11 +179,6 @@ cdef class Channel:
 
                 recv_buff.write(data)
             response = recv_buff.getvalue()
-
-        if eof and not response:
-            raise LibsshChannelEOFError(
-                'The channel has been closed by the remote side',
-            )
         return response
 
     cdef _open_session_with_retries(self, libssh.ssh_channel channel):

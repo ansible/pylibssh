@@ -170,14 +170,12 @@ def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
     ``read_bulk_response()`` must not keep returning ``b''``, which is
     indistinguishable from "no data pending yet".
     """
+    error_msg = '^The channel has been closed by the remote side$'
     ssh_channel.request_exec('echo -n Bye')
     ssh_channel.poll(timeout=POLL_TIMEOUT)
     assert ssh_channel.read_bulk_response() == b'Bye'
-    with pytest.raises(LibsshChannelEOFError) as exc_info:
+    with pytest.raises(LibsshChannelEOFError, match=error_msg):
         _read_bulk_until_deadline(ssh_channel, POLL_EXIT_CODE_TIMEOUT)
-
-    assert isinstance(exc_info.value, ConnectionError)
-    assert isinstance(exc_info.value, EOFError)
 
 
 def test_request_exec(ssh_channel: Channel) -> None:
