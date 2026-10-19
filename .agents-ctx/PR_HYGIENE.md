@@ -1,15 +1,17 @@
 # PR & Commit Hygiene
 
-Grounded in the project's own review history, plus explicit
-maintainer conventions carried over from other projects — not
-guesses.
+Grounded in the maintainer's review history and merged commits
+(PR numbers below are from `ansible/pylibssh`), plus explicit
+maintainer conventions carried across projects — not guesses.
 
 ## Point contributors to the official guidelines
 
-Route contributors to
-<https://ansible-pylibssh.rtfd.io/en/latest/contributing/guidelines>
-for the canonical contribution process, rather than improvising or
-restating it secondhand.
+Route contributors to the project's contributing guidelines and
+code of conduct for the canonical contribution process, rather
+than improvising or restating it secondhand.
+
+Here: <https://ansible-pylibssh.rtfd.io/en/latest/contributing/guidelines>
+and `.github/CODE_OF_CONDUCT.rst`.
 
 ## Keep PRs and commits atomic and scoped
 
@@ -117,19 +119,16 @@ run -- see [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md).
 
 ## Every change needs a changelog fragment
 
-Every PR needs at least one fragment, filed under
-`docs/changelog-fragments/` as `<issue/PR#>.<type>.rst`. Consider
-every audience the change affects -- end users, contributors,
-downstream packagers -- and add a fragment for each, numbering
-several of the same type as `<issue/PR#>.<type>.<n>.rst`.
+Every PR needs at least one changelog fragment. Consider every
+audience the change affects -- end users, contributors, downstream
+packagers -- and add a fragment for each.
 
 A changelog fragment is not a restated commit message -- it covers
 everything since the previous release, for end-users, not
-developers. See `docs/changelog-fragments/README.rst` for the full
-rationale, including why changelog entries are a permanent
-historical record (never retroactively removed, even if the
-underlying code is later reverted) unlike commit history, which
-can be reworded, rebased, or squashed.
+developers. Changelog entries are a permanent historical record:
+they're never retroactively removed, even if the underlying code
+is later reverted, unlike commit history, which can be reworded,
+rebased, or squashed.
 
 Recurring, specific review feedback:
 
@@ -137,14 +136,22 @@ Recurring, specific review feedback:
   (#756, #862).
 - Wording is past-tense and end-user-facing, not
   imperative/developer-facing.
-- Reference related issues/PRs using `sphinx-issues` roles
-  (`:pr:`, `:user:`, `:file:`) instead of raw links or backticks
-  (#620, #786, #790, #809).
-- A `-- by :user:` byline credits a human. Whether the operator
-  gets one depends on how involved they feel, so ask them (see
+- Reference related issues, PRs, users, and files through the
+  roles the docs tooling provides, instead of raw links or
+  backticks (#620, #786, #790, #809).
+- A byline credits a human. Whether the operator gets one, and in
+  which form, depends on how involved they feel, so ask them (see
   [HUMAN_IN_THE_LOOP.md](HUMAN_IN_THE_LOOP.md)). Fully agentic
   work gets none -- crediting a probabilistic machine in a loop is
-  silly. Disclose AI involvement in the PR instead.
+  silly. Disclose agent involvement in the PR instead.
+
+Here: fragments are Towncrier-managed RST files in
+`docs/changelog-fragments/`, named `<issue/PR#>.<type>.rst` --
+or after the commit hash for changes committed straight to the
+default branch -- with `<issue/PR#>.<type>.<n>.rst` for several of
+one type. `docs/changelog-fragments/README.rst` lists the types and
+the full rationale. References use the `sphinx-issues` roles
+(`:pr:`, `:user:`, `:file:`); bylines name people through `:user:`.
 
 ## Credit the people whose work you use
 
@@ -202,7 +209,7 @@ an unrelated change -- that's a deliberate, standalone future
 effort, not something to bundle into whatever else a PR is
 doing.
 
-This is a real, acknowledged gap today: `.ruff.toml` disables
+Here: this is a real, acknowledged gap. `.ruff.toml` disables
 `ANN001`/`ANN201`/`ANN202`/`ANN401` with an explicit `# FIXME:
 These flake8-annotations errors need fixing and removal`
 comment, and none of the current test functions in `tests/` are
