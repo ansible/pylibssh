@@ -1,0 +1,3 @@
+Claude Code now asks the operator before an agent edits license
+files, drops license notices or changes license metadata
+-- by :user:`webknjaz`.
