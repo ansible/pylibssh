@@ -1,0 +1,4 @@
+The in-tree guidance for agents on PRs and change notes now keeps
+project-specific facts apart from the rules shared with other
+projects
+-- steered by :user:`webknjaz`, typed by a robot that errs.
