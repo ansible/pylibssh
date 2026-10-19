@@ -1,3 +1,0 @@
-Codespell now has a dedicated settings file in the tree with a few
-currated dictionaries set up and preselected exclusions allowed
--- by :user:`webknjaz`.

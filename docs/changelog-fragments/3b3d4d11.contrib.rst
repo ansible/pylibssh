@@ -1,2 +1,0 @@
-Restored coverage collection for the Cython modules in CI, which had
-reported nothing since :pr:`688` -- by :user:`rodrigobnogueira`.

@@ -1,3 +1,0 @@
-Removed the needless use of CPython internal API
-:c:func:`PyBytes_AS_STRING` throughout the code to simplify code
-and improve the compatibility with limited Python API -- by :user:`Jakuje`.

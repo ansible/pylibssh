@@ -1,1 +1,0 @@
-Added Centos 9 Stream image to the CI/CD pipeline -- by :user:`Jakuje`.

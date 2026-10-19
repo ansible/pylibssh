@@ -1,6 +1,0 @@
-Changed the ``Channel.write()`` API to accept only :class:`bytes` type.
-Previously, this API used to accept anything that could have been converted
-to a pointer using :c:func:`PyBytes_AS_STRING` and that would implement
-:meth:`~object.__len__()` interface, which could result in unexpected behavior
-even for UTF8 strings. Anything else than :class:`bytes` now raises
-:exc:`TypeError` -- by :user:`Jakuje`.

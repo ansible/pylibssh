@@ -1,5 +1,0 @@
-The CI now runs testing against ARM Ubuntu VMs that
-GitHub Actions CI/CD provide -- by :user:`webknjaz`.
-
-The dists are now built under native runners instead
-of QEMU which makes the CI resources use efficient.

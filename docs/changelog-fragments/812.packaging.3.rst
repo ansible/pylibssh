@@ -1,3 +1,0 @@
-The RPM spec now relaxes the ``setuptools`` requirement and the
-:pep:`639` license metadata on RHEL 10 and older, whose
-``setuptools`` releases predate their support -- by :user:`webknjaz`.

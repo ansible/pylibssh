@@ -1,5 +1,0 @@
-The macOS wheels are now ``universal2``, running natively on both Intel
-and Apple Silicon. They bundle ``libssh`` 0.12.2 with a statically linked
-OpenSSL, built by the project's own CI as in :issue:`884`, instead of the
-Homebrew ones, which also lowers their minimum macOS version from 15.0 to
-10.12, or what the Python version requires -- by :user:`webknjaz`.

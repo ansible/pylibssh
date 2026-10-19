@@ -1,4 +1,0 @@
-The version detection fallback, used when the build-time generated
-version module is missing, now relies on :mod:`importlib.metadata`
-instead of ``pkg_resources`` that is unavailable with recent
-``setuptools`` releases -- by :user:`webknjaz`.
