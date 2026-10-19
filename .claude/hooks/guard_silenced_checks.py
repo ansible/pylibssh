@@ -9,6 +9,8 @@ Claude Code to prompt the operator for a decision.
 See ``.agents-ctx/DONT_SHOOT_THE_MESSENGER.md`` for the policy.
 """
 
+from __future__ import annotations
+
 import pathlib
 import re
 import sys
@@ -93,7 +95,13 @@ def _more_frequent(
     baseline: str,
     candidate: str,
 ) -> list[str]:
-    """List the markers that occur more often in candidate than baseline."""
+    """List the markers that occur more often in candidate than baseline.
+
+    :param markers: Marker names and the regexes that find them.
+    :param baseline: The text to compare against.
+    :param candidate: The text to look for extra markers in.
+    :returns: The names of the markers found more often.
+    """
     return [
         marker_name
         for marker_name, marker_regex in markers
@@ -103,7 +111,11 @@ def _more_frequent(
 
 
 def _is_tool_config(relative_path: str) -> bool:
-    """Check whether the path is a linter, test, CI or agent config."""
+    """Check whether the path is a linter, test, CI or agent config.
+
+    :param relative_path: The path relative to its checkout.
+    :returns: Whether the path is a tool config.
+    """
     return pathlib.PurePosixPath(relative_path).name in TOOL_CONFIG_NAMES or (
         relative_path.startswith(TOOL_CONFIG_DIRS)
     )
@@ -114,7 +126,13 @@ def _edit_concerns(
     old_text: str,
     new_text: str,
 ) -> list[str]:
-    """Describe why an edit tool call needs the operator's decision."""
+    """Describe why an edit tool call needs the operator's decision.
+
+    :param relative_path: The edited path relative to its checkout.
+    :param old_text: The text the edit removes.
+    :param new_text: The text the edit adds.
+    :returns: The concerns, if any.
+    """
     concerns = [
         f'adds a suppression ({marker_name}) in {relative_path}'
         for marker_name in _more_frequent(
@@ -141,7 +159,11 @@ def _edit_concerns(
 
 
 def _shell_concerns(command: str) -> list[str]:
-    """Describe why a shell command needs the operator's decision."""
+    """Describe why a shell command needs the operator's decision.
+
+    :param command: The shell command about to run.
+    :returns: The concerns, if any.
+    """
     concerns = [
         f'the command mentions a suppression ({marker_name})'
         for marker_name, marker_regex in SUPPRESSION_MARKERS
@@ -157,7 +179,11 @@ def _shell_concerns(command: str) -> list[str]:
 
 
 def _explain(concerns_summary: str) -> str:
-    """Explain to the operator why their decision is needed."""
+    """Explain to the operator why their decision is needed.
+
+    :param concerns_summary: The concerns, joined into one string.
+    :returns: The prompt shown to the operator.
+    """
     return (
         'Silencing checks is a decision for the operator '
         f'(see {POLICY_DOC}): {concerns_summary}. '
@@ -166,7 +192,10 @@ def _explain(concerns_summary: str) -> str:
 
 
 def main() -> int:
-    """Read the hook input and ask the operator when needed."""
+    """Read the hook input and ask the operator when needed.
+
+    :returns: The process exit code.
+    """
     return hook_utils.run_hook(_edit_concerns, _shell_concerns, _explain)
 
 

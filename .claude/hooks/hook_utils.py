@@ -1,5 +1,7 @@
 """Helpers shared by the Claude Code ``PreToolUse`` hooks in this directory."""
 
+from __future__ import annotations
+
 import contextlib
 import json
 import os
@@ -18,6 +20,11 @@ def relative_path(file_path: str, project_dir: pathlib.Path) -> str:
 
     Files outside the project directory, e.g. in another worktree of
     the same repository, are resolved against their own worktree.
+
+    :param file_path: The path an edit tool call targets.
+    :param project_dir: The checkout Claude Code runs in.
+    :returns: The POSIX-style path relative to its checkout, or the
+              absolute one if it is outside of any.
     """
     absolute_path = pathlib.Path(file_path)
     if not absolute_path.is_absolute():
@@ -42,7 +49,14 @@ def edit_texts(
     tool_input: _t.Mapping[str, _t.Any],
     project_dir: pathlib.Path,
 ) -> tuple[str, str]:
-    """Collect the text an edit tool removes and the text it adds."""
+    """Collect the text an edit tool removes and the text it adds.
+
+    :param tool_name: The name of the edit tool.
+    :param tool_input: The arguments of the edit tool call.
+    :param project_dir: The checkout relative paths are resolved
+                        against.
+    :returns: The removed and the added text.
+    """
     if tool_name == 'Write':
         target_path = pathlib.Path(tool_input.get('file_path', ''))
         if not target_path.is_absolute():
@@ -64,7 +78,10 @@ def edit_texts(
 
 
 def ask_operator(decision_reason: str) -> None:
-    """Tell Claude Code to prompt the operator, giving the reason."""
+    """Tell Claude Code to prompt the operator, giving the reason.
+
+    :param decision_reason: The explanation shown to the operator.
+    """
     json.dump(
         {
             'hookSpecificOutput': {
@@ -81,7 +98,13 @@ def edit_context(
     hook_input: _t.Mapping[str, _t.Any],
     project_dir: pathlib.Path,
 ) -> tuple[str, str, str]:
-    """Resolve an edit tool call to its path, old text and new text."""
+    """Resolve an edit tool call to its path, old text and new text.
+
+    :param hook_input: The ``PreToolUse`` hook input.
+    :param project_dir: The checkout Claude Code runs in.
+    :returns: The edited path relative to its checkout, the removed
+              text and the added text.
+    """
     tool_input = hook_input.get('tool_input', {})
     edited_path = relative_path(
         tool_input.get('file_path') or tool_input.get('notebook_path', ''),
@@ -100,7 +123,14 @@ def run_hook(
     shell_concerns: ShellConcerns,
     explain: Explanation,
 ) -> int:
-    """Read the hook input and ask the operator when needed."""
+    """Read the hook input and ask the operator when needed.
+
+    :param edit_concerns: Describes the concerns about an edit.
+    :param shell_concerns: Describes the concerns about a shell
+                           command.
+    :param explain: Turns the concerns into the operator prompt.
+    :returns: The process exit code.
+    """
     hook_input = json.load(sys.stdin)
     project_dir = pathlib.Path(
         os.environ.get('CLAUDE_PROJECT_DIR') or hook_input.get('cwd', '.'),

@@ -9,6 +9,8 @@ decision.
 See ``.agents-ctx/LICENSING.md`` for the policy.
 """
 
+from __future__ import annotations
+
 import pathlib
 import re
 import sys
@@ -46,7 +48,13 @@ def _edit_concerns(
     old_text: str,
     new_text: str,
 ) -> list[str]:
-    """Describe why an edit tool call needs the operator's decision."""
+    """Describe why an edit tool call needs the operator's decision.
+
+    :param relative_path: The edited path relative to its checkout.
+    :param old_text: The text the edit removes.
+    :param new_text: The text the edit adds.
+    :returns: The concerns, if any.
+    """
     concerns = []
     if LICENSE_FILE_NAME.match(pathlib.PurePosixPath(relative_path).name):
         concerns.append(f'changes the license file {relative_path}')
@@ -62,14 +70,22 @@ def _edit_concerns(
 
 
 def _shell_concerns(command: str) -> list[str]:
-    """Describe why a shell command needs the operator's decision."""
+    """Describe why a shell command needs the operator's decision.
+
+    :param command: The shell command about to run.
+    :returns: The concerns, if any.
+    """
     if SHELL_LICENSE_TARGET.search(command):
         return ['the command deletes, moves or rewrites a license file']
     return []
 
 
 def _explain(concerns_summary: str) -> str:
-    """Explain to the operator why their decision is needed."""
+    """Explain to the operator why their decision is needed.
+
+    :param concerns_summary: The concerns, joined into one string.
+    :returns: The prompt shown to the operator.
+    """
     return (
         "License terms are the maintainer's decision "
         f'(see {POLICY_DOC}): {concerns_summary}. '
@@ -78,7 +94,10 @@ def _explain(concerns_summary: str) -> str:
 
 
 def main() -> int:
-    """Read the hook input and ask the operator when needed."""
+    """Read the hook input and ask the operator when needed.
+
+    :returns: The process exit code.
+    """
     return hook_utils.run_hook(_edit_concerns, _shell_concerns, _explain)
 
 
