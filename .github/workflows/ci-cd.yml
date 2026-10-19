@@ -759,13 +759,14 @@ jobs:
       dists-artifact-name: >-
         ${{ needs.pre-setup.outputs.dists-artifact-name }}
       qemu: true
-      # CIBW_ARCHS_LINUX: Build emulated architectures if QEMU, else "auto"
+      # CIBW_ARCHS_LINUX: Only the architectures without a native runner;
+      # `aarch64` and `x86_64` come from the `[tested]` job in every mode
       # CIBW_CONFIG_SETTINGS: `with-cython-tracing` — for coverage collection
       # CIBW_ARCHS_MACOS=all x86_64 arm64 universal2
       # FIXME: RISC-V requires us to provide a build container
       # FIXME: Add support for free-threading / see issue #822
       environment-variables: |-
-        CIBW_ARCHS_LINUX=all
+        CIBW_ARCHS_LINUX=armv7l ppc64le s390x
 
         CIBW_ARCHS_MACOS=native
 
@@ -783,7 +784,6 @@ jobs:
           *_i686
           *-musllinux_*
           *-*_riscv64
-          *-*linux_{aarch64,x86_64}
           *t-*
         EOF'
           || ''
