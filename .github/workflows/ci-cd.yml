@@ -1598,6 +1598,7 @@ jobs:
         bodyFile: release-notes.md
         discussionCategory: Announcements
         draft: false
+        immutableCreate: true
         name: ${{ needs.pre-setup.outputs.git-tag }}
         omitBodyDuringUpdate: true
         omitName: false
