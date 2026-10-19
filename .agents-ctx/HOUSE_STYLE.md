@@ -1,8 +1,8 @@
 # House Style
 
-Grounded in the project's own review history, plus explicit
-maintainer conventions carried over from other projects — not
-guesses.
+Grounded in the maintainer's review history and merged commits
+(PR numbers below are from `ansible/pylibssh`), plus explicit
+maintainer conventions carried across projects — not guesses.
 
 ## No new `@`-syntax in memory files
 
@@ -69,7 +69,7 @@ Here: no-indent sequences are enforced by `.yamllint`; see
   `> [!tip]` / `> [!important]` / `> [!warning]` /
   `> [!caution]` syntax.
 - Inline code uses *single* backticks. Double backticks are RST,
-  not Markdown -- easy to mix up here, since the docs and change
+  not Markdown -- easy to mix up in a project whose docs or change
   notes are RST.
 - Prefer detached link definitions, grouped close to the
   paragraphs that use them rather than dumped at the bottom of
