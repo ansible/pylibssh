@@ -1,0 +1,5 @@
+The in-tree guidance for agents on testing now keeps
+project-specific facts apart from the rules shared with other
+projects, and no longer claims that ``darglint`` checks test
+docstrings
+-- steered by :user:`webknjaz`, typed by a robot that errs.
