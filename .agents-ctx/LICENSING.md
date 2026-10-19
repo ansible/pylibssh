@@ -22,3 +22,13 @@ not SPDX tags. `build-scripts/manylinux-container-image/` is
 derived from PyCA/infra and stays under Apache-2.0 / BSD-3-Clause,
 with its license files next to it. The wheels bundle libssh, which
 is LGPL-2.1 itself.
+
+## Claude Code guard hook
+
+`.claude/hooks/guard_license_changes.py` makes Claude Code ask the
+operator before edits that touch license files, drop license
+notices, or change license metadata, and before shell commands
+that delete or rewrite license files. That prompt is a backstop,
+not a rubber stamp: present the change to the operator *before*
+attempting it. Agents other than Claude Code follow the same rule
+without the backstop.
