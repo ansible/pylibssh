@@ -119,6 +119,11 @@ threads, and not disrupting review flow with careless pushes.
 See [WHERE_TO_LOOK_FIRST.md](WHERE_TO_LOOK_FIRST.md) for a reading
 order when picking up a task, and a map of the repository.
 
+## Licensing
+
+See [LICENSING.md](LICENSING.md) -- license terms and metadata
+change only with the maintainer's explicit approval.
+
 ## Tooling
 
 See [CONTRIB_WORKFLOW_INFRA_TOOLING.md](CONTRIB_WORKFLOW_INFRA_TOOLING.md)
