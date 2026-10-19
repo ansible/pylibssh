@@ -15,8 +15,8 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 
-import os as _os  # noqa: WPS111
 import collections as _c  # noqa: WPS111
+import os as _os  # noqa: WPS111
 import typing as _t  # noqa: WPS111
 
 from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
