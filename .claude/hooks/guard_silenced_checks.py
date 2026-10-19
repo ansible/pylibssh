@@ -9,8 +9,6 @@ Claude Code to prompt the operator for a decision.
 See ``.agents-ctx/DONT_SHOOT_THE_MESSENGER.md`` for the policy.
 """
 
-import json
-import os
 import pathlib
 import re
 import sys
@@ -112,21 +110,11 @@ def _is_tool_config(relative_path: str) -> bool:
 
 
 def _edit_concerns(
-    hook_input: _t.Mapping[str, _t.Any],
-    project_dir: pathlib.Path,
+    relative_path: str,
+    old_text: str,
+    new_text: str,
 ) -> list[str]:
     """Describe why an edit tool call needs the operator's decision."""
-    tool_input = hook_input.get('tool_input', {})
-    relative_path = hook_utils.relative_path(
-        tool_input.get('file_path') or tool_input.get('notebook_path', ''),
-        project_dir,
-    )
-    old_text, new_text = hook_utils.edit_texts(
-        hook_input.get('tool_name', ''),
-        tool_input,
-        project_dir,
-    )
-
     concerns = [
         f'adds a suppression ({marker_name}) in {relative_path}'
         for marker_name in _more_frequent(
@@ -152,9 +140,8 @@ def _edit_concerns(
     return concerns
 
 
-def _shell_concerns(hook_input: _t.Mapping[str, _t.Any]) -> list[str]:
+def _shell_concerns(command: str) -> list[str]:
     """Describe why a shell command needs the operator's decision."""
-    command = hook_input.get('tool_input', {}).get('command', '')
     concerns = [
         f'the command mentions a suppression ({marker_name})'
         for marker_name, marker_regex in SUPPRESSION_MARKERS
@@ -169,27 +156,18 @@ def _shell_concerns(hook_input: _t.Mapping[str, _t.Any]) -> list[str]:
     return concerns
 
 
+def _explain(concerns_summary: str) -> str:
+    """Explain to the operator why their decision is needed."""
+    return (
+        'Silencing checks is a decision for the operator '
+        f'(see {POLICY_DOC}): {concerns_summary}. '
+        'The agent must have presented this case to you first.'
+    )
+
+
 def main() -> int:
     """Read the hook input and ask the operator when needed."""
-    hook_input = json.load(sys.stdin)
-    project_dir = pathlib.Path(
-        os.environ.get('CLAUDE_PROJECT_DIR') or hook_input.get('cwd', '.'),
-    ).resolve()
-
-    if hook_input.get('tool_name') == 'Bash':
-        concerns = _shell_concerns(hook_input)
-    else:
-        concerns = _edit_concerns(hook_input, project_dir)
-
-    if concerns:
-        concerns_summary = '; '.join(concerns)
-        decision_reason = (
-            'Silencing checks is a decision for the operator '
-            f'(see {POLICY_DOC}): {concerns_summary}. '
-            'The agent must have presented this case to you first.'
-        )
-        hook_utils.ask_operator(decision_reason)
-    return 0
+    return hook_utils.run_hook(_edit_concerns, _shell_concerns, _explain)
 
 
 if __name__ == '__main__':

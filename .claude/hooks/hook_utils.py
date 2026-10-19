@@ -2,9 +2,15 @@
 
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import typing as _t  # noqa: WPS111  # house convention; drop once the lint config allows `_t`
+
+
+EditConcerns = _t.Callable[[str, str, str], list[str]]
+ShellConcerns = _t.Callable[[str], list[str]]
+Explanation = _t.Callable[[str], str]
 
 
 def relative_path(file_path: str, project_dir: pathlib.Path) -> str:
@@ -69,3 +75,44 @@ def ask_operator(decision_reason: str) -> None:
         },
         sys.stdout,
     )
+
+
+def edit_context(
+    hook_input: _t.Mapping[str, _t.Any],
+    project_dir: pathlib.Path,
+) -> tuple[str, str, str]:
+    """Resolve an edit tool call to its path, old text and new text."""
+    tool_input = hook_input.get('tool_input', {})
+    edited_path = relative_path(
+        tool_input.get('file_path') or tool_input.get('notebook_path', ''),
+        project_dir,
+    )
+    old_text, new_text = edit_texts(
+        hook_input.get('tool_name', ''),
+        tool_input,
+        project_dir,
+    )
+    return edited_path, old_text, new_text
+
+
+def run_hook(
+    edit_concerns: EditConcerns,
+    shell_concerns: ShellConcerns,
+    explain: Explanation,
+) -> int:
+    """Read the hook input and ask the operator when needed."""
+    hook_input = json.load(sys.stdin)
+    project_dir = pathlib.Path(
+        os.environ.get('CLAUDE_PROJECT_DIR') or hook_input.get('cwd', '.'),
+    ).resolve()
+
+    if hook_input.get('tool_name') == 'Bash':
+        concerns = shell_concerns(
+            hook_input.get('tool_input', {}).get('command', ''),
+        )
+    else:
+        concerns = edit_concerns(*edit_context(hook_input, project_dir))
+
+    if concerns:
+        ask_operator(explain('; '.join(concerns)))
+    return 0
