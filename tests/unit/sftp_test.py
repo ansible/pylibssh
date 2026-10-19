@@ -5,14 +5,15 @@ import random
 import typing as _t  # noqa: WPS111
 import uuid
 
+
 if _t.TYPE_CHECKING:
     import os as _os
 
 
 import pytest
 
-from pylibsshext.session import Session
 from pylibsshext.errors import LibsshSFTPException
+from pylibsshext.session import Session
 from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK
 
 
