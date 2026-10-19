@@ -1221,7 +1221,8 @@ jobs:
       && fromJSON(needs.pre-setup.outputs.release-requested)
     runs-on: ubuntu-latest
 
-    timeout-minutes: 5  # docker+network are slow sometimes
+    # Ref: https://github.com/pypa/gh-action-pypi-publish/issues/307
+    timeout-minutes: 10  # docker+network are slow sometimes
 
     defaults:
       run:
@@ -1274,7 +1275,8 @@ jobs:
       )
     runs-on: ubuntu-latest
 
-    timeout-minutes: 5  # docker+network are slow sometimes
+    # Ref: https://github.com/pypa/gh-action-pypi-publish/issues/307
+    timeout-minutes: 10  # docker+network are slow sometimes
 
     defaults:
       run:
