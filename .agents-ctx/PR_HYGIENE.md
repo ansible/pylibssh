@@ -68,6 +68,11 @@ there either.
 
 [gitmoji]: https://gitmoji.dev
 
+Here: commit messages must pass [gitlint], even though it isn't
+wired into the linters yet.
+
+[gitlint]: https://jorisroovers.com/gitlint/
+
 ## PR descriptions
 
 Fill in the repository's PR template instead of replacing it: keep
