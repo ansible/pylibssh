@@ -1,0 +1,4 @@
+The in-tree guidance for agents on running the project's tooling
+now keeps project-specific examples apart from the rules shared
+with other projects
+-- steered by :user:`webknjaz`, typed by a robot that errs.
