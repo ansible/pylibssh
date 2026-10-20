@@ -20,6 +20,7 @@ POLL_TIMEOUT = 5000
 # otherwise libssh sets timeout to 10000
 SMALL_TIMEOUT_USEC = 1000
 LARGE_TIMEOUT_SEC = 10
+OUTPUT_DELAY_SEC = 1
 
 
 @pytest.fixture
@@ -176,6 +177,50 @@ def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
     assert ssh_channel.read_bulk_response() == b'Bye'
     with pytest.raises(LibsshChannelEOFError, match=error_msg):
         _read_bulk_until_deadline(ssh_channel, POLL_EXIT_CODE_TIMEOUT)
+
+
+@pytest.fixture
+def ssh_channel_via_relay(
+    ssh_session_connect_via_relay: _t.Callable[[Session], None],
+) -> _t.Iterator[Channel]:
+    """Open a channel on a session connected through the sshd relay.
+
+    :param ssh_session_connect_via_relay: Function connecting a session
+        through the relay.
+
+    :yields: A libssh channel instance.
+    """
+    ssh_session = Session()
+    ssh_session_connect_via_relay(ssh_session)
+    chan = ssh_session.new_channel()
+    try:  # noqa: WPS501
+        yield chan
+    finally:
+        chan.close()
+        ssh_session.close()
+
+
+def test_read_bulk_response_data_with_eof(
+    sshd_replies_paused_file: pathlib.Path,
+    ssh_channel_via_relay: Channel,
+) -> None:
+    """Test that output arriving together with EOF is returned before raising.
+
+    The relay withholds the sshd replies while the command runs, so its
+    output and the end of the stream reach the client at once.
+    """
+    ssh_channel_via_relay.request_exec(
+        f'sleep {OUTPUT_DELAY_SEC:d}; echo -n Bye',
+    )
+    sshd_replies_paused_file.touch()
+    time.sleep(OUTPUT_DELAY_SEC * 2)
+    sshd_replies_paused_file.unlink()
+    ssh_channel_via_relay.poll(timeout=POLL_TIMEOUT)
+
+    error_msg = '^The channel has been closed by the remote side$'
+    assert ssh_channel_via_relay.read_bulk_response() == b'Bye'
+    with pytest.raises(LibsshChannelEOFError, match=error_msg):
+        ssh_channel_via_relay.read_bulk_response()
 
 
 def test_request_exec(ssh_channel: Channel) -> None:
