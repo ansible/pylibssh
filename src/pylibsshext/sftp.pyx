@@ -80,7 +80,7 @@ cdef class SFTP:
 
         if "\0" in remote_file:
             raise ValueError(
-                f"Invalid remote file path with embedded null byte: {remote_file!r}"
+                f"Invalid remote file path with embedded null byte: {remote_file!r}",
             )
 
         with open(local_file, "rb") as f:
@@ -134,7 +134,7 @@ cdef class SFTP:
 
         if "\0" in remote_file:
             raise ValueError(
-                f"Invalid remote file path with embedded null byte: {remote_file!r}"
+                f"Invalid remote file path with embedded null byte: {remote_file!r}",
             )
 
         remote_file_b = remote_file.encode("utf-8")
