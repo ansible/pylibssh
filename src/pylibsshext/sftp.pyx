@@ -72,9 +72,17 @@ cdef class SFTP:
         :param local_file: The file name on the local file system to upload
 
         :param remote_file: The path to upload the file on the remote system
+
+        :raises ValueError: When remote path contains invalid null bytes
         """
         cdef sftp.sftp_file rf
         cdef const char* c_buf
+
+        if "\0" in remote_file:
+            raise ValueError(
+                f"Invalid remote file path with embedded null byte: {remote_file!r}",
+            )
+
         with open(local_file, "rb") as f:
             remote_file_b = remote_file.encode("utf-8")
 
@@ -117,10 +125,17 @@ cdef class SFTP:
         :param remote_file: The file path on the remote system to download
 
         :param local_file: The path on the local file system to place the downloaded file
+
+        :raises ValueError: When remote path contains invalid null bytes
         """
         cdef sftp.sftp_file rf
         cdef char *read_buffer = NULL
         cdef sftp.sftp_attributes attrs
+
+        if "\0" in remote_file:
+            raise ValueError(
+                f"Invalid remote file path with embedded null byte: {remote_file!r}",
+            )
 
         remote_file_b = remote_file.encode("utf-8")
         attrs = sftp.sftp_stat(self._libssh_sftp_session, remote_file_b)

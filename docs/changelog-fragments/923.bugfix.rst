@@ -1,0 +1,6 @@
+Changed the ``SFTP.get()`` and ``SFTP.put()`` APIs to raise :exc:`ValueError`
+for remote paths with embedded NULL bytes.
+
+These are impossible to encode in the C-string used by the underlying
+libssh C API and would result in unexpected behavior (such as a silent
+path truncation) -- by :user:`Jakuje`.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pathlib
 import random
+import re
 import typing as _t  # noqa: WPS111
 import uuid
 
@@ -191,6 +192,31 @@ def bogus_dst_path(tmp_path: pathlib.Path) -> pathlib.Path:
     return tmp_path / 'bogus-dst-file.txt'
 
 
+@pytest.fixture(
+    params=(
+        pytest.param(
+            '\x00{path}',
+            id='null-at-start',
+        ),
+        pytest.param(
+            '{path}\x00null',
+            id='null-in-middle',
+        ),
+        pytest.param(
+            '{path}\x00',
+            id='null-at-end',
+        ),
+    ),
+)
+def bogus_null_byte_path(
+    request: pytest.FixtureRequest,
+    tmp_path: pathlib.Path,
+) -> str:
+    """Return a bogus remote path containing a null byte in different locations."""
+    path_template: str = request.param
+    return path_template.format(path=tmp_path / 'bogus-remote-file.txt')
+
+
 def test_put_rejects_remote_bytes_path(
     bogus_dst_path: pathlib.Path,
     bogus_src_path: pathlib.Path,
@@ -244,4 +270,36 @@ def test_get_rejects_remote_pathlike(
         sftp_session.get(
             bogus_src_path,
             str(bogus_dst_path),
+        )
+
+
+def test_put_rejects_remote_null_byte_path(
+    bogus_null_byte_path: str,
+    bogus_src_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that SFTP ``put()`` API rejects remote path with null byte."""
+    error_msg = re.escape(
+        f'Invalid remote file path with embedded null byte: {bogus_null_byte_path!r}',
+    )
+    with pytest.raises(ValueError, match=f'^{error_msg}$'):
+        sftp_session.put(
+            local_file=str(bogus_src_path),
+            remote_file=bogus_null_byte_path,
+        )
+
+
+def test_get_rejects_remote_null_byte_path(
+    bogus_dst_path: pathlib.Path,
+    bogus_null_byte_path: str,
+    sftp_session: SFTP,
+) -> None:
+    """Check that SFTP ``get()`` API rejects remote path with null byte."""
+    error_msg = re.escape(
+        f'Invalid remote file path with embedded null byte: {bogus_null_byte_path!r}',
+    )
+    with pytest.raises(ValueError, match=f'^{error_msg}$'):
+        sftp_session.get(
+            remote_file=bogus_null_byte_path,
+            local_file=str(bogus_dst_path),
         )
