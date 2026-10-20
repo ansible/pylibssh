@@ -280,7 +280,7 @@ def test_put_rejects_remote_null_byte_path(
 ) -> None:
     """Check that SFTP ``put()`` API rejects remote path with null byte."""
     error_msg = re.escape(
-        f'Invalid remote file path with embedded null byte: {bogus_null_byte_path!r}'
+        f'Invalid remote file path with embedded null byte: {bogus_null_byte_path!r}',
     )
     with pytest.raises(ValueError, match=f'^{error_msg}$'):
         sftp_session.put(
@@ -296,7 +296,7 @@ def test_get_rejects_remote_null_byte_path(
 ) -> None:
     """Check that SFTP ``get()`` API rejects remote path with null byte."""
     error_msg = re.escape(
-        f'Invalid remote file path with embedded null byte: {bogus_null_byte_path!r}'
+        f'Invalid remote file path with embedded null byte: {bogus_null_byte_path!r}',
     )
     with pytest.raises(ValueError, match=f'^{error_msg}$'):
         sftp_session.get(
