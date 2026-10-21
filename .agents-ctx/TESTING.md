@@ -18,7 +18,9 @@ coverage number alone. Coverage still matters a lot -- 100%
 coverage is a genuinely useful self-check (e.g. it can catch tests
 that silently start getting skipped in CI). The point is: don't
 game the number -- a test that exercises a line without
-meaningfully checking behavior doesn't count, passing or not. The
+meaningfully checking behavior doesn't count, passing or not (see
+"Don't game the messenger either" in
+[DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md)). The
 same reasoning-over-metrics standard applies to every change, not
 just tests: infra, packaging, and runtime code all need
 well-reasoned, architecturally sound justification, not just a

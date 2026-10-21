@@ -51,6 +51,44 @@ Reporting:
   iterating, but never report a run as green while failures are
   excluded from it.
 
+## Don't game the messenger either
+
+Silencing has a mirror image: making a check report success while
+the thing it measures isn't actually true. A coverage number going
+up is not proof that anything is better tested. Gaming a check is
+no more the agent's call than silencing it.
+
+These count as gaming:
+
+- Tests that execute lines without checking behavior: no
+  assertions, or assertions that can't fail.
+- Reaching code through private or internal API (`_name()`), or
+  calling it in an order or a number of times no real caller
+  would, just to mark lines as covered.
+- Forcing an object into a state that its public API, or a real
+  external scenario, can never produce.
+
+Instead, drive the code the way it runs for real: through the
+public API, or an end-to-end scenario -- a full object lifecycle,
+a failure provoked at a real boundary. Before writing a test for
+an uncovered line, check whether existing tests already reach it
+that way, and whether the coverage tool can see it at all. When a
+line can't be reached realistically, stop and bring it to the
+operator as a finding, not a test: it's either dead or purely
+defensive code -- the operator decides whether to drop it or to
+exclude it as described in [Presenting a case](#presenting-a-case)
+-- or a blind spot of the tooling. Say what each new test proves,
+not which lines it turns green.
+
+Here: PR #879 added a test calling `_RemoteFile._cleanup()` by hand,
+without assertions, to cover its early return on an already-closed
+handle. Real use already takes that branch: `__exit__()` closes the
+handle and `__dealloc__()` runs `_cleanup()` again, and a failed
+`sftp_open()` deallocates an object whose handle was never set.
+With Cython line tracing on, dozens of other tests in
+`tests/unit/sftp_test.py`, including plain `SFTP.get()` and
+`SFTP.put()` calls, were already recorded taking it.
+
 ## Presenting a case
 
 When you believe silencing is warranted, stop and show the

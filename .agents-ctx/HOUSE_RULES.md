@@ -71,6 +71,10 @@ Concretely:
   per-file/directory ignores in tool configs, etc.) on your own.
 - Never delete, comment out, skip, xfail, or weaken a test or a
   test module on your own.
+- Never game a check either. A test that only executes lines, or
+  reaches them through private API, proves nothing. Drive code
+  through public API or real scenarios, and bring lines you can't
+  reach that way to the operator.
 - These hold even when that's the only thing still failing. The
   default response to a red check is to fix its cause.
 - If you believe silencing is warranted, stop. Present **each
@@ -81,9 +85,10 @@ Concretely:
   and stays accountable -- keep them in the loop.
 
 See [DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md) for
-what counts as silencing, how to present a case, and how approved
-suppressions are scoped and documented. Tool-config changes are
-standalone commits -- see [PR_HYGIENE.md](PR_HYGIENE.md).
+what counts as silencing or gaming, how to present a case, and how
+approved suppressions are scoped and documented. Tool-config
+changes are standalone commits -- see
+[PR_HYGIENE.md](PR_HYGIENE.md).
 
 ## Naming the ducks
 
