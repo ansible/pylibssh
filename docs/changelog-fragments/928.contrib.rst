@@ -1,0 +1,2 @@
+Refactored SFTP tests and added new ones handling non-existing local
+and remote files -- by :user:`Jakuje`.

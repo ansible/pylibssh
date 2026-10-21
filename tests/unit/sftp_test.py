@@ -6,7 +6,6 @@ import pathlib
 import random
 import re
 import typing as _t  # noqa: WPS111
-import uuid
 
 
 if _t.TYPE_CHECKING:
@@ -24,6 +23,7 @@ if _t.TYPE_CHECKING:
 
 import pytest
 
+from pylibsshext.errors import LibsshSFTPException
 from pylibsshext.sftp import SFTP, SFTP_MAX_CHUNK
 
 
@@ -67,51 +67,39 @@ def transmit_payload(request: pytest.FixtureRequest) -> bytes:
 
 
 @pytest.fixture
-def file_paths_pair(
-    tmp_path: pathlib.Path,
-    transmit_payload: bytes,
-) -> tuple[pathlib.Path, pathlib.Path]:
-    """Populate a source file and make a destination path."""
-    src_path = tmp_path / 'src-file.txt'
-    dst_path = tmp_path / 'dst-file.txt'
-    src_path.write_bytes(transmit_payload)
-    return src_path, dst_path
-
-
-@pytest.fixture
-def src_path(
-    file_paths_pair: tuple[pathlib.Path, pathlib.Path],
-) -> pathlib.Path:
-    """Return a data source path."""
-    return file_paths_pair[0]
-
-
-@pytest.fixture
-def dst_path(
-    file_paths_pair: tuple[pathlib.Path, pathlib.Path],
-) -> pathlib.Path:
+def dst_path(tmp_path: pathlib.Path) -> pathlib.Path:
     """Return a data destination path."""
-    path = file_paths_pair[1]
+    path = tmp_path / 'dst-file.txt'
     assert not path.exists()
     return path
 
 
 @pytest.fixture
-def other_payload() -> bytes:
-    """Generate a binary test payload."""
-    uuid_name = uuid.uuid4()
-    return f'Original content: {uuid_name!s}'.encode()
+def src_path(
+    tmp_path: pathlib.Path,
+    transmit_payload: bytes,
+) -> pathlib.Path:
+    """Return a populated data source path."""
+    path = tmp_path / 'src-file.txt'
+    path.write_bytes(transmit_payload)
+    return path
 
 
 @pytest.fixture
-def pre_existing_dst_path(
+def file_paths_pair(
     dst_path: pathlib.Path,
-    other_payload: bytes,
-) -> pathlib.Path:
-    """Return a data destination path."""
-    dst_path.write_bytes(other_payload)
-    assert dst_path.exists()
-    return dst_path
+    src_path: pathlib.Path,
+) -> tuple[pathlib.Path, pathlib.Path]:
+    """Populate a source file and make a destination path."""
+    return src_path, dst_path
+
+
+@pytest.fixture
+def pre_existing_file_path(tmp_path: pathlib.Path) -> pathlib.Path:
+    """Return a path to a pre-existing populated file."""
+    path = tmp_path / 'pre-existing-file.txt'
+    path.write_bytes(random.randbytes(SMALL_PAYLOAD))
+    return path
 
 
 @pytest.fixture(
@@ -159,25 +147,25 @@ def test_get(
 
 
 def test_get_existing(
-    pre_existing_dst_path: pathlib.Path,
-    src_path: pathlib.Path,
+    pre_existing_file_path: pathlib.Path,
     sftp_session: SFTP,
+    src_path: pathlib.Path,
     transmit_payload: bytes,
 ) -> None:
     """Check that SFTP file download works when target file exists."""
-    sftp_session.get(str(src_path), str(pre_existing_dst_path))
-    assert pre_existing_dst_path.read_bytes() == transmit_payload
+    sftp_session.get(str(src_path), str(pre_existing_file_path))
+    assert pre_existing_file_path.read_bytes() == transmit_payload
 
 
 def test_put_existing(
-    pre_existing_dst_path: pathlib.Path,
-    src_path: pathlib.Path,
+    pre_existing_file_path: pathlib.Path,
     sftp_session: SFTP,
+    src_path: pathlib.Path,
     transmit_payload: bytes,
 ) -> None:
     """Check that SFTP file upload works when target file exists."""
-    sftp_session.put(str(src_path), str(pre_existing_dst_path))
-    assert pre_existing_dst_path.read_bytes() == transmit_payload
+    sftp_session.put(src_path, str(pre_existing_file_path))
+    assert pre_existing_file_path.read_bytes() == transmit_payload
 
 
 @pytest.fixture
@@ -187,9 +175,20 @@ def bogus_src_path(tmp_path: pathlib.Path) -> pathlib.Path:
 
 
 @pytest.fixture
-def bogus_dst_path(tmp_path: pathlib.Path) -> pathlib.Path:
-    """Return bogus destination path that does not exist."""
-    return tmp_path / 'bogus-dst-file.txt'
+def non_existing_tmp_path(tmp_path: pathlib.Path) -> pathlib.Path:
+    """Return a path to a directory that is guaranteed to not exist."""
+    return tmp_path / 'non-existing'
+
+
+@pytest.fixture
+def bogus_dst_path(non_existing_tmp_path: pathlib.Path) -> pathlib.Path:
+    """
+    Return bogus destination path that does not exist.
+
+    Care is taken to make sure the parent directory does not exist either to make
+    sure it is not created during open with write flags provided.
+    """
+    return non_existing_tmp_path / 'bogus-dst-file.txt'
 
 
 @pytest.fixture(
@@ -275,7 +274,7 @@ def test_get_rejects_remote_pathlike(
 
 def test_put_rejects_remote_null_byte_path(
     bogus_null_byte_path: str,
-    bogus_src_path: pathlib.Path,
+    pre_existing_file_path: pathlib.Path,
     sftp_session: SFTP,
 ) -> None:
     """Check that SFTP ``put()`` API rejects remote path with null byte."""
@@ -284,7 +283,7 @@ def test_put_rejects_remote_null_byte_path(
     )
     with pytest.raises(ValueError, match=f'^{error_msg}$'):
         sftp_session.put(
-            local_file=str(bogus_src_path),
+            local_file=pre_existing_file_path,
             remote_file=bogus_null_byte_path,
         )
 
@@ -303,3 +302,67 @@ def test_get_rejects_remote_null_byte_path(
             remote_file=bogus_null_byte_path,
             local_file=str(bogus_dst_path),
         )
+
+
+def test_get_non_existing_remote(
+    bogus_dst_path: pathlib.Path,
+    bogus_src_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """
+    Check that SFTP file download cleanly fails for non-existing remote file.
+
+    Note, that the remote file is opened first for download so the value
+    of local/dst path does not really matter here.
+    """
+    error_msg = re.escape(
+        f'Failed to stat the remote file [{bogus_src_path!s}]. Error: '
+        "[File doesn't exist]",
+    )
+    with pytest.raises(LibsshSFTPException, match=f'^{error_msg}$'):
+        sftp_session.get(str(bogus_src_path), bogus_dst_path)
+
+
+def test_get_non_existing_local(
+    bogus_dst_path: pathlib.Path,
+    pre_existing_file_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that SFTP file download cleanly fails for non-existing local file."""
+    error_msg = re.escape(
+        f"[Errno 2] No such file or directory: '{bogus_dst_path!s}'",
+    )
+    with pytest.raises(FileNotFoundError, match=f'^{error_msg}$'):
+        sftp_session.get(str(pre_existing_file_path), bogus_dst_path)
+
+
+def test_put_non_existing_remote(
+    bogus_dst_path: pathlib.Path,
+    pre_existing_file_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that SFTP file upload cleanly fails when we fail to open target file for writing."""
+    error_msg = re.escape(
+        f'Opening remote file [{bogus_dst_path!s}] for write failed with error '
+        "[File doesn't exist]",
+    )
+    with pytest.raises(LibsshSFTPException, match=f'^{error_msg}$'):
+        sftp_session.put(pre_existing_file_path, str(bogus_dst_path))
+
+
+def test_put_non_existing_local(
+    bogus_dst_path: pathlib.Path,
+    bogus_src_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """
+    Check that SFTP file upload cleanly fails when we fail to open source file for reading.
+
+    Note, that the local file is opened first for upload so the value
+    of remote/dst path does not really matter here.
+    """
+    error_msg = re.escape(
+        f"[Errno 2] No such file or directory: '{bogus_src_path!s}'",
+    )
+    with pytest.raises(FileNotFoundError, match=f'^{error_msg}$'):
+        sftp_session.put(bogus_src_path, str(bogus_dst_path))
