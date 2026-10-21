@@ -72,6 +72,19 @@ task-tags = [
   "TODO",
 ]
 
+[lint.flake8-import-conventions]
+banned-from = [
+  "collections.abc",
+  "types",
+  "typing",
+]
+
+[lint.flake8-import-conventions.extend-aliases]
+# NOTE: Keep `typing` in sync with `typing-as-t-imported-name` in `.flake8`
+"collections.abc" = "_c"
+types = "_tps"
+typing = "_t"
+
 [lint.flake8-pytest-style]
 parametrize-values-type = "tuple"
 
