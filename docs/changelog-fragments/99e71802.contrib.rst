@@ -1,0 +1,4 @@
+The linters now require importing the ``typing``, ``types`` and
+``collections.abc`` modules as ``_t``, ``_tps`` and ``_c``
+respectively, rather than importing their members directly
+-- steered by :user:`webknjaz`, typed by a robot that errs.
