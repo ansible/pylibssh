@@ -15,7 +15,7 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 
-import typing as _t  # noqa: WPS111
+import typing as _t
 
 
 if _t.TYPE_CHECKING:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-import typing as _t  # noqa: WPS111
+import typing as _t
 from contextlib import contextmanager
 from os.path import expandvars
 from pathlib import Path
@@ -17,7 +17,7 @@ from ._transformers import (
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS111, WPS301
+    import collections.abc as _c  # noqa: WPS301
 
 
 class Config(_t.TypedDict):

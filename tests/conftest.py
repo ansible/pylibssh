@@ -6,7 +6,7 @@ import pathlib
 import shutil
 import socket
 import subprocess
-import typing as _t  # noqa: WPS111
+import typing as _t
 from functools import partial
 
 import pytest

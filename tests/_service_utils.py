@@ -6,7 +6,7 @@ import getpass
 import subprocess
 import sys
 import time
-import typing as _t  # noqa: WPS111
+import typing as _t
 
 
 if _t.TYPE_CHECKING:

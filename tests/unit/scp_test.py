@@ -3,7 +3,7 @@
 import os
 import pathlib
 import random
-import typing as _t  # noqa: WPS111
+import typing as _t
 
 import pytest
 

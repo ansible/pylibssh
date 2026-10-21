@@ -1,7 +1,7 @@
 """Fixtures for a TCP relay in front of sshd that can withhold its replies."""
 
 import pathlib
-import typing as _t  # noqa: WPS111
+import typing as _t
 from functools import partial
 from types import ModuleType
 

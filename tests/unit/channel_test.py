@@ -4,7 +4,7 @@ import gc
 import pathlib
 import signal
 import time
-import typing as _t  # noqa: WPS111
+import typing as _t
 
 import pytest
 

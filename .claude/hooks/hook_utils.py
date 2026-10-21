@@ -7,7 +7,7 @@ import json
 import os
 import pathlib
 import sys
-import typing as _t  # noqa: WPS111  # house convention; drop once the lint config allows `_t`
+import typing as _t
 
 
 EditConcerns = _t.Callable[[str, str, str], list[str]]

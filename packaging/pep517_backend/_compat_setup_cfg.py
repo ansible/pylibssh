@@ -8,7 +8,7 @@ metadata, which this module renders from ``pyproject.toml``.
 
 from __future__ import annotations
 
-import typing as _t  # noqa: WPS111
+import typing as _t
 from configparser import ConfigParser
 from contextlib import contextmanager
 from io import StringIO
@@ -18,7 +18,7 @@ from ._compat import load_toml_from_string
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS111, WPS301
+    import collections.abc as _c  # noqa: WPS301
     from pathlib import Path
 
 

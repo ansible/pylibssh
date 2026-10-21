@@ -6,7 +6,7 @@ import pathlib
 import shlex
 import sys
 import sysconfig
-import typing as _t  # noqa: WPS111
+import typing as _t
 from types import MappingProxyType
 
 import pytest

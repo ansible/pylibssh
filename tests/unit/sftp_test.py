@@ -5,11 +5,11 @@ from __future__ import annotations
 import pathlib
 import random
 import re
-import typing as _t  # noqa: WPS111
+import typing as _t
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS111, WPS301
+    import collections.abc as _c  # noqa: WPS301
     import os as _os
 
     from pylibsshext.session import Session

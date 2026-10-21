@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import pathlib
-import typing as _t  # noqa: WPS111
+import typing as _t
 
 import proxy
 from proxy.common.flag import flags

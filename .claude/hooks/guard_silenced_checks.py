@@ -15,7 +15,7 @@ from __future__ import annotations
 import pathlib
 import re
 import sys
-import typing as _t  # noqa: WPS111  # house convention; drop once the lint config allows `_t`
+import typing as _t
 
 import hook_utils
 

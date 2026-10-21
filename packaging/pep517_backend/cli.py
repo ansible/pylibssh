@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import sys
-import typing as _t  # noqa: WPS111
+import typing as _t
 from itertools import chain
 from pathlib import Path
 
@@ -22,7 +22,7 @@ from ._cython_configuration import (
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS111, WPS301
+    import collections.abc as _c  # noqa: WPS301
 
 
 _PROJECT_PATH = Path(__file__).parents[2]

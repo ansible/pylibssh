@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import typing as _t  # noqa: WPS111
+import typing as _t
 from itertools import chain
 from re import sub as _substitute_with_regexp
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS111, WPS301
+    import collections.abc as _c  # noqa: WPS301
 
 
 def _emit_opt_pairs(

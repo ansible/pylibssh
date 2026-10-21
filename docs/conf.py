@@ -4,7 +4,7 @@
 """Configuration for the Sphinx documentation generator."""
 
 import os
-import typing as _t  # noqa: WPS111
+import typing as _t
 from functools import partial
 from pathlib import Path
 
