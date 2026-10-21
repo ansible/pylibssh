@@ -114,6 +114,16 @@ pytest-parametrize-values-row-type = tuple
 # PT023:
 pytest-mark-no-parentheses = true
 
+# flake8-typing-as-t
+# TYT02:
+typing-as-t-imported-name = _t
+
 # wemake-python-styleguide
 show-source = true
+# WPS111:
+# `_t` will be enforced by `flake8-typing-as-t`
+allowed-domain-names =
+  _t,
+  _c,
+i-control-code = false
 show-violation-links = true
