@@ -1,10 +1,11 @@
 #! /usr/bin/env python3
-"""Make Claude Code ask the operator before an agent silences a check.
+"""Make Claude Code ask the operator before an agent silences or games a check.
 
 This is a ``PreToolUse`` hook. It never blocks anything on its own: when
 an edit or a shell command looks like it suppresses a linter finding,
-disables or weakens a test, or changes tool configuration, it asks
-Claude Code to prompt the operator for a decision.
+disables or weakens a test, calls private methods from tests, or changes
+tool configuration, it asks Claude Code to prompt the operator for a
+decision.
 
 See ``.agents-ctx/DONT_SHOOT_THE_MESSENGER.md`` for the policy.
 """
@@ -47,6 +48,10 @@ TEST_STRENGTH_MARKERS = (
     ),
     ('assertions', re.compile(r'^\s*assert\b', re.MULTILINE)),
     ('pytest.raises() checks', re.compile(r'\bpytest\.raises\s*\(')),
+)
+
+PRIVATE_ACCESS_MARKERS = (
+    ('private method calls', re.compile(r'\._(?!_)\w+\s*\(')),
 )
 
 TOOL_CONFIG_NAMES = frozenset(
@@ -150,6 +155,15 @@ def _edit_concerns(
                 candidate=old_text,
             )
         )
+        concerns.extend(
+            f'adds {marker_name} in {relative_path} '
+            '(reach the code through public API instead)'
+            for marker_name in _more_frequent(
+                PRIVATE_ACCESS_MARKERS,
+                baseline=old_text,
+                candidate=new_text,
+            )
+        )
     if _is_tool_config(relative_path):
         concerns.append(
             f'changes tool configuration in {relative_path} '
@@ -185,7 +199,7 @@ def _explain(concerns_summary: str) -> str:
     :returns: The prompt shown to the operator.
     """
     return (
-        'Silencing checks is a decision for the operator '
+        'Silencing or gaming checks is a decision for the operator '
         f'(see {POLICY_DOC}): {concerns_summary}. '
         'The agent must have presented this case to you first.'
     )

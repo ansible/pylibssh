@@ -168,8 +168,8 @@ atomic change, never mixed into a functional one. See
 
 `.claude/hooks/guard_silenced_checks.py` makes Claude Code ask the
 operator before edits that add suppression markers, reduce the
-number of tests or assertions under `tests/`, touch tool configs,
-or bypass/delete things from the shell. That prompt is a backstop,
-not a rubber stamp: present the case as described above *before*
-attempting the edit. Agents other than Claude Code follow the same
+number of tests or assertions under `tests/`, add private-method
+calls there, touch tool configs, or bypass/delete things from the
+shell. That prompt is a backstop, not a rubber stamp: present the
+case as described above *before* attempting the edit. Agents other than Claude Code follow the same
 rule without the backstop.
