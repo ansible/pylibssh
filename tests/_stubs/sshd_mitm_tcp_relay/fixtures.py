@@ -1,9 +1,9 @@
 """Fixtures for a TCP relay in front of sshd that can withhold its replies."""
 
 import pathlib
+import types as _tps
 import typing as _t
 from functools import partial
-from types import ModuleType
 
 import pytest
 from _service_utils import ensure_ssh_session_connected
@@ -24,7 +24,7 @@ def sshd_replies_paused_file(tmp_path: pathlib.Path) -> pathlib.Path:
 
 
 @pytest.fixture(scope='session')
-def sshd_mitm_tcp_relay_backend() -> ModuleType:
+def sshd_mitm_tcp_relay_backend() -> _tps.ModuleType:
     """Import the relay backend, skipping when its dependencies are missing.
 
     :returns: The ``_stubs.sshd_mitm_tcp_relay.proxy_py`` module.
@@ -32,13 +32,13 @@ def sshd_mitm_tcp_relay_backend() -> ModuleType:
     # NOTE: `proxy.py` is optional so that downstream packagers, who
     # NOTE: often lack it, can still run the rest of the test suite.
     relay_backend = pytest.importorskip('_stubs.sshd_mitm_tcp_relay.proxy_py')
-    assert isinstance(relay_backend, ModuleType)
+    assert isinstance(relay_backend, _tps.ModuleType)
     return relay_backend
 
 
 @pytest.fixture
 def sshd_relay(
-    sshd_mitm_tcp_relay_backend: ModuleType,
+    sshd_mitm_tcp_relay_backend: _tps.ModuleType,
     sshd_addr: HostPort,
     sshd_replies_paused_file: pathlib.Path,
 ) -> _t.Iterator[HostPort]:

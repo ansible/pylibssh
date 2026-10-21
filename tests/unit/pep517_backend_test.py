@@ -6,8 +6,8 @@ import pathlib
 import shlex
 import sys
 import sysconfig
+import types as _tps
 import typing as _t
-from types import MappingProxyType
 
 import pytest
 
@@ -35,15 +35,15 @@ PACKAGES_KEY = 'packages'
 LICENSE_KEY = 'license'
 SAMPLE_LICENSE = 'MIT'
 MINIMAL_PYPROJECT_TOML = '[project]\nname = "pkg"\n'
-NO_SETUPTOOLS_CONFIG: _t.Mapping[str, _t.Any] = MappingProxyType({})
+NO_SETUPTOOLS_CONFIG: _t.Mapping[str, _t.Any] = _tps.MappingProxyType({})
 NAME_KEY = 'name'
-RST_README_CONFIG: _t.Mapping[str, _t.Any] = MappingProxyType(
+RST_README_CONFIG: _t.Mapping[str, _t.Any] = _tps.MappingProxyType(
     {
         'file': ['README.rst', 'CHANGES.rst'],
         'content-type': 'text/x-rst',
     },
 )
-UNTYPED_README_CONFIG: _t.Mapping[str, _t.Any] = MappingProxyType(
+UNTYPED_README_CONFIG: _t.Mapping[str, _t.Any] = _tps.MappingProxyType(
     {
         'file': ['README.rst'],
     },
