@@ -185,7 +185,7 @@ repos:
     # NOTE: in CPython starting Python 3.12. The latest version of
     # NOTE: `setuptools` that's a part of Python 3.11.14 is v79.0.1.
     - setuptools < 81; python_version < "3.14"
-    - wemake-python-styleguide ~= 1.5.0
+    - wemake-python-styleguide ~= 1.8.1
     exclude: >-
       ^docs/_samples/.*\.py$
     language_version: python3
