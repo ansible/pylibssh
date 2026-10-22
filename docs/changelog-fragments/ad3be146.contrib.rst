@@ -1,0 +1,4 @@
+The ``wemake-python-styleguide`` linter got upgraded to v1.8.1,
+which allows importing ``collections.abc`` as
+``from collections import abc as _c`` without suppressing any checks
+-- steered by :user:`webknjaz`, typed by a robot that errs.
