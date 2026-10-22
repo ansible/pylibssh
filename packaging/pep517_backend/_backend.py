@@ -55,7 +55,7 @@ from ._transformers import sanitize_rst_roles
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS301
+    from collections import abc as _c
 
     from typing_extensions import TypeAlias
 

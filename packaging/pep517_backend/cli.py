@@ -22,7 +22,7 @@ from ._cython_configuration import (
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS301
+    from collections import abc as _c
 
 
 _PROJECT_PATH = Path(__file__).parents[2]

@@ -18,7 +18,7 @@ from ._compat import load_toml_from_string
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS301
+    from collections import abc as _c
     from pathlib import Path
 
 

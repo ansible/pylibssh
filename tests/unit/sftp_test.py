@@ -9,8 +9,8 @@ import typing as _t
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS301
     import os as _os
+    from collections import abc as _c
 
     from pylibsshext.session import Session
     from typing_extensions import TypeAlias

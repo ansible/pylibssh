@@ -17,7 +17,7 @@ from ._transformers import (
 
 
 if _t.TYPE_CHECKING:
-    import collections.abc as _c  # noqa: WPS301
+    from collections import abc as _c
 
 
 class Config(_t.TypedDict):
