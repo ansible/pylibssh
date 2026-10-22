@@ -250,7 +250,7 @@ def sshd_addr(
         '-oPermitRootLogin=yes',
         '-oHostbasedAuthentication=no',
         '-oIgnoreUserKnownHosts=yes',
-        f'-oPort={free_port_num:d}',  # port before addr
+        f'-oPort={free_port_num!s}',  # port before addr
         f'-oListenAddress={hostname!s}',  # addr after port
         f'-oAuthorizedKeysFile={ssh_authorized_keys_path!s}',
         '-oAcceptEnv=LANG LC_*',

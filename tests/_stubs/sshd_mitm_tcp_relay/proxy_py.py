@@ -104,7 +104,7 @@ def run_sshd_relay(
     hostname, port = sshd_addr
     proxypy_args = [
         f'--sshd-upstream-host={hostname!s}',
-        f'--sshd-upstream-port={port:d}',
+        f'--sshd-upstream-port={port!s}',
         f'--sshd-replies-paused-file={replies_paused_file!s}',
     ]
     # NOTE: The threadless mode runs the relay in separate processes,
