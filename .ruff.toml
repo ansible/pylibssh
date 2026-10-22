@@ -50,6 +50,8 @@ ignore = [
   "PLR2004",  # magic-value-comparison  # FIXME
 
   "RUF100",  # Ruff doesn't know about WPS
+  "RUF105",  # noqa-comments  # other linters share `noqa` codes
+  "RUF106",  # rule-codes-in-suppression-comments  # same, for `ruff:ignore`
 
   "SIM117",  # multiple-with-statements  # FIXME
 
