@@ -1,0 +1,6 @@
+``Channel.read_bulk_response()`` now raises
+:exc:`~pylibsshext.errors.LibsshChannelEOFError` instead of returning
+``b''`` once the remote side has closed the channel and all buffered
+data has been read. The exception subclasses ``LibsshChannelReadFailure``
+(and therefore :exc:`ConnectionError`) as well as :exc:`EOFError`, so it
+can be handled as either -- by :user:`Ajithkumar2000`.

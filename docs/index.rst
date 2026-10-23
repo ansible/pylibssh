@@ -15,6 +15,11 @@ Welcome to |project|'s documentation!
    user_guide
 
 .. toctree::
+   :caption: API reference
+
+   api/errors
+
+.. toctree::
    :caption: What's new
 
    changelog
