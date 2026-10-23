@@ -1,0 +1,3 @@
+Added an API reference page documenting the new
+:exc:`~pylibsshext.errors.LibsshChannelEOFError` exception
+-- by :user:`Ajithkumar2000`.
