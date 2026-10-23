@@ -1,0 +1,4 @@
+The CI now also builds a manylinux aarch64 wheel without Cython line
+tracing, so the stable ABI (``abi3``) build is exercised on every run.
+Its artifact has a separate name prefix that keeps it out of testing
+and publishing -- by :user:`webknjaz`.
