@@ -94,7 +94,7 @@ class PausableSshdTunnelHandler(BaseTcpTunnelHandler):
 def run_sshd_relay(
     sshd_addr: HostPort,
     replies_paused_file: pathlib.Path,
-) -> _t.Iterator[HostPort]:
+) -> _t.Generator[HostPort, None, None]:
     """Run proxy.py as a TCP relay in front of sshd.
 
     :param sshd_addr: Hostname and port tuple of the sshd to relay to.

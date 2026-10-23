@@ -160,7 +160,7 @@ def patched_env(
     env: dict[str, str],
     *,
     cython_line_tracing_requested: bool,
-) -> _c.Iterator[None]:
+) -> _c.Generator[None, None, None]:
     """Temporary set given env vars.
 
     :param env: tmp env vars to set

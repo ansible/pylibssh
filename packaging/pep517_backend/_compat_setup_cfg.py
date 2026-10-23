@@ -178,7 +178,9 @@ def render_compat_setup_cfg(pyproject: _TomlTable) -> str:
 
 
 @contextmanager
-def compat_setup_cfg_written(project_root: Path) -> _c.Iterator[None]:
+def compat_setup_cfg_written(
+    project_root: Path,
+) -> _c.Generator[None, None, None]:
     """Provide a minimal ``setup.cfg`` for the duration of the context.
 
     Nothing is written when the project already has a ``setup.cfg``.
