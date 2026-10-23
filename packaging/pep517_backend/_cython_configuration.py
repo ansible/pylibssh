@@ -198,20 +198,39 @@ def patched_env(
     expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
     os.environ.update(expanded_env)
 
-    # The macro goes through ``CPPFLAGS`` rather than ``CFLAGS``: setuptools'
-    # distutils appends ``CPPFLAGS`` to the interpreter's own compiler flags,
-    # while a ``CFLAGS`` environment variable replaces them and silently
-    # drops ``-O3`` and ``-DNDEBUG`` from the build.
-    if cython_line_tracing_requested:
-        os.environ['CPPFLAGS'] = ' '.join((
-            os.getenv('CPPFLAGS', ''),
-            '-DCYTHON_TRACE_NOGIL=1',  # Implies CYTHON_TRACE=1
-            # Cython defaults this on for CPython 3.13+, routing
-            # tracing through sys.monitoring, which the
-            # Cython.Coverage plugin cannot consume. Ask for the
-            # legacy tracing hooks instead:
-            '-DCYTHON_USE_SYS_MONITORING=0',
-        )).strip()
+    # The extra flags go through ``CPPFLAGS`` rather than ``CFLAGS``:
+    # setuptools' distutils appends ``CPPFLAGS`` to the interpreter's own
+    # compiler flags, while a ``CFLAGS`` environment variable replaces them
+    # and silently drops ``-O3`` and ``-DNDEBUG`` from the build.
+    os.environ['CPPFLAGS'] = ' '.join((
+        os.getenv('CPPFLAGS', ''),
+        *(
+            # Debug mode:
+            (
+                '-g3',  # debug symbols w/ extra details
+                '-Og',  # optimize for debug experience, better than -O0
+                '-UNDEBUG',  # enable assertions
+                '-DCYTHON_TRACE_NOGIL=1',  # Implies CYTHON_TRACE=1
+                # Cython defaults this on for CPython 3.13+, routing
+                # tracing through sys.monitoring, which the
+                # Cython.Coverage plugin cannot consume. Ask for the
+                # legacy tracing hooks instead:
+                '-DCYTHON_USE_SYS_MONITORING=0',
+            )
+            if cython_line_tracing_requested
+            # Release mode:
+            else (
+                '-g0',  # no debug symbols
+                '-O3',
+                '-DNDEBUG',  # disable assertions
+            )
+        ),
+        # distutils places ``CFLAGS`` before ``CPPFLAGS`` on the command
+        # line, so the user's ``CFLAGS`` is repeated here to keep outranking
+        # the flags above. Downstream packagers, like the RPM build, rely on
+        # this to keep their own ``-g`` and optimization level:
+        orig_env.get('CFLAGS', ''),
+    )).strip()
     try:
         yield
     finally:
