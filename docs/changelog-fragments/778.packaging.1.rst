@@ -1,0 +1,5 @@
+The C-extensions in the wheels are now compiled without debug symbols,
+which makes the wheels considerably smaller. Builds requesting Cython
+line tracing get full debug symbols and C assertions instead.
+``CFLAGS`` set by downstream packagers still take precedence over these
+defaults -- steered by :user:`webknjaz`, typed by a robot that errs.
