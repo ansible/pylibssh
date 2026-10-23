@@ -20,10 +20,10 @@ import typing as _t
 
 if _t.TYPE_CHECKING:
     import os  # pragma: no cover
+    import types as _tps  # pragma: no cover
+
 
 from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
-
-from cpython.mem cimport PyMem_Free, PyMem_Malloc
 
 from pylibsshext.errors cimport LibsshSFTPException
 from pylibsshext.session cimport get_libssh_session
@@ -75,48 +75,21 @@ cdef class SFTP:
 
         :raises ValueError: When remote path contains invalid null bytes
         """
-        cdef sftp.sftp_file rf
-        cdef const char* c_buf
+        cdef bytearray write_buffer = bytearray(SFTP_MAX_CHUNK)
+        buffer_view = memoryview(write_buffer)
 
-        if "\0" in remote_file:
-            raise ValueError(
-                f"Invalid remote file path with embedded null byte: {remote_file!r}",
-            )
+        with open(local_file, "rb") as local_fd, _RemoteFile(
+            sftp_obj=self,
+            path=remote_file,
+            flags=O_WRONLY | O_CREAT | O_TRUNC,
+        ) as remote_fd:
+            while True:
+                bytes_read = local_fd.readinto(write_buffer)
+                is_eof = bytes_read == 0
+                if is_eof:
+                    break
 
-        with open(local_file, "rb") as f:
-            remote_file_b = remote_file.encode("utf-8")
-
-            rf = sftp.sftp_open(
-                self._libssh_sftp_session,
-                remote_file_b,
-                O_WRONLY | O_CREAT | O_TRUNC,
-                sftp.S_IRWXU,
-            )
-            if rf is NULL:
-                raise LibsshSFTPException(
-                    "Opening remote file [%s] for write failed with error [%s]"
-                    % (
-                        remote_file,
-                        self._get_sftp_error_str()
-                    ),
-                )
-            read_buffer = f.read(SFTP_MAX_CHUNK)
-
-            while read_buffer != b"":
-                c_buf = read_buffer
-                length = len(read_buffer)
-                written = sftp.sftp_write(rf, c_buf, length)
-                if written != length:
-                    sftp.sftp_close(rf)
-                    raise LibsshSFTPException(
-                        "Writing to remote file [%s] failed with error [%s]"
-                        % (
-                            remote_file,
-                            self._get_sftp_error_str(),
-                        )
-                    )
-                read_buffer = f.read(SFTP_MAX_CHUNK)
-            sftp.sftp_close(rf)
+                remote_fd.write(buffer_view[:bytes_read])
 
     def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
         """
@@ -128,77 +101,27 @@ cdef class SFTP:
 
         :raises ValueError: When remote path contains invalid null bytes
         """
-        cdef sftp.sftp_file rf
-        cdef char *read_buffer = NULL
-        cdef sftp.sftp_attributes attrs
+        cdef bytearray read_buffer = bytearray(SFTP_MAX_CHUNK)
+        buffer_view = memoryview(read_buffer)
 
-        if "\0" in remote_file:
-            raise ValueError(
-                f"Invalid remote file path with embedded null byte: {remote_file!r}",
-            )
+        with _RemoteFile(
+            sftp_obj=self,
+            path=remote_file,
+            flags=O_RDONLY,
+        ) as remote_fd, open(local_file, 'wb') as local_fd:
+            while True:
+                file_data = remote_fd.readinto(read_buffer)
+                is_eof = file_data == 0
+                if is_eof:
+                    break
 
-        remote_file_b = remote_file.encode("utf-8")
-        attrs = sftp.sftp_stat(self._libssh_sftp_session, remote_file_b)
-        if attrs is NULL:
-            raise LibsshSFTPException(
-                "Failed to stat the remote file [%s]. Error: [%s]"
-                % (
-                    remote_file,
-                    self._get_sftp_error_str(),
-                ),
-            )
-        file_size = attrs.size
-
-        rf = sftp.sftp_open(self._libssh_sftp_session, remote_file_b, O_RDONLY, sftp.S_IRWXU)
-        if rf is NULL:
-            raise LibsshSFTPException(
-                "Opening remote file [%s] for read failed with error [%s]"
-                % (
-                    remote_file,
-                    self._get_sftp_error_str(),
-                ),
-            )
-
-        try:
-            with open(local_file, 'wb') as f:
-                buffer_size = min(SFTP_MAX_CHUNK, file_size)
-                read_buffer = <char *>PyMem_Malloc(buffer_size)
-                if read_buffer is NULL:
-                    raise LibsshSFTPException("Memory allocation error")
-
-                while True:
-                    file_data = sftp.sftp_read(rf, <void *>read_buffer, sizeof(char) * buffer_size)
-                    if file_data == 0:
-                        break
-                    elif file_data < 0:
-                        sftp.sftp_close(rf)
-                        raise LibsshSFTPException(
-                            "Reading data from remote file [%s] failed with error [%s]"
-                            % (
-                                remote_file,
-                                self._get_sftp_error_str(),
-                            ),
-                        )
-
-                    bytes_written = f.write(read_buffer[:file_data])
-                    if bytes_written and file_data != bytes_written:
-                        sftp.sftp_close(rf)
-                        raise LibsshSFTPException(
-                            "Number of bytes [%s] read from remote file [%s]"
-                            " does not match number of bytes [%s] written to"
-                            " local file [%s] due to error [%s]"
-                            % (
-                                file_data,
-                                remote_file,
-                                bytes_written,
-                                local_file,
-                                self._get_sftp_error_str(),
-                            ),
-                        )
-        finally:
-            if read_buffer is not NULL:
-                PyMem_Free(read_buffer)
-        sftp.sftp_close(rf)
+                bytes_written = local_fd.write(buffer_view[:file_data])
+                if file_data != bytes_written:
+                    raise LibsshSFTPException(
+                        f"Number of bytes [{file_data}] read from remote file "
+                        f"[{remote_file!s}] does not match number of bytes "
+                        f"[{bytes_written}] written to local file [{local_file!s}]"
+                    )
 
     def close(self):
         if self._libssh_sftp_session is not NULL:
@@ -210,3 +133,106 @@ cdef class SFTP:
         if error in MSG_MAP and error != sftp.SSH_FX_FAILURE:
             return MSG_MAP[error]
         return "Generic failure: %s" % self.session._get_session_error_str()
+
+
+cdef class _RemoteFile:
+    """
+    Remote file handle facade.
+
+    Implements a standard context manager interface for
+    convenient access lifetime management.
+
+    :raises ValueError: When remote path contains invalid null bytes
+    """
+    def __cinit__(self, *, sftp_obj: SFTP, path: str, int flags) -> None:
+        if "\0" in path:
+            raise ValueError(
+                f"Invalid remote file path with embedded null byte: {path!r}",
+            )
+
+        self._sftp = sftp_obj
+        self._path = path
+        # Keep the encoded bytes alive while the pointer is used:
+        # https://cython.rtfd.io/en/latest/src/tutorial/strings.html#encoding-text-to-bytes
+        b_path = path.encode("utf-8")
+
+        self._fd = sftp.sftp_open(
+            sftp_obj._libssh_sftp_session,
+            b_path,
+            flags,
+            sftp.S_IRWXU,
+        )
+        if self._fd is not NULL:
+            return
+
+        file_open_mode = "writing" if flags & O_WRONLY else "reading"
+        sftp_error = sftp_obj._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Opening remote file [{path!s}] for {file_open_mode!s} "
+            f"failed with error [{sftp_error!s}]",
+        )
+
+    def write(self, const unsigned char[:] data) -> int:
+        """
+        Writes data directly to the remote file.
+
+        :param data: The buffer data to write to the remote file
+
+        :return: Number of bytes written
+
+        :raises LibsshSFTPException: When writing failed or wrong amount of data was written.
+        """
+        cdef ssize_t length = data.shape[0]
+        if length == 0:
+            return 0
+
+        cdef const char* c_buf = <const char*>&data[0]
+        cdef ssize_t written = sftp.sftp_write(self._fd, c_buf, length)
+        if written == length:
+            return written
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Writing to remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    def readinto(self, data: bytearray) -> int:
+        """
+        Reads data from the remote file descriptor into provided bytearray.
+
+        :param data: The buffer where the read data will be placed
+
+        :raises LibsshSFTPException: When reading failed.
+        """
+        cdef char* c_buf = data
+        cdef ssize_t length = len(data)
+
+        cdef ssize_t file_data = sftp.sftp_read(self._fd, c_buf, length)
+        if file_data >= 0:
+            return file_data
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Reading data from remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    cdef void _close(self) noexcept:
+        if self._fd is NULL:
+            return
+
+        sftp.sftp_close(self._fd)
+        self._fd = NULL
+
+    def __dealloc__(self) -> None:
+        self._close()
+
+    def __enter__(self) -> _t.Self:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: _tps.TracebackType | None,
+    ) -> None:
+        self._close()
