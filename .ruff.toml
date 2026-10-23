@@ -49,7 +49,12 @@ ignore = [
   "PLR0914",  # too-many-locals  # FIXME / noqa
   "PLR2004",  # magic-value-comparison  # FIXME
 
+  # Ref: https://github.com/astral-sh/ruff/issues/12491
+  "pytest-fixture-autouse",  # controversial; the rule has no code
+
   "RUF100",  # Ruff doesn't know about WPS
+  "RUF105",  # noqa-comments  # other linters share `noqa` codes
+  "RUF106",  # rule-codes-in-suppression-comments  # same, for `ruff:ignore`
 
   "SIM117",  # multiple-with-statements  # FIXME
 

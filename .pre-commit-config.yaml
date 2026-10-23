@@ -10,7 +10,7 @@ repos:
   - id: no_optional
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.15.20
+  rev: v0.17.2
   hooks:
   - id: ruff-check
     args:
@@ -20,7 +20,7 @@ repos:
     - --show-fixes
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.15.20
+  rev: v0.17.2
   hooks:
   - id: ruff-format  # Cython imports are handled by `isort`
     alias: ruff-format-first-pass
@@ -32,7 +32,7 @@ repos:
   - id: add-trailing-comma
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.15.20
+  rev: v0.17.2
   hooks:
   - id: ruff-format  # Cython imports are handled by `isort`
     alias: ruff-format-second-pass

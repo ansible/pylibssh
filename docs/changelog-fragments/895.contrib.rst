@@ -1,0 +1,3 @@
+Ruff no longer asks to turn ``noqa`` comments into ``ruff:ignore``
+ones, so the suppression codes stay readable by the other linters
+-- steered by :user:`webknjaz`, typed by a robot that errs.

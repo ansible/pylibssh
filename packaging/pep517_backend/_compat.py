@@ -21,7 +21,9 @@ else:
     from tomli import loads as load_toml_from_string
 
     @contextmanager
-    def chdir_cm(path: str | os.PathLike[str]) -> _c.Iterator[None]:
+    def chdir_cm(
+        path: str | os.PathLike[str],
+    ) -> _c.Generator[None, None, None]:
         """Temporarily change the current directory, recovering on exit."""
         original_wd = Path.cwd()
         os.chdir(path)
