@@ -167,7 +167,7 @@ cdef class Channel:
                 data = self.read_nonblocking(size=1024, stderr=stderr)
                 if data is None:
                     if recv_buff.tell():
-                        # Return what was read before EOF; the next call raises.
+                        # Return what was read before EOF
                         break
                     raise LibsshChannelEOFError(
                         'The channel has been closed by the remote side',
