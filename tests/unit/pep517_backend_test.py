@@ -16,13 +16,20 @@ from pep517_backend._compat_setup_cfg import (
     compat_setup_cfg_written,
     render_compat_setup_cfg,
 )
-from pep517_backend._cython_configuration import patched_env
+from pep517_backend._cython_configuration import (
+    Config,
+    get_local_cython_config,
+    get_local_cythonize_config,
+    make_cythonize_cli_args_from_config,
+    patched_env,
+)
 
 
 CFLAGS_VAR = 'CFLAGS'
 CPPFLAGS_VAR = 'CPPFLAGS'
 TRACE_MACRO = '-DCYTHON_TRACE_NOGIL=1'
 SYS_MONITORING_MACRO = '-DCYTHON_USE_SYS_MONITORING=0'
+TRACING_DIRECTIVES = ('--directive=linetrace=True', '--directive=profile=True')
 
 PROJECT_ROOT_DIR = pathlib.Path(__file__).parents[2]
 PYPROJECT_TOML_NAME = 'pyproject.toml'
@@ -126,6 +133,38 @@ def test_interpreter_flags_survive_the_build_env(
         assert flag in command
     assert TRACE_MACRO in command
     assert SYS_MONITORING_MACRO in command
+
+
+@pytest.mark.parametrize(
+    'load_config',
+    (get_local_cython_config, get_local_cythonize_config),
+    ids=('translate-cython', 'build-backend'),
+)
+@pytest.mark.parametrize(
+    'tracing',
+    (True, False),
+    ids=(
+        'with-cython-tracing',
+        'without-cython-tracing',
+    ),
+)
+def test_tracing_directives_only_when_requested(
+    *,
+    load_config: _t.Callable[[], Config],
+    tracing: bool,
+) -> None:
+    """Check that only traced builds get the tracing directives."""
+    with chdir_cm(PROJECT_ROOT_DIR):
+        config = load_config()
+
+    cythonize_args = make_cythonize_cli_args_from_config(
+        config,
+        cython_line_tracing_requested=tracing,
+    )
+
+    expected_directives = set(TRACING_DIRECTIVES) if tracing else set()
+    assert '--directive=embedsignature=True' in cythonize_args
+    assert set(TRACING_DIRECTIVES) & set(cythonize_args) == expected_directives
 
 
 def _pyproject(

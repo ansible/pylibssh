@@ -101,8 +101,6 @@ keep-going = false
 # Ref: https://github.com/cython/cython/blob/d6e6de9/Cython/Compiler/Options.py#L170-L242
 embedsignature = "True"
 emit_code_comments = "True"
-linetrace = "True"
-profile = "True"
 
 [tool.local.cython.kwargs.compile-time-env]
 # This section can contain compile time env vars
