@@ -1,0 +1,4 @@
+Ruff no longer flags ``autouse`` pytest fixtures, since that
+preview rule turned out to be controversial
+(:issue:`astral-sh/ruff#12491`)
+-- steered by :user:`webknjaz`, typed by a robot that errs.
