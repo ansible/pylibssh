@@ -25,7 +25,7 @@ from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
 
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 
-from pylibsshext.errors cimport LibsshSFTPException
+from pylibsshext.errors import LibsshSFTPException
 from pylibsshext.session cimport get_libssh_session
 
 

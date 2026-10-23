@@ -1,0 +1,3 @@
+The wheels are now built for CPython's stable ABI (``abi3``), so a single
+wheel per platform works on CPython 3.9 and every later version, including
+the ones released after it -- by :user:`webknjaz`.

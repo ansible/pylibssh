@@ -730,6 +730,41 @@ jobs:
           || ''
         }}
 
+  build-bin-manylinux-abi3:
+    name: >-
+      📦 ${{ needs.pre-setup.outputs.git-tag }}
+      [mode: ${{
+        fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+        && 'nightly' || ''
+      }}${{
+        fromJSON(needs.pre-setup.outputs.release-requested)
+        && 'release' || ''
+      }}${{
+        (
+          !fromJSON(needs.pre-setup.outputs.is-untagged-devel)
+          && !fromJSON(needs.pre-setup.outputs.release-requested)
+        ) && 'test' || ''
+      }}] manylinux [abi3]
+    needs:
+    - build-src
+    - pre-setup  # transitive, for accessing settings
+    uses: ./.github/workflows/reusable-cibuildwheel.yml
+    with:
+      runner-vm-os: ubuntu-24.04-arm
+      timeout-minutes: 9
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      # NOTE: Not matched by the `dists-artifact-name*` download patterns,
+      # NOTE: keeping these wheels away from the tests and publishing:
+      wheels-artifact-name-prefix: abi3-wheels
+      # CIBW_CONFIG_SETTINGS: no Cython line tracing lets the backend
+      # target the stable ABI (abi3)
+      environment-variables: |-
+        CIBW_CONFIG_SETTINGS=with-cython-tracing=false
+        CIBW_TEST_SKIP=*
+
   build-bin-manylinux-odd-arches:
     name: >-
       📦 ${{ needs.pre-setup.outputs.git-tag }}

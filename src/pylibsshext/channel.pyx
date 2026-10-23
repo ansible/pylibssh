@@ -21,8 +21,8 @@ from io import BytesIO
 
 from libc.string cimport memset
 
-from pylibsshext.errors cimport LibsshChannelException
-from pylibsshext.errors import LibsshChannelReadFailure
+from pylibsshext.errors import LibsshChannelException, LibsshChannelReadFailure
+
 from pylibsshext.session cimport get_libssh_session, get_session_retries
 
 from subprocess import CompletedProcess

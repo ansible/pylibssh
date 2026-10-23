@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+import re
 import typing as _t
 from contextlib import contextmanager
+from importlib.machinery import EXTENSION_SUFFIXES
 from os.path import expandvars
 from pathlib import Path
 from sys import version_info as _python_version_tuple
@@ -18,6 +20,9 @@ from ._transformers import (
 
 if _t.TYPE_CHECKING:
     from collections import abc as _c
+
+
+_CPPFLAGS_ENV_VAR = 'CPPFLAGS'
 
 
 class Config(_t.TypedDict):
@@ -143,6 +148,28 @@ def get_local_cythonize_config() -> Config:
     return config_mapping['tool']['local']['cythonize']  # type: ignore[no-any-return]
 
 
+def get_local_min_python_version() -> tuple[int, int]:
+    """Read the oldest supported Python version from ``pyproject.toml``.
+
+    Only the simple ``>= X.Y`` form of ``requires-python`` is supported.
+
+    :returns: The major and minor version numbers.
+    :raises ValueError: If ``requires-python`` has another form.
+    """
+    config_toml_txt = (Path.cwd().resolve() / 'pyproject.toml').read_text()
+    requires_python = load_toml_from_string(config_toml_txt)['project'][
+        'requires-python'
+    ]
+    version_match = re.fullmatch(r'\s*>=\s*(\d+)\.(\d+)\s*', requires_python)
+    if version_match is None:
+        error_message = (
+            'Expected `requires-python` in the `>= X.Y` form, '
+            f'got {requires_python!r}'
+        )
+        raise ValueError(error_message)
+    return int(version_match[1]), int(version_match[2])
+
+
 def make_cythonize_cli_args_from_config(
     config: Config,
 ) -> list[str]:
@@ -155,16 +182,34 @@ def make_cythonize_cli_args_from_config(
     return cli_flags + [py_ver_arg] + cli_kwargs + ['--'] + config['src']
 
 
+def get_abi3_extension_suffix() -> str:
+    """Return the file name suffix of stable ABI extension modules.
+
+    This is ``.abi3.so`` on POSIX and the bare ``.pyd`` on Windows. CPython
+    3.15 lists platform-tagged ``.abi3-<platform>.so`` suffixes before the
+    plain one, which older versions do not import modules by.
+
+    :returns: The suffix that every CPython imports abi3 modules by.
+    """
+    return next(
+        suffix for suffix in ('.abi3.so', '.pyd')
+        if suffix in EXTENSION_SUFFIXES
+    )
+
+
 @contextmanager
 def patched_env(
     env: dict[str, str],
     *,
     cython_line_tracing_requested: bool,
+    limited_api_version: tuple[int, int] | None = None,
 ) -> _c.Iterator[None]:
     """Temporary set given env vars.
 
     :param env: tmp env vars to set
     :type env: dict
+    :param limited_api_version: Build for the stable ABI of this CPython
+        version and later, instead of for the running interpreter only.
 
     :yields: None
     """
@@ -175,13 +220,13 @@ def patched_env(
     expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
     os.environ.update(expanded_env)
 
-    # The macro goes through ``CPPFLAGS`` rather than ``CFLAGS``: setuptools'
+    # The macros go through ``CPPFLAGS`` rather than ``CFLAGS``: setuptools'
     # distutils appends ``CPPFLAGS`` to the interpreter's own compiler flags,
     # while a ``CFLAGS`` environment variable replaces them and silently
     # drops ``-O3`` and ``-DNDEBUG`` from the build.
     if cython_line_tracing_requested:
-        os.environ['CPPFLAGS'] = ' '.join((
-            os.getenv('CPPFLAGS', ''),
+        os.environ[_CPPFLAGS_ENV_VAR] = ' '.join((
+            os.getenv(_CPPFLAGS_ENV_VAR, ''),
             '-DCYTHON_TRACE_NOGIL=1',  # Implies CYTHON_TRACE=1
             # Cython defaults this on for CPython 3.13+, routing
             # tracing through sys.monitoring, which the
@@ -189,6 +234,14 @@ def patched_env(
             # legacy tracing hooks instead:
             '-DCYTHON_USE_SYS_MONITORING=0',
         )).strip()
+    if limited_api_version is not None:
+        # The stable ABI is made of the limited C API of the oldest version:
+        os.environ[_CPPFLAGS_ENV_VAR] = ' '.join((
+            os.getenv(_CPPFLAGS_ENV_VAR, ''),
+            '-DPy_LIMITED_API=0x{:02X}{:02X}0000'.format(*limited_api_version),
+        )).strip()
+        # Name the modules the way the stable ABI ones are imported by:
+        os.environ['SETUPTOOLS_EXT_SUFFIX'] = get_abi3_extension_suffix()
     try:
         yield
     finally:

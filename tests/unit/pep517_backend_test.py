@@ -1,10 +1,11 @@
 """Tests for the in-tree PEP 517 build backend."""
 
+from __future__ import annotations
+
 import configparser
 import os
 import pathlib
 import shlex
-import sys
 import sysconfig
 import types as _tps
 import typing as _t
@@ -16,13 +17,21 @@ from pep517_backend._compat_setup_cfg import (
     compat_setup_cfg_written,
     render_compat_setup_cfg,
 )
-from pep517_backend._cython_configuration import patched_env
+from pep517_backend._cython_configuration import (
+    get_abi3_extension_suffix,
+    get_local_min_python_version,
+    patched_env,
+)
 
 
 CFLAGS_VAR = 'CFLAGS'
 CPPFLAGS_VAR = 'CPPFLAGS'
+EXT_SUFFIX_VAR = 'SETUPTOOLS_EXT_SUFFIX'
 TRACE_MACRO = '-DCYTHON_TRACE_NOGIL=1'
 SYS_MONITORING_MACRO = '-DCYTHON_USE_SYS_MONITORING=0'
+LIMITED_API_MACRO = '-DPy_LIMITED_API=0x03090000'
+LIMITED_API_BUILD_OPTION = '--py-limited-api=cp39'
+BUILD_OPTION_SETTING = '--build-option'
 
 PROJECT_ROOT_DIR = pathlib.Path(__file__).parents[2]
 PYPROJECT_TOML_NAME = 'pyproject.toml'
@@ -68,8 +77,8 @@ EQUIVALENT_CORE_METADATA = (
     ),
 )
 def test_tracing_macro_goes_through_cppflags(
-    monkeypatch: pytest.MonkeyPatch,
     *,
+    monkeypatch: pytest.MonkeyPatch,
     tracing: bool,
 ) -> None:
     """Append the macro to CPPFLAGS and leave CFLAGS alone.
@@ -92,7 +101,7 @@ def test_tracing_macro_goes_through_cppflags(
 
 
 @pytest.mark.skipif(
-    sys.platform == 'win32',
+    os.name == 'nt',
     reason='MSVC does not read CFLAGS or CPPFLAGS',
 )
 def test_interpreter_flags_survive_the_build_env(
@@ -126,6 +135,250 @@ def test_interpreter_flags_survive_the_build_env(
         assert flag in command
     assert TRACE_MACRO in command
     assert SYS_MONITORING_MACRO in command
+
+
+@pytest.fixture
+def pep517_backend() -> _tps.ModuleType:
+    """Import the build backend, which needs setuptools.
+
+    :returns: The in-tree build backend module.
+    """
+    # The RPM builds run the suite without setuptools available.
+    backend_module: _tps.ModuleType = pytest.importorskip(
+        'pep517_backend._backend',
+    )
+    return backend_module
+
+
+def test_limited_api_define_and_suffix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Define the stable ABI macro and name the modules after it.
+
+    Both only last for the build, like the rest of the patched env.
+    """
+    monkeypatch.delenv(CPPFLAGS_VAR, raising=False)
+    monkeypatch.delenv(EXT_SUFFIX_VAR, raising=False)
+
+    with patched_env(
+        {},
+        cython_line_tracing_requested=False,
+        limited_api_version=(3, 9),
+    ):
+        cppflags = shlex.split(os.environ[CPPFLAGS_VAR])
+        ext_suffix = os.environ[EXT_SUFFIX_VAR]
+
+    assert LIMITED_API_MACRO in cppflags
+    assert ext_suffix == get_abi3_extension_suffix()
+    assert EXT_SUFFIX_VAR not in os.environ
+
+
+def test_version_specific_abi_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Target only the running interpreter without a limited API version."""
+    monkeypatch.delenv(CPPFLAGS_VAR, raising=False)
+    monkeypatch.delenv(EXT_SUFFIX_VAR, raising=False)
+
+    with patched_env({}, cython_line_tracing_requested=False):
+        cppflags = os.getenv(CPPFLAGS_VAR, '')
+        has_ext_suffix = EXT_SUFFIX_VAR in os.environ
+
+    assert 'Py_LIMITED_API' not in cppflags
+    assert not has_ext_suffix
+
+
+def test_abi3_extension_suffix() -> None:
+    """Check that the suffix is the stable ABI one of this platform."""
+    assert get_abi3_extension_suffix() in {'.abi3.so', '.pyd'}
+
+
+def _set_up_build_env(
+    monkeypatch: pytest.MonkeyPatch,
+    pep517_backend: _tps.ModuleType,
+    *,
+    gil_disabled: int = 0,
+    platform: str = 'linux',
+    cython_version: tuple[int, int] = (3, 2),
+) -> None:
+    monkeypatch.setattr(pep517_backend, 'IS_CPYTHON', True)
+    monkeypatch.setattr(pep517_backend, '_system_platform', platform)
+    monkeypatch.setattr(
+        pep517_backend,
+        '_get_cython_version',
+        lambda: cython_version,
+    )
+    monkeypatch.setattr(
+        sysconfig,
+        'get_config_var',
+        {'Py_GIL_DISABLED': gil_disabled}.get,
+    )
+
+
+def test_can_build_for_limited_api(
+    monkeypatch: pytest.MonkeyPatch,
+    pep517_backend: _tps.ModuleType,
+) -> None:
+    """Use the stable ABI for release builds on regular CPython."""
+    _set_up_build_env(monkeypatch, pep517_backend)
+
+    assert pep517_backend.can_build_for_limited_api(
+        cython_line_tracing_requested=False,
+    )
+
+
+@pytest.mark.parametrize(
+    ('tracing', 'build_env'),
+    (
+        pytest.param(True, {}, id='tracing'),
+        pytest.param(False, {'gil_disabled': 1}, id='free-threaded'),
+        pytest.param(False, {'platform': 'win32'}, id='windows'),
+        pytest.param(False, {'cython_version': (3, 0)}, id='cython-3.0'),
+    ),
+)
+def test_cannot_build_for_limited_api(
+    *,
+    monkeypatch: pytest.MonkeyPatch,
+    pep517_backend: _tps.ModuleType,
+    tracing: bool,
+    build_env: dict[str, _t.Any],
+) -> None:
+    """Skip the stable ABI where the build cannot actually target it."""
+    _set_up_build_env(monkeypatch, pep517_backend, **build_env)
+
+    assert not pep517_backend.can_build_for_limited_api(
+        cython_line_tracing_requested=tracing,
+    )
+
+
+@pytest.mark.parametrize(
+    ('cython_version', 'expected_version'),
+    (
+        pytest.param('3.2.4', (3, 2), id='release'),
+        pytest.param('3.1.0rc1', (3, 1), id='pre-release'),
+    ),
+)
+def test_cython_version(
+    *,
+    monkeypatch: pytest.MonkeyPatch,
+    pep517_backend: _tps.ModuleType,
+    cython_version: str,
+    expected_version: tuple[int, int],
+) -> None:
+    """Read the major and minor version of the installed Cython."""
+    monkeypatch.setattr(
+        pep517_backend,
+        '_dist_version',
+        lambda _dist_name: cython_version,
+    )
+
+    assert pep517_backend._get_cython_version() == expected_version
+
+
+def test_cython_version_without_cython(
+    monkeypatch: pytest.MonkeyPatch,
+    pep517_backend: _tps.ModuleType,
+) -> None:
+    """Treat a missing Cython as one too old for the limited C API."""
+    look_up_dist_version = pep517_backend._dist_version
+    monkeypatch.setattr(
+        pep517_backend,
+        '_dist_version',
+        lambda _dist_name: look_up_dist_version('no-such-distribution'),
+    )
+
+    assert pep517_backend._get_cython_version() == (0, 0)
+
+
+def _write_requires_python(
+    project_dir: pathlib.Path,
+    requires_python: str,
+) -> None:
+    (project_dir / PYPROJECT_TOML_NAME).write_text(
+        f'[project]\nrequires-python = "{requires_python}"\n',
+        encoding=TEXT_ENCODING,
+    )
+
+
+@pytest.mark.parametrize(
+    ('requires_python', 'expected_version'),
+    (
+        pytest.param('>= 3.9', (3, 9), id='spaced'),
+        pytest.param('>=3.10', (3, 10), id='compact'),
+    ),
+)
+def test_local_min_python_version(
+    tmp_path: pathlib.Path,
+    requires_python: str,
+    expected_version: tuple[int, int],
+) -> None:
+    """Get the oldest version out of the simple ``>= X.Y`` form."""
+    _write_requires_python(tmp_path, requires_python)
+
+    with chdir_cm(tmp_path):
+        assert get_local_min_python_version() == expected_version
+
+
+@pytest.mark.parametrize(
+    'requires_python',
+    (
+        pytest.param('>= 3.9, < 4', id='upper-bound'),
+        pytest.param('~= 3.9', id='compatible-release'),
+        pytest.param('>= 3', id='major-only'),
+    ),
+)
+def test_local_min_python_version_rejects(
+    tmp_path: pathlib.Path,
+    requires_python: str,
+) -> None:
+    """Refuse the forms that are not just a lower bound."""
+    _write_requires_python(tmp_path, requires_python)
+
+    with chdir_cm(tmp_path), pytest.raises(ValueError, match=r'>= X\.Y'):
+        get_local_min_python_version()
+
+
+def test_cannot_build_for_limited_api_off_cpython(
+    monkeypatch: pytest.MonkeyPatch,
+    pep517_backend: _tps.ModuleType,
+) -> None:
+    """Check that other runtimes have no CPython stable ABI to build for."""
+    monkeypatch.setattr(pep517_backend, 'IS_CPYTHON', False)
+
+    assert not pep517_backend.can_build_for_limited_api(
+        cython_line_tracing_requested=False,
+    )
+
+
+@pytest.mark.parametrize(
+    ('config_settings', 'expected_build_options'),
+    (
+        pytest.param(None, [LIMITED_API_BUILD_OPTION], id='no-settings'),
+        pytest.param(
+            {BUILD_OPTION_SETTING: '--foo --bar'},
+            ['--foo', '--bar', LIMITED_API_BUILD_OPTION],
+            id='string',
+        ),
+        pytest.param(
+            {BUILD_OPTION_SETTING: ['--foo']},
+            ['--foo', LIMITED_API_BUILD_OPTION],
+            id='list',
+        ),
+    ),
+)
+def test_with_limited_api_wheel_tag(
+    pep517_backend: _tps.ModuleType,
+    config_settings: dict[str, str | list[str] | None] | None,
+    expected_build_options: list[str],
+) -> None:
+    """Add the abi3 wheel tag option after any user build options."""
+    new_settings = pep517_backend.with_limited_api_wheel_tag(
+        config_settings,
+        limited_api_version=(3, 9),
+    )
+
+    assert new_settings[BUILD_OPTION_SETTING] == expected_build_options
+    assert new_settings is not config_settings
 
 
 def _pyproject(

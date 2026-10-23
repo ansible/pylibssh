@@ -17,19 +17,3 @@
 # repository.
 #
 from pylibsshext.includes cimport libssh
-
-
-cdef class LibsshException(Exception):
-    pass
-
-cdef class LibsshSessionException(LibsshException):
-    pass
-
-cdef class LibsshChannelException(LibsshException):
-    pass
-
-cdef class LibsshSCPException(LibsshException):
-    pass
-
-cdef class LibsshSFTPException(LibsshException):
-    pass

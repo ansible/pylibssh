@@ -15,7 +15,7 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
-cdef class LibsshException(Exception):
+class LibsshException(Exception):
     def __init__(self, message=''):
         self.message = message
         super(LibsshException, self).__init__(message)
@@ -30,11 +30,11 @@ cdef class LibsshException(Exception):
         return libssh.ssh_get_error(<void*>obj._libssh_session).decode()
 
 
-cdef class LibsshSessionException(LibsshException):
+class LibsshSessionException(LibsshException):
     pass
 
 
-cdef class LibsshChannelException(LibsshException):
+class LibsshChannelException(LibsshException):
     pass
 
 
@@ -42,9 +42,9 @@ class LibsshChannelReadFailure(LibsshChannelException, ConnectionError):
     """Raised when there is a failure to read from a libssh channel."""
 
 
-cdef class LibsshSCPException(LibsshException):
+class LibsshSCPException(LibsshException):
     pass
 
 
-cdef class LibsshSFTPException(LibsshException):
+class LibsshSFTPException(LibsshException):
     pass
