@@ -47,6 +47,13 @@ on:  # yamllint disable-line rule:truthy
         description: Deadline for the job to complete
         required: true
         type: number
+      wheels-artifact-name-prefix:
+        default: ''
+        description: >-
+          Workflow artifact name prefix for uploading the built wheels.
+          Defaults to the value of "dists-artifact-name".
+        required: false
+        type: string
 
 env:
   FORCE_COLOR: "1"  # Make tools pretty.
@@ -131,7 +138,11 @@ jobs:
     - name: Upload built artifacts for testing and publishing
       uses: actions/upload-artifact@v7
       with:
-        name: ${{ inputs.dists-artifact-name }}-
+        name: >-
+          ${{
+            inputs.wheels-artifact-name-prefix
+            || inputs.dists-artifact-name
+          }}-
           ${{ inputs.runner-vm-os }}-
           ${{ inputs.qemu && 'qemu-' || '' }}
           ${{ steps.gha-artifact-name.outputs.hash }}
