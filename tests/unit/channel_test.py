@@ -210,7 +210,7 @@ def test_read_bulk_response_data_with_eof(
     output and the end of the stream reach the client at once.
     """
     ssh_channel_via_relay.request_exec(
-        f'sleep {OUTPUT_DELAY_SEC:d}; echo -n Bye',
+        f'sleep {OUTPUT_DELAY_SEC}; echo -n Bye',
     )
     sshd_replies_paused_file.touch()
     time.sleep(OUTPUT_DELAY_SEC * 2)
