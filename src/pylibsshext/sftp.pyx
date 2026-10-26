@@ -20,6 +20,7 @@ import typing as _t
 
 if _t.TYPE_CHECKING:
     import os  # pragma: no cover
+    import types as _tps  # pragma: no cover
 
 from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
 
@@ -210,3 +211,113 @@ cdef class SFTP:
         if error in MSG_MAP and error != sftp.SSH_FX_FAILURE:
             return MSG_MAP[error]
         return "Generic failure: %s" % self.session._get_session_error_str()
+
+
+cdef class _RemoteFile:
+    """
+    Remote file handle facade.
+
+    Implements a standard context manager interface for
+    convenient access lifetime management.
+
+    :param sftp_obj: The SFTP session
+    :param path: The path to remote file
+    :param flags: The bit map of flags from `posix.fcntl.O_*`
+
+    :raises ValueError: When remote path contains invalid null bytes
+    :raises LibsshSFTPException: When opening of remote file fails
+    """
+    def __cinit__(self, *, sftp_obj: SFTP, path: str, int flags) -> None:
+        if "\0" in path:
+            raise ValueError(
+                f"Invalid remote file path with embedded null byte: {path!r}",
+            )
+
+        self._sftp = sftp_obj
+        self._path = path
+        # Keep the encoded bytes alive while the pointer is used:
+        # https://cython.rtfd.io/en/latest/src/tutorial/strings.html#encoding-text-to-bytes
+        b_path = path.encode("utf-8")
+
+        self._fd = sftp.sftp_open(
+            sftp_obj._libssh_sftp_session,
+            b_path,
+            flags,
+            sftp.S_IRWXU,
+        )
+        if self._fd is not NULL:
+            return
+
+        file_open_mode = "writing" if flags & O_WRONLY else "reading"
+        sftp_error = sftp_obj._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Opening remote file [{path!s}] for {file_open_mode!s} "
+            f"failed with error [{sftp_error!s}]",
+        )
+
+    def write(self, const unsigned char[:] data) -> int:
+        """
+        Write data directly to the remote file.
+
+        :param data: The buffer data to write to the remote file
+
+        :returns: Number of bytes written
+
+        :raises LibsshSFTPException: When writing failed or wrong amount of data was written
+        """
+        cdef ssize_t length = data.shape[0]
+        if length == 0:
+            return 0
+
+        cdef const char* c_buf = <const char*>&data[0]
+        cdef ssize_t written = sftp.sftp_write(self._fd, c_buf, length)
+        if written == length:
+            return written
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Writing to remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    def readinto(self, data: bytearray) -> int:
+        """
+        Read data from the remote file descriptor into provided bytearray.
+
+        :param data: The buffer where the read data will be placed
+
+        :returns: Number of bytes read
+
+        :raises LibsshSFTPException: When reading failed
+        """
+        cdef char* c_buf = data
+        cdef ssize_t length = len(data)
+
+        cdef ssize_t file_data = sftp.sftp_read(self._fd, c_buf, length)
+        if file_data >= 0:
+            return file_data
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Reading data from remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    cdef void _close(self) noexcept:
+        if self._fd is NULL:
+            return
+
+        sftp.sftp_close(self._fd)
+        self._fd = NULL
+
+    def __dealloc__(self) -> None:
+        self._close()
+
+    def __enter__(self) -> _t.Self:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: _tps.TracebackType | None,
+    ) -> None:
+        self._close()
