@@ -75,49 +75,23 @@ cdef class SFTP:
         :param remote_file: The path to upload the file on the remote system
 
         :raises ValueError: When remote path contains invalid null bytes
+        :raises LibsshSFTPException: When opening or writing to the remote file fails
         """
-        cdef sftp.sftp_file rf
-        cdef const char* c_buf
+        cdef bytearray write_buffer = bytearray(SFTP_MAX_CHUNK)
+        buffer_view = memoryview(write_buffer)
 
-        if "\0" in remote_file:
-            raise ValueError(
-                f"Invalid remote file path with embedded null byte: {remote_file!r}",
-            )
+        with open(local_file, 'rb') as local_fd, _RemoteFile(
+            sftp_obj=self,
+            path=remote_file,
+            flags=O_WRONLY | O_CREAT | O_TRUNC,
+        ) as remote_fd:
+            while True:
+                bytes_read = local_fd.readinto(write_buffer)
+                is_eof = bytes_read == 0
+                if is_eof:
+                    break
 
-        with open(local_file, "rb") as f:
-            remote_file_b = remote_file.encode("utf-8")
-
-            rf = sftp.sftp_open(
-                self._libssh_sftp_session,
-                remote_file_b,
-                O_WRONLY | O_CREAT | O_TRUNC,
-                sftp.S_IRWXU,
-            )
-            if rf is NULL:
-                raise LibsshSFTPException(
-                    "Opening remote file [%s] for write failed with error [%s]"
-                    % (
-                        remote_file,
-                        self._get_sftp_error_str()
-                    ),
-                )
-            read_buffer = f.read(SFTP_MAX_CHUNK)
-
-            while read_buffer != b"":
-                c_buf = read_buffer
-                length = len(read_buffer)
-                written = sftp.sftp_write(rf, c_buf, length)
-                if written != length:
-                    sftp.sftp_close(rf)
-                    raise LibsshSFTPException(
-                        "Writing to remote file [%s] failed with error [%s]"
-                        % (
-                            remote_file,
-                            self._get_sftp_error_str(),
-                        )
-                    )
-                read_buffer = f.read(SFTP_MAX_CHUNK)
-            sftp.sftp_close(rf)
+                remote_fd.write(buffer_view[:bytes_read])
 
     def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
         """

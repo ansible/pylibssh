@@ -343,7 +343,7 @@ def test_put_non_existing_remote(
 ) -> None:
     """Check that SFTP file upload cleanly fails when we fail to open target file for writing."""
     error_msg = re.escape(
-        f'Opening remote file [{bogus_dst_path!s}] for write failed with error '
+        f'Opening remote file [{bogus_dst_path!s}] for writing failed with error '
         "[File doesn't exist]",
     )
     with pytest.raises(LibsshSFTPException, match=f'^{error_msg}$'):
