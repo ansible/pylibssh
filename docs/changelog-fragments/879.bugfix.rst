@@ -1,0 +1,3 @@
+Fixed remote file handle leaks on errors inside ``get()`` and ``put()``
+methods in ``SFTP`` by managing remote file lifecycles with a context
+manager -- by :user:`Jakuje`.
