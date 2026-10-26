@@ -150,7 +150,7 @@ jobs:
       run: sudo apt update && sudo apt install glibc-tools libssh-dev
     - name: Switch 🐍 to v${{ inputs.python-version }}
       id: python-install
-      uses: actions/setup-python@v7.0.0
+      uses: actions/setup-python@v7.1.0
       with:
         python-version: ${{ inputs.python-version }}
 
