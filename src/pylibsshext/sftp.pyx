@@ -137,15 +137,18 @@ cdef class _RemoteFile:
 
     Implements a standard context manager interface for
     convenient access lifetime management.
+    """
+    def __cinit__(self, *, sftp_obj: SFTP, path: str, int flags) -> None:
+    """
+    Initialize a remote file handle instance.
 
     :param sftp_obj: The SFTP session
     :param path: The path to remote file
-    :param flags: The bit map of flags from `posix.fcntl.O_*`
+    :param flags: The bit map of flags from ``posix.fcntl.O_*``
 
     :raises ValueError: When remote path contains invalid null bytes
     :raises LibsshSFTPException: When opening of remote file fails
     """
-    def __cinit__(self, *, sftp_obj: SFTP, path: str, int flags) -> None:
         if "\0" in path:
             raise ValueError(
                 f"Invalid remote file path with embedded null byte: {path!r}",
