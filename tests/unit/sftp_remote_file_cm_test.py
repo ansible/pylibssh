@@ -27,11 +27,8 @@ SMALL_PAYLOAD = 32
 def sftp_session(ssh_client_session: Session) -> _t.Iterator[SFTP]:
     """Initialize an SFTP session and destroy it after testing."""
     sftp_sess = ssh_client_session.sftp()
-    try:  # noqa: WPS501
-        yield sftp_sess
-    finally:
-        sftp_sess.close()
-        del sftp_sess  # noqa: WPS420
+    yield sftp_sess
+    sftp_sess.close()
 
 
 @pytest.fixture
