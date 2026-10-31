@@ -34,6 +34,10 @@ cdef class LibsshSessionException(LibsshException):
     pass
 
 
+cdef class LibsshConfigParseException(LibsshSessionException):
+    """A failure to parse or load an SSH configuration file."""
+
+
 cdef class LibsshChannelException(LibsshException):
     pass
 
