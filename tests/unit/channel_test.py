@@ -180,24 +180,38 @@ def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
 
 
 @pytest.fixture
-def ssh_channel_via_relay(
+def ssh_session_via_relay(
     ssh_session_connect_via_relay: _t.Callable[[Session], None],
-) -> _t.Iterator[Channel]:
-    """Open a channel on a session connected through the sshd relay.
+) -> _t.Iterator[Session]:
+    """Connect a session through the sshd relay and close it after testing.
 
     :param ssh_session_connect_via_relay: Function connecting a session
         through the relay.
 
-    :yields: A libssh channel instance.
+    :yields: An SSH session connected through the relay.
+    :ytype: pylibsshext.session.Session
     """
     ssh_session = Session()
     ssh_session_connect_via_relay(ssh_session)
-    chan = ssh_session.new_channel()
-    try:  # noqa: WPS501
-        yield chan
-    finally:
-        chan.close()
-        ssh_session.close()
+    yield ssh_session
+    ssh_session.close()
+
+
+@pytest.fixture
+def ssh_channel_via_relay(
+    ssh_session_via_relay: Session,
+) -> _t.Iterator[Channel]:
+    """Open a channel on the relayed session and close it after testing.
+
+    :param ssh_session_via_relay: An SSH session connected through the relay.
+    :type ssh_session_via_relay: pylibsshext.session.Session
+
+    :yields: A libssh channel instance.
+    :ytype: pylibsshext.channel.Channel
+    """
+    chan = ssh_session_via_relay.new_channel()
+    yield chan
+    chan.close()
 
 
 def test_read_bulk_response_data_with_eof(
