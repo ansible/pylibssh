@@ -9,7 +9,7 @@ import typing as _t
 import pytest
 
 from pylibsshext.channel import Channel
-from pylibsshext.errors import LibsshChannelException
+from pylibsshext.errors import LibsshChannelEOFError, LibsshChannelException
 from pylibsshext.session import Session
 
 
@@ -20,6 +20,7 @@ POLL_TIMEOUT = 5000
 # otherwise libssh sets timeout to 10000
 SMALL_TIMEOUT_USEC = 1000
 LARGE_TIMEOUT_SEC = 10
+OUTPUT_DELAY_SEC = 1
 
 
 @pytest.fixture
@@ -163,14 +164,6 @@ def _read_bulk_until_deadline(channel: Channel, timeout: float) -> bytes:
     return response
 
 
-@pytest.mark.xfail(
-    raises=pytest.fail.Exception,
-    reason=(
-        '`read_bulk_response()` reports a closed channel as "no data yet": '
-        'https://github.com/ansible/pylibssh/issues/907'
-    ),
-    strict=True,
-)
 def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
     """Test that reading from a channel closed by the remote side raises.
 
@@ -178,11 +171,70 @@ def test_read_bulk_response_eof(ssh_channel: Channel) -> None:
     ``read_bulk_response()`` must not keep returning ``b''``, which is
     indistinguishable from "no data pending yet".
     """
+    error_msg = '^The channel has been closed by the remote side$'
     ssh_channel.request_exec('echo -n Bye')
     ssh_channel.poll(timeout=POLL_TIMEOUT)
     assert ssh_channel.read_bulk_response() == b'Bye'
-    with pytest.raises(ConnectionError):
+    with pytest.raises(LibsshChannelEOFError, match=error_msg):
         _read_bulk_until_deadline(ssh_channel, POLL_EXIT_CODE_TIMEOUT)
+
+
+@pytest.fixture
+def ssh_session_via_relay(
+    ssh_session_connect_via_relay: _t.Callable[[Session], None],
+) -> _t.Iterator[Session]:
+    """Connect a session through the sshd relay and close it after testing.
+
+    :param ssh_session_connect_via_relay: Function connecting a session
+        through the relay.
+
+    :yields: An SSH session connected through the relay.
+    :ytype: pylibsshext.session.Session
+    """
+    ssh_session = Session()
+    ssh_session_connect_via_relay(ssh_session)
+    yield ssh_session
+    ssh_session.close()
+
+
+@pytest.fixture
+def ssh_channel_via_relay(
+    ssh_session_via_relay: Session,
+) -> _t.Iterator[Channel]:
+    """Open a channel on the relayed session and close it after testing.
+
+    :param ssh_session_via_relay: An SSH session connected through the relay.
+    :type ssh_session_via_relay: pylibsshext.session.Session
+
+    :yields: A libssh channel instance.
+    :ytype: pylibsshext.channel.Channel
+    """
+    chan = ssh_session_via_relay.new_channel()
+    yield chan
+    chan.close()
+
+
+def test_read_bulk_response_data_with_eof(
+    sshd_replies_paused_file: pathlib.Path,
+    ssh_channel_via_relay: Channel,
+) -> None:
+    """Test that output arriving together with EOF is returned before raising.
+
+    The relay withholds the sshd replies while the command runs, so its
+    output and the end of the stream reach the client at once.
+    """
+    ssh_channel_via_relay.request_exec(
+        f'sleep {OUTPUT_DELAY_SEC}; echo -n Bye',
+    )
+    sshd_replies_paused_file.touch()
+    time.sleep(OUTPUT_DELAY_SEC * 2)
+    sshd_replies_paused_file.unlink()
+    ssh_channel_via_relay.poll(timeout=POLL_TIMEOUT)
+
+    error_msg = '^The channel has been closed by the remote side$'
+    assert ssh_channel_via_relay.read_bulk_response() == b'Bye'
+    with pytest.raises(LibsshChannelEOFError, match=error_msg):
+        ssh_channel_via_relay.read_bulk_response()
 
 
 def test_request_exec(ssh_channel: Channel) -> None:
