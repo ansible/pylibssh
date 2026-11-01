@@ -1,4 +1,4 @@
-"""Tests suite for SFTP _RemoteFile context manager."""
+"""Tests suite for SFTP _RemoteFile and _PipelinedRemoteFile context managers."""
 
 from __future__ import annotations
 
@@ -17,10 +17,25 @@ if _t.TYPE_CHECKING:
 import pytest
 
 from pylibsshext.errors import LibsshSFTPException
-from pylibsshext.sftp import SFTP, _RemoteFile
+from pylibsshext.sftp import SFTP, _PipelinedRemoteFile, _RemoteFile
+
+from pylibsshext import __libssh_version__
 
 
 SMALL_PAYLOAD = 32
+
+LIBSSH_VERSION = tuple(map(int, __libssh_version__.split('.')))
+
+requires_aio_support = pytest.mark.skipif(
+    LIBSSH_VERSION < (0, 11, 0),
+    reason='Asynchronous SFTP requires libssh >= 0.11.0',
+)
+requires_no_aio_support = pytest.mark.skipif(
+    LIBSSH_VERSION >= (0, 11, 0),
+    reason=(
+        'Testing fallback for unsupported async SFTP requires libssh < 0.11.0'
+    ),
+)
 
 
 @pytest.fixture
@@ -160,6 +175,62 @@ def test_remote_file_read_failure(
         )
         with pytest.raises(LibsshSFTPException, match=rf'^{error_msg} \['):
             remote_fd.readinto(read_buffer)
+
+
+@requires_aio_support
+def test_remote_file_aio_write(
+    dst_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that _PipelinedRemoteFile supports write and drains on exit."""
+    payload = b'async payload data'
+    payload_len = len(payload)
+    with _PipelinedRemoteFile(
+        sftp_obj=sftp_session,
+        path=str(dst_path),
+        flags=os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+    ) as remote_fd:
+        written = remote_fd.write(payload)
+        assert written == payload_len
+    assert dst_path.read_bytes() == payload
+
+
+@requires_aio_support
+def test_remote_file_aio_read(
+    dst_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that _PipelinedRemoteFile supports readinto."""
+    payload = b'async payload data'
+    payload_len = len(payload)
+    dst_path.write_bytes(payload)
+
+    with _PipelinedRemoteFile(
+        sftp_obj=sftp_session,
+        path=str(dst_path),
+        flags=os.O_RDONLY,
+    ) as remote_fd:
+        read_buf = bytearray(payload_len)
+        read_bytes = remote_fd.readinto(read_buf)
+        assert read_bytes == payload_len
+        assert bytes(read_buf) == payload
+
+
+@requires_no_aio_support
+def test_remote_file_aio_unsupported(
+    dst_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that _PipelinedRemoteFile raises NotImplementedError on libssh < 0.11.0."""
+    with pytest.raises(
+        NotImplementedError,
+        match=r'^Asynchronous SFTP requires libssh >= 0\.11\.0$',
+    ):
+        _PipelinedRemoteFile(
+            sftp_obj=sftp_session,
+            path=str(dst_path),
+            flags=os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+        )
 
 
 class _SentinelError(RuntimeError):
