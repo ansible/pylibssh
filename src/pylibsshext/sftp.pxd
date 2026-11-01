@@ -24,8 +24,21 @@ cdef class SFTP:
     cdef Session session
     cdef sftp.sftp_session _libssh_sftp_session
 
-cdef class _RemoteFile:
+cdef class _BaseRemoteFile:
     cdef sftp.sftp_file _fd
     cdef SFTP _sftp
     cdef str _path
     cdef void _close(self) noexcept
+
+cdef class _RemoteFile(_BaseRemoteFile):
+    pass
+
+cdef class _PipelinedRemoteFile(_BaseRemoteFile):
+    cdef object _aio_queue
+    cdef void _close(self) noexcept
+
+cdef class _C_AIO:
+    cdef sftp.sftp_aio aio
+
+    @staticmethod
+    cdef _C_AIO from_ptr(sftp.sftp_aio aio)
