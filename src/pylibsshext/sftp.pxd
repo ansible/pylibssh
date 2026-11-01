@@ -23,6 +23,8 @@ from pylibsshext.session cimport Session
 cdef class SFTP:
     cdef Session session
     cdef sftp.sftp_session _libssh_sftp_session
+    cdef sftp.sftp_limits_t _limits
+    cdef object _transfer
 
 cdef class _BaseRemoteFile:
     cdef sftp.sftp_file _fd
@@ -42,3 +44,12 @@ cdef class _C_AIO:
 
     @staticmethod
     cdef _C_AIO from_ptr(sftp.sftp_aio aio)
+
+cdef class _BaseTransfer:
+    cdef SFTP _sftp
+
+cdef class _SyncTransfer(_BaseTransfer):
+    pass
+
+cdef class _PipelinedTransfer(_BaseTransfer):
+    pass

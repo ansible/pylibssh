@@ -35,6 +35,13 @@ from pylibsshext.session cimport get_libssh_session
 # the server, for example using limits@openssh.com (since libssh 0.11.0).
 SFTP_MAX_CHUNK = 32_768
 
+# 255kB is absolute maximum we want to send over the SSH channel. Sending
+# more will likely not work and capping at some value will prevent DoS.
+SFTP_MAX_CHUNK_LIMIT = 261_120
+
+# Default number of requests for asynchronous/overlapping uploads and downloads.
+SFTP_MAX_REQUESTS = 10
+
 
 MSG_MAP = {
     sftp.SSH_FX_OK: "No error",
@@ -55,16 +62,78 @@ MSG_MAP = {
 cdef class SFTP:
     def __cinit__(self, session):
         self.session = session
+        self._limits = NULL
         self._libssh_sftp_session = sftp.sftp_new(get_libssh_session(session))
         if self._libssh_sftp_session is NULL:
             raise LibsshSFTPException("Failed to create new session")
         if sftp.sftp_init(self._libssh_sftp_session) != libssh.SSH_OK:
             raise LibsshSFTPException("Error initializing SFTP session")
 
+        if sftp.HAVE_SFTP_AIO:
+            # Note: sftp_limits() always returns non-NULL even if the server does not
+            # support the limits@openssh.com extension, because libssh implicitly falls
+            # back to safe default limits. A NULL return only indicates an internal error
+            # (such as an allocation failure).
+            self._limits = sftp.sftp_limits(self._libssh_sftp_session)
+            if self._limits is NULL:
+                sftp_error = self._get_sftp_error_str()
+                raise LibsshSFTPException(
+                    f"Failed to get remote SFTP limits [{sftp_error!s}]"
+                )
+            self._transfer = _PipelinedTransfer(self)
+        else:
+            self._transfer = _SyncTransfer(self)
+
     def __dealloc__(self):
-        if self._libssh_sftp_session is not NULL:
-            sftp.sftp_free(self._libssh_sftp_session)
-            self._libssh_sftp_session = NULL
+        sftp.sftp_limits_free(self._limits)
+        self._limits = NULL
+        sftp.sftp_free(self._libssh_sftp_session)
+        self._libssh_sftp_session = NULL
+
+    def _cap_io_size(self, length: int, limit: int) -> int:
+        """
+        Calculate the safe chunk size for reading or writing over the channel.
+
+        Caps the requested chunk length against the server-enforced limit
+        (or libssh default fallback), while bounding it between a safe minimum
+        (``SFTP_MAX_CHUNK``, 32 KiB) and maximum (``SFTP_MAX_CHUNK_LIMIT``, 255 KiB).
+        If the server reports 0 (unlimited), ``SFTP_MAX_CHUNK_LIMIT`` is returned.
+        Enforcing the floor prevents DoS from servers advertising maliciously small limits.
+
+        :param length: Maximum desired chunk size (e.g. ``SFTP_MAX_CHUNK_LIMIT``)
+        :param limit: Server limit from ``limits@openssh.com`` (or libssh fallback, 0 for unlimited)
+
+        :returns: Safe chunk size in bytes to read or write
+        """
+        if limit == 0:  # unlimited
+            return SFTP_MAX_CHUNK_LIMIT
+        limit = max(limit, SFTP_MAX_CHUNK)
+        limit = min(limit, SFTP_MAX_CHUNK_LIMIT)
+        return min(length, limit)
+
+    def _cap_write_size(self, length: int) -> int:
+        """
+        Calculate the safe chunk size to write over the channel in one request.
+
+        :param length: Maximum desired write chunk size (e.g. ``SFTP_MAX_CHUNK_LIMIT``)
+
+        :returns: Safe chunk size in bytes to write
+        """
+        if self._limits == NULL:
+            return min(length, SFTP_MAX_CHUNK)
+        return self._cap_io_size(length, self._limits.max_write_length)
+
+    def _cap_read_size(self, length: int) -> int:
+        """
+        Calculate the safe chunk size to read over the channel in one request.
+
+        :param length: Maximum desired read chunk size (e.g. ``SFTP_MAX_CHUNK_LIMIT``)
+
+        :returns: Safe chunk size in bytes to read
+        """
+        if self._limits == NULL:
+            return min(length, SFTP_MAX_CHUNK)
+        return self._cap_io_size(length, self._limits.max_read_length)
 
     def put(self, local_file: str | os.PathLike[str], remote_file: str) -> None:
         """
@@ -77,21 +146,7 @@ cdef class SFTP:
         :raises ValueError: When remote path contains invalid null bytes
         :raises LibsshSFTPException: When opening or writing to the remote file fails
         """
-        cdef bytearray write_buffer = bytearray(SFTP_MAX_CHUNK)
-        buffer_view = memoryview(write_buffer)
-
-        with open(local_file, 'rb') as local_fd, _RemoteFile(
-            sftp_obj=self,
-            path=remote_file,
-            flags=O_WRONLY | O_CREAT | O_TRUNC,
-        ) as remote_fd:
-            while True:
-                bytes_read = local_fd.readinto(write_buffer)
-                is_eof = bytes_read == 0
-                if is_eof:
-                    break
-
-                remote_fd.write(buffer_view[:bytes_read])
+        self._transfer.put(local_file, remote_file)
 
     def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
         """
@@ -104,32 +159,136 @@ cdef class SFTP:
         :raises LibsshSFTPException: When opening or reading the remote file fails
         :raises ValueError: When remote path contains invalid null bytes
         """
-        cdef bytearray read_buffer = bytearray(SFTP_MAX_CHUNK)
-        buffer_view = memoryview(read_buffer)
-
-        with _RemoteFile(
-            sftp_obj=self,
-            path=remote_file,
-            flags=O_RDONLY,
-        ) as remote_fd, open(local_file, 'wb') as local_fd:
-            while True:
-                file_data = remote_fd.readinto(read_buffer)
-                is_eof = file_data == 0
-                if is_eof:
-                    break
-
-                local_fd.write(buffer_view[:file_data])
+        self._transfer.get(remote_file, local_file)
 
     def close(self):
-        if self._libssh_sftp_session is not NULL:
-            sftp.sftp_free(self._libssh_sftp_session)
-            self._libssh_sftp_session = NULL
+        sftp.sftp_limits_free(self._limits)
+        self._limits = NULL
+        sftp.sftp_free(self._libssh_sftp_session)
+        self._libssh_sftp_session = NULL
 
     def _get_sftp_error_str(self):
         error = sftp.sftp_get_error(self._libssh_sftp_session)
         if error in MSG_MAP and error != sftp.SSH_FX_FAILURE:
             return MSG_MAP[error]
         return "Generic failure: %s" % self.session._get_session_error_str()
+
+
+cdef class _BaseTransfer:
+    """Base class for SFTP file transfers."""
+    def __cinit__(self, SFTP sftp_obj):
+        self._sftp = sftp_obj
+
+    def put(self, local_file: str | os.PathLike[str], remote_file: str) -> None:
+        raise NotImplementedError
+
+    def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
+        raise NotImplementedError
+
+
+cdef class _SyncTransfer(_BaseTransfer):
+    """Synchronous SFTP file transfer."""
+
+    def put(self, local_file: str | os.PathLike[str], remote_file: str) -> None:
+        cdef size_t chunk_size = SFTP_MAX_CHUNK
+        cdef bytearray write_buffer = bytearray(chunk_size)
+        buffer_view = memoryview(write_buffer)
+        cdef ssize_t bytes_read
+
+        with open(local_file, 'rb') as local_fd, _RemoteFile(
+            sftp_obj=self._sftp,
+            path=remote_file,
+            flags=O_WRONLY | O_CREAT | O_TRUNC,
+        ) as remote_fd:
+            while True:
+                bytes_read = local_fd.readinto(write_buffer)
+                if bytes_read == 0:
+                    break
+
+                remote_fd.write(buffer_view[:bytes_read])
+
+    def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
+        cdef size_t chunk_size = SFTP_MAX_CHUNK
+        cdef bytearray read_buffer = bytearray(chunk_size)
+        buffer_view = memoryview(read_buffer)
+        cdef ssize_t bytes_read
+
+        with _RemoteFile(
+            sftp_obj=self._sftp,
+            path=remote_file,
+            flags=O_RDONLY,
+        ) as remote_fd, open(local_file, 'wb') as local_fd:
+            while True:
+                bytes_read = remote_fd.readinto(read_buffer)
+                if bytes_read == 0:
+                    break
+
+                local_fd.write(buffer_view[:bytes_read])
+
+
+cdef class _PipelinedTransfer(_BaseTransfer):
+    """Pipelined asynchronous SFTP file transfer using libssh AIO."""
+
+    def put(self, local_file: str | os.PathLike[str], remote_file: str) -> None:
+        cdef size_t chunk_size = self._sftp._cap_write_size(SFTP_MAX_CHUNK_LIMIT)
+        cdef bytearray write_buffer = bytearray(chunk_size)
+        buffer_view = memoryview(write_buffer)
+        cdef bint is_eof = False
+        cdef ssize_t bytes_read
+
+        with open(local_file, 'rb') as local_fd, _PipelinedRemoteFile(
+            sftp_obj=self._sftp,
+            path=remote_file,
+            flags=O_WRONLY | O_CREAT | O_TRUNC,
+        ) as remote_fd:
+            # start multiple requests before waiting for responses
+            for _ in range(SFTP_MAX_REQUESTS):
+                bytes_read = local_fd.readinto(write_buffer)
+                if bytes_read == 0:
+                    is_eof = True
+                    break
+                remote_fd.aio_begin_write(buffer_view[:bytes_read])
+
+            while remote_fd.has_pending_aio_requests():
+                remote_fd.aio_wait_write()
+
+                if not is_eof:
+                    bytes_read = local_fd.readinto(write_buffer)
+                    if bytes_read == 0:
+                        is_eof = True
+                    else:
+                        remote_fd.aio_begin_write(buffer_view[:bytes_read])
+
+    def get(self, remote_file: str, local_file: str | os.PathLike[str]) -> None:
+        cdef size_t chunk_size = self._sftp._cap_read_size(SFTP_MAX_CHUNK_LIMIT)
+        cdef bytearray read_buffer = bytearray(chunk_size)
+        buffer_view = memoryview(read_buffer)
+        cdef bint is_eof = False
+        cdef ssize_t bytes_read
+
+        with _PipelinedRemoteFile(
+            sftp_obj=self._sftp,
+            path=remote_file,
+            flags=O_RDONLY,
+        ) as remote_fd, open(local_file, 'wb') as local_fd:
+            # Dispatch initial probe request -- handles small files with one round trip
+            remote_fd.aio_begin_read(chunk_size)
+
+            while remote_fd.has_pending_aio_requests():
+                bytes_read = remote_fd.aio_wait_read(read_buffer)
+
+                # write the local file
+                if bytes_read > 0:
+                    local_fd.write(buffer_view[:bytes_read])
+
+                if bytes_read < chunk_size:
+                    is_eof = True
+
+                if not is_eof:
+                    # There are more data to read. Do it async with up to
+                    # SFTP_MAX_REQUESTS in flight requests
+                    while remote_fd.pending_aio_requests() < SFTP_MAX_REQUESTS:
+                        remote_fd.aio_begin_read(chunk_size)
 
 
 cdef class _BaseRemoteFile:
