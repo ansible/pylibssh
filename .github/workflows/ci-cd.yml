@@ -639,7 +639,7 @@ jobs:
     strategy:
       matrix:
         runner-vm-os:
-        - macos-15
+        - macos-26
     uses: ./.github/workflows/reusable-cibuildwheel.yml
     with:
       runner-vm-os: ${{ matrix.runner-vm-os }}
@@ -1093,8 +1093,8 @@ jobs:
         - "3.10"
         - 3.9
         runner-vm-os:
-        - macos-15-intel
-        - macos-15
+        - macos-26-intel
+        - macos-26
         dist-type:
         - binary
         - source
