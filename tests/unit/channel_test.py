@@ -2,7 +2,9 @@
 
 import gc
 import pathlib
+import shlex
 import signal
+import sys
 import time
 import typing as _t
 
@@ -262,8 +264,18 @@ def test_send_eof(ssh_channel: Channel) -> None:
 
 def test_send_signal(ssh_channel: Channel) -> None:
     """Test send_signal correctly forwards signal to the process."""
+    # NOTE: sshd delivers the signal with `killpg()`. A shell trap racing
+    # NOTE: a foreground child in that process group is nondeterministic
+    # NOTE: on macOS, so a lone exec'd interpreter receives it instead.
+    remote_script = (
+        'import signal, sys, time; '
+        'signal.signal(signal.SIGUSR1, lambda *_: sys.exit(1)); '
+        "print('ready', flush=True); "
+        f'time.sleep({COMMAND_TIMEOUT}); '
+        'sys.exit(0)'
+    )
     ssh_channel.request_exec(
-        'bash -c \'trap "exit 1" SIGUSR1; echo ready; sleep 5; exit 0\'',
+        f'exec {shlex.quote(sys.executable)} -c {shlex.quote(remote_script)}',
     )
 
     # Wait until the process is ready to receive signal
