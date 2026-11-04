@@ -1,0 +1,4 @@
+The macOS jobs in CI, including the ones building ``libssh`` and the
+wheels, now run on the ``macos-26`` and ``macos-26-intel`` runners,
+since GitHub is sunsetting the older images that used to cause delays,
+flakiness and cancellations -- by :user:`webknjaz`.

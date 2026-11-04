@@ -25,7 +25,7 @@ env:
 jobs:
   build:
     name: "Build libssh for macOS (${{ matrix.ARCH.NAME }})"
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 10
     strategy:
       matrix:
@@ -114,7 +114,7 @@ jobs:
     name: "Build libssh for macOS universal2"
     needs:
     - build
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 2
     steps:
     - uses: actions/checkout@v7
