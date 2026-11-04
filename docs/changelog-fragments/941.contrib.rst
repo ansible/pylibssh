@@ -1,0 +1,4 @@
+The ``test_send_signal`` test stopped flaking on macOS: its remote
+payload became a single exec'd interpreter instead of a shell trap
+racing a foreground ``sleep`` in the signaled process group
+-- steered by :user:`webknjaz`, typed by a robot that errs.
