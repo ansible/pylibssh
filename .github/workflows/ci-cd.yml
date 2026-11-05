@@ -325,11 +325,12 @@ jobs:
 
         FILE_APPEND_MODE = 'a'
 
-        whl_file_prj_base_name = environ['PROJECT_NAME'].replace('-', '_')
-        sdist_file_prj_base_name = (
-            whl_file_prj_base_name.
-            replace('.', '_').
-            lower()
+        # NOTE: Recent setuptools versions normalize the project name in both
+        # NOTE: the sdist and the wheel file names the same way.
+        dist_file_prj_base_name = (
+            environ['PROJECT_NAME'].lower()
+            .replace('-', '_')
+            .replace('.', '_')
         )
         dist_version = environ['PROJECT_VERSION']
 
@@ -337,11 +338,11 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(
-                f"sdist={sdist_file_prj_base_name !s}-{dist_version}.tar.gz",
+                f"sdist={dist_file_prj_base_name !s}-{dist_version}.tar.gz",
                 file=outputs_file,
             )
             print(
-                f"wheel={whl_file_prj_base_name !s}-{dist_version}-"
+                f"wheel={dist_file_prj_base_name !s}-{dist_version}-"
                 "cp3*-cp3*-*.whl",
                 file=outputs_file,
             )
