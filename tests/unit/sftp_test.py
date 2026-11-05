@@ -393,7 +393,6 @@ def test_get_pipelining(
     transmit_payload: bytes,
 ) -> None:
     """Check that async SFTP get correctly ramps up, pipelines, and drains across >10 chunks."""
-
     sftp_session.get(str(src_path), dst_path)
     assert dst_path.read_bytes() == transmit_payload
 
@@ -412,6 +411,5 @@ def test_put_pipelining(
     transmit_payload: bytes,
 ) -> None:
     """Check that async SFTP put correctly pipelines and drains across >10 chunks."""
-
     sftp_session.put(src_path, str(dst_path))
     assert dst_path.read_bytes() == transmit_payload
