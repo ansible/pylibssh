@@ -16,9 +16,10 @@ if _t.TYPE_CHECKING:
 
 import pytest
 
-from pylibsshext import __libssh_version__
 from pylibsshext.errors import LibsshSFTPException
 from pylibsshext.sftp import SFTP, _PipelinedRemoteFile, _RemoteFile
+
+from pylibsshext import __libssh_version__
 
 
 SMALL_PAYLOAD = 32
