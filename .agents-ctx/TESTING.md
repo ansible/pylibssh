@@ -142,7 +142,15 @@ test `xfail` because it broke is silencing it.
 
 Use `pytest.raises(..., match=...)` -- never a bare
 `pytest.raises(SomeError)` -- so the assertion pins down which
-failure is expected, not just its type.
+failure is expected, not just its type. Use a raw string (e.g.
+`r'^foo\.bar$'`) or `re.escape(...)` for the `match=` pattern when it
+contains regex metacharacters, to keep the regex intention explicit.
+
+Keep `assert` statements per test function to 5 or fewer (enforced by
+WPS218). When testing multi-stage workflows (e.g. write followed by read),
+split them into separate test functions. Also avoid repeating identical
+non-trivial expressions (such as `len(...)`) more than 4 times in a single
+test scope to satisfy WPS204; assign the result to a local variable instead.
 
 ## Filesystem fixtures
 

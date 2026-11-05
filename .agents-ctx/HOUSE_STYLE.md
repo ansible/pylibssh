@@ -134,3 +134,23 @@ currently no formatter tool that works on Cython source. Long-line
 wrapping in `.pyx` files is done by hand, following ordinary
 Python-style continuation conventions -- not C-style formatting
 habits (PR #869).
+
+## Libssh functions safely handle NULL pointers, but initialize them early
+
+Functions in the libssh C API (e.g. `sftp_aio_free()`,
+`sftp_limits_free()`, `sftp_free()`) are designed to be safe no-ops
+when passed `NULL`. Do not add redundant `if ptr is not NULL:` guards
+prior to calling these cleanup functions, and do not flag unguarded
+calls to them as missing null-checks.
+
+However, note that `sftp_close()` is an exception in older libssh versions
+(such as libssh < 0.10.0 / 0.9.x, shipped e.g. in Ubuntu 22.04 LTS), where
+passing `NULL` dereferences `file->sftp` without a null check and crashes
+with SIGSEGV. Therefore, calls to `sftp_close()` must always be guarded
+against `NULL` handles (e.g. `if self._fd is NULL: return`).
+
+However, `NULL`-safety in C functions only works if the pointer is
+actually `NULL`, not uninitialized garbage memory. Always initialize raw C
+pointer attributes (e.g. `self._fd = NULL`) at the very beginning of
+`__cinit__` before any checks that could raise an exception, because Cython
+still invokes `__dealloc__` when `__cinit__` raises early.
