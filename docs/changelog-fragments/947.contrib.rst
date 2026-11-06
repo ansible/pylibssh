@@ -1,0 +1,4 @@
+In the RPM smoke test CI workflow, the EPEL 9 repositories are now enabled
+directly on UBI 9 containers, dropping the manual installation of individual
+test dependency RPM packages
+-- by :user:`Jakuje`.
