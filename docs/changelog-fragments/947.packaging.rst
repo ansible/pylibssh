@@ -1,0 +1,4 @@
+Compatibility with :pypi:`tox` 3 for downstream RPM package builds on EL 9
+and older was restored by dropping the unused ``[testenv:pre-commit]`` section
+from :file:`tox.ini` during the RPM build
+-- by :user:`Jakuje`.

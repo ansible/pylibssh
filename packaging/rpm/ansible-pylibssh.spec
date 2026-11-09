@@ -103,6 +103,14 @@ sed --in-place '/^license-files = \[$/,/^\]$/d' pyproject.toml
 sed --in-place '/^  proxy\.py$/d' tox.ini
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} <= 9
+# NOTE: RHEL 9 and older ship tox 3, which fails to parse tox 4 multiline
+# NOTE: shell substitutions and post-commands in `[testenv:pre-commit]`.
+# NOTE: Since downstream builds only run `just-pytest`, we remove the unused
+# NOTE: `[testenv:pre-commit]` section from `tox.ini`.
+sed --in-place '/^\[testenv:pre-commit\]$/,/^\[/{ /^\[testenv:pre-commit\]$/d; /^\[/!d }' tox.ini
+%endif
+
 %generate_buildrequires
 %pyproject_buildrequires -t
 

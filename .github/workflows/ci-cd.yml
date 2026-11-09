@@ -1017,13 +1017,11 @@ jobs:
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       timeout-minutes: 5
-      # FIXME: These containers only ship tox 3, which cannot parse the
-      # FIXME: modern `tox.ini`. Consider phasing out these old downstreams.
+      # NOTE: Unused
       xfail: >-
         ${{
           (
-            contains(matrix.target-container.tag, 'ubi9')
-            || contains(matrix.target-container.tag, 'centos:stream9')
+            contains(matrix.target-container.tag, 'DISABLED')
           )
           && 'true'
           || 'false'
