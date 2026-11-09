@@ -1,0 +1,3 @@
+The SFTP transfer pipelining moved into the remote file context
+manager, letting ``get()`` and ``put()`` keep their original loops
+-- steered by :user:`webknjaz`, typed by a robot that errs.
