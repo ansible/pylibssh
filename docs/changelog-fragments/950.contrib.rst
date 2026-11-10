@@ -1,0 +1,5 @@
+Pruned end-of-life (EOL) UBI 9 container images (9.0, 9.1, 9.3, 9.5, and 9.7)
+from the RPM smoke test CI matrix in accordance with the `Red Hat Enterprise
+Linux Life Cycle policy
+<https://access.redhat.com/support/policy/updates/errata>`__
+-- by :user:`Jakuje`.
