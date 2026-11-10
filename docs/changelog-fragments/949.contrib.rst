@@ -1,0 +1,2 @@
+Added the Fedora 45 container image to the CI test matrix and dropped
+the soon-to-be EOL Fedora 43 -- by :user:`Jakuje`.
