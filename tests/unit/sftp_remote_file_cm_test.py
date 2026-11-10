@@ -162,6 +162,82 @@ def test_remote_file_read_failure(
             remote_fd.readinto(read_buffer)
 
 
+def test_remote_file_aio_write(
+    dst_path: pathlib.Path,
+    libssh_version_tuple: tuple[int, ...],
+    sftp_session: SFTP,
+) -> None:
+    """Check that _RemoteFile supports asynchronous write and wait."""
+    if libssh_version_tuple < (0, 11, 0):
+        pytest.skip('Asynchronous SFTP requires libssh >= 0.11.0')
+
+    payload = b'async payload data'
+    payload_len = len(payload)
+    with _RemoteFile(
+        sftp_obj=sftp_session,
+        path=str(dst_path),
+        flags=os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+        async_mode=True,
+    ) as remote_fd:
+        assert not remote_fd.has_pending_aio_requests()
+        written = remote_fd.write(payload)
+        assert written == payload_len
+        assert remote_fd.has_pending_aio_requests()
+        assert remote_fd.aio_wait_write() == payload_len
+        assert not remote_fd.has_pending_aio_requests()
+
+
+def test_remote_file_aio_read(
+    dst_path: pathlib.Path,
+    libssh_version_tuple: tuple[int, ...],
+    sftp_session: SFTP,
+) -> None:
+    """Check that _RemoteFile supports asynchronous read and readinto."""
+    if libssh_version_tuple < (0, 11, 0):
+        pytest.skip('Asynchronous SFTP requires libssh >= 0.11.0')
+
+    payload = b'async payload data'
+    payload_len = len(payload)
+    dst_path.write_bytes(payload)
+
+    with _RemoteFile(
+        sftp_obj=sftp_session,
+        path=str(dst_path),
+        flags=os.O_RDONLY,
+        async_mode=True,
+    ) as remote_fd:
+        remote_fd.aio_begin_read(payload_len)
+        assert remote_fd.has_pending_aio_requests()
+        read_buf = bytearray(payload_len)
+        read_bytes = remote_fd.readinto(read_buf)
+        assert read_bytes == payload_len
+        assert bytes(read_buf) == payload
+        assert not remote_fd.has_pending_aio_requests()
+
+
+def test_remote_file_aio_unsupported(
+    dst_path: pathlib.Path,
+    libssh_version_tuple: tuple[int, ...],
+    sftp_session: SFTP,
+) -> None:
+    """Check that _RemoteFile with async_mode=True raises NotImplementedError on libssh < 0.11.0."""
+    if libssh_version_tuple >= (0, 11, 0):
+        pytest.skip(
+            'Testing fallback for unsupported async SFTP requires libssh < 0.11.0',
+        )
+
+    with pytest.raises(
+        NotImplementedError,
+        match=r'^Asynchronous SFTP requires libssh >= 0\.11\.0$',
+    ):
+        _RemoteFile(
+            sftp_obj=sftp_session,
+            path=str(dst_path),
+            flags=os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+            async_mode=True,
+        )
+
+
 class _SentinelError(RuntimeError):
     """Sentinel error for testing exception propagation."""
 
