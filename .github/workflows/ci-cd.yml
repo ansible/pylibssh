@@ -1017,7 +1017,6 @@ jobs:
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       timeout-minutes: 5
-      # NOTE: Unused
       xfail: >-
         ${{
           (
