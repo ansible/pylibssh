@@ -981,8 +981,8 @@ jobs:
     strategy:
       matrix:
         target-container:
-        - tag: fedora:43
         - tag: fedora:44
+        - tag: fedora:45
         - tag: ubi9/ubi:9.0.0
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.1
