@@ -983,21 +983,11 @@ jobs:
         target-container:
         - tag: fedora:44
         - tag: fedora:45
-        - tag: ubi9/ubi:9.0.0
-          registry: registry.access.redhat.com
-        - tag: ubi9/ubi:9.1
-          registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.2
-          registry: registry.access.redhat.com
-        - tag: ubi9/ubi:9.3
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.4
           registry: registry.access.redhat.com
-        - tag: ubi9/ubi:9.5
-          registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.6
-          registry: registry.access.redhat.com
-        - tag: ubi9/ubi:9.7
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.8
           registry: registry.access.redhat.com
