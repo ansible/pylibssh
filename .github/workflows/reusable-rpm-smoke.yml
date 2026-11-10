@@ -111,8 +111,10 @@ jobs:
       run: >-
         dnf config-manager --set-enabled crb
 
-    - name: Install epel for centos 9
-      if: contains(inputs.container-image-tag, 'centos:stream9')
+    - name: Install epel for el9
+      if: >-
+        contains(inputs.container-image-tag, 'stream9')
+        || contains(inputs.container-image-tag, 'ubi9')
       run: >-
         dnf install -y
         https://dl.fedoraproject.org/pub/epel/epel{,-next}-release-latest-9.noarch.rpm
@@ -173,48 +175,6 @@ jobs:
         python3-pluggy
         python3-py
         python3-tomli
-
-    - name: Install static test dependencies missing from all UBIs
-      if: contains(inputs.container-image-tag, 'ubi')
-      run: >-
-        rpm
-        -ivh
-        --nodeps
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-pytest-cov-4.0.0-2${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-pytest-xdist-2.5.0-2${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/t/tox-3.28.0-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-filelock-3.7.1-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-tox-current-env-0.0.16-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-execnet-1.9.0-3${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.noarch.rpm
-        https://rpmfind.net/linux/epel/"$(
-          rpm --eval '%{rhel}'
-        )"/Everything/x86_64/Packages/p/python3-coverage-6.2-1${{
-          steps.distribution-meta.outputs.dist-tag
-        }}.x86_64.rpm
 
     - name: Install static build requirements
       run: >-
