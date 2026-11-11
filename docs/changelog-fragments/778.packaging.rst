@@ -1,0 +1,5 @@
+The C-extensions in the wheels are no longer compiled with Cython's
+profiling hooks. Cython line tracing and profiling are now only enabled
+in builds requesting them through the ``with-cython-tracing`` :pep:`517`
+config setting or the ``ANSIBLE_PYLIBSSH_CYTHON_TRACING`` environment
+variable -- steered by :user:`webknjaz`, typed by a robot that errs.
