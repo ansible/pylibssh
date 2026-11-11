@@ -83,6 +83,8 @@ cdef extern from "includes/sftp_compat.h" nogil:
     int sftp_close(sftp_file file)
     ssize_t sftp_write(sftp_file file, const void *buf, size_t count)
     ssize_t sftp_read(sftp_file file, const void *buf, size_t count)
+    int sftp_seek64(sftp_file file, stdint.uint64_t new_offset)
+    stdint.uint64_t sftp_tell64(sftp_file file)
     int sftp_get_error(sftp_session sftp)
 
     sftp_attributes sftp_stat(sftp_session session, const char *path)

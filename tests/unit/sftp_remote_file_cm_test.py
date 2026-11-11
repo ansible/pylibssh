@@ -17,7 +17,12 @@ if _t.TYPE_CHECKING:
 import pytest
 
 from pylibsshext.errors import LibsshSFTPException
-from pylibsshext.sftp import SFTP, _PipelinedRemoteFile, _RemoteFile
+from pylibsshext.sftp import (
+    SFTP,
+    SFTP_MAX_CHUNK_LIMIT,
+    _PipelinedRemoteFile,
+    _RemoteFile,
+)
 
 from pylibsshext import __libssh_version__
 
@@ -216,6 +221,60 @@ def test_remote_file_aio_read(
         assert bytes(read_buf) == payload
 
 
+@requires_aio_support
+def test_pipelined_remote_file_readinto(
+    pre_existing_file_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that _PipelinedRemoteFile.readinto() reads the data, then EOF."""
+    read_buffer = bytearray(SMALL_PAYLOAD)
+    with _PipelinedRemoteFile(
+        sftp_obj=sftp_session,
+        path=str(pre_existing_file_path),
+        flags=os.O_RDONLY,
+    ) as remote_fd:
+        assert remote_fd.readinto(read_buffer) == SMALL_PAYLOAD
+        read_data = bytes(read_buffer)
+        assert remote_fd.readinto(read_buffer) == 0
+    assert read_data == pre_existing_file_path.read_bytes()
+
+
+@requires_aio_support
+def test_pipelined_remote_file_write_over_limit(
+    dst_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that a write beyond the server limit is split, not rejected."""
+    payload = random.randbytes(SFTP_MAX_CHUNK_LIMIT * 2 + 1)
+    with _PipelinedRemoteFile(
+        sftp_obj=sftp_session,
+        path=str(dst_path),
+        flags=os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+    ) as remote_fd:
+        assert remote_fd.write(payload) == len(payload)
+    assert dst_path.read_bytes() == payload
+
+
+@requires_aio_support
+def test_pipelined_remote_file_flush_failure(
+    pre_existing_file_path: pathlib.Path,
+    sftp_session: SFTP,
+) -> None:
+    """Check that a write rejected by the server fails on flush()."""
+    payload = b'unauthorized payload'
+    error_msg = re.escape(
+        f'Writing to remote file [{pre_existing_file_path!s}] failed with error',
+    )
+    with _PipelinedRemoteFile(
+        sftp_obj=sftp_session,
+        path=str(pre_existing_file_path),
+        flags=os.O_RDONLY,
+    ) as remote_fd:
+        assert remote_fd.write(payload) == len(payload)
+        with pytest.raises(LibsshSFTPException, match=rf'^{error_msg} \['):
+            remote_fd.flush()
+
+
 @requires_no_aio_support
 def test_remote_file_aio_unsupported(
     dst_path: pathlib.Path,
@@ -264,3 +323,37 @@ def test_remote_file_cm_reraises_cleans_up(
             path=pre_existing_file_path,
             flags=os.O_RDONLY,
         )
+
+
+def _choke_on_pipelined_read(
+    *,
+    sftp_obj: SFTP,
+    path: pathlib.Path,
+) -> _t.NoReturn:
+    """Raise from within the CM while read-ahead requests are in flight."""
+    with _PipelinedRemoteFile(
+        sftp_obj=sftp_obj,
+        path=str(path),
+        flags=os.O_RDONLY,
+    ) as remote_fd:
+        remote_fd.readinto(bytearray(1))
+        msg = 'boom'
+        raise _SentinelError(msg)
+
+
+@requires_aio_support
+def test_pipelined_remote_file_cm_drains_on_error(
+    pre_existing_file_path: pathlib.Path,
+    sftp_session: SFTP,
+    tmp_path: pathlib.Path,
+) -> None:
+    """Check that leaving the CM with requests in flight keeps the session usable."""
+    with pytest.raises(_SentinelError, match=r'^boom$'):
+        _choke_on_pipelined_read(
+            sftp_obj=sftp_session,
+            path=pre_existing_file_path,
+        )
+
+    copy_path = tmp_path / 'copy.txt'
+    sftp_session.get(str(pre_existing_file_path), copy_path)
+    assert copy_path.read_bytes() == pre_existing_file_path.read_bytes()

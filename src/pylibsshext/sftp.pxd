@@ -16,6 +16,8 @@
 # License along with this library; if not, see file LICENSE.rst in this
 # repository.
 #
+from libc cimport stdint
+
 from pylibsshext.includes cimport libssh, sftp
 from pylibsshext.session cimport Session
 
@@ -35,15 +37,20 @@ cdef class _RemoteFile:
 
 cdef class _PipelinedRemoteFile(_RemoteFile):
     cdef object _aio_queue
-    cdef bint _is_eof
+    cdef stdint.uint64_t _read_offset
+    cdef _C_AIO _begin_read(self, size_t length)
+    cdef _C_AIO _begin_write(self, const unsigned char[:] data)
+    cdef void _wait_oldest_write(self) except *
+    cdef void _restart_reads(self) except *
+    cdef void _discard_in_flight(self) noexcept
     cdef void _close(self) noexcept
-    cdef ssize_t _aio_wait_write_one(self)
-    cdef void _drain_writes(self)
-    cdef void _aio_begin_read(self, size_t length)
-    cdef ssize_t _aio_wait_read(self, char* c_buf, ssize_t length)
 
 cdef class _C_AIO:
     cdef sftp.sftp_aio aio
+    cdef size_t length
+    cdef bint is_read
 
     @staticmethod
-    cdef _C_AIO from_ptr(sftp.sftp_aio aio)
+    cdef _C_AIO from_ptr(sftp.sftp_aio aio, size_t length, bint is_read)
+    cdef ssize_t wait_read(self, void* buf, size_t buf_size) noexcept
+    cdef ssize_t wait_write(self) noexcept

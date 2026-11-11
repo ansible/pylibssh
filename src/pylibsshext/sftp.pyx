@@ -26,6 +26,8 @@ if _t.TYPE_CHECKING:
 
 from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
 
+from libc.stdlib cimport free, malloc
+
 from pylibsshext.errors cimport LibsshSFTPException
 from pylibsshext.session cimport get_libssh_session
 
@@ -328,8 +330,10 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
     """
     Pipelined remote file handle facade using libssh SFTP AIO.
 
-    Dispatches asynchronous chunk requests over the SFTP channel and
-    manages the internal queue of pending requests.
+    Keeps up to ``SFTP_MAX_REQUESTS`` requests in flight: reads are
+    issued ahead of the consumer and writes are confirmed behind the
+    producer, so the same read/write loops as with :class:`_RemoteFile`
+    no longer wait a full round trip per chunk.
     """
 
     def __init__(
@@ -354,83 +358,53 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
             )
         super().__init__(sftp_obj=sftp_obj, path=path, flags=flags)
         self._aio_queue = _c.deque()
-        self._is_eof = False
-
-    cdef ssize_t _aio_wait_write_one(self):
-        cdef _C_AIO aio = self._aio_queue.popleft()
-        cdef ssize_t written = sftp.sftp_aio_wait_write(&aio.aio)
-        aio.aio = NULL
-        if written != libssh.SSH_ERROR:
-            return written
-
-        sftp_error = self._sftp._get_sftp_error_str()
-        raise LibsshSFTPException(
-            f"Writing to remote file [{self._path!s}] failed with error [{sftp_error!s}]"
-        )
 
     def write(self, const unsigned char[:] data) -> int:
         """
-        Write data to the remote file using pipelined asynchronous requests.
+        Queue data for writing to the remote file.
+
+        Earlier writes are only confirmed once the queue is full, so their
+        errors surface from a later call, from :meth:`flush`, or on exiting
+        the context manager.
 
         :param data: The buffer data to write to the remote file
 
-        :returns: Number of bytes written
+        :returns: Number of bytes queued
 
         :raises LibsshSFTPException: When writing failed
         """
-        cdef ssize_t length = data.shape[0]
-        if length == 0:
-            return 0
+        cdef size_t length = data.shape[0]
+        cdef size_t queued = 0
+        cdef _C_AIO aio
 
-        if len(self._aio_queue) >= SFTP_MAX_REQUESTS:
-            self._aio_wait_write_one()
+        if self._aio_queue and (<_C_AIO>self._aio_queue[0]).is_read:
+            self._restart_reads()
 
-        cdef const char* c_buf = <const char*>&data[0]
-        cdef sftp.sftp_aio raw_aio = NULL
-        cdef ssize_t written = sftp.sftp_aio_begin_write(self._fd, c_buf, length, &raw_aio)
-        if written == length:
-            c_aio = _C_AIO.from_ptr(raw_aio)
-            self._aio_queue.append(c_aio)
-            return written
+        while queued < length:
+            if len(self._aio_queue) >= SFTP_MAX_REQUESTS:
+                self._wait_oldest_write()
 
-        sftp_error = self._sftp._get_sftp_error_str()
-        raise LibsshSFTPException(
-            f"Writing to remote file [{self._path!s}] failed with error [{sftp_error!s}]"
-        )
+            aio = self._begin_write(data[queued:])
+            self._aio_queue.append(aio)
+            queued += aio.length
 
-    cdef void _drain_writes(self):
-        while self._aio_queue:
-            self._aio_wait_write_one()
+        return length
 
-    cdef void _aio_begin_read(self, size_t length):
-        cdef sftp.sftp_aio raw_aio = NULL
-        cdef ssize_t requested = sftp.sftp_aio_begin_read(self._fd, length, &raw_aio)
-        if requested == length:
-            c_aio = _C_AIO.from_ptr(raw_aio)
-            self._aio_queue.append(c_aio)
-            return
+    def flush(self) -> None:
+        """
+        Wait until the server confirms all the queued writes.
 
-        sftp_error = self._sftp._get_sftp_error_str()
-        raise LibsshSFTPException(
-            f"Reading data from remote file [{self._path!s}] failed with error [{sftp_error!s}]"
-        )
-
-    cdef ssize_t _aio_wait_read(self, char* c_buf, ssize_t length):
-        cdef _C_AIO aio = self._aio_queue.popleft()
-        cdef ssize_t file_data = sftp.sftp_aio_wait_read(&aio.aio, c_buf, length)
-        aio.aio = NULL
-
-        if file_data >= 0:
-            return file_data
-
-        sftp_error = self._sftp._get_sftp_error_str()
-        raise LibsshSFTPException(
-            f"Reading data from remote file [{self._path!s}] failed with error [{sftp_error!s}]"
-        )
+        :raises LibsshSFTPException: When writing failed
+        """
+        while self._aio_queue and not (<_C_AIO>self._aio_queue[0]).is_read:
+            self._wait_oldest_write()
 
     def readinto(self, data: bytearray) -> int:
         """
-        Read data from the remote file descriptor into provided bytearray.
+        Read data from the remote file into provided bytearray.
+
+        Requests for the following chunks are issued ahead, sized after
+        the provided buffer.
 
         :param data: The buffer where the read data will be placed
 
@@ -439,37 +413,105 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
         :raises LibsshSFTPException: When reading failed
         """
         cdef char* c_buf = data
-        cdef ssize_t length = len(data)
+        cdef size_t length = len(data)
+        cdef _C_AIO aio
         cdef ssize_t bytes_read
-        cdef bytearray drain_buf
-        cdef char* c_drain
 
         if length == 0:
             return 0
 
-        if self._is_eof and not self._aio_queue:
-            return 0
+        self.flush()
+        if self._aio_queue and (<_C_AIO>self._aio_queue[0]).length > length:
+            self._restart_reads()
+        if not self._aio_queue:
+            self._read_offset = sftp.sftp_tell64(self._fd)
 
-        # Dispatch initial probe request if queue is empty
-        if not self._is_eof and not self._aio_queue:
-            self._aio_begin_read(length)
+        while len(self._aio_queue) < SFTP_MAX_REQUESTS:
+            self._aio_queue.append(self._begin_read(length))
 
-        # Wait for the next queued read
-        bytes_read = self._aio_wait_read(c_buf, length)
+        aio = self._aio_queue.popleft()
+        bytes_read = aio.wait_read(c_buf, length)
+        if bytes_read < 0:
+            sftp_error = self._sftp._get_sftp_error_str()
+            raise LibsshSFTPException(
+                f"Reading data from remote file [{self._path!s}] "
+                f"failed with error [{sftp_error!s}]"
+            )
 
-        if bytes_read < length:
-            self._is_eof = True
-            # Drain any remaining requests that were pipelined past EOF
-            drain_buf = bytearray(length)
-            c_drain = drain_buf
-            while self._aio_queue:
-                self._aio_wait_read(c_drain, length)
-        else:
-            # Top up the pipeline queue with up to SFTP_MAX_REQUESTS requests
-            while len(self._aio_queue) < SFTP_MAX_REQUESTS:
-                self._aio_begin_read(length)
+        self._read_offset += bytes_read
+        # NOTE: Requests issued past a short read, including EOF,
+        # NOTE: point at the wrong offsets, so they are re-issued.
+        if <size_t>bytes_read < aio.length:
+            self._restart_reads()
 
         return bytes_read
+
+    cdef _C_AIO _begin_read(self, size_t length):
+        cdef sftp.sftp_aio raw_aio = NULL
+        # NOTE: libssh caps the requested length to the server limit.
+        cdef ssize_t requested = sftp.sftp_aio_begin_read(
+            self._fd, length, &raw_aio,
+        )
+        if requested > 0:
+            return _C_AIO.from_ptr(raw_aio, requested, True)
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Reading data from remote file [{self._path!s}] "
+            f"failed with error [{sftp_error!s}]"
+        )
+
+    cdef _C_AIO _begin_write(self, const unsigned char[:] data):
+        cdef sftp.sftp_aio raw_aio = NULL
+        # NOTE: libssh caps the written length to the server limit.
+        cdef ssize_t written = sftp.sftp_aio_begin_write(
+            self._fd, <const char*>&data[0], data.shape[0], &raw_aio,
+        )
+        if written > 0:
+            return _C_AIO.from_ptr(raw_aio, written, False)
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Writing to remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    cdef void _wait_oldest_write(self) except *:
+        cdef _C_AIO aio = self._aio_queue.popleft()
+        if aio.wait_write() != libssh.SSH_ERROR:
+            return
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Writing to remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    cdef void _restart_reads(self) except *:
+        self._discard_in_flight()
+        if sftp.sftp_seek64(self._fd, self._read_offset) == libssh.SSH_OK:
+            return
+
+        sftp_error = self._sftp._get_sftp_error_str()
+        raise LibsshSFTPException(
+            f"Seeking in remote file [{self._path!s}] failed with error [{sftp_error!s}]"
+        )
+
+    cdef void _discard_in_flight(self) noexcept:
+        # NOTE: libssh keeps every reply until it is waited for, so
+        # NOTE: dropping the requests without waiting leaks memory.
+        cdef _C_AIO aio
+        cdef char* scratch
+
+        while self._aio_queue:
+            aio = self._aio_queue.popleft()
+            if not aio.is_read:
+                aio.wait_write()
+                continue
+
+            scratch = <char*>malloc(aio.length)
+            if scratch is NULL:
+                continue
+            aio.wait_read(scratch, aio.length)
+            free(scratch)
 
     def __exit__(
         self,
@@ -479,7 +521,7 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
     ) -> None:
         try:
             if exc_type is None and self._is_writer:
-                self._drain_writes()
+                self.flush()
         finally:
             self._close()
 
@@ -487,9 +529,7 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
         if self._fd is NULL:
             return
 
-        if self._aio_queue is not None:
-            self._aio_queue.clear()
-
+        self._discard_in_flight()
         sftp.sftp_close(self._fd)
         self._fd = NULL
 
@@ -499,10 +539,18 @@ cdef class _C_AIO:
         self.aio = NULL
 
     @staticmethod
-    cdef _C_AIO from_ptr(sftp.sftp_aio aio):
+    cdef _C_AIO from_ptr(sftp.sftp_aio aio, size_t length, bint is_read):
         cdef _C_AIO obj = _C_AIO.__new__(_C_AIO)
         obj.aio = aio
+        obj.length = length
+        obj.is_read = is_read
         return obj
+
+    cdef ssize_t wait_read(self, void* buf, size_t buf_size) noexcept:
+        return sftp.sftp_aio_wait_read(&self.aio, buf, buf_size)
+
+    cdef ssize_t wait_write(self) noexcept:
+        return sftp.sftp_aio_wait_write(&self.aio)
 
     def __dealloc__(self):
         sftp.sftp_aio_free(self.aio)
