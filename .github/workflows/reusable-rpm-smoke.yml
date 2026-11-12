@@ -119,8 +119,8 @@ jobs:
         dnf install -y
         https://dl.fedoraproject.org/pub/epel/epel{,-next}-release-latest-9.noarch.rpm
 
-    - name: Install epel for centos 10
-      if: contains(inputs.container-image-tag, 'centos:stream10')
+    - name: Install epel for el10
+      if: contains(inputs.container-image-tag, '10')
       run: >-
         dnf install -y
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
@@ -132,7 +132,11 @@ jobs:
         dnf-plugins-core
         rpm-build
         rpmdevtools
-        rpmlint
+
+    - name: Install rpmlint except for ubi10, which is broken
+      if: >-
+        !contains(inputs.container-image-tag, 'ubi10')
+      run: dnf install -y rpmlint
 
     - name: Create rpmbuild directory structure
       run: rpmdev-setuptree
@@ -158,6 +162,8 @@ jobs:
         merge-multiple: true
 
     - name: Lint the RPM spec file
+      if: >-
+        !contains(inputs.container-image-tag, 'ubi10')
       run: rpmlint packaging/rpm/"${PROJECT_NAME}".spec
 
     - name: Copy sdist to the sources dir
