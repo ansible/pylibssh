@@ -200,9 +200,9 @@ cdef class SFTP:
         return "Generic failure: %s" % self.session._get_session_error_str()
 
 
-cdef class _BaseRemoteFile:
+cdef class _RemoteFile:
     """
-    Base remote file handle facade.
+    Synchronous remote file handle facade.
 
     Implements a standard context manager interface for
     convenient access lifetime management.
@@ -277,12 +277,6 @@ cdef class _BaseRemoteFile:
     ) -> None:
         self._close()
 
-
-cdef class _RemoteFile(_BaseRemoteFile):
-    """
-    Synchronous remote file handle facade.
-    """
-
     def write(self, const unsigned char[:] data) -> int:
         """
         Write data directly to the remote file.
@@ -330,7 +324,7 @@ cdef class _RemoteFile(_BaseRemoteFile):
         )
 
 
-cdef class _PipelinedRemoteFile(_BaseRemoteFile):
+cdef class _PipelinedRemoteFile(_RemoteFile):
     """
     Pipelined remote file handle facade using libssh SFTP AIO.
 

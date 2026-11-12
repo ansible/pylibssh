@@ -26,17 +26,14 @@ cdef class SFTP:
     cdef sftp.sftp_limits_t _limits
     cdef public object _open_remote_file_cm
 
-cdef class _BaseRemoteFile:
+cdef class _RemoteFile:
     cdef sftp.sftp_file _fd
     cdef SFTP _sftp
     cdef str _path
     cdef bint _is_writer
     cdef void _close(self) noexcept
 
-cdef class _RemoteFile(_BaseRemoteFile):
-    pass
-
-cdef class _PipelinedRemoteFile(_BaseRemoteFile):
+cdef class _PipelinedRemoteFile(_RemoteFile):
     cdef object _aio_queue
     cdef bint _is_eof
     cdef void _close(self) noexcept
