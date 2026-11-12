@@ -23,9 +23,27 @@ from pylibsshext.session cimport Session
 cdef class SFTP:
     cdef Session session
     cdef sftp.sftp_session _libssh_sftp_session
+    cdef sftp.sftp_limits_t _limits
+    cdef public object _open_remote_file_cm
 
 cdef class _RemoteFile:
     cdef sftp.sftp_file _fd
     cdef SFTP _sftp
     cdef str _path
+    cdef bint _is_writer
     cdef void _close(self) noexcept
+
+cdef class _PipelinedRemoteFile(_RemoteFile):
+    cdef object _aio_queue
+    cdef bint _is_eof
+    cdef void _close(self) noexcept
+    cdef ssize_t _aio_wait_write_one(self)
+    cdef void _drain_writes(self)
+    cdef void _aio_begin_read(self, size_t length)
+    cdef ssize_t _aio_wait_read(self, char* c_buf, ssize_t length)
+
+cdef class _C_AIO:
+    cdef sftp.sftp_aio aio
+
+    @staticmethod
+    cdef _C_AIO from_ptr(sftp.sftp_aio aio)
