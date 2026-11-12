@@ -134,7 +134,8 @@ jobs:
         rpmdevtools
 
     - name: Install rpmlint except for ubi10, which is broken
-      if: ${{ ! contains(inputs.container-image-tag, 'ubi10') }}
+      if: >-
+        !contains(inputs.container-image-tag, 'ubi10')
       run: dnf install -y rpmlint
 
     - name: Create rpmbuild directory structure
@@ -161,7 +162,8 @@ jobs:
         merge-multiple: true
 
     - name: Lint the RPM spec file
-      if: ${{ ! contains(inputs.container-image-tag, 'ubi10') }}
+      if: >-
+        !contains(inputs.container-image-tag, 'ubi10')
       run: rpmlint packaging/rpm/"${PROJECT_NAME}".spec
 
     - name: Copy sdist to the sources dir
