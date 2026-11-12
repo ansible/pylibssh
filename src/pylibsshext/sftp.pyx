@@ -26,8 +26,6 @@ if _t.TYPE_CHECKING:
 
 from posix.fcntl cimport O_CREAT, O_RDONLY, O_TRUNC, O_WRONLY
 
-from libc.stdlib cimport free, malloc
-
 from pylibsshext.errors cimport LibsshSFTPException
 from pylibsshext.session cimport get_libssh_session
 
@@ -359,6 +357,7 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
             )
         super().__init__(sftp_obj=sftp_obj, path=path, flags=flags)
         self._aio_queue = _c.deque()
+        self._drain_buffer = bytearray()
 
     def write(self, const unsigned char[:] data) -> int:
         """
@@ -426,6 +425,10 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
             self._restart_reads()
         if not self._aio_queue:
             self._read_offset = sftp.sftp_tell64(self._fd)
+        if len(self._drain_buffer) < length:
+            # NOTE: Allocated here, where errors propagate, so that
+            # NOTE: discarding the requests on close allocates nothing.
+            self._drain_buffer = bytearray(length)
 
         while len(self._aio_queue) < SFTP_MAX_REQUESTS:
             self._aio_queue.append(self._begin_read(length))
@@ -500,19 +503,21 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
         # NOTE: libssh keeps every reply until it is waited for, so
         # NOTE: dropping the requests without waiting leaks memory.
         cdef _C_AIO aio
-        cdef char* scratch
 
         while self._aio_queue:
             aio = self._aio_queue.popleft()
-            if not aio.is_read:
+            if aio.is_read:
+                aio.wait_read(<char*>self._drain_buffer, aio.length)
+            else:
                 aio.wait_write()
-                continue
 
-            scratch = <char*>malloc(aio.length)
-            if scratch is NULL:
-                continue
-            aio.wait_read(scratch, aio.length)
-            free(scratch)
+    cdef void _close(self) noexcept:
+        if self._fd is NULL:
+            return
+
+        self._discard_in_flight()
+        sftp.sftp_close(self._fd)
+        self._fd = NULL
 
     def __exit__(
         self,
@@ -525,14 +530,6 @@ cdef class _PipelinedRemoteFile(_RemoteFile):
                 self.flush()
         finally:
             self._close()
-
-    cdef void _close(self) noexcept:
-        if self._fd is NULL:
-            return
-
-        self._discard_in_flight()
-        sftp.sftp_close(self._fd)
-        self._fd = NULL
 
 
 cdef class _C_AIO:

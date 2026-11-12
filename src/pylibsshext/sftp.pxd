@@ -37,6 +37,7 @@ cdef class _RemoteFile:
 
 cdef class _PipelinedRemoteFile(_RemoteFile):
     cdef object _aio_queue
+    cdef bytearray _drain_buffer
     cdef stdint.uint64_t _read_offset
     cdef _C_AIO _begin_read(self, size_t length)
     cdef _C_AIO _begin_write(self, const unsigned char[:] data)
