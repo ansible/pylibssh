@@ -210,7 +210,8 @@ cdef class _RemoteFile:
     convenient access lifetime management.
     """
 
-    def __cinit__(self, *args, **kwargs) -> None:
+    def __cinit__(self, *, sftp_obj: SFTP, path: str, int flags) -> None:
+        """Initialize a C-level file descriptor."""
         self._fd = NULL
 
     def __init__(
@@ -258,27 +259,6 @@ cdef class _RemoteFile:
             f"failed with error [{sftp_error!s}]",
         )
 
-    cdef void _close(self) noexcept:
-        if self._fd is NULL:
-            return
-
-        sftp.sftp_close(self._fd)
-        self._fd = NULL
-
-    def __dealloc__(self) -> None:
-        self._close()
-
-    def __enter__(self) -> _t.Self:
-        return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: _tps.TracebackType | None,
-    ) -> None:
-        self._close()
-
     def write(self, const unsigned char[:] data) -> int:
         """
         Write data directly to the remote file.
@@ -324,6 +304,27 @@ cdef class _RemoteFile:
         raise LibsshSFTPException(
             f"Reading data from remote file [{self._path!s}] failed with error [{sftp_error!s}]"
         )
+
+    cdef void _close(self) noexcept:
+        if self._fd is NULL:
+            return
+
+        sftp.sftp_close(self._fd)
+        self._fd = NULL
+
+    def __dealloc__(self) -> None:
+        self._close()
+
+    def __enter__(self) -> _t.Self:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: _tps.TracebackType | None,
+    ) -> None:
+        self._close()
 
 
 cdef class _PipelinedRemoteFile(_RemoteFile):
