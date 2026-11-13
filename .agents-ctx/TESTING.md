@@ -35,6 +35,36 @@ wired up as a required CI check yet, only because of unresolved
 infra problems measuring Cython coverage -- not because it's
 considered optional.
 
+## Tests state what the code should do, not what it does
+
+Expected values come from somewhere other than the code under
+test: the issue, a spec or RFC, upstream library docs, or the
+observed behavior of a reference implementation. A test whose
+expectations were read off the implementation only restates it,
+and it keeps passing when the code is wrong in the same way.
+Doing so counts as silencing -- see
+[DONT_SHOOT_THE_MESSENGER.md](DONT_SHOOT_THE_MESSENGER.md).
+
+- Show that a regression test catches its bug. Run it against
+  the unfixed code (revert or stash the fix) and confirm it fails
+  for the reason the test names, then confirm it passes with the
+  fix. Say in the PR how this was checked. This is a verification
+  step, not a commit-ordering rule -- the test still lands in the
+  same commit as the fix.
+- For new behavior, write down the expected outcomes from the
+  issue or spec before reading or writing the implementation, and
+  bring them to the operator when the source is ambiguous rather
+  than settling the question by running the code.
+- Assert on outcomes a caller can observe, not on how the code
+  gets there.
+- When an expected value can't be traced to a source outside the
+  code, say so to the operator instead of copying it from the
+  current output.
+
+Here: the live `sshd` in every test is the main independent
+oracle -- prefer comparing against what the server, or the OpenSSH
+client against the same server, actually does.
+
 ## No test classes
 
 Every test in `tests/` is a plain `def test_*` function. Don't

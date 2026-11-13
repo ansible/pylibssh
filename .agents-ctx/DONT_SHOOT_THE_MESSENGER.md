@@ -38,6 +38,11 @@ Tests:
 - Weakening assertions: removing them, dropping `match=` from
   `pytest.raises()`, catching a broader exception type, or
   changing an expected value to match buggy output.
+- Taking a test's expected values from the code's current output
+  instead of from the issue, a spec, or a reference
+  implementation. Such a test agrees with whatever bugs the code
+  has, so it can never report them. See
+  [TESTING.md](TESTING.md#tests-state-what-the-code-should-do-not-what-it-does).
 - Adding `ignore` entries to `filterwarnings`.
 
 Thresholds and CI:
