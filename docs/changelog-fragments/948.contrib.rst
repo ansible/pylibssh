@@ -1,4 +1,0 @@
-Pipelined SFTP transfers stopped failing on request lengths capped
-to the server limits, and stopped leaking replies to requests still
-in flight when closing a remote file
--- steered by :user:`webknjaz`, typed by a robot that errs.
