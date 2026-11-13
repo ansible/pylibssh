@@ -176,11 +176,16 @@ failure is expected, not just its type. Use a raw string (e.g.
 `r'^foo\.bar$'`) or `re.escape(...)` for the `match=` pattern when it
 contains regex metacharacters, to keep the regex intention explicit.
 
-Keep `assert` statements per test function to 5 or fewer (enforced by
-WPS218). When testing multi-stage workflows (e.g. write followed by read),
-split them into separate test functions. Also avoid repeating identical
-non-trivial expressions (such as `len(...)`) more than 4 times in a single
-test scope to satisfy WPS204; assign the result to a local variable instead.
+Keep each test focused on a few assertions. When testing a
+multi-stage workflow (e.g. write followed by read), split the
+stages into separate test functions. Assign a non-trivial
+expression (such as `len(...)`) that a test keeps repeating to a
+local variable instead.
+
+Here: wemake-python-styleguide enforces both through flake8, at
+its default limits -- at most 5 `assert` statements per function
+(WPS218), and no expression repeated more than 4 times in one
+function (WPS204).
 
 ## Filesystem fixtures
 
