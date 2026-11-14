@@ -619,6 +619,165 @@ jobs:
           ${{ needs.pre-setup.outputs.changelog-draft-name-md }}
           ${{ needs.pre-setup.outputs.changelog-draft-name-rst }}
 
+  prepare-release:
+    name: >-
+      Start the release branch for
+      ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - build-changelog
+    - pre-setup  # transitive, for accessing settings
+    if: fromJSON(needs.pre-setup.outputs.release-requested)
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    defaults:
+      run:
+        shell: bash -eEuxo pipefail {0}
+
+    outputs:
+      pull-request-url: ${{ steps.pr.outputs.pull-request-url }}
+      release-commit-sha: ${{ steps.pr.outputs.pull-request-head-sha }}
+
+    permissions:
+      contents: write  # Mandatory for pushing branches and signed commits
+      pull-requests: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_BASE_BRANCH: >-
+        release-base/${{ needs.pre-setup.outputs.dist-version }}
+      TARGET_BRANCH: ${{ github.ref_name }}
+
+    steps:
+    - name: Grab the source from Git
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ github.event.inputs.release-committish }}
+    - name: Pick the base branch for the release PR
+      id: base
+      # NOTE: `create-pull-request` replays the changes on top of the tip of
+      # NOTE: its `base` branch. When the release committish isn't the tip
+      # NOTE: of the target branch, a temporary branch pointing at it is used
+      # NOTE: as the base instead, keeping the release committish immutable.
+      # NOTE: The PR gets retargeted later on.
+      run: |
+        RELEASE_COMMITTISH_SHA="$(git rev-parse HEAD)"
+        TARGET_TIP_SHA="$(
+          git ls-remote origin "refs/heads/${TARGET_BRANCH}" | cut -f1
+        )"
+        if [[ "${RELEASE_COMMITTISH_SHA}" == "${TARGET_TIP_SHA}" ]]; then
+          BASE_BRANCH="${TARGET_BRANCH}"
+        else
+          BASE_BRANCH="${RELEASE_BASE_BRANCH}"
+          git push --force origin "HEAD:refs/heads/${BASE_BRANCH}"
+        fi
+        git checkout -B "${BASE_BRANCH}"
+        echo "branch=${BASE_BRANCH}" >> "${GITHUB_OUTPUT}"
+        echo "committish-sha=${RELEASE_COMMITTISH_SHA}" >> "${GITHUB_OUTPUT}"
+    - name: Fetch the GHA artifact with the version patch
+      uses: actions/download-artifact@v8
+      with:
+        name: changelog
+        path: ${{ runner.temp }}/changelog/
+    - name: Apply the changelog patch to the working tree
+      run: >-
+        git apply
+        '${{ runner.temp }}/changelog/${{
+          needs.pre-setup.outputs.changelog-patch-name
+        }}'
+    - name: Open a draft release PR with a signed changelog commit
+      id: pr
+      uses: peter-evans/create-pull-request@v8.1.1
+      with:
+        base: ${{ steps.base.outputs.branch }}
+        body: |
+          Automated changelog generation with the version ${{
+            needs.pre-setup.outputs.dist-version
+          }}.
+
+          Please, review the change log and its preview rendered by Read The
+          Docs, then approve this PR. The approval is checked before uploading
+          the release to PyPI.
+
+          > [!important]
+          > This PR **MUST** only be merged using a merge commit. Squashing or
+          > rebasing it would make the release tag unreachable from the target
+          > branch, breaking the version computation by `setuptools-scm`.
+        branch: release/${{ needs.pre-setup.outputs.dist-version }}
+        commit-message: >-
+          Generate a change log entry for
+          ${{ needs.pre-setup.outputs.git-tag }}
+        draft: true
+        sign-commits: true
+        title: 🔖 Release ${{ needs.pre-setup.outputs.git-tag }}
+        token: ${{ github.token }}
+    - name: Verify that the signed changelog commit is on the release committish
+      env:
+        COMMITTISH_SHA: ${{ steps.base.outputs.committish-sha }}
+        RELEASE_COMMIT_SHA: ${{ steps.pr.outputs.pull-request-head-sha }}
+      run: |
+        COMMIT_API_URL="repos/${GITHUB_REPOSITORY}/git/commits/${RELEASE_COMMIT_SHA}"
+        PARENT_SHAS="$(
+          gh api "${COMMIT_API_URL}" --jq '[.parents[].sha] | join(" ")'
+        )"
+        if [[ "${PARENT_SHAS}" != "${COMMITTISH_SHA}" ]]; then
+          echo "::error::The release commit parents are ${PARENT_SHAS}" \
+            "instead of ${COMMITTISH_SHA}"
+          exit 1
+        fi
+        IS_SIGNED="$(gh api "${COMMIT_API_URL}" --jq .verification.verified)"
+        if [[ "${IS_SIGNED}" != true ]]; then
+          echo "::error::The release commit ${RELEASE_COMMIT_SHA} isn't signed"
+          exit 1
+        fi
+    - name: Retarget the release PR and drop the temporary base branch
+      if: steps.base.outputs.branch != env.TARGET_BRANCH
+      env:
+        PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+      run: |
+        gh pr edit "${PR_URL}" --base "${TARGET_BRANCH}"
+        git push origin --delete "${RELEASE_BASE_BRANCH}"
+
+  check-release-changelog-review:
+    name: >-
+      Verify the change log review for
+      ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - prepare-release
+    - pre-setup  # transitive, for accessing settings
+    if: >-
+      always()
+      && needs.prepare-release.result == 'success'
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 1
+
+    # NOTE: The environment is expected to require a reviewer, so that this
+    # NOTE: job waits for the maintainers to review the release PR.
+    environment:
+      name: release-review
+      url: ${{ needs.prepare-release.outputs.pull-request-url }}
+
+    permissions:
+      pull-requests: read
+
+    steps:
+    - name: Verify that the release PR got approved
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR_URL: ${{ needs.prepare-release.outputs.pull-request-url }}
+      run: |
+        APPROVALS="$(
+          gh pr view "${PR_URL}" --json latestReviews \
+            --jq '[.latestReviews[] | select(.state == "APPROVED")] | length'
+        )"
+        if [[ "${APPROVALS}" -lt 1 ]]; then
+          echo "::error::The change log in ${PR_URL} must be approved" \
+            'before releasing'
+          exit 1
+        fi
+
   build-bin-macos:
     name: >-
       📦 ${{ needs.pre-setup.outputs.git-tag }}
@@ -1196,16 +1355,250 @@ jobs:
           }}
         jobs: ${{ toJSON(needs) }}
 
+  sign-dists-sigstore:
+    name: >-
+      🔏
+      Sign the dists for
+      ${{ needs.pre-setup.outputs.git-tag }}
+      with Sigstore
+    needs:
+    - dist-meta
+    - pre-setup  # transitive, for accessing settings
+    if: >-
+      always()
+      && needs.dist-meta.result == 'success'
+      && fromJSON(needs.pre-setup.outputs.release-requested)
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 3
+
+    permissions:
+      contents: read
+      id-token: write  # IMPORTANT: mandatory for Sigstore signing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v8
+      with:
+        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        path: dist/
+        merge-multiple: true
+    - name: Sign the dists with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v3.5.0
+      with:
+        inputs: >-
+          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
+          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+
+    - name: Store the Sigstore bundles
+      uses: actions/upload-artifact@v7
+      with:
+        name: sigstore-bundles
+        path: dist/*.sigstore.json
+        if-no-files-found: error
+
+  publish-github-attestations:
+    name: >-
+      🔏
+      Produce GitHub-native attestations for
+      ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - dist-meta
+    - pre-setup  # transitive, for accessing settings
+    if: >-
+      always()
+      && needs.dist-meta.result == 'success'
+      && fromJSON(needs.pre-setup.outputs.release-requested)
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 3
+
+    permissions:
+      attestations: write  # IMPORTANT: needed to persist attestations
+      contents: read
+      id-token: write  # IMPORTANT: mandatory for Sigstore signing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v8
+      with:
+        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        path: dist/
+        merge-multiple: true
+    - name: Generate provenance attestations for the dists
+      uses: actions/attest-build-provenance@v4
+      with:
+        subject-path: |
+          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
+          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+
+  draft-github-release:
+    name: >-
+      Draft a GitHub Release for
+      ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - dist-meta
+    - prepare-release
+    - sign-dists-sigstore
+    - pre-setup  # transitive, for accessing settings
+    if: >-
+      always()
+      && needs.dist-meta.result == 'success'
+      && needs.prepare-release.result == 'success'
+      && needs.sign-dists-sigstore.result == 'success'
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    defaults:
+      run:
+        shell: bash -eEuxo pipefail {0}
+
+    permissions:
+      contents: write  # Mandatory for creating releases
+      discussions: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GIT_TAG: ${{ needs.pre-setup.outputs.git-tag }}
+      REPO: ${{ github.repository }}
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v8
+      with:
+        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        path: dist/
+        merge-multiple: true
+    - name: Download the Sigstore bundles for the dists
+      uses: actions/download-artifact@v8
+      with:
+        name: sigstore-bundles
+        path: dist/
+    - name: Fetch the GHA artifact with the version patch
+      uses: actions/download-artifact@v8
+      with:
+        name: changelog
+    - name: Figure out if the current version is a pre-release
+      id: release-maturity-check
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        release_version = '${{
+          needs.pre-setup.outputs.dist-version
+        }}'
+
+        FILE_APPEND_MODE = 'a'
+
+        is_pre_release = any(
+            hint_char in release_version
+            for hint_char in {'a', 'b', 'd', 'r'}
+        )
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                f'is-pre-release={is_pre_release !s}'.lower(),
+                file=outputs_file,
+            )
+      shell: python
+    - name: Prepare the release notes file for the GitHub Releases
+      env:
+        PROJECT_NAME: ${{ needs.pre-setup.outputs.project-name }}
+      run: |
+        echo '## 📝 Release notes' | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo "📦 PyPI page: https://pypi.org/project/${PROJECT_NAME}"'/${{
+          needs.pre-setup.outputs.dist-version
+        }}' | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo '${{
+          steps.release-maturity-check.outputs.is-pre-release == 'true'
+          && format(
+            '🚧 {0} is marked as a pre-release.',
+            needs.pre-setup.outputs.git-tag
+          )
+          || format(
+            '🌱 {0} is marked as a stable release.',
+            needs.pre-setup.outputs.git-tag
+          )
+        }}' | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo '🔗 This release has been produced by ' \
+        'the following workflow run: ${{
+          github.server_url
+        }}/${{
+          github.repository
+        }}/actions/runs/${{
+          github.run_id
+        }}' | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        echo | tee -a release-notes.md
+        cat '${{
+            needs.pre-setup.outputs.changelog-draft-name-md
+        }}' | tee -a release-notes.md
+
+    - name: >-
+        Draft a GitHub Release for
+        ${{ needs.pre-setup.outputs.git-tag }}
+        with the signed dists attached
+      # NOTE: Draft releases don't create the Git tag. It only appears once
+      # NOTE: the release gets published, after uploading to PyPI. All the
+      # NOTE: assets get attached beforehand since immutable releases can't
+      # NOTE: be changed after publishing.
+      env:
+        PRE_RELEASE: ${{ steps.release-maturity-check.outputs.is-pre-release }}
+        RELEASE_COMMIT_SHA: >-
+          ${{ needs.prepare-release.outputs.release-commit-sha }}
+      run: |
+        SDIST='dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
+        WHEEL='dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
+        ASSETS=(
+          "${SDIST}"
+          "${SDIST}.sigstore.json"
+          "${WHEEL}"
+          "${WHEEL}.sigstore.json"
+        )
+        MATURITY_FLAG=(--prerelease=false)
+        if [[ "${PRE_RELEASE}" == true ]]; then
+          MATURITY_FLAG=(--prerelease)
+        fi
+        if gh release view "${GIT_TAG}" --repo "${REPO}" > /dev/null 2>&1
+        then
+          gh release upload "${GIT_TAG}" --repo "${REPO}" \
+            --clobber "${ASSETS[@]}"
+        else
+          gh release create "${GIT_TAG}" --repo "${REPO}" \
+            --draft \
+            --discussion-category Announcements \
+            --notes-file release-notes.md \
+            --target "${RELEASE_COMMIT_SHA}" \
+            --title "${GIT_TAG}" \
+            "${MATURITY_FLAG[@]}" \
+            "${ASSETS[@]}"
+        fi
+
   publish-pypi:
     name: >-
       📦
       Publish ${{ needs.pre-setup.outputs.git-tag }} to PyPI
     needs:
     - check
+    - check-release-changelog-review
+    - draft-github-release
+    - publish-github-attestations
     - pre-setup  # transitive, for accessing settings
     if: >-
       always()
       && needs.check.result == 'success'
+      && needs.check-release-changelog-review.result == 'success'
+      && needs.draft-github-release.result == 'success'
+      && needs.publish-github-attestations.result == 'success'
       && fromJSON(needs.pre-setup.outputs.release-requested)
     runs-on: ubuntu-latest
 
@@ -1302,11 +1695,13 @@ jobs:
         repository-url: https://test.pypi.org/legacy/
         verbose: true
 
-  post-release-repo-update:
+  publish-github-release:
     name: >-
-      Publish post-release Git tag
-      for ${{ needs.pre-setup.outputs.git-tag }}
+      Publish a GitHub Release for
+      ${{ needs.pre-setup.outputs.git-tag }}
     needs:
+    - draft-github-release
+    - prepare-release
     - publish-pypi
     - pre-setup  # transitive, for accessing settings
     if: >-
@@ -1314,168 +1709,7 @@ jobs:
       && needs.publish-pypi.result == 'success'
     runs-on: ubuntu-latest
 
-    timeout-minutes: 1
-
-    defaults:
-      run:
-        shell: bash -eEuxo pipefail {0}
-
-    outputs:
-      pull_request_url: ${{ steps.pr.outputs.pull_request_url }}
-
-    permissions:
-      contents: write  # Mandatory for `git push` to work
-      pull-requests: write
-
-    steps:
-    - name: Fetch the src snapshot  # IMPORTANT: Must be before the tag check
-      uses: actions/checkout@v7
-      with:
-        fetch-depth: 2
-        ref: ${{ github.event.inputs.release-committish }}
-    - name: >-
-        Check if the requested tag ${{ needs.pre-setup.outputs.git-tag }}
-        is present and is pointing at the required commit ${{
-          github.event.inputs.release-committish
-        }}
-      id: existing-remote-tag-check
-      run: |
-        set -eEuo pipefail
-
-        REMOTE_TAGGED_COMMIT_SHA="$(
-          git ls-remote --tags --refs $(git remote get-url origin) '${{
-            needs.pre-setup.outputs.git-tag
-          }}' | awk '{print $1}'
-        )"
-
-        # NOTE: Since we're making a new change log commit on top of the one
-        # NOTE: that is the release workflow trigger, it'll be the one that's
-        # NOTE: tagged if the workflow run succeeded previously. So we need to
-        # NOTE: grab its parent for comparison, since new workflow runs will
-        # NOTE: generate a new changelog update commit and while its diff and
-        # NOTE: the parent may be the same, the metadata like the timestamp
-        # NOTE: would differ causing it to have a different commit SHA. But the
-        # NOTE: parent would be immutable so that's what we'll compare to the
-        # NOTE: release committish.
-        if [[ "${REMOTE_TAGGED_COMMIT_SHA}" == '' ]]
-        then
-          LAST_HUMAN_COMMIT_SHA=
-        else
-          LAST_HUMAN_COMMIT_SHA=$(git rev-parse "${REMOTE_TAGGED_COMMIT_SHA}"^)
-        fi
-
-        RELEASE_REQUEST_COMMIT_SHA=$(git rev-parse '${{
-          github.event.inputs.release-committish || 'HEAD'
-        }}')
-
-        if [[ "${LAST_HUMAN_COMMIT_SHA}" == "${RELEASE_REQUEST_COMMIT_SHA}" ]]
-        then
-          echo "already-exists=true" >> "${GITHUB_OUTPUT}"
-        fi
-
-    - name: Setup git user as [bot]
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      # Refs:
-      # * https://github.community/t/github-actions-bot-email-address/17204/6
-      # * https://github.com/actions/checkout/issues/13#issuecomment-724415212
-      uses: fregante/setup-git-user@v2
-    - name: Fetch the GHA artifact with the version patch
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      uses: actions/download-artifact@v8
-      with:
-        name: changelog
-
-    - name: Apply the changelog patch
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      run: git am '${{ needs.pre-setup.outputs.changelog-patch-name }}'
-
-    - name: >-
-        Create a local 'release/${{
-          needs.pre-setup.outputs.dist-version
-        }}' branch
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      run: >-
-        git checkout -b 'release/${{
-          needs.pre-setup.outputs.dist-version
-        }}'
-
-    - name: >-
-        Tag the release in the local Git repo
-        as ${{ needs.pre-setup.outputs.git-tag }}
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      env:
-        PROJECT_NAME: ${{ needs.pre-setup.outputs.project-name }}
-      run: >-
-        git tag
-        -m '${{ needs.pre-setup.outputs.git-tag }}'
-        -m "Published at https://pypi.org/project/${PROJECT_NAME}"'/${{
-          needs.pre-setup.outputs.dist-version
-        }}'
-        -m 'This release has been produced by the following workflow run: ${{
-          github.server_url
-        }}/${{
-          github.repository
-        }}/actions/runs/${{
-          github.run_id
-        }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-
-    - name: Log two last commits
-      run: git log -2 --color --patch
-
-    - name: Log current Git status
-      run: git status --verbose
-
-    - name: >-
-        Push ${{ needs.pre-setup.outputs.git-tag }} tag corresponding
-        to the just published release back to GitHub
-      if: steps.existing-remote-tag-check.outputs.already-exists != 'true'
-      run: >-
-        git push --atomic origin
-        'release/${{ needs.pre-setup.outputs.dist-version }}'
-        '${{ needs.pre-setup.outputs.git-tag }}'
-
-    - name: pull-request-action
-      id: pr
-      uses: vsoch/pull-request-action@1.1.1
-      env:
-        BRANCH_PREFIX: ''
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PULL_REQUEST_BODY: >-
-          Automated changelog generation with the version
-          ${{ needs.pre-setup.outputs.dist-version }}.
-        PULL_REQUEST_BRANCH: ${{ github.event.repository.default_branch }}
-        PULL_REQUEST_DRAFT: true
-        PULL_REQUEST_FROM_BRANCH: >-
-          release/${{ needs.pre-setup.outputs.dist-version }}
-        PULL_REQUEST_TITLE: >-
-          🔖 Release ${{ needs.pre-setup.outputs.git-tag }}
-    - name: Log the pull request details
-      run: |
-        echo "PR number: ${{ steps.pr.outputs.pull_request_number }}"
-        echo "PR URL: ${{ steps.pr.outputs.pull_request_url }}"
-    - name: Instruct the maintainers to trigger CI by undrafting the PR
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh pr comment
-        --body 'Please mark the PR as ready for review to trigger PR checks.'
-        --repo '${{ github.repository }}'
-        '${{ steps.pr.outputs.pull_request_number }}'
-
-  publish-github-release:
-    name: >-
-      Publish a GitHub Release for
-      ${{ needs.pre-setup.outputs.git-tag }}
-    needs:
-    - post-release-repo-update
-    - pre-setup  # transitive, for accessing settings
-    if: >-
-      always()
-      && needs.post-release-repo-update.result == 'success'
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 3
+    timeout-minutes: 2
 
     defaults:
       run:
@@ -1484,119 +1718,36 @@ jobs:
     permissions:
       contents: write
       discussions: write
-      id-token: write  # IMPORTANT: mandatory for Sigstore signing
+      pull-requests: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GIT_TAG: ${{ needs.pre-setup.outputs.git-tag }}
+      PR_URL: ${{ needs.prepare-release.outputs.pull-request-url }}
+      REPO: ${{ github.repository }}
 
     steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v8
-      with:
-        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
-        path: dist/
-        merge-multiple: true
-    - name: Fetch the GHA artifact with the version patch
-      uses: actions/download-artifact@v8
-      with:
-        name: changelog
-
-    - name: Figure out if the current version is a pre-release
-      id: release-maturity-check
-      run: |
-        from os import environ
-        from pathlib import Path
-
-        release_version = '${{
-          needs.pre-setup.outputs.dist-version
-        }}'
-
-        FILE_APPEND_MODE = 'a'
-
-        is_pre_release = any(
-            hint_char in release_version
-            for hint_char in {'a', 'b', 'd', 'r'}
-        )
-
-        with Path(environ['GITHUB_OUTPUT']).open(
-                mode=FILE_APPEND_MODE,
-        ) as outputs_file:
-            print(
-                f'is-pre-release={is_pre_release !s}'.lower(),
-                file=outputs_file,
-            )
-      shell: python
-    - name: Prepare the release notes file for the GitHub Releases
-      env:
-        PROJECT_NAME: ${{ needs.pre-setup.outputs.project-name }}
-      run: |
-        echo '## 📝 Release notes' | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo "📦 PyPI page: https://pypi.org/project/${PROJECT_NAME}"'/${{
-          needs.pre-setup.outputs.dist-version
-        }}' | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo '${{
-          steps.release-maturity-check.outputs.is-pre-release == 'true'
-          && format(
-            '🚧 {0} is marked as a pre-release.',
-            needs.pre-setup.outputs.git-tag
-          )
-          || format(
-            '🌱 {0} is marked as a stable release.',
-            needs.pre-setup.outputs.git-tag
-          )
-        }}' | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo '🔗 This release has been produced by ' \
-        'the following workflow run: ${{
-          github.server_url
-        }}/${{
-          github.repository
-        }}/actions/runs/${{
-          github.run_id
-        }}' | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        echo | tee -a release-notes.md
-        cat '${{
-            needs.pre-setup.outputs.changelog-draft-name-md
-        }}' | tee -a release-notes.md
-
-    - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v3.5.0
-      with:
-        inputs: >-
-          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
-          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
-
     - name: >-
-        Publish a GitHub Release for
+        Publish the GitHub Release for
         ${{ needs.pre-setup.outputs.git-tag }}
-        with Sigstore-signed artifacts
-      uses: ncipollo/release-action@v1
-      with:
-        allowUpdates: false
-        artifactErrorsFailBuild: false
-        artifacts: |
-          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
-          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}.sigstore.json
-          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
-          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}.sigstore.json
-        artifactContentType: raw  # Because whl and tgz are of different types
-        bodyFile: release-notes.md
-        discussionCategory: Announcements
-        draft: false
-        immutableCreate: true
-        name: ${{ needs.pre-setup.outputs.git-tag }}
-        omitBodyDuringUpdate: true
-        omitName: false
-        omitNameDuringUpdate: true
-        omitPrereleaseDuringUpdate: true
-        prerelease: ${{ steps.release-maturity-check.outputs.is-pre-release }}
-        removeArtifacts: false
-        replacesArtifacts: false
-        tag: ${{ needs.pre-setup.outputs.git-tag }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+      # NOTE: This creates the Git tag on the signed changelog commit. With
+      # NOTE: immutable releases enabled, the release gets locked here.
+      run: gh release edit "${GIT_TAG}" --repo "${REPO}" --draft=false
+    - name: >-
+        Make the release PR merge itself once it gets undrafted
+        and passes CI
+      # NOTE: Pull request state changes made with the built-in token don't
+      # NOTE: trigger workflows, so undrafting is left to the maintainers.
+      # NOTE: The auto-merge uses a true merge commit, keeping the release tag
+      # NOTE: reachable from the target branch.
+      run: |
+        gh pr merge --auto --merge "${PR_URL}" \
+        || echo "::warning::Could not enable auto-merge for ${PR_URL}"
+        gh pr comment "${PR_URL}" --body-file - <<EOF
+        The release ${GIT_TAG} has been published. Please, mark this PR as
+        ready for review to trigger the CI. It will get merged automatically
+        using a merge commit once the checks pass.
+        EOF
 
   dumb-pypi:
     name: Publish nightlies to Dumb PyPI  # https://ansible.github.io/pylibssh/

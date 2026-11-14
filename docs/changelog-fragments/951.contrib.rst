@@ -1,0 +1,6 @@
+The release workflow now starts the release branch with a signed
+change log commit and a draft pull request, and drafts the GitHub
+Release with the dists attached before uploading to PyPI. Uploading
+requires the release pull request to be approved, and the GitHub
+Release only gets published after that, with all of its assets in
+place -- by :user:`webknjaz`.
