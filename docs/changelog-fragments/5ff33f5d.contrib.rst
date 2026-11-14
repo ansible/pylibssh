@@ -1,0 +1,3 @@
+The in-tree guidance for agents on testing now keeps the
+assertion-count rule apart from the linter limits enforcing it
+-- steered by :user:`webknjaz`, typed by a robot that errs.

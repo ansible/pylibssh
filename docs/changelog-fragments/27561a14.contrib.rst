@@ -1,0 +1,3 @@
+The Claude Code guard hook now asks the operator before tests call
+private methods
+-- steered by :user:`webknjaz`, typed by a robot that errs.

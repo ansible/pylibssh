@@ -1,0 +1,4 @@
+The ``noqa`` comments on the :py:mod:`typing` and
+:py:mod:`collections.abc` alias imports were dropped, now that the
+flake8 configuration allows those aliases
+-- steered by :user:`webknjaz`, typed by a robot that errs.

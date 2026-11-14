@@ -1,0 +1,4 @@
+The in-tree guidance for agents now tells them to take test
+expectations from outside the code under test, and to show that a
+regression test fails without its fix
+-- steered by :user:`webknjaz`, typed by a robot that errs.

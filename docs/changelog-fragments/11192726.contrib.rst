@@ -1,0 +1,4 @@
+The in-tree guidance for agents now tells them not to game checks
+either, such as calling private methods from tests only to mark
+lines as covered
+-- steered by :user:`webknjaz`, typed by a robot that errs.

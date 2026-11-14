@@ -1,0 +1,4 @@
+The Cython and libssh notes for agents moved out of the shared
+style guide into a pylibssh-only
+:file:`.agents-ctx/CYTHON_AND_LIBSSH.md`
+-- steered by :user:`webknjaz`, typed by a robot that errs.
