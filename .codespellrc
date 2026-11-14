@@ -19,6 +19,7 @@ count =
 ignore-words-list =
   accomplis,
   ccompiler,
+  deque,
   dialogue,
   gotcha,
   jupyter,

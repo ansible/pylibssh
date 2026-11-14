@@ -1,0 +1,3 @@
+Added support for asynchronous SFTP file transfers to increase throughput
+-- by :user:`Jakuje`, with fixes steered by :user:`webknjaz`, typed by a
+robot that errs.
