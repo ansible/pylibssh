@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import contextlib
-import pathlib
 import random
 import typing as _t
 
 
 if _t.TYPE_CHECKING:
+    import pathlib
     from collections import abc as _c
 
     from pylibsshext.session import Session
@@ -19,7 +19,6 @@ import pytest
 from pylibsshext.sftp import (
     SFTP,
     SFTP_MAX_CHUNK,
-    SFTP_MAX_CHUNK_LIMIT,
     _RemoteFile,
 )
 
