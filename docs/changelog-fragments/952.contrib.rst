@@ -1,0 +1,8 @@
+The in-tree contributor guidelines for Cython sources and test
+hygiene now mandate PEP 484 type annotations for Python-facing
+methods and constructors, discourage using :data:`~typing.Any`
+in test helpers, and direct splitting test files over suppressing
+WPS201 import count limits. In addition, the type signature in
+``_RemoteFile.__cinit__()`` was updated to match the documented
+PEP 484 style
+-- by :user:`Jakuje`.
