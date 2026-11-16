@@ -138,7 +138,7 @@ cdef class _RemoteFile:
     Implements a standard context manager interface for
     convenient access lifetime management.
     """
-    def __cinit__(self, *, sftp_obj: SFTP, path: str, int flags) -> None:
+    def __cinit__(self, *, sftp_obj: SFTP, path: str, flags: int) -> None:
         """
         Initialize a remote file handle instance.
 
