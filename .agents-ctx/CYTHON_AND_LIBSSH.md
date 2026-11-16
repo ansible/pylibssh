@@ -5,6 +5,29 @@ modules and the libssh C API they wrap. This file isn't shared with
 other projects -- see [HOUSE_STYLE.md](HOUSE_STYLE.md) for the
 general style rules.
 
+## Use PEP 484 type annotations for Python-facing methods in Cython
+
+In `.pyx` files, Python-facing `def` methods, `__init__`, and `__cinit__`
+should use modern PEP 484 annotations (`name: Type`), matching standard
+Python style:
+
+```python
+def __init__(
+    self,
+    *,
+    sftp_obj: SFTP,
+    path: str,
+    flags: int,
+) -> None:
+```
+
+Cython C-declaration syntax (`Type name`, e.g. `const unsigned char[:] data`
+or `cdef char* c_buf`) is reserved for memoryviews, raw C pointers, and
+internal `cdef` functions.
+
+When `__cinit__` takes explicit keyword-only arguments, its signature
+should systematically match `__init__` in the same PEP 484 style.
+
 ## Keep encoded-bytes objects alive when backing a `char*`
 
 Assigning an intermediate result straight into a `char*`/`const

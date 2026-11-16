@@ -212,6 +212,21 @@ parameters and return types -- same as any other new code. See
 [PR_HYGIENE.md](PR_HYGIENE.md) for the full rule, including why it
 isn't retrofitted onto existing code as a side effect.
 
+Avoid `_t.Any` whenever possible. Note that `object` only works for
+opaque values where attributes and methods are never called. When
+methods are invoked on an object (e.g., `.write()`, `.readinto()`), type
+it using the concrete base class (e.g. `_RemoteFile`) or define a
+`typing.Protocol` so MyPy can verify method calls without falling back
+to `_t.Any` or failing on `object`.
+
+## Split test files when hitting import limits (WPS201)
+
+WPS201 restricts module imports to 12. Never add `# noqa: WPS201` to
+bypass this. Hitting the limit is a structural signal to split
+scenario- or feature-specific tests into their own dedicated test file
+(e.g., `sftp_pipelining_test.py` and `sftp_remote_file_cm_test.py`
+alongside `sftp_test.py`).
+
 ## Every test and fixture has a one-line docstring
 
 Describing what it checks or provides, not restating the code,
