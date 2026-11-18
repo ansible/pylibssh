@@ -16,13 +16,22 @@ from pep517_backend._compat_setup_cfg import (
     compat_setup_cfg_written,
     render_compat_setup_cfg,
 )
-from pep517_backend._cython_configuration import patched_env
+from pep517_backend._cython_configuration import (
+    Config,
+    get_local_cython_config,
+    get_local_cythonize_config,
+    make_cythonize_cli_args_from_config,
+    patched_env,
+)
 
 
 CFLAGS_VAR = 'CFLAGS'
 CPPFLAGS_VAR = 'CPPFLAGS'
 TRACE_MACRO = '-DCYTHON_TRACE_NOGIL=1'
 SYS_MONITORING_MACRO = '-DCYTHON_USE_SYS_MONITORING=0'
+RELEASE_FLAGS = ('-g0', '-O3', '-DNDEBUG')
+DEBUG_FLAGS = ('-g3', '-Og', '-UNDEBUG', TRACE_MACRO, SYS_MONITORING_MACRO)
+TRACING_DIRECTIVES = ('--directive=linetrace=True', '--directive=profile=True')
 
 PROJECT_ROOT_DIR = pathlib.Path(__file__).parents[2]
 PYPROJECT_TOML_NAME = 'pyproject.toml'
@@ -126,6 +135,96 @@ def test_interpreter_flags_survive_the_build_env(
         assert flag in command
     assert TRACE_MACRO in command
     assert SYS_MONITORING_MACRO in command
+
+
+@pytest.mark.parametrize(
+    ('tracing', 'expected_flags', 'unexpected_flags'),
+    (
+        pytest.param(True, DEBUG_FLAGS, RELEASE_FLAGS, id='debug'),
+        pytest.param(False, RELEASE_FLAGS, DEBUG_FLAGS, id='release'),
+    ),
+)
+def test_build_mode_flags(
+    *,
+    monkeypatch: pytest.MonkeyPatch,
+    tracing: bool,
+    expected_flags: tuple[str, ...],
+    unexpected_flags: tuple[str, ...],
+) -> None:
+    """Check that the compiler flags match the requested build mode."""
+    monkeypatch.delenv(CFLAGS_VAR, raising=False)
+    monkeypatch.delenv(CPPFLAGS_VAR, raising=False)
+
+    with patched_env({}, cython_line_tracing_requested=tracing):
+        cppflags = shlex.split(os.environ[CPPFLAGS_VAR])
+
+    assert set(expected_flags) <= set(cppflags)
+    assert not set(unexpected_flags) & set(cppflags)
+
+
+@pytest.mark.skipif(
+    sys.platform == 'win32',
+    reason='MSVC does not read CFLAGS or CPPFLAGS',
+)
+def test_user_cflags_outrank_the_release_flags(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Check that the packager's CFLAGS win over the release flags.
+
+    Distro builds, like the RPM one, need their own -g to extract the
+    debug info into a separate package.
+    """
+    monkeypatch.setenv(CFLAGS_VAR, '-g -O2')
+    monkeypatch.delenv(CPPFLAGS_VAR, raising=False)
+    # The RPM builds run the suite without setuptools available.
+    ccompiler = pytest.importorskip('setuptools._distutils.ccompiler')
+    distutils_sysconfig = pytest.importorskip(
+        'setuptools._distutils.sysconfig',
+    )
+
+    with patched_env({}, cython_line_tracing_requested=False):
+        compiler = ccompiler.new_compiler()
+        distutils_sysconfig.customize_compiler(compiler)
+        command = compiler.compiler_so
+
+    debug_info_flags = [flag for flag in command if flag.startswith('-g')]
+    optimization_flags = [flag for flag in command if flag.startswith('-O')]
+    assert '-g0' in debug_info_flags
+    assert debug_info_flags[-1] == '-g'
+    assert '-O3' in optimization_flags
+    assert optimization_flags[-1] == '-O2'
+
+
+@pytest.mark.parametrize(
+    'load_config',
+    (get_local_cython_config, get_local_cythonize_config),
+    ids=('translate-cython', 'build-backend'),
+)
+@pytest.mark.parametrize(
+    'tracing',
+    (True, False),
+    ids=(
+        'with-cython-tracing',
+        'without-cython-tracing',
+    ),
+)
+def test_tracing_directives_only_when_requested(
+    *,
+    load_config: _t.Callable[[], Config],
+    tracing: bool,
+) -> None:
+    """Check that only traced builds get the tracing directives."""
+    with chdir_cm(PROJECT_ROOT_DIR):
+        config = load_config()
+
+    cythonize_args = make_cythonize_cli_args_from_config(
+        config,
+        cython_line_tracing_requested=tracing,
+    )
+
+    expected_directives = set(TRACING_DIRECTIVES) if tracing else set()
+    assert '--directive=embedsignature=True' in cythonize_args
+    assert set(TRACING_DIRECTIVES) & set(cythonize_args) == expected_directives
 
 
 def _pyproject(
