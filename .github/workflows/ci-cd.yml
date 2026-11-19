@@ -991,6 +991,10 @@ jobs:
           registry: registry.access.redhat.com
         - tag: ubi9/ubi:9.8
           registry: registry.access.redhat.com
+        - tag: ubi10/ubi:10.1
+          registry: registry.access.redhat.com
+        - tag: ubi10/ubi:10.2
+          registry: registry.access.redhat.com
         - tag: centos/centos:stream9
           registry: quay.io
         - tag: centos/centos:stream10

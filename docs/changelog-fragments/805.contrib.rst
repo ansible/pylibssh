@@ -1,0 +1,3 @@
+Added UBI 10 container images to the CI RPM smoke test matrix, enabling
+EPEL 10 and skipping ``rpmlint`` validation on UBI 10 where the package
+is currently unavailable -- by :user:`Jakuje`.
