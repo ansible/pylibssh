@@ -26,3 +26,17 @@ def test_session_connection_refused(free_port_num: int) -> None:
     ssh_session = Session()
     with pytest.raises(LibsshSessionException, match=error_msg):
         ssh_session.connect(host='127.0.0.1', port=free_port_num)
+
+
+def test_raise_if_disconnected() -> None:
+    """Verify that the guard raises on a disconnected session."""
+    session = Session()
+    with pytest.raises(
+        LibsshSessionException,
+        match='disconnected during authentication',
+    ):
+        session._raise_if_disconnected(None)
+
+    saved = LibsshSessionException('authentication failed')
+    with pytest.raises(LibsshSessionException, match='authentication failed'):
+        session._raise_if_disconnected(saved)

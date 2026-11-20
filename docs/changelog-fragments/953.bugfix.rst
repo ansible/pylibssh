@@ -1,0 +1,1 @@
+Made ``Session.connect()`` raise the saved authentication exception instead of hanging when the server disconnects during authentication -- by :user:`kaushikub`.

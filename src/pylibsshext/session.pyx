@@ -302,6 +302,7 @@ cdef class Session(object):
                 saved_exception = ex
             else:
                 return
+            self._raise_if_disconnected(saved_exception)
 
         if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_PASSWORD:
             # try authenticating with a password
@@ -311,6 +312,7 @@ cdef class Session(object):
                 saved_exception = ex
             else:
                 return
+            self._raise_if_disconnected(saved_exception)
 
         if kwargs.get('password') and supported_auth & libssh.SSH_AUTH_METHOD_INTERACTIVE:
             # try authenticating with keyboard-interactive
@@ -322,6 +324,7 @@ cdef class Session(object):
                 saved_exception = ex
             else:
                 return
+            self._raise_if_disconnected(saved_exception)
 
         if kwargs.get('look_for_keys', True) and supported_auth & libssh.SSH_AUTH_METHOD_PUBLICKEY:
             # try authenticating with public keys
@@ -331,6 +334,7 @@ cdef class Session(object):
                 saved_exception = ex
             else:
                 return
+            self._raise_if_disconnected(saved_exception)
 
         if supported_auth & libssh.SSH_AUTH_METHOD_GSSAPI_MIC:
             # try authenticating with GSSAPI with mic
@@ -340,11 +344,22 @@ cdef class Session(object):
                 saved_exception = ex
             else:
                 return
+            self._raise_if_disconnected(saved_exception)
 
         if saved_exception is not None:
             libssh.ssh_disconnect(self._libssh_session)
             raise saved_exception
         raise LibsshSessionException("Failed to find any acceptable way to authenticate")
+
+    def _raise_if_disconnected(self, saved_exception):
+        """
+        Raise the saved exception if the session was disconnected during authentication.
+        """
+        if not libssh.ssh_is_connected(self._libssh_session):
+            libssh.ssh_disconnect(self._libssh_session)
+            if saved_exception is not None:
+                raise saved_exception
+            raise LibsshSessionException("Session was disconnected during authentication")
 
     @property
     def is_connected(self):
